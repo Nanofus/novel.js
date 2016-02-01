@@ -1,0 +1,73 @@
+{
+  "gameName": "testGame",
+  "inventory": {
+    "sword": 1,
+    "sandwich": 2
+  },
+  "actions": {
+    "savedAVillage": 1,
+    "killedADragon": 0
+  },
+  "scenes": {
+    "start": {
+      "text": "The game!",
+      "choices": {
+        "choice1": {
+          "text": "Start",
+          "nextScene": "road"
+        }
+      }
+    },
+    "road": {
+      "text": "<p>You are a <span class=\"highlight\">knight</span>. You walk on a road towards a city. What do you do?</p>",
+      "choices": {
+        "choice1": {
+          "text": "Keep walking",
+          "nextScene": "road"
+        },
+        "choice2": {
+          "text": "Wander offroad",
+          "nextScene": "dragon"
+        },
+        "choice3": {
+          "text": "Throw your sword away",
+          "itemRequirement": "sword|1",
+          "removeItem": "sword|1"
+        }
+      }
+    },
+    "dragon": {
+      "text": "<p>You wander across a <span class=\"highlight\">dragon</span>. What do you do?</p>",
+      "choices": {
+        "choice1": {
+          "text": "Fight it!",
+          "itemRequirement": "sword|1",
+          "nextScene": "hitDragon[50]|missDragon[50]"
+        },
+        "choice2": {
+          "text": "Run away!",
+          "nextScene": "road"
+        }
+      }
+    },
+    "hitDragon": {
+      "text": "You hit the dragon! The dragon is dead!",
+      "addAction": "killedADragon",
+      "choices": {
+        "choice1": {
+          "text": "Return to the road",
+          "nextScene": "road"
+        }
+      }
+    },
+    "missDragon": {
+      "text": "You missed the hit! The dragon charred you!",
+      "choices": {
+        "choice1": {
+          "text": "Continue",
+          "nextScene": "start"
+        }
+      }
+    }
+  }
+}
