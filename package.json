@@ -4,7 +4,9 @@
   "description": "",
   "author": "Ville Talonpoika",
   "license": "GPL-2.0",
-  "main": "app/main.js",
+  "scripts": {
+    "server": "http-server"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Nanofus/novel.js.git"

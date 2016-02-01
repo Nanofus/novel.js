@@ -1,0 +1,27 @@
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Novel.js</title>
+    <link rel="stylesheet" href="css/style.css">
+  </head>
+  <body>
+    <main>
+      <div id="game-area">
+        <div class="text-area">
+          {{{currentScene.text}}}
+        </div>
+        <div class="choices">
+          <ul class="choiceList">
+            <li v-for="choice in currentScene.choices" class="choice">
+              <a v-if="requirementsFilled(choice)" href="#" v-on:click="selectChoice(choice)">{{{choice.text}}}</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </main>
+
+    <script type="text/javascript" src="node_modules/jquery/dist/jquery.min.js" charset="utf-8"></script>
+    <script type="text/javascript" src="node_modules/vue/dist/vue.min.js" charset="utf-8"></script>
+    <script type="text/javascript" src="app/game.js" charset="utf-8"></script>
+  </body>
+</html>

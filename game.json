@@ -8,66 +8,68 @@
     "savedAVillage": 1,
     "killedADragon": 0
   },
-  "scenes": {
-    "start": {
-      "text": "The game!",
-      "choices": {
-        "choice1": {
-          "text": "Start",
-          "nextScene": "road"
-        }
-      }
+  "scenes": [
+    {
+      "name": "start",
+      "text": "SUPER AMAZING MEDIEVAL ADVENTURE!",
+      "choices": [
+        {"text": "Start","nextScene": "road"}
+      ]
     },
-    "road": {
+    {
+      "name": "road",
       "text": "<p>You are a <span class=\"highlight\">knight</span>. You walk on a road towards a city. What do you do?</p>",
-      "choices": {
-        "choice1": {
+      "choices": [
+        {
           "text": "Keep walking",
           "nextScene": "road"
         },
-        "choice2": {
+        {
           "text": "Wander offroad",
           "nextScene": "dragon"
         },
-        "choice3": {
+        {
           "text": "Throw your sword away",
           "itemRequirement": "sword|1",
           "removeItem": "sword|1"
         }
-      }
+      ]
     },
-    "dragon": {
+    {
+      "name": "dragon",
       "text": "<p>You wander across a <span class=\"highlight\">dragon</span>. What do you do?</p>",
-      "choices": {
-        "choice1": {
+      "choices": [
+        {
           "text": "Fight it!",
           "itemRequirement": "sword|1",
           "nextScene": "hitDragon[50]|missDragon[50]"
         },
-        "choice2": {
+        {
           "text": "Run away!",
           "nextScene": "road"
         }
-      }
+      ]
     },
-    "hitDragon": {
+    {
+      "name": "hitDragon",
       "text": "You hit the dragon! The dragon is dead!",
       "addAction": "killedADragon",
-      "choices": {
-        "choice1": {
+      "choices": [
+        {
           "text": "Return to the road",
           "nextScene": "road"
         }
-      }
+      ]
     },
-    "missDragon": {
+    {
+      "name": "missDragon",
       "text": "You missed the hit! The dragon charred you!",
-      "choices": {
-        "choice1": {
+      "choices": [
+        {
           "text": "Continue",
           "nextScene": "start"
         }
-      }
+      ]
     }
-  }
+  ]
 }
