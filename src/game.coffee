@@ -128,6 +128,29 @@ gameArea = new Vue(
       return text
 
     parseIfStatement: (s) ->
+      statement = s.split("&&")
+      mode = ""
+      if statement.length > 1
+        mode = "&&"
+      else
+        statement = s.split("||")
+        if statement.length > 1
+          mode = "||"
+      if statement.length == 2
+        first = this.parseEquation(statements[0])
+        second = this.parseEquation(statements[1])
+        if mode == "&&"
+          if first && second
+            return true
+          return false
+        else if mode == "||"
+          if first || second
+            return true
+          return false
+      else
+          return this.parseEquation(statement[0])
+
+    parseEquation: (s) ->
       sign = ''
       statement = s.split("==")
       if statement.length > 1
