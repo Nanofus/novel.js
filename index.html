@@ -8,25 +8,33 @@
     <main>
       <div id="game-area">
         <div class="text-area">
-          {{{currentScene.text}}}
+          {{{shownText}}}
         </div>
         <div class="choices">
           <ul class="choice-list">
-            <div v-for="choice in currentScene.choices">
+            <div v-for="choice in shownChoices">
               <li v-if="requirementsFilled(choice)" class="choice">
                 <a href="#" v-on:click="selectChoice(choice)">{{{choice.text}}}</a>
               </li>
             </div>
           </ul>
         </div>
-        <h5>Inventory:</h5>
         <div class="inventory">
+          <h5>Inventory:</h5>
           <ul class="item-list">
             <li v-for="item in gameData.inventory" class="inventory-item">
               {{{item.name}}} - {{{item.count}}}
             </li>
           </ul>
-        </div
+        </div>
+        <div class="actions">
+          <h5>Actions:</h5>
+          <ul class="action-list">
+            <li v-for="action in gameData.actions" class="action-item">
+              {{{action.name}}} - {{{action.count}}}
+            </li>
+          </ul>
+        </div>
       </div>
     </main>
 
