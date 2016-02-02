@@ -11,12 +11,22 @@
           {{{currentScene.text}}}
         </div>
         <div class="choices">
-          <ul class="choiceList">
-            <li v-for="choice in currentScene.choices" class="choice">
-              <a v-if="requirementsFilled(choice)" href="#" v-on:click="selectChoice(choice)">{{{choice.text}}}</a>
-            </li>
+          <ul class="choice-list">
+            <div v-for="choice in currentScene.choices">
+              <li v-if="requirementsFilled(choice)" class="choice">
+                <a href="#" v-on:click="selectChoice(choice)">{{{choice.text}}}</a>
+              </li>
+            </div>
           </ul>
         </div>
+        <h5>Inventory:</h5>
+        <div class="inventory">
+          <ul class="item-list">
+            <li v-for="item in gameData.inventory" class="inventory-item">
+              {{{item.name}}} - {{{item.count}}}
+            </li>
+          </ul>
+        </div
       </div>
     </main>
 
