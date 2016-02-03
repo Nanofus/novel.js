@@ -1,5 +1,5 @@
 data = {
-  gameData: null,
+  data: null,
   currentScene: null,
   shownText: "",
   shownChoices: null,
@@ -8,8 +8,7 @@ data = {
 
 loadGame = ->
   $.getJSON 'game.json', (json) ->
-    console.log "Loaded game: " + json.gameName
-    data.gameData = json
+    data.data = json
     data.currentScene = gameArea.enterStartingScene(json.scenes[0])
     data.debugMode = json.debugMode
 
@@ -32,9 +31,12 @@ gameArea = new Vue(
     setupScene: (scene) ->
       this.currentScene = scene
       this.shownText = this.parseText this.currentScene.text
-      this.shownChoices = this.currentScene.choices
-      for i in this.shownChoices
-        i.parsedText = this.parseText i.text
+      this.shownChoices = this.currentScene.shownChoices
+      console.log this.shownChoices
+      for i in [0 .. this.shownChoices.length - 1]
+        choice = this.currentScene.choices[i]
+        choice.shownText = this.parseText choice.text
+        this.shownChoices.$set(i, choice)
       this.readItemAndActionEdits(this.currentScene)
 
     readItemAndActionEdits: (source) ->
@@ -101,7 +103,7 @@ gameArea = new Vue(
       for i in rawChances
         totalChance = totalChance + parseFloat(i)
       if totalChance != 1
-        console.log "ERROR: Invalid scene odds!"
+        console.warn "ERROR: Invalid scene odds!"
       value = Math.random()
       nameIndex = 0
       for i in chances
@@ -126,12 +128,12 @@ gameArea = new Vue(
             splitText[index] = ""
         if s.substring(0,4) == "act."
           value = s.substring(4,s.length)
-          for i in this.gameData.actions
+          for i in this.data.actions
             if i.name == value
               splitText[index] = i.count
         if s.substring(0,4) == "inv."
           value = s.substring(4,s.length)
-          for i in this.gameData.inv
+          for i in this.data.inv
             if i.name == value
               splitText[index] = i.count
         if s.substring(0,3) == "/if"
@@ -216,12 +218,12 @@ gameArea = new Vue(
         type = "item"
       entity = null;
       if type == "item"
-        for i in this.gameData.inventory
+        for i in this.data.inventory
           if i.name == s.substring(4,s.length)
             entity = i
             break
       if type == "action"
-        for i in this.gameData.actions
+        for i in this.data.actions
           if i.name == s.substring(4,s.length)
             entity = i
             break
@@ -249,7 +251,7 @@ gameArea = new Vue(
 
     parseRequirements: (requirements) ->
       reqsFilled = 0
-      for i in this.gameData.inventory
+      for i in this.data.inventory
         for j in requirements
           if j[0] == i.name
             if j[1] <= i.count
@@ -261,9 +263,9 @@ gameArea = new Vue(
 
     editItemsOrActions: (items, mode, isItem) ->
       if isItem
-        inventory = this.gameData.inventory
+        inventory = this.data.inventory
       else
-        inventory = this.gameData.actions
+        inventory = this.data.actions
       for j in items
         itemAdded = false
         for i in inventory
@@ -280,13 +282,13 @@ gameArea = new Vue(
         if !itemAdded && mode != "remove"
           inventory.push({"name": j[0], "count": j[1]})
       if isItem
-        this.gameData.inventory = inventory
+        this.data.inventory = inventory
       else
-        this.gameData.actions = inventory
+        this.data.actions = inventory
 
     findSceneByName: (name) ->
-      for i in this.gameData.scenes
+      for i in this.data.scenes
         if i.name == name
           return i
-      console.log "ERROR: Scene by name '"+name+"' not found!"
+      console.warn "ERROR: Scene by name '"+name+"' not found!"
 )
