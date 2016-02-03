@@ -24,14 +24,17 @@ gameArea = new Vue(
       this.changeScene(choice.nextScene)
 
     enterStartingScene: (scene) ->
-      this.currentScene = scene
-      this.shownText = this.parseSceneText this.currentScene
-      this.shownChoices = this.currentScene.choices
+      this.setupScene(scene)
 
     changeScene: (sceneNames) ->
-      this.currentScene = this.findSceneByName(this.selectRandomScene sceneNames)
-      this.shownText = this.parseSceneText this.currentScene
+      this.setupScene(this.findSceneByName(this.selectRandomScene sceneNames))
+
+    setupScene: (scene) ->
+      this.currentScene = scene
+      this.shownText = this.parseText this.currentScene.text
       this.shownChoices = this.currentScene.choices
+      for i in this.shownChoices
+        i.parsedText = this.parseText i.text
       this.readItemAndActionEdits(this.currentScene)
 
     readItemAndActionEdits: (source) ->
@@ -106,8 +109,7 @@ gameArea = new Vue(
           return names[nameIndex]
         nameIndex++
 
-    parseSceneText: (scene) ->
-      text = scene.text
+    parseText: (text) ->
       for i in [0 .. 99]
         text = text.split("[s" + i + "]").join("<span class=\"highlight-" + i + "\">")
       text = text.split("[/s]").join("</span>")

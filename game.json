@@ -6,7 +6,7 @@
     {"name": "sandwich", "count": 5}
   ],
   "actions": [
-    {"name": "villagesSaved", "count": 1},
+    {"name": "villagesSaved", "count": 0},
     {"name": "dragonsKilled", "count": 0}
   ],
   "scenes": [
@@ -45,7 +45,7 @@
           "nextScene": "road"
         },
         {
-          "text": "Save a village",
+          "text": "Save a [s1]village[/s] [if act.villagesSaved<1](You haven't saved any!!!)[/if]",
           "addAction": "villagesSaved[1]",
           "nextScene": "road"
         },

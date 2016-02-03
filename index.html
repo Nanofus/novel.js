@@ -15,7 +15,7 @@
           <ul class="choice-list">
             <div v-for="choice in shownChoices">
               <li v-if="requirementsFilled(choice)" class="choice">
-                <a href="#" v-on:click="selectChoice(choice)">{{{choice.text}}}</a>
+                <a href="#" v-on:click="selectChoice(choice)">{{{choice.parsedText}}}</a>
               </li>
             </div>
           </ul>
