@@ -3,6 +3,7 @@
     <meta charset="UTF-8">
     <title>Novel.js</title>
     <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/skin.css">
   </head>
   <body>
     <main>
@@ -27,7 +28,7 @@
             </li>
           </ul>
         </div>
-        <div class="actions">
+        <div v-if="debugMode" class="actions">
           <h5>Actions:</h5>
           <ul class="action-list">
             <li v-for="action in gameData.actions" class="action-item">

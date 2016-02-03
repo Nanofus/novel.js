@@ -2,7 +2,8 @@ data = {
   gameData: null,
   currentScene: null,
   shownText: "",
-  shownChoices: null;
+  shownChoices: null,
+  debugMode: false
 }
 
 loadGame = ->
@@ -10,6 +11,7 @@ loadGame = ->
     console.log "Loaded game: " + json.gameName
     data.gameData = json
     data.currentScene = gameArea.enterStartingScene(json.scenes[0])
+    data.debugMode = json.debugMode
 
 loadGame()
 
@@ -139,8 +141,8 @@ gameArea = new Vue(
       for i in [0 .. statement.length - 1]
         s = statement[i].split("||")
         if s.length > 1
-          return this.parseIfStatement(statement[i])
-        if this.parseEquation(statement[i])
+          results.push this.parseIfStatement(statement[i])
+        else if this.parseEquation(statement[i])
           results.push(true)
         else
           results.push(false)
@@ -163,7 +165,7 @@ gameArea = new Vue(
         else
           return false
       if mode == ""
-          return this.parseEquation(statement[0])
+        return this.parseEquation(statement[0])
 
     parseEquation: (s) ->
       sign = ''
