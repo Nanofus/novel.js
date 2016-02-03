@@ -20,24 +20,7 @@ gameArea = new Vue(
   data: data,
   methods:
     selectChoice: (choice) ->
-      if choice.removeItem != undefined
-        removedItems = this.parseItemOrAction choice.removeItem
-        this.editItemsOrActions(removedItems,"remove",true)
-      if choice.addItem != undefined
-        addedItems = this.parseItemOrAction choice.addItem
-        this.editItemsOrActions(addedItems,"add",true)
-      if choice.removeAction != undefined
-        removedActions = this.parseItemOrAction choice.removeAction
-        this.editItemsOrActions(removedItems,"remove",false)
-      if choice.addAction != undefined
-        addedActions = this.parseItemOrAction choice.addAction
-        this.editItemsOrActions(addedActions,"add",false)
-      if choice.setAction != undefined
-        setActions = this.parseItemOrAction choice.setAction
-        this.editItemsOrActions(setActions,"set",false)
-      if choice.setItem != undefined
-        setItems = this.parseItemOrAction choice.setItem
-        this.editItemsOrActions(setItems,"set",true)
+      this.readItemAndActionEdits(choice)
       this.changeScene(choice.nextScene)
 
     enterStartingScene: (scene) ->
@@ -49,6 +32,27 @@ gameArea = new Vue(
       this.currentScene = this.findSceneByName(this.selectRandomScene sceneNames)
       this.shownText = this.parseSceneText this.currentScene
       this.shownChoices = this.currentScene.choices
+      this.readItemAndActionEdits(this.currentScene)
+
+    readItemAndActionEdits: (source) ->
+      if source.removeItem != undefined
+        removedItems = this.parseItemOrAction source.removeItem
+        this.editItemsOrActions(removedItems,"remove",true)
+      if source.addItem != undefined
+        addedItems = this.parseItemOrAction source.addItem
+        this.editItemsOrActions(addedItems,"add",true)
+      if source.removeAction != undefined
+        removedActions = this.parseItemOrAction source.removeAction
+        this.editItemsOrActions(removedActions,"remove",false)
+      if source.addAction != undefined
+        addedActions = this.parseItemOrAction source.addAction
+        this.editItemsOrActions(addedActions,"add",false)
+      if source.setAction != undefined
+        setActions = this.parseItemOrAction source.setAction
+        this.editItemsOrActions(setActions,"set",false)
+      if source.setItem != undefined
+        setItems = this.parseItemOrAction source.setItem
+        this.editItemsOrActions(setItems,"set",true)
 
     requirementsFilled: (choice) ->
       if choice.itemRequirement != undefined
@@ -118,6 +122,16 @@ gameArea = new Vue(
             tagToBeClosed = true
           else
             splitText[index] = ""
+        if s.substring(0,4) == "act."
+          value = s.substring(4,s.length)
+          for i in this.gameData.actions
+            if i.name == value
+              splitText[index] = i.count
+        if s.substring(0,4) == "inv."
+          value = s.substring(4,s.length)
+          for i in this.gameData.inv
+            if i.name == value
+              splitText[index] = i.count
         if s.substring(0,3) == "/if"
           if tagToBeClosed
             splitText[index] = "</span>"

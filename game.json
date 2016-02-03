@@ -6,8 +6,8 @@
     {"name": "sandwich", "count": 5}
   ],
   "actions": [
-    {"name": "savedAVillage", "count": 1},
-    {"name": "killedADragon", "count": 0}
+    {"name": "villagesSaved", "count": 1},
+    {"name": "dragonsKilled", "count": 0}
   ],
   "scenes": [
     {
@@ -19,7 +19,7 @@
     },
     {
       "name": "road",
-      "text": "<p>[if act.introductionSeen==1&&inv.sword>0||inv.sandwich>0&&inv.smallstone>20]You are a [s1]knight[/s]. [/if][if inv.sword>0]You have a [s2]sword[/s]. [/if][if inv.sword<1]You don't have a [s2]sword[/s]. [/if]You walk on a road towards a [s1]town[/s]. What do you do?</p>",
+      "text": "<p>[if act.introductionSeen==1&&inv.sword>0||inv.sandwich>0&&inv.smallstone>20]You are a [s1]knight[/s]. [/if]You have saved [act.villagesSaved] village[if act.villagesSaved!=1]s[/if]. [if inv.sword>0]You have a [s2]sword[/s]. [/if][if inv.sword<1]You don't have a [s2]sword[/s]. [/if]You walk on a road towards a [s1]town[/s]. What do you do?</p>",
       "choices": [
         {
           "text": "Keep walking",
@@ -42,6 +42,16 @@
           "text": "Pick up a small stone",
           "setAction": "introductionSeen[1]",
           "addItem": "smallstone[1]",
+          "nextScene": "road"
+        },
+        {
+          "text": "Save a village",
+          "addAction": "villagesSaved[1]",
+          "nextScene": "road"
+        },
+        {
+          "text": "Unsave a village",
+          "removeAction": "villagesSaved[1]",
           "nextScene": "road"
         },
         {
@@ -70,7 +80,7 @@
     {
       "name": "hitDragon",
       "text": "You hit the dragon! The dragon is dead!",
-      "addAction": "killedADragon",
+      "addAction": "dragonsKilled[1]",
       "choices": [
         {
           "text": "Return to the road",
