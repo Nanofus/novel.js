@@ -89,13 +89,11 @@ gameArea = new Vue(
         chances.push previous
         rawChances.push parseFloat(i[1])
       totalChance = 0
-      console.log chances
       for i in rawChances
         totalChance = totalChance + parseFloat(i)
       if totalChance != 1
         console.log "ERROR: Invalid scene odds!"
       value = Math.random()
-      console.log value
       nameIndex = 0
       for i in chances
         if value < i
@@ -104,7 +102,8 @@ gameArea = new Vue(
 
     parseSceneText: (scene) ->
       text = scene.text
-      text = text.split("[s1]").join("<span class=\"highlight\">")
+      for i in [0 .. 99]
+        text = text.split("[s" + i + "]").join("<span class=\"highlight-" + i + "\">")
       text = text.split("[/s]").join("</span>")
       splitText = text.split(/\[|\]/)
       index = 0
@@ -136,18 +135,34 @@ gameArea = new Vue(
         statement = s.split("||")
         if statement.length > 1
           mode = "||"
-      if statement.length == 2
-        first = this.parseEquation(statements[0])
-        second = this.parseEquation(statements[1])
-        if mode == "&&"
-          if first && second
-            return true
+      results = []
+      for i in [0 .. statement.length - 1]
+        s = statement[i].split("||")
+        if s.length > 1
+          return this.parseIfStatement(statement[i])
+        if this.parseEquation(statement[i])
+          results.push(true)
+        else
+          results.push(false)
+      if mode == "&&"
+        fail = false
+        for r in results
+          if r == false
+            fail = true
+        if fail
           return false
-        else if mode == "||"
-          if first || second
-            return true
+        else
+          return true
+      if mode == "||"
+        success = false
+        for r in results
+          if r == true
+            success = true
+        if success
+          return true
+        else
           return false
-      else
+      if mode == ""
           return this.parseEquation(statement[0])
 
     parseEquation: (s) ->
@@ -186,10 +201,12 @@ gameArea = new Vue(
         for i in this.gameData.inventory
           if i.name == s.substring(4,s.length)
             entity = i
+            break
       if type == "action"
         for i in this.gameData.actions
           if i.name == s.substring(4,s.length)
             entity = i
+            break
       parsedValue = parseInt(statement[1])
       switch sign
         when "=="
