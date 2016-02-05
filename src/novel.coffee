@@ -13,8 +13,8 @@ prepareData = (json) ->
     s.combinedText = ""
     for c in s.choices
       c.parsedText = ""
-      if c.showAlways == undefined
-        c.showAlways = false
+      if c.alwaysShow == undefined
+        c.alwaysShow = false
   return json
 
 loadGame = ->
@@ -52,7 +52,7 @@ gameArea = new Vue(
       @$set 'parsedChoices', @currentScene.choices.map((choice) ->
         choice.parsedText = vue.parseText(choice.text)
         if vue.game.settings.alwaysShowDisabledChoices
-          choice.showAlways = true
+          choice.alwaysShow = true
         choice
       )
 
