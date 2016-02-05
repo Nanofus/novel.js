@@ -10,13 +10,13 @@
       <div id="game-area">
         <div class="style-area {{ currentScene.style }}">
           <div class="text-area">
-            {{{shownText}}}
+            {{{ parsedText }}}
           </div>
           <div class="choices">
             <ul class="choice-list">
-              <div v-for="choice in currentScene.choices">
+              <div v-for="choice in parsedChoices">
                 <li v-if="requirementsFilled(choice)" class="choice">
-                  <a href="#" v-on:click="selectChoice(choice)">{{{choice.parsedText}}}</a>
+                  <a href="#" v-on:click="selectChoice(choice)">{{{ choice.parsedText }}}</a>
                 </li>
               </div>
             </ul>
@@ -25,7 +25,7 @@
             <h5>Inventory:</h5>
             <ul class="item-list">
               <li v-for="item in game.inventory" class="inventory-item">
-                {{{item.name}}} - {{{item.count}}}
+                {{{ item.name }}} - {{{ item.count }}}
               </li>
             </ul>
           </div>
@@ -33,7 +33,7 @@
             <h5>Actions:</h5>
             <ul class="action-list">
               <li v-for="action in game.actions" class="action-item">
-                {{{action.name}}} - {{{action.count}}}
+                {{{ action.name }}} - {{{ action.count }}}
               </li>
             </ul>
           </div>

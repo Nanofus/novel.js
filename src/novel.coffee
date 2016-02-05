@@ -1,12 +1,20 @@
 data = {
   game: null,
   currentScene: null,
-  shownText: "",
+  parsedText: "",
+  choices: null,
   debugMode: false
 }
 
+prepareData = (json) ->
+  for s in json.scenes
+    for c in s.choices
+      c.parsedText = ""
+  return json
+
 loadGame = ->
   $.getJSON 'game.json', (json) ->
+    json = prepareData(json)
     data.game = json
     data.currentScene = gameArea.changeScene(json.scenes[0].name)
     data.debugMode = json.debugMode
@@ -15,7 +23,7 @@ loadGame()
 
 gameArea = new Vue(
   el: '#game-area'
-  data: data,
+  data: data
   methods:
     selectChoice: (choice) ->
       @readItemAndActionEdits(choice)
@@ -28,12 +36,12 @@ gameArea = new Vue(
 
     setupScene: (scene) ->
       @currentScene = scene
-      @shownText = @parseText @currentScene.text
+      @parsedText = @parseText @currentScene.text
       @updateChoices(this)
       @readItemAndActionEdits(@currentScene)
 
     updateChoices: (vue) ->
-      @currentScene.choices = @currentScene.choices.map((choice) ->
+      @$set 'parsedChoices', @currentScene.choices.map((choice) ->
         choice.parsedText = vue.parseText(choice.text)
         choice
       )
