@@ -7,6 +7,19 @@ Novel.js is a lightweight JavaScript text adventure engine. It requires only a `
 
 Novel.js is written in CoffeeScript and SASS and uses Vue.js and jQuery.
 
+## Features
+
+- A classic text-based adventure view; text and choices.
+- Conditional statements to hide or show text and choices based on different conditions, such as the items the player is carrying.
+- Shorthand tags for general styling of names etc.
+- An inventory system, with another hidden one to track the player's actions or other statistics.
+- Choices can have several different outcomes with different probabilities.
+- Support for css styling and html tags in text.
+
+## Upcoming features
+
+- Saving
+
 ## Installation
 
 1. Download the repository as a .zip and extract it
@@ -27,3 +40,28 @@ Novel.js comes with a simple example game that demostrates all available feature
 
 ## Documentation
 
+### `game.json` structure
+
+`game.json` is a JavaScript Object Notation file - a neat way to work with structured information. The top level of the structure contains the following variables:
+- `gameName` - Use this to set your game's name.
+- `debugMode` - True or false; when enabled, actions can be viewed by the player next to the inventory.
+- `inventory` - A list of the player's items.
+- `actions` - A list of things the player has done, or any other variables that should not be seen by the player.
+- `scenes` - A list of the game's scenes, i.e. views, areas, different texts the player can see.
+
+Now lets take a closer look on the lists:
+
+#### Inventory
+
+The player's inventory contains all the items they carry, and is visible to the player. An example inventory:
+
+```
+"inventory": [
+  {"name": "sword", "count": 1},
+  {"name": "sandwich", "count": 5}
+]
+```
+
+This inventory contains six items of two kinds. A single item has the following attributes:
+- `name` - Required. The item's name, shown in the UI.
+- `count` - Required. How many items of that specific type the player carries. If it becomes 0, the item is not removed from the inventory per se, but it does not show up in the UI. This can be used to track if the player has owned that kind of items in the past.
