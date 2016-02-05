@@ -6,14 +6,19 @@ data = {
   debugMode: false
 }
 
+gamePath = '/game'
+
 prepareData = (json) ->
   for s in json.scenes
+    s.combinedText = ""
     for c in s.choices
       c.parsedText = ""
+      if c.showAlways == undefined
+        c.showAlways = false
   return json
 
 loadGame = ->
-  $.getJSON 'game.json', (json) ->
+  $.getJSON 'game/game.json', (json) ->
     json = prepareData(json)
     data.game = json
     data.currentScene = gameArea.changeScene(json.scenes[0].name)
@@ -27,6 +32,7 @@ gameArea = new Vue(
   methods:
     selectChoice: (choice) ->
       @readItemAndActionEdits(choice)
+      @readSounds(choice,true)
       @changeScene(choice.nextScene)
 
     changeScene: (sceneNames) ->
@@ -36,13 +42,17 @@ gameArea = new Vue(
 
     setupScene: (scene) ->
       @currentScene = scene
-      @parsedText = @parseText @currentScene.text
+      @parseSceneText(@currentScene)
+      @parsedText = @parseText @currentScene.combinedText
       @updateChoices(this)
       @readItemAndActionEdits(@currentScene)
+      @readSounds(@currentScene,false)
 
     updateChoices: (vue) ->
       @$set 'parsedChoices', @currentScene.choices.map((choice) ->
         choice.parsedText = vue.parseText(choice.text)
+        if vue.game.settings.alwaysShowDisabledChoices
+          choice.showAlways = true
         choice
       )
 
@@ -66,6 +76,14 @@ gameArea = new Vue(
         setItems = @parseItemOrAction source.setItem
         @editItemsOrActions(setItems,"set",true)
 
+    readSounds: (source,clicked) ->
+      played = false
+      if source.playSound != undefined
+        @playSound(source.playSound)
+        played = true
+      if clicked && !played
+        @playDefaultClickSound()
+
     requirementsFilled: (choice) ->
       if choice.itemRequirement != undefined
         requirements = @parseItemOrAction choice.itemRequirement
@@ -74,6 +92,13 @@ gameArea = new Vue(
         requirements = @parseItemOrAction choice.actionRequirement
         return @parseRequirements requirements
       else return true
+
+    parseSceneText: (scene) ->
+      scene.combinedText = scene.text
+      for key of scene
+        if scene.hasOwnProperty(key)
+          if key.includes("text-")
+            scene.combinedText = scene.combinedText.concat(scene[key])
 
     parseItemOrAction: (items) ->
       separate = items.split("|")
@@ -298,4 +323,15 @@ gameArea = new Vue(
         if i.name == name
           return i
       console.warn "ERROR: Scene by name '"+name+"' not found!"
+
+    playDefaultClickSound: (name,clicked) ->
+      @playSound(@game.settings.defaultClickSound)
+
+    playSound: (name) ->
+      for s in @game.sounds
+        if s.name == name
+          sound = new Audio(gamePath+'/sounds/'+s.file)
+          sound.volume = @game.settings.soundVolume
+          sound.play()
+
 )

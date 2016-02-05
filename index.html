@@ -3,7 +3,7 @@
     <meta charset="UTF-8">
     <title>Novel.js</title>
     <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="css/skin.css">
+    <link rel="stylesheet" href="game/skin.css">
   </head>
   <body>
     <main>
@@ -18,6 +18,11 @@
                 <li v-if="requirementsFilled(choice)" class="choice">
                   <a href="#" v-on:click="selectChoice(choice)">{{{ choice.parsedText }}}</a>
                 </li>
+                <div v-if="choice.showAlways">
+                  <li v-if="!requirementsFilled(choice)">
+                    {{{ choice.parsedText }}}
+                  </li>
+                </div>
               </div>
             </ul>
           </div>
@@ -29,7 +34,7 @@
               </li>
             </ul>
           </div>
-          <div v-if="debugMode" class="actions">
+          <div v-if="game.settings.debugMode" class="actions">
             <h5>Actions:</h5>
             <ul class="action-list">
               <li v-for="action in game.actions" class="action-item">

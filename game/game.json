@@ -20,7 +20,9 @@
     },
     {
       "name": "road",
-      "text": "<p>[if act.introductionSeen==1&&inv.sword>0||inv.sandwich>0&&inv.smallstone>20]You are a [s1]knight[/s]. [/if]You have saved [act.villagesSaved] village[if act.villagesSaved!=1]s[/if]. [if inv.sword>0]You have a [s2]sword[/s]. [/if][if inv.sword<1]You don't have a [s2]sword[/s]. [/if]You walk on a road towards a [s1]town[/s]. What do you do?</p>",
+      "text": "[if act.introductionSeen==1&&inv.sword>0||inv.sandwich>0&&inv.smallstone>20]<p>You are a [s1]knight[/s].</p>[/if]",
+      "text-2": "<p>You have saved [act.villagesSaved] village[if act.villagesSaved!=1]s[/if]. [if inv.sword>0]You have a [s2]sword[/s]. [/if][if inv.sword<1]You don't have a [s2]sword[/s]. [/if]You walk on a road towards a [s1]town[/s].</p>",
+      "text-3": "<p>What do you do?</p>",
       "style": "road",
       "choices": [
         {
@@ -38,6 +40,7 @@
           "itemRequirement": "sword[1]|sandwich[1]",
           "setAction": "introductionSeen[1]",
           "removeItem": "sword[1]|sandwich[1]",
+          "showAlways": true,
           "nextScene": "road"
         },
         {
@@ -93,6 +96,7 @@
     {
       "name": "missDragon",
       "text": "You missed the hit! The dragon charred you!",
+      "playSound": "scream",
       "choices": [
         {
           "text": "Continue",
@@ -100,5 +104,15 @@
         }
       ]
     }
+  ],
+  "settings": {
+    "debugMode": true,
+    "soundVolume": 0.5,
+    "defaultClickSound": "click",
+    "alwaysShowDisabledChoices": false
+  },
+  "sounds": [
+    {"name": "click", "file": "click.wav"},
+    {"name": "scream", "file": "wilhelm.wav"}
   ]
 }

@@ -9,6 +9,9 @@ gulp.task('sass', function () {
   gulp.src('./scss/**/*.scss')
     .pipe(sass().on('error', sass.logError))
     .pipe(gulp.dest('./css'));
+  gulp.src('./game/**/*.scss')
+    .pipe(sass().on('error', sass.logError))
+    .pipe(gulp.dest('./game'));
 });
 
 gulp.task('coffee', function() {
@@ -20,6 +23,7 @@ gulp.task('coffee', function() {
 gulp.task('watch', function() {
   gulp.start('sass', 'coffee')
   gulp.watch('./scss/**/*.scss', ['sass']);
+  gulp.watch('./game/**/*.scss', ['sass']);
   gulp.watch('./src/*.coffee', ['coffee']);
 });
 
