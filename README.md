@@ -7,6 +7,25 @@ Novel.js is a lightweight JavaScript text adventure engine. It requires only a `
 
 Novel.js is written in CoffeeScript and SASS and uses Vue.js and jQuery.
 
+**Table of Contents**
+
+- [Novel.js](#)
+	- [Features](#)
+	- [Upcoming features](#)
+	- [Installation](#)
+	- [Getting Started](#)
+	- [Documentation](#)
+		- [game.json structure](#)
+			- [Inventory](#)
+			- [Actions](#)
+			- [Scenes](#)
+			- [Choices](#)
+		- [Format for add/remove/set and requirement commands](#)
+		- [Tags](#)
+			- [Conditional statements](#)
+			- [Styling shorthands](#)
+		- [Styling](#)
+
 ## Features
 
 - A classic text-based adventure view; text and choices.
