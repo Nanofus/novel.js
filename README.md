@@ -53,9 +53,9 @@ Now lets take a closer look on the lists:
 
 #### Inventory
 
-The player's inventory contains all the items they carry, and is visible to the player. An example inventory:
+The player's inventory contains all the items they carry, and is visible to the player. The items do not have to be pre-defined; you can add items by any name from anywhere. The inventory in `game.json` describes the player's starting items. An example inventory:
 
-```
+```json
 "inventory": [
   {"name": "sword", "count": 1},
   {"name": "sandwich", "count": 5}
@@ -65,3 +65,97 @@ The player's inventory contains all the items they carry, and is visible to the 
 This inventory contains six items of two kinds. A single item has the following attributes:
 - `name` - Required. The item's name, shown in the UI.
 - `count` - Required. How many items of that specific type the player carries. If it becomes 0, the item is not removed from the inventory per se, but it does not show up in the UI. This can be used to track if the player has owned that kind of items in the past.
+
+#### Actions
+
+The actions list works exactly the same way as the inventory, but is not visible to the player. This allows tracking of events and statistics in the game, such as levers pulled, dragons slain, whether the player has talked to a certain character or not etc.
+
+#### Scenes
+
+Scenes are the most important of the things defined in `game.json`, as the entire game itself consists of a group of scenes with choices connecting them. An example scene:
+
+```json
+{
+  "name": "dragon",
+  "text": "<p>You wander across a [s1]dragon[/s]. What do you do?</p>",
+  "choices": [
+    {
+      "text": "Fight it! (or, randomly, run away!!)",
+      "itemRequirement": "sword[1]",
+      "nextScene": "hitDragon[0.5]|missDragon[0.3]|road[0.2]"
+    },
+    {
+      "text": "Run away!",
+      "nextScene": "road"
+    }
+  ]
+}
+```
+
+A scene object contains the following variables and parameters:
+- `name` - Required. The scene's name. Not visible to the user, used internally to navigate between scenes.
+- `text` - Required (not enforced). The scene's text. Can be formatted using html and Novel.js's own tags.
+- `style` - The scene's style. Adds a html class that can be styled in `skin.css` to give different looks to different scenes.
+- `addItem` - Add items to the player's inventory upon entering the scene.
+- `removeItem` - Remove items from the player's inventory upon entering the scene.
+- `setItem` - Sets the specified items' counts in the player's inventory upon entering the scene.
+- `addAction` - Add actions to the player's action list upon entering the scene.
+- `removeAction` - Remove actions from the player's action list upon entering the scene.
+- `setAction` - Sets the specified actions' counts in the player's action list upon entering the scene.
+- `choices` - Required (not enforced). A list of choices available in the scene.
+
+#### Choices
+
+Choices are the options the player can choose in a scene. An example is provided in the Scenes example. Choices have the following variables and parameters:
+- `text` - Required. The text to show the player. Can be formatted using html or Novel.js's own tags.
+- `itemRequirement` - Items that the player has to have in their inventory to be able to select this choice. An unselectable choice is hidden by default, unless `showAlways` is true.
+- `actionRequirement` - Actions that the player has to have in their action list to be able to select this choice. An unselectable choice is hidden by default, unless `showAlways` is true.
+- `showAlways` - Show the choice even though its requirements have not been met. The choice will be grayed out, and can not be selected.
+- `nextScene` - Required. The scene into which the player moves if they select this choice. Supports multiple outcomes, as different probabilities can be set for different scenes. Takes the following format:
+```
+sceneOne[probability]|sceneTwo[probability]|sceneThree[probability]
+```
+You can list any amount of scenes by separating them with `|`. All of the probabilities have to add up to exactly `1`. An example:
+```
+hitEnemySuccess[0.5]|hitEnemyFail[0.5]
+```
+In this example, the player has a 50% chance to hit and a 50% chance to miss the enemy.
+```
+hitDragon[0.5]|missDragon[0.3]|road[0.2]
+```
+
+### Format for add/remove/set and requirement commands
+
+The parameters that remove, add or set items and actions or check for requirements take the following format. You can list any amount of items or actions with one command by separating them with `|`.
+```
+itemOne[count]|itemTwo[count]|itemThree[count]
+```
+An example:
+```
+"addItem": "sword[1]|shield[1]"
+```
+This adds one sword and one shield to the player's inventory.
+
+### Tags
+
+Novel.js has its own set of tags that can be used to show text conditionally or style text with predefined styles. They are distinguished from normal html tags (also supported) by the `[]` brackets. The tags can be used in both scene texts and choices' texts.
+
+#### Conditional statements
+
+Novel.js supports conditional rendering of parts of text. This is done with the `[if]` tag (closed with `[/if]`). Inside the tag a statement is defined. If the statement returns false, the text surrounded by the tags gets hidden by css.
+
+An example:
+```
+[if inv.sword>=5||act.earnedTheTrustOfPeople>0&&inv.swords!=500]This text is shown only if you have more than five swords in your inventory or you have earned the people's trust and you must not have exactly 500 swords![/if]
+```
+The above example shows how the statements can be used; Items must be prefixed with `inv.` and actions with `act.`. The item's or action's name is followed by an operator. The supported operators are `==`, `!=`, `<`, `<=`, `>` and `>=`. On the right side of the operator is the item's or action's `count`.
+
+Operators `||` (OR) and `&&` (AND) can also be used. Currently parentheses are not supported and the `||` operator is parsed before `&&`. This means that `condition1&&condition2||condition3` is parsed as `condition1&&(condition2||condition3)`.
+
+#### Styling shorthands
+
+- `[s1]` through `[s99]` - Shorthand for adding a `<span class="highlight-X">` tag, where `X` is the number. Behaves like a normal `<span>` tag. Some of the highlights are predefined in `style.css`, and can be overridden in `skin.css`. Can be closed with `[/s]`.
+
+### Styling
+
+The `css` folder contains a file named `skin.css`. Styles in `skin.css` override the default styles from `style.css`.
