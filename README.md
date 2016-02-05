@@ -9,22 +9,21 @@ Novel.js is written in CoffeeScript and SASS and uses Vue.js and jQuery.
 
 **Table of Contents**
 
-- [Novel.js](#)
-	- [Features](#features)
-	- [Upcoming features](#upcoming-features)
-	- [Installation](#installation)
-	- [Getting Started](#getting-started)
-	- [Documentation](#documentation)
-		- [game.json structure](#gamejson-structure)
-			- [Inventory](#inventory)
-			- [Actions](#actions)
-			- [Scenes](#scenes)
-			- [Choices](#choices)
-		- [Format for add/remove/set and requirement commands](#format-for-addremoveset-and-requirement-commands)
-		- [Tags](#tags)
-			- [Conditional statements](#conditional-statements)
-			- [Styling shorthands](#styling-shorthands)
-		- [Styling](#styling)
+- [Features](#features)
+- [Upcoming features](#upcoming-features)
+- [Installation](#installation)
+- [Getting Started](#getting-started)
+- [Documentation](#documentation)
+	- [game.json structure](#gamejson-structure)
+		- [Inventory](#inventory)
+		- [Actions](#actions)
+		- [Scenes](#scenes)
+		- [Choices](#choices)
+	- [Format for add/remove/set and requirement commands](#format-for-addremoveset-and-requirement-commands)
+	- [Tags](#tags)
+		- [Conditional statements](#conditional-statements)
+		- [Styling shorthands](#styling-shorthands)
+	- [Styling](#styling)
 
 ## Features
 
