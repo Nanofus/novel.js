@@ -120,9 +120,6 @@ You can list any amount of scenes by separating them with `|`. All of the probab
 hitEnemySuccess[0.5]|hitEnemyFail[0.5]
 ```
 In this example, the player has a 50% chance to hit and a 50% chance to miss the enemy.
-```
-hitDragon[0.5]|missDragon[0.3]|road[0.2]
-```
 
 ### Format for add/remove/set and requirement commands
 
