@@ -46,7 +46,7 @@
         {
           "text": "Pick up a small stone",
           "setAction": "introductionSeen[1]",
-          "addItem": "smallstone[1]",
+          "addItem": "smallstone[1,Small Stone]",
           "nextScene": "road"
         },
         {

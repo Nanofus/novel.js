@@ -9,6 +9,9 @@ data = {
 gamePath = './game'
 
 prepareData = (json) ->
+  for i in json.inventory
+    if i.displayName == undefined
+      i.displayName = i.name
   for s in json.scenes
     s.combinedText = ""
     for c in s.choices
@@ -58,23 +61,17 @@ gameArea = new Vue(
 
     readItemAndActionEdits: (source) ->
       if source.removeItem != undefined
-        removedItems = @parseItemOrAction source.removeItem
-        @editItemsOrActions(removedItems,"remove",true)
+        @editItemsOrActions(@parseItemOrAction(source.removeItem),"remove",true)
       if source.addItem != undefined
-        addedItems = @parseItemOrAction source.addItem
-        @editItemsOrActions(addedItems,"add",true)
-      if source.removeAction != undefined
-        removedActions = @parseItemOrAction source.removeAction
-        @editItemsOrActions(removedActions,"remove",false)
-      if source.addAction != undefined
-        addedActions = @parseItemOrAction source.addAction
-        @editItemsOrActions(addedActions,"add",false)
-      if source.setAction != undefined
-        setActions = @parseItemOrAction source.setAction
-        @editItemsOrActions(setActions,"set",false)
+        @editItemsOrActions(@parseItemOrAction(source.addItem),"add",true)
       if source.setItem != undefined
-        setItems = @parseItemOrAction source.setItem
-        @editItemsOrActions(setItems,"set",true)
+        @editItemsOrActions(@parseItemOrAction(source.setItem),"set",true)
+      if source.removeAction != undefined
+        @editItemsOrActions(@parseItemOrAction(source.removeAction),"remove",false)
+      if source.addAction != undefined
+        @editItemsOrActions(@parseItemOrAction(source.addAction),"add",false)
+      if source.setAction != undefined
+        @editItemsOrActions(@parseItemOrAction(source.setAction),"set",false)
 
     readSounds: (source,clicked) ->
       played = false
@@ -302,17 +299,31 @@ gameArea = new Vue(
         itemAdded = false
         for i in inventory
           if i.name == j[0]
+            p = j[1].split(",")
+            if p.length > 1
+              displayName = p[1]
+              count = parseInt(p[0])
+            else
+              displayName = j[0]
+              count = parseInt(j[1])
             if (mode == "set")
               i.count = parseInt(j[1])
             else if (mode == "add")
-              i.count = parseInt(i.count) + parseInt(j[1])
+              i.count = parseInt(i.count) + count
             else if (mode == "remove")
-              i.count = parseInt(i.count) - parseInt(j[1])
+              i.count = parseInt(i.count) - count
               if i.count < 0
                 i.count = 0
             itemAdded = true
         if !itemAdded && mode != "remove"
-          inventory.push({"name": j[0], "count": j[1]})
+          p = j[1].split(",")
+          if p.length > 1
+            displayName = p[1]
+            count = parseInt(p[0])
+          else
+            displayName = j[0]
+            count = parseInt(j[1])
+          inventory.push({"name": j[0], "count": count, "displayName": displayName})
       if isItem
         @game.inventory = inventory
       else

@@ -11,14 +11,21 @@ data = {
 gamePath = './game';
 
 prepareData = function(json) {
-  var c, k, l, len, len1, ref, ref1, s;
-  ref = json.scenes;
+  var c, i, k, l, len, len1, len2, m, ref, ref1, ref2, s;
+  ref = json.inventory;
   for (k = 0, len = ref.length; k < len; k++) {
-    s = ref[k];
+    i = ref[k];
+    if (i.displayName === void 0) {
+      i.displayName = i.name;
+    }
+  }
+  ref1 = json.scenes;
+  for (l = 0, len1 = ref1.length; l < len1; l++) {
+    s = ref1[l];
     s.combinedText = "";
-    ref1 = s.choices;
-    for (l = 0, len1 = ref1.length; l < len1; l++) {
-      c = ref1[l];
+    ref2 = s.choices;
+    for (m = 0, len2 = ref2.length; m < len2; m++) {
+      c = ref2[m];
       c.parsedText = "";
       if (c.alwaysShow === void 0) {
         c.alwaysShow = false;
@@ -72,30 +79,23 @@ gameArea = new Vue({
       }));
     },
     readItemAndActionEdits: function(source) {
-      var addedActions, addedItems, removedActions, removedItems, setActions, setItems;
       if (source.removeItem !== void 0) {
-        removedItems = this.parseItemOrAction(source.removeItem);
-        this.editItemsOrActions(removedItems, "remove", true);
+        this.editItemsOrActions(this.parseItemOrAction(source.removeItem), "remove", true);
       }
       if (source.addItem !== void 0) {
-        addedItems = this.parseItemOrAction(source.addItem);
-        this.editItemsOrActions(addedItems, "add", true);
-      }
-      if (source.removeAction !== void 0) {
-        removedActions = this.parseItemOrAction(source.removeAction);
-        this.editItemsOrActions(removedActions, "remove", false);
-      }
-      if (source.addAction !== void 0) {
-        addedActions = this.parseItemOrAction(source.addAction);
-        this.editItemsOrActions(addedActions, "add", false);
-      }
-      if (source.setAction !== void 0) {
-        setActions = this.parseItemOrAction(source.setAction);
-        this.editItemsOrActions(setActions, "set", false);
+        this.editItemsOrActions(this.parseItemOrAction(source.addItem), "add", true);
       }
       if (source.setItem !== void 0) {
-        setItems = this.parseItemOrAction(source.setItem);
-        return this.editItemsOrActions(setItems, "set", true);
+        this.editItemsOrActions(this.parseItemOrAction(source.setItem), "set", true);
+      }
+      if (source.removeAction !== void 0) {
+        this.editItemsOrActions(this.parseItemOrAction(source.removeAction), "remove", false);
+      }
+      if (source.addAction !== void 0) {
+        this.editItemsOrActions(this.parseItemOrAction(source.addAction), "add", false);
+      }
+      if (source.setAction !== void 0) {
+        return this.editItemsOrActions(this.parseItemOrAction(source.setAction), "set", false);
       }
     },
     readSounds: function(source, clicked) {
@@ -421,7 +421,7 @@ gameArea = new Vue({
       }
     },
     editItemsOrActions: function(items, mode, isItem) {
-      var i, inventory, itemAdded, j, k, l, len, len1;
+      var count, displayName, i, inventory, itemAdded, j, k, l, len, len1, p;
       if (isItem) {
         inventory = this.game.inventory;
       } else {
@@ -433,12 +433,20 @@ gameArea = new Vue({
         for (l = 0, len1 = inventory.length; l < len1; l++) {
           i = inventory[l];
           if (i.name === j[0]) {
+            p = j[1].split(",");
+            if (p.length > 1) {
+              displayName = p[1];
+              count = parseInt(p[0]);
+            } else {
+              displayName = j[0];
+              count = parseInt(j[1]);
+            }
             if (mode === "set") {
               i.count = parseInt(j[1]);
             } else if (mode === "add") {
-              i.count = parseInt(i.count) + parseInt(j[1]);
+              i.count = parseInt(i.count) + count;
             } else if (mode === "remove") {
-              i.count = parseInt(i.count) - parseInt(j[1]);
+              i.count = parseInt(i.count) - count;
               if (i.count < 0) {
                 i.count = 0;
               }
@@ -447,9 +455,18 @@ gameArea = new Vue({
           }
         }
         if (!itemAdded && mode !== "remove") {
+          p = j[1].split(",");
+          if (p.length > 1) {
+            displayName = p[1];
+            count = parseInt(p[0]);
+          } else {
+            displayName = j[0];
+            count = parseInt(j[1]);
+          }
           inventory.push({
             "name": j[0],
-            "count": j[1]
+            "count": count,
+            "displayName": displayName
           });
         }
       }
