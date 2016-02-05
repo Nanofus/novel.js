@@ -42,7 +42,7 @@ Novel.js is written in CoffeeScript and SASS and uses Vue.js and jQuery.
 - Audio system
 	- Sound effects on different events
 	- Music system
-- Alternate visual novel system
+- Alternative visual novel system
 
 ## Installation
 
