@@ -6,7 +6,7 @@ data = {
   debugMode: false
 }
 
-gamePath = '/game'
+gamePath = './game'
 
 prepareData = (json) ->
   for s in json.scenes
@@ -18,7 +18,7 @@ prepareData = (json) ->
   return json
 
 loadGame = ->
-  $.getJSON 'game/game.json', (json) ->
+  $.getJSON './game/game.json', (json) ->
     json = prepareData(json)
     data.game = json
     data.currentScene = gameArea.changeScene(json.scenes[0].name)

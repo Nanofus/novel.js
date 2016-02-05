@@ -17,7 +17,7 @@ gulp.task('sass', function () {
 gulp.task('coffee', function() {
   gulp.src('./src/*.coffee')
     .pipe(coffee({bare: true}).on('error', gutil.log))
-    .pipe(gulp.dest('./app'));
+    .pipe(gulp.dest('./'));
 });
 
 gulp.task('watch', function() {
