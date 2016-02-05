@@ -68,7 +68,7 @@ This inventory contains six items of two kinds. A single item has the following 
 
 #### Actions
 
-The actions list works exactly the same way as the inventory, but is not visible to the player. This allows tracking of events and statistics in the game, such as levers pulled, dragons slain, whether the player has talked to a certain character or not etc.
+The actions list works exactly the same way as the inventory, but is not visible to the player. This allows tracking of events and statistics in the game, such as levers pulled, dragons slain, whether the player has talked to a certain character or not etc. They can be revealed to the player by setting `debugMode` to `true` in `game.json`.
 
 #### Scenes
 
