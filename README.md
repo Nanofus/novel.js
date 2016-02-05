@@ -111,7 +111,7 @@ Scenes are the most important of the things defined in `game.json`, as the entir
 }
 ```
 
-A scene object contains the following variables and parameters:
+A scene object can contain the following variables and parameters:
 - `name` - Required. The scene's name. Not visible to the user, used internally to navigate between scenes.
 - `text` - Required (not enforced). The scene's text. Can be formatted using html and Novel.js's own tags.
 - `style` - The scene's style. Adds a html class that can be styled in `skin.css` to give different looks to different scenes.
