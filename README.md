@@ -37,6 +37,7 @@ Novel.js is written in CoffeeScript and SASS and uses Vue.js and jQuery.
 ## Upcoming features
 
 - Saving
+- Support for parentheses in if statements
 
 ## Installation
 
