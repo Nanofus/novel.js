@@ -8,33 +8,35 @@
   <body>
     <main>
       <div id="game-area">
-        <div class="text-area">
-          {{{shownText}}}
-        </div>
-        <div class="choices">
-          <ul class="choice-list">
-            <div v-for="choice in shownChoices">
-              <li v-if="requirementsFilled(choice)" class="choice">
-                <a href="#" v-on:click="selectChoice(choice)">{{{choice.parsedText}}}</a>
+        <div class="style-area {{ currentScene.style }}">
+          <div class="text-area">
+            {{{shownText}}}
+          </div>
+          <div class="choices">
+            <ul class="choice-list">
+              <div v-for="choice in currentScene.choices">
+                <li v-if="requirementsFilled(choice)" class="choice">
+                  <a href="#" v-on:click="selectChoice(choice)">{{{choice.parsedText}}}</a>
+                </li>
+              </div>
+            </ul>
+          </div>
+          <div class="inventory">
+            <h5>Inventory:</h5>
+            <ul class="item-list">
+              <li v-for="item in game.inventory" class="inventory-item">
+                {{{item.name}}} - {{{item.count}}}
               </li>
-            </div>
-          </ul>
-        </div>
-        <div class="inventory">
-          <h5>Inventory:</h5>
-          <ul class="item-list">
-            <li v-for="item in gameData.inventory" class="inventory-item">
-              {{{item.name}}} - {{{item.count}}}
-            </li>
-          </ul>
-        </div>
-        <div v-if="debugMode" class="actions">
-          <h5>Actions:</h5>
-          <ul class="action-list">
-            <li v-for="action in gameData.actions" class="action-item">
-              {{{action.name}}} - {{{action.count}}}
-            </li>
-          </ul>
+            </ul>
+          </div>
+          <div v-if="debugMode" class="actions">
+            <h5>Actions:</h5>
+            <ul class="action-list">
+              <li v-for="action in game.actions" class="action-item">
+                {{{action.name}}} - {{{action.count}}}
+              </li>
+            </ul>
+          </div>
         </div>
       </div>
     </main>

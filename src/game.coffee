@@ -1,15 +1,14 @@
 data = {
-  data: null,
+  game: null,
   currentScene: null,
   shownText: "",
-  shownChoices: null,
   debugMode: false
 }
 
 loadGame = ->
   $.getJSON 'game.json', (json) ->
-    data.data = json
-    data.currentScene = gameArea.enterStartingScene(json.scenes[0])
+    data.game = json
+    data.currentScene = gameArea.changeScene(json.scenes[0].name)
     data.debugMode = json.debugMode
 
 loadGame()
@@ -19,53 +18,53 @@ gameArea = new Vue(
   data: data,
   methods:
     selectChoice: (choice) ->
-      this.readItemAndActionEdits(choice)
-      this.changeScene(choice.nextScene)
-
-    enterStartingScene: (scene) ->
-      this.setupScene(scene)
+      @readItemAndActionEdits(choice)
+      @changeScene(choice.nextScene)
 
     changeScene: (sceneNames) ->
-      this.setupScene(this.findSceneByName(this.selectRandomScene sceneNames))
+      scene = @findSceneByName(@selectRandomScene sceneNames)
+      @setupScene(scene)
+      return scene
 
     setupScene: (scene) ->
-      this.currentScene = scene
-      this.shownText = this.parseText this.currentScene.text
-      this.shownChoices = this.currentScene.shownChoices
-      console.log this.shownChoices
-      for i in [0 .. this.shownChoices.length - 1]
-        choice = this.currentScene.choices[i]
-        choice.shownText = this.parseText choice.text
-        this.shownChoices.$set(i, choice)
-      this.readItemAndActionEdits(this.currentScene)
+      @currentScene = scene
+      @shownText = @parseText @currentScene.text
+      @updateChoices(this)
+      @readItemAndActionEdits(@currentScene)
+
+    updateChoices: (vue) ->
+      @currentScene.choices = @currentScene.choices.map((choice) ->
+        choice.parsedText = vue.parseText(choice.text)
+        choice
+      )
 
     readItemAndActionEdits: (source) ->
       if source.removeItem != undefined
-        removedItems = this.parseItemOrAction source.removeItem
-        this.editItemsOrActions(removedItems,"remove",true)
+        removedItems = @parseItemOrAction source.removeItem
+        @editItemsOrActions(removedItems,"remove",true)
       if source.addItem != undefined
-        addedItems = this.parseItemOrAction source.addItem
-        this.editItemsOrActions(addedItems,"add",true)
+        addedItems = @parseItemOrAction source.addItem
+        @editItemsOrActions(addedItems,"add",true)
       if source.removeAction != undefined
-        removedActions = this.parseItemOrAction source.removeAction
-        this.editItemsOrActions(removedActions,"remove",false)
+        removedActions = @parseItemOrAction source.removeAction
+        @editItemsOrActions(removedActions,"remove",false)
       if source.addAction != undefined
-        addedActions = this.parseItemOrAction source.addAction
-        this.editItemsOrActions(addedActions,"add",false)
+        addedActions = @parseItemOrAction source.addAction
+        @editItemsOrActions(addedActions,"add",false)
       if source.setAction != undefined
-        setActions = this.parseItemOrAction source.setAction
-        this.editItemsOrActions(setActions,"set",false)
+        setActions = @parseItemOrAction source.setAction
+        @editItemsOrActions(setActions,"set",false)
       if source.setItem != undefined
-        setItems = this.parseItemOrAction source.setItem
-        this.editItemsOrActions(setItems,"set",true)
+        setItems = @parseItemOrAction source.setItem
+        @editItemsOrActions(setItems,"set",true)
 
     requirementsFilled: (choice) ->
       if choice.itemRequirement != undefined
-        requirements = this.parseItemOrAction choice.itemRequirement
-        return this.parseRequirements requirements
+        requirements = @parseItemOrAction choice.itemRequirement
+        return @parseRequirements requirements
       else if choice.actionRequirement != undefined
-        requirements = this.parseItemOrAction choice.actionRequirement
-        return this.parseRequirements requirements
+        requirements = @parseItemOrAction choice.actionRequirement
+        return @parseRequirements requirements
       else return true
 
     parseItemOrAction: (items) ->
@@ -86,7 +85,7 @@ gameArea = new Vue(
         i = i.substring(0, i.length - 1)
         i = i.split("[")
         parsed.push(i)
-      parsed = this.chooseFromMultipleScenes parsed
+      parsed = @chooseFromMultipleScenes parsed
       return parsed
 
     chooseFromMultipleScenes: (scenes) ->
@@ -121,19 +120,19 @@ gameArea = new Vue(
       for s in splitText
         if s.substring(0,2) == "if"
           parsed = s.split(" ")
-          if !this.parseIfStatement(parsed[1])
+          if !@parseIfStatement(parsed[1])
             splitText[index] = "<span style=\"display:none;\">"
             tagToBeClosed = true
           else
             splitText[index] = ""
         if s.substring(0,4) == "act."
           value = s.substring(4,s.length)
-          for i in this.data.actions
+          for i in @game.actions
             if i.name == value
               splitText[index] = i.count
         if s.substring(0,4) == "inv."
           value = s.substring(4,s.length)
-          for i in this.data.inv
+          for i in @game.inventory
             if i.name == value
               splitText[index] = i.count
         if s.substring(0,3) == "/if"
@@ -159,8 +158,8 @@ gameArea = new Vue(
       for i in [0 .. statement.length - 1]
         s = statement[i].split("||")
         if s.length > 1
-          results.push this.parseIfStatement(statement[i])
-        else if this.parseEquation(statement[i])
+          results.push @parseIfStatement(statement[i])
+        else if @parseEquation(statement[i])
           results.push(true)
         else
           results.push(false)
@@ -183,7 +182,7 @@ gameArea = new Vue(
         else
           return false
       if mode == ""
-        return this.parseEquation(statement[0])
+        return @parseEquation(statement[0])
 
     parseEquation: (s) ->
       sign = ''
@@ -218,12 +217,12 @@ gameArea = new Vue(
         type = "item"
       entity = null;
       if type == "item"
-        for i in this.data.inventory
+        for i in @game.inventory
           if i.name == s.substring(4,s.length)
             entity = i
             break
       if type == "action"
-        for i in this.data.actions
+        for i in @game.actions
           if i.name == s.substring(4,s.length)
             entity = i
             break
@@ -251,7 +250,7 @@ gameArea = new Vue(
 
     parseRequirements: (requirements) ->
       reqsFilled = 0
-      for i in this.data.inventory
+      for i in @game.inventory
         for j in requirements
           if j[0] == i.name
             if j[1] <= i.count
@@ -263,9 +262,9 @@ gameArea = new Vue(
 
     editItemsOrActions: (items, mode, isItem) ->
       if isItem
-        inventory = this.data.inventory
+        inventory = @game.inventory
       else
-        inventory = this.data.actions
+        inventory = @game.actions
       for j in items
         itemAdded = false
         for i in inventory
@@ -282,12 +281,12 @@ gameArea = new Vue(
         if !itemAdded && mode != "remove"
           inventory.push({"name": j[0], "count": j[1]})
       if isItem
-        this.data.inventory = inventory
+        @game.inventory = inventory
       else
-        this.data.actions = inventory
+        @game.actions = inventory
 
     findSceneByName: (name) ->
-      for i in this.data.scenes
+      for i in @game.scenes
         if i.name == name
           return i
       console.warn "ERROR: Scene by name '"+name+"' not found!"

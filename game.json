@@ -13,6 +13,7 @@
     {
       "name": "start",
       "text": "SUPER AMAZING MEDIEVAL ADVENTURE!",
+      "style": "main-menu",
       "choices": [
         {"text": "Start","nextScene": "road"}
       ]
@@ -20,6 +21,7 @@
     {
       "name": "road",
       "text": "<p>[if act.introductionSeen==1&&inv.sword>0||inv.sandwich>0&&inv.smallstone>20]You are a [s1]knight[/s]. [/if]You have saved [act.villagesSaved] village[if act.villagesSaved!=1]s[/if]. [if inv.sword>0]You have a [s2]sword[/s]. [/if][if inv.sword<1]You don't have a [s2]sword[/s]. [/if]You walk on a road towards a [s1]town[/s]. What do you do?</p>",
+      "style": "road",
       "choices": [
         {
           "text": "Keep walking",
