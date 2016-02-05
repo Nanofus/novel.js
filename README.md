@@ -139,7 +139,7 @@ Choices are the options the player can choose in a scene. An example is provided
 - `text` - Required. The text to show the player. Can be formatted using html or Novel.js's own tags.
 - `itemRequirement` - Items that the player has to have in their inventory to be able to select this choice. An unselectable choice is hidden by default, unless `showAlways` is true.
 - `actionRequirement` - Actions that the player has to have in their action list to be able to select this choice. An unselectable choice is hidden by default, unless `showAlways` is true.
-- `showAlways` - Show the choice even though its requirements have not been met. The choice will be grayed out, and can not be selected.
+- `showAlways` - Show the choice even though its requirements have not been met. The choice will be grayed out, and can not be selected. Can also be set globally in settings.
 - `addItem` - Add items to the player's inventory upon selecting this choice.
 - `removeItem` - Remove items from the player's inventory upon selecting this choice.
 - `setItem` - Sets the specified items' counts in the player's inventory selecting this choice. If the item does not exist in the inventory, it is added.
@@ -165,6 +165,7 @@ The settings object contains general settings for the game:
 - `soundVolume` - A float between 0 and 1. The volume of all sound effects.
 - `musicVolume` - A float between 0 and 1. The music's volume.
 - `defaultClickSound` - A sound's name. If specified, this sound is played when clicking any choice.
+- `alwaysShowDisabledChoices` - True or false. If true, choices with unmet requirements are always shown.
 
 #### Sounds
 
