@@ -45,6 +45,7 @@ Novel.js is written in CoffeeScript and SASS and uses Vue.js and jQuery.
 - A music system and support for looping sounds
 - Alternative visual novel system
 - A settings menu for the player
+- Translation support
 
 ## Installation
 
@@ -70,10 +71,11 @@ Novel.js comes with a simple example game that demostrates all available feature
 
 `game.json` is a JavaScript Object Notation file - a neat way to work with structured information. The top level of the structure contains the following variables:
 - `gameName` - Use this to set your game's name.
-- `debugMode` - True or false; when enabled, actions can be viewed by the player next to the inventory.
 - `inventory` - A list of the player's items.
 - `actions` - A list of things the player has done, or any other variables that should not be seen by the player.
 - `scenes` - A list of the game's scenes, i.e. views, areas, different texts the player can see.
+- `settings` - Settings to edit, can also be made visible to the player.
+- `sounds` - A list of the game's sound effects.
 
 Now lets take a closer look on the lists:
 
