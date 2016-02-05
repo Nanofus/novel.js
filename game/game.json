@@ -44,6 +44,13 @@
           "nextScene": "road"
         },
         {
+          "text": "Search for a magical shield (10% success chance)",
+          "setAction": "introductionSeen[1]",
+          "addItem": "magicalshield[1,0.1,Magical Shield]",
+          "alwaysShow": true,
+          "nextScene": "road"
+        },
+        {
           "text": "Pick up a small stone",
           "setAction": "introductionSeen[1]",
           "addItem": "smallstone[1,Small Stone]",
@@ -51,19 +58,16 @@
         },
         {
           "text": "Save a [s1]village[/s] [if act.villagesSaved<1](You haven't saved any!!!)[/if]",
-          "addAction": "villagesSaved[1]",
-          "nextScene": "road"
+          "addAction": "villagesSaved[1]"
         },
         {
           "text": "Unsave a village",
-          "removeAction": "villagesSaved[1]",
-          "nextScene": "road"
+          "removeAction": "villagesSaved[1]"
         },
         {
-          "text": "Pick up a random sword lying around",
+          "text": "Pick up a random sword lying around (50% success chance)",
           "setAction": "introductionSeen[1]",
-          "addItem": "sword[1]",
-          "nextScene": "road"
+          "addItem": "sword[1,0.5]"
         }
       ]
     },

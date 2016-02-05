@@ -16,6 +16,8 @@ prepareData = (json) ->
     s.combinedText = ""
     for c in s.choices
       c.parsedText = ""
+      if c.nextScene == undefined
+        c.nextScene = ""
       if c.alwaysShow == undefined
         c.alwaysShow = false
   return json
@@ -36,7 +38,8 @@ gameArea = new Vue(
     selectChoice: (choice) ->
       @readItemAndActionEdits(choice)
       @readSounds(choice,true)
-      @changeScene(choice.nextScene)
+      if choice.nextScene != ""
+        @changeScene(choice.nextScene)
 
     changeScene: (sceneNames) ->
       scene = @findSceneByName(@selectRandomScene sceneNames)
@@ -300,30 +303,48 @@ gameArea = new Vue(
         for i in inventory
           if i.name == j[0]
             p = j[1].split(",")
+            probability = 1
             if p.length > 1
               displayName = p[1]
               count = parseInt(p[0])
+              if !isNaN(displayName)
+                probability = p[1]
+                displayName = j.name
+              if p.length > 2
+                probability = parseFloat(p[1])
+                displayName = p[2]
             else
               displayName = j[0]
               count = parseInt(j[1])
-            if (mode == "set")
-              i.count = parseInt(j[1])
-            else if (mode == "add")
-              i.count = parseInt(i.count) + count
-            else if (mode == "remove")
-              i.count = parseInt(i.count) - count
-              if i.count < 0
-                i.count = 0
+            value = Math.random()
+            if value < probability
+              if (mode == "set")
+                i.count = parseInt(j[1])
+              else if (mode == "add")
+                i.count = parseInt(i.count) + count
+              else if (mode == "remove")
+                i.count = parseInt(i.count) - count
+                if i.count < 0
+                  i.count = 0
             itemAdded = true
         if !itemAdded && mode != "remove"
           p = j[1].split(",")
+          probability = 1
           if p.length > 1
             displayName = p[1]
             count = parseInt(p[0])
+            if !isNaN(displayName)
+              probability = p[1]
+              displayName = j.name
+            if p.length > 2
+              probability = parseFloat(p[1])
+              displayName = p[2]
           else
             displayName = j[0]
             count = parseInt(j[1])
-          inventory.push({"name": j[0], "count": count, "displayName": displayName})
+          value = Math.random()
+          if value < probability
+            inventory.push({"name": j[0], "count": count, "displayName": displayName})
       if isItem
         @game.inventory = inventory
       else

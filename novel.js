@@ -27,6 +27,9 @@ prepareData = function(json) {
     for (m = 0, len2 = ref2.length; m < len2; m++) {
       c = ref2[m];
       c.parsedText = "";
+      if (c.nextScene === void 0) {
+        c.nextScene = "";
+      }
       if (c.alwaysShow === void 0) {
         c.alwaysShow = false;
       }
@@ -53,7 +56,9 @@ gameArea = new Vue({
     selectChoice: function(choice) {
       this.readItemAndActionEdits(choice);
       this.readSounds(choice, true);
-      return this.changeScene(choice.nextScene);
+      if (choice.nextScene !== "") {
+        return this.changeScene(choice.nextScene);
+      }
     },
     changeScene: function(sceneNames) {
       var scene;
@@ -421,7 +426,7 @@ gameArea = new Vue({
       }
     },
     editItemsOrActions: function(items, mode, isItem) {
-      var count, displayName, i, inventory, itemAdded, j, k, l, len, len1, p;
+      var count, displayName, i, inventory, itemAdded, j, k, l, len, len1, p, probability, value;
       if (isItem) {
         inventory = this.game.inventory;
       } else {
@@ -434,21 +439,33 @@ gameArea = new Vue({
           i = inventory[l];
           if (i.name === j[0]) {
             p = j[1].split(",");
+            probability = 1;
             if (p.length > 1) {
               displayName = p[1];
               count = parseInt(p[0]);
+              if (!isNaN(displayName)) {
+                probability = p[1];
+                displayName = j.name;
+              }
+              if (p.length > 2) {
+                probability = parseFloat(p[1]);
+                displayName = p[2];
+              }
             } else {
               displayName = j[0];
               count = parseInt(j[1]);
             }
-            if (mode === "set") {
-              i.count = parseInt(j[1]);
-            } else if (mode === "add") {
-              i.count = parseInt(i.count) + count;
-            } else if (mode === "remove") {
-              i.count = parseInt(i.count) - count;
-              if (i.count < 0) {
-                i.count = 0;
+            value = Math.random();
+            if (value < probability) {
+              if (mode === "set") {
+                i.count = parseInt(j[1]);
+              } else if (mode === "add") {
+                i.count = parseInt(i.count) + count;
+              } else if (mode === "remove") {
+                i.count = parseInt(i.count) - count;
+                if (i.count < 0) {
+                  i.count = 0;
+                }
               }
             }
             itemAdded = true;
@@ -456,18 +473,30 @@ gameArea = new Vue({
         }
         if (!itemAdded && mode !== "remove") {
           p = j[1].split(",");
+          probability = 1;
           if (p.length > 1) {
             displayName = p[1];
             count = parseInt(p[0]);
+            if (!isNaN(displayName)) {
+              probability = p[1];
+              displayName = j.name;
+            }
+            if (p.length > 2) {
+              probability = parseFloat(p[1]);
+              displayName = p[2];
+            }
           } else {
             displayName = j[0];
             count = parseInt(j[1]);
           }
-          inventory.push({
-            "name": j[0],
-            "count": count,
-            "displayName": displayName
-          });
+          value = Math.random();
+          if (value < probability) {
+            inventory.push({
+              "name": j[0],
+              "count": count,
+              "displayName": displayName
+            });
+          }
         }
       }
       if (isItem) {
