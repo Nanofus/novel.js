@@ -122,7 +122,7 @@ Scenes are the most important of the things defined in `game.json`, as the entir
 
 A scene object can contain the following variables and parameters:
 - `name` - Required. The scene's name. Not visible to the user, used internally to navigate between scenes.
-- `text` - Required (not enforced). The scene's text. Can be formatted using html and Novel.js's own tags. For texts longer than one paragraph you should use `<p></p>` tags to separate the text into clean paragraphs.
+- `text` - Required (not enforced). The scene's text. Can be formatted using html and Novel.js's own tags. For texts longer than one paragraph you should use `<p></p>` tags to separate the text into clean paragraphs. If you find it inconvenient to fit all the text on one json line, you can also add `text-1`, `text-2`... below it, those get appended to `text` when the game is started.
 - `style` - The scene's style. Adds a html class that can be styled in `skin.css` to give different looks to different scenes.
 - `addItem` - Add items to the player's inventory upon entering the scene.
 - `removeItem` - Remove items from the player's inventory upon entering the scene.
