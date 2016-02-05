@@ -91,8 +91,9 @@ The player's inventory contains all the items they carry, and is visible to the 
 ```
 
 This inventory contains six items of two kinds. A single item has the following attributes:
-- `name` - Required. The item's name, shown in the UI.
+- `name` - Required. The item's name. Cannot contain spaces.
 - `count` - Required. How many items of that specific type the player carries. If it becomes 0, the item is not removed from the inventory per se, but it does not show up in the UI. This can be used to track if the player has owned that kind of items in the past.
+- `displayName` - The item's display name. Can contain spaces. If omitted, `name` is used instead.
 
 #### Actions
 
@@ -182,15 +183,15 @@ A single sound has the following attributes:
 
 ### Format for add/remove/set and requirement commands
 
-The parameters that remove, add or set items and actions or check for requirements take the following format. You can list any amount of items or actions with one command by separating them with `|`.
+The parameters that remove, add or set items and actions or check for requirements take the following format. You can list any amount of items or actions with one command by separating them with `|`. When adding or setting items, you can optionally define a `displayName` that may contain spaces, though this is not required (and not supported outside adding or setting items).
 ```
-itemOne[count]|itemTwo[count]|itemThree[count]
+itemOne[count,displayName]|itemTwo[count,displayName]|itemThree[count,displayName]
 ```
 An example:
 ```
-"addItem": "sword[1]|shield[1]"
+"addItem": "sword[1]|shield[1,Magical Shield]"
 ```
-This adds one sword and one shield to the player's inventory.
+This adds one sword and one shield named "Magical Shield" to the player's inventory.
 
 ### Tags
 
