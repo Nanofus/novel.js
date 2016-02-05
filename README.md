@@ -181,3 +181,8 @@ Operators `||` (OR) and `&&` (AND) can also be used. Currently parentheses are n
 ### Styling
 
 The `css` folder contains a file named `skin.css`. Styles in `skin.css` override the default styles from `style.css`.
+
+## License
+
+Novel.js is licensed under the MIT License.
+© Ville Talonpoika 2016
