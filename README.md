@@ -98,10 +98,10 @@ A scene object contains the following variables and parameters:
 - `style` - The scene's style. Adds a html class that can be styled in `skin.css` to give different looks to different scenes.
 - `addItem` - Add items to the player's inventory upon entering the scene.
 - `removeItem` - Remove items from the player's inventory upon entering the scene.
-- `setItem` - Sets the specified items' counts in the player's inventory upon entering the scene.
+- `setItem` - Sets the specified items' counts in the player's inventory upon entering the scene. If the item does not exist in the inventory, it is added.
 - `addAction` - Add actions to the player's action list upon entering the scene.
 - `removeAction` - Remove actions from the player's action list upon entering the scene.
-- `setAction` - Sets the specified actions' counts in the player's action list upon entering the scene.
+- `setAction` - Sets the specified actions' counts in the player's action list upon entering the scene. If the action does not exist in the actions list, it is added.
 - `choices` - Required (not enforced). A list of choices available in the scene.
 
 #### Choices
@@ -111,6 +111,12 @@ Choices are the options the player can choose in a scene. An example is provided
 - `itemRequirement` - Items that the player has to have in their inventory to be able to select this choice. An unselectable choice is hidden by default, unless `showAlways` is true.
 - `actionRequirement` - Actions that the player has to have in their action list to be able to select this choice. An unselectable choice is hidden by default, unless `showAlways` is true.
 - `showAlways` - Show the choice even though its requirements have not been met. The choice will be grayed out, and can not be selected.
+- `addItem` - Add items to the player's inventory upon selecting this choice.
+- `removeItem` - Remove items from the player's inventory upon selecting this choice.
+- `setItem` - Sets the specified items' counts in the player's inventory selecting this choice. If the item does not exist in the inventory, it is added.
+- `addAction` - Add actions to the player's action list upon selecting this choice.
+- `removeAction` - Remove actions from the player's action list upon selecting this choice.
+- `setAction` - Sets the specified actions' counts in the player's action list upon selecting this choice. If the action does not exist in the actions list, it is added.
 - `nextScene` - Required. The scene into which the player moves if they select this choice. Supports multiple outcomes, as different probabilities can be set for different scenes. Takes the following format:
 ```
 sceneOne[probability]|sceneTwo[probability]|sceneThree[probability]
