@@ -19,6 +19,8 @@ Novel.js is written in CoffeeScript and SASS and uses Vue.js and jQuery.
 		- [Actions](#actions)
 		- [Scenes](#scenes)
 		- [Choices](#choices)
+		- [Settings](#sounds)
+		- [Sounds](#sounds)
 	- [Format for add/remove/set and requirement commands](#format-for-addremoveset-and-requirement-commands)
 	- [Tags](#tags)
 		- [Conditional statements](#conditional-statements)
@@ -60,7 +62,7 @@ Novel.js is written in CoffeeScript and SASS and uses Vue.js and jQuery.
 
 ## Getting Started
 
-Novel.js comes with a simple example game that demostrates all available features. `game.json` is easily readable and editable in your favourite text editor, so you can start working on your masterpiece right away! For a complete explanation of all the different stuff you can find in that file, please see the documentation!
+Novel.js comes with a simple example game that demostrates all available features. Located in the `game` folder, `game.json` is easily readable and editable in your favourite text editor, so you can start working on your masterpiece right away! For a complete explanation of all the different stuff you can find in that file, please see the documentation!
 
 ## Documentation
 
@@ -126,6 +128,7 @@ A scene object can contain the following variables and parameters:
 - `addAction` - Add actions to the player's action list upon entering the scene.
 - `removeAction` - Remove actions from the player's action list upon entering the scene.
 - `setAction` - Sets the specified actions' counts in the player's action list upon entering the scene. If the action does not exist in the actions list, it is added.
+- `playSound` - Play a sound with the chosen name upon entering the scene.
 - `choices` - Required (not enforced). A list of choices available in the scene.
 
 #### Choices
@@ -141,6 +144,7 @@ Choices are the options the player can choose in a scene. An example is provided
 - `addAction` - Add actions to the player's action list upon selecting this choice.
 - `removeAction` - Remove actions from the player's action list upon selecting this choice.
 - `setAction` - Sets the specified actions' counts in the player's action list upon selecting this choice. If the action does not exist in the actions list, it is added.
+- `playSound` - Play a sound with the chosen name upon selecting the choice.
 - `nextScene` - Required. The scene into which the player moves if they select this choice. Supports multiple outcomes, as different probabilities can be set for different scenes. Takes the following format:
 ```
 sceneOne[probability]|sceneTwo[probability]|sceneThree[probability]
@@ -150,6 +154,28 @@ You can list any amount of scenes by separating them with `|`. All of the probab
 hitEnemySuccess[0.5]|hitEnemyFail[0.5]
 ```
 In this example, the player has a 50% chance to hit and a 50% chance to miss the enemy.
+
+#### Settings
+
+The settings object contains general settings for the game:
+
+- `debugMode` - True or false. If true, the actions list is shown to the player the same way as the inventory.
+- `soundVolume` - A float between 0 and 1. The volume of all sound effects.
+- `musicVolume` - A float between 0 and 1. The music's volume.
+- `defaultClickSound` - A sound's name. If specified, this sound is played when clicking any choice.
+
+#### Sounds
+
+The sounds object contains sounds used by the game. The sounds must be placed in the `sounds` folder inside the `game` folder. An example sound array:
+```json
+"sounds": [
+  {"name": "click", "file": "click.wav"},
+  {"name": "scream", "file": "wilhelm.wav"}
+]
+```
+A single sound has the following attributes:
+- `name` - The name is used when playing the sound with `playSound`.
+- `file` - The file name.
 
 ### Format for add/remove/set and requirement commands
 
