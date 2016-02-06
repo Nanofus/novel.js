@@ -41,7 +41,6 @@ Novel.js is written in CoffeeScript and SASS and uses Vue.js and jQuery.
 ## Upcoming features
 
 - Saving
-- Support for parentheses in if statements
 - A music system and support for looping sounds
 - Alternative visual novel system
 - A settings menu for the player
