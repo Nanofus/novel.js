@@ -3,7 +3,6 @@ var data, gameArea, gamePath, loadGame, prepareData;
 data = {
   game: null,
   currentScene: null,
-  parsedText: "",
   choices: null,
   debugMode: false
 };
@@ -75,8 +74,8 @@ gameArea = new Vue({
     },
     updateScene: function(scene) {
       this.currentScene = scene;
-      this.parseSceneText(this.currentScene);
-      this.parsedText = this.parseText(this.currentScene.combinedText);
+      this.combineSceneTexts(this.currentScene);
+      this.currentScene.parsedText = this.parseText(this.currentScene.combinedText);
       return this.updateChoices(this);
     },
     updateChoices: function(vue) {
@@ -131,7 +130,7 @@ gameArea = new Vue({
         return true;
       }
     },
-    parseSceneText: function(scene) {
+    combineSceneTexts: function(scene) {
       var key, results1;
       scene.combinedText = scene.text;
       results1 = [];
@@ -208,7 +207,7 @@ gameArea = new Vue({
       }
     },
     parseText: function(text) {
-      var i, index, k, l, len, len1, len2, m, n, parsed, ref, ref1, s, splitText, tagToBeClosed, value;
+      var i, index, k, l, len, len1, len2, m, n, parsed, ref, ref1, s, splitText, splitted, tagToBeClosed, value;
       for (i = k = 0; k <= 99; i = ++k) {
         text = text.split("[s" + i + "]").join("<span class=\"highlight-" + i + "\">");
       }
@@ -244,6 +243,8 @@ gameArea = new Vue({
               splitText[index] = i.count;
             }
           }
+        } else if (s.substring(0, 6) === "choice") {
+          parsed = s.split("choice ");
         } else if (s.substring(0, 3) === "/if") {
           if (tagToBeClosed) {
             splitText[index] = "</span>";
@@ -253,12 +254,29 @@ gameArea = new Vue({
           }
         } else if (s.substring(0, 3) === "var") {
           parsed = s.split("var ");
-          splitText[index] = "";
+          splitted = parsed[1].split(",");
+          if (splitted.length === 1) {
+            splitText[index] = this.findValueByName(this.game, parsed[1]);
+            console.log(parsed + " -> " + this.game + ": " + splitText[index]);
+          } else {
+
+          }
         }
         index++;
       }
       text = splitText.join("");
       return text;
+    },
+    findValueByName: function(obj, string) {
+      var newObj, newString, parts;
+      parts = string.split('.');
+      newObj = obj[parts[0]];
+      if (parts[1]) {
+        parts.splice(0, 1);
+        newString = parts.join('.');
+        return this.findValueByName(newObj, newString);
+      }
+      return newObj;
     },
     parseIfStatement: function(s) {
       var rerun, result, solved;

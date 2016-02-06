@@ -21,8 +21,9 @@
     {
       "name": "road",
       "text": "[if (act.villagesSaved==10||(act.dragonsKilled>0&&(inv.sword<=5||inv.magicalshield>=5)&&(inv.smallstone>5&&inv.smallstone<10)))]<p>You are a [s1]knight[/s].</p>[/if]",
-      "text-1": "<p>You have saved [act.villagesSaved] village[if act.villagesSaved!=1]s[/if]. [if inv.sword>0]You have a [s2]sword[/s]. [/if][if inv.sword<1]You don't have a [s2]sword[/s]. [/if]You walk on a road towards a [s1]town[/s].</p>",
-      "text-2": "<p>[var game.settings.soundVolume]What do you do?</p>",
+      "text-1": "<p>You have saved [act.villagesSaved] village[if act.villagesSaved!=1]s[/if]. You have [inv.sword] sword[if (inv.sword!=1)]s[/if]. [if inv.sword>0]You have a [s2]sword[/s]. [/if][if inv.sword<1]You don't have a [s2]sword[/s]. [/if]You walk on a road towards a [s1]town[/s].</p>",
+      "text-2": "<p>[var scenes,2,choices,3,parsedText]What do you do?</p>",
+      "text-3": "<p>[var settings.soundVolume]Or what do you do not do?</p>",
       "style": "road",
       "choices": [
         {

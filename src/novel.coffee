@@ -1,7 +1,6 @@
 data = {
   game: null,
   currentScene: null,
-  parsedText: "",
   choices: null,
   debugMode: false
 }
@@ -55,8 +54,8 @@ gameArea = new Vue(
 
     updateScene: (scene) ->
       @currentScene = scene
-      @parseSceneText(@currentScene)
-      @parsedText = @parseText @currentScene.combinedText
+      @combineSceneTexts(@currentScene)
+      @currentScene.parsedText = @parseText @currentScene.combinedText
       @updateChoices(this)
 
     updateChoices: (vue) ->
@@ -98,7 +97,7 @@ gameArea = new Vue(
         return @parseRequirements requirements
       else return true
 
-    parseSceneText: (scene) ->
+    combineSceneTexts: (scene) ->
       scene.combinedText = scene.text
       for key of scene
         if scene.hasOwnProperty(key)
@@ -173,6 +172,8 @@ gameArea = new Vue(
           for i in @game.inventory
             if i.name == value
               splitText[index] = i.count
+        else if s.substring(0,6) == "choice"
+          parsed = s.split("choice ")
         else if s.substring(0,3) == "/if"
           if tagToBeClosed
             splitText[index] = "</span>"
@@ -181,10 +182,24 @@ gameArea = new Vue(
             splitText[index] = ""
         else if s.substring(0,3) == "var"
           parsed = s.split("var ")
-          splitText[index] = ""
+          splitted = parsed[1].split(",")
+          if splitted.length == 1
+            splitText[index] = @findValueByName(@game,parsed[1])
+            console.log parsed + " -> " + @game + ": " + splitText[index]
+          else
+
         index++
       text = splitText.join("")
       return text
+
+    findValueByName: (obj, string) ->
+      parts = string.split('.')
+      newObj = obj[parts[0]]
+      if parts[1]
+        parts.splice 0, 1
+        newString = parts.join('.')
+        return @findValueByName(newObj, newString)
+      newObj
 
     parseIfStatement: (s) ->
       #console.log "stat " + s
