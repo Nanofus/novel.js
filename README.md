@@ -221,7 +221,7 @@ Operators `||` (OR) and `&&` (AND) and parentheses `()` can also be used. If dif
 
 You can display the player's items' and actions' counts by using the item's or action's name prefixed with `inv.` (items) or `act.` (actions) inside the `[]` brackets. An example:
 ```
-You have [inv.sword] swords.
+You have [inv.sword] sword[if (inv.swords!=1)]s[/if].
 ```
 
 #### Styling shorthands
