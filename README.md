@@ -214,6 +214,13 @@ The above example shows how the statements can be used; Items must be prefixed w
 
 Operators `||` (OR) and `&&` (AND) and parentheses `()` can also be used. If no parentheses are present, `||` operator is parsed before `&&`. This means that `condition1&&condition2||condition3` is parsed as `condition1&&(condition2||condition3)`.
 
+#### Item & action counts
+
+You can display the player's items' and actions' counts by using the item's or action's name prefixed with `inv.` (items) or `act.` actions inside the brackets (`[]`). An example:
+```
+You have [inv.sword] swords.
+```
+
 #### Styling shorthands
 
 - `[s1]` through `[s99]` - Shorthand for adding a `<span class="highlight-X">` tag, where `X` is the number. Behaves like a normal `<span>` tag. Some of the highlights are predefined in `style.css`, and can be overridden in `skin.css`. Can be closed with `[/s]`.
