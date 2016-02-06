@@ -157,69 +157,70 @@ gameArea = new Vue(
       tagToBeClosed = false
       for s in splitText
         if s.substring(0,2) == "if"
-          parsed = s.split(" ")
+          parsed = s.split("if ")
           if !@parseIfStatement(parsed[1])
             splitText[index] = "<span style=\"display:none;\">"
             tagToBeClosed = true
           else
             splitText[index] = ""
-        if s.substring(0,4) == "act."
+        else if s.substring(0,4) == "act."
           value = s.substring(4,s.length)
           for i in @game.actions
             if i.name == value
               splitText[index] = i.count
-        if s.substring(0,4) == "inv."
+        else if s.substring(0,4) == "inv."
           value = s.substring(4,s.length)
           for i in @game.inventory
             if i.name == value
               splitText[index] = i.count
-        if s.substring(0,3) == "/if"
+        else if s.substring(0,3) == "/if"
           if tagToBeClosed
             splitText[index] = "</span>"
             tagToBeClosed = false
           else
             splitText[index] = ""
+        else if s.substring(0,3) == "var"
+          parsed = s.split("var ")
+          splitText[index] = ""
         index++
       text = splitText.join("")
       return text
 
     parseIfStatement: (s) ->
-      console.log "stat " + s
-      r = Math.random()
+      #console.log "stat " + s
       if !@checkForValidParentheses(s)
         console.warn "ERROR: Invalid parentheses in statement"
-      s = s.split(/[()]+/)
-      s = s.filter(Boolean)
-      index = 0;
-      for i in s
-        start = i.substring(0,2)
-        end = i.substring(i.length-2,i.length)
-        if i.length > 2
-          if start != "&&" && start != "||" && end != "&&" && end != "||"
-            s[index] = @parseOperatorsInStatement(i)
-          if start != "&&" && start != "||" && (end == "||" || end == "&&")
-            statement = i.substring(0,i.length-2)
-            s[index] = @parseOperatorsInStatement(statement) + end
-          if end != "&&" && end != "||" && (start == "||" || start == "&&")
-            statement = i.substring(2,i.length)
-            s[index] = start + @parseOperatorsInStatement(statement)
-          if (end == "&&" || end == "||") && (start == "||" || start == "&&")
-            statement = i.substring(2,i.length-2)
-            s[index] = start + @parseOperatorsInStatement(statement) + end
-        index++
-      console.log s
-      return @parseBooleans(s)
+      s = s.replace(/\s+/g, '');
+      solved = false
+      rerun = true
+      while rerun == true
+        result = @solveStatement(s)
+        s = result[0]
+        rerun = result[1]
+      #console.log "truth: " + s
+      #console.log "----------------"
+      return s = (s == "true");
 
-    parseBooleans: (s) ->
+    solveStatement: (s) ->
+      firstParIndex = -1
       for index in [0 .. s.length-1]
-        if (s[index+1] == "||" || s[index+1] == "&&")
-          s[index] = @parseOperatorsInStatement(s[index] + s[index+1] + s[index+2])
-          s.splice(index+1,2)
-          index = 0
-      console.log s
-      return @parseOperatorsInStatement(s.join(""))
+        if s[index] == '('
+          #console.log "( found " + index
+          firstParIndex = index
+        if s[index] == ')'
+          substr = s.substring(firstParIndex+1,index)
+          parsed = @parseOperators(substr)
+          #console.log ") found " + substr + " -> " + parsed
+          s = s.replace('('+substr+')',parsed)
+          #console. log "update " + s
+          break
+      if firstParIndex == -1
+        rerun = false
+      else
+        rerun = true
+      return [s,rerun]
 
-    parseOperatorsInStatement: (s) ->
+    parseOperators: (s) ->
       statement = s.split("&&")
       mode = ""
       if statement.length > 1
@@ -232,8 +233,8 @@ gameArea = new Vue(
       for i in [0 .. statement.length - 1]
         s = statement[i].split("||")
         if s.length > 1
-          results.push @parseIfStatement(statement[i])
-        else if @parseEquation(statement[i])
+          results.push @parseOperators(statement[i])
+        if @parseEquation(statement[i])
           results.push(true)
         else
           results.push(false)

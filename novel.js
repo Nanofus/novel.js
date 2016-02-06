@@ -219,15 +219,14 @@ gameArea = new Vue({
       for (l = 0, len = splitText.length; l < len; l++) {
         s = splitText[l];
         if (s.substring(0, 2) === "if") {
-          parsed = s.split(" ");
+          parsed = s.split("if ");
           if (!this.parseIfStatement(parsed[1])) {
             splitText[index] = "<span style=\"display:none;\">";
             tagToBeClosed = true;
           } else {
             splitText[index] = "";
           }
-        }
-        if (s.substring(0, 4) === "act.") {
+        } else if (s.substring(0, 4) === "act.") {
           value = s.substring(4, s.length);
           ref = this.game.actions;
           for (m = 0, len1 = ref.length; m < len1; m++) {
@@ -236,8 +235,7 @@ gameArea = new Vue({
               splitText[index] = i.count;
             }
           }
-        }
-        if (s.substring(0, 4) === "inv.") {
+        } else if (s.substring(0, 4) === "inv.") {
           value = s.substring(4, s.length);
           ref1 = this.game.inventory;
           for (n = 0, len2 = ref1.length; n < len2; n++) {
@@ -246,14 +244,16 @@ gameArea = new Vue({
               splitText[index] = i.count;
             }
           }
-        }
-        if (s.substring(0, 3) === "/if") {
+        } else if (s.substring(0, 3) === "/if") {
           if (tagToBeClosed) {
             splitText[index] = "</span>";
             tagToBeClosed = false;
           } else {
             splitText[index] = "";
           }
+        } else if (s.substring(0, 3) === "var") {
+          parsed = s.split("var ");
+          splitText[index] = "";
         }
         index++;
       }
@@ -261,54 +261,42 @@ gameArea = new Vue({
       return text;
     },
     parseIfStatement: function(s) {
-      var end, i, index, k, len, r, start, statement;
-      console.log("stat " + s);
-      r = Math.random();
+      var rerun, result, solved;
       if (!this.checkForValidParentheses(s)) {
         console.warn("ERROR: Invalid parentheses in statement");
       }
-      s = s.split(/[()]+/);
-      s = s.filter(Boolean);
-      index = 0;
-      for (k = 0, len = s.length; k < len; k++) {
-        i = s[k];
-        start = i.substring(0, 2);
-        end = i.substring(i.length - 2, i.length);
-        if (i.length > 2) {
-          if (start !== "&&" && start !== "||" && end !== "&&" && end !== "||") {
-            s[index] = this.parseOperatorsInStatement(i);
-          }
-          if (start !== "&&" && start !== "||" && (end === "||" || end === "&&")) {
-            statement = i.substring(0, i.length - 2);
-            s[index] = this.parseOperatorsInStatement(statement) + end;
-          }
-          if (end !== "&&" && end !== "||" && (start === "||" || start === "&&")) {
-            statement = i.substring(2, i.length);
-            s[index] = start + this.parseOperatorsInStatement(statement);
-          }
-          if ((end === "&&" || end === "||") && (start === "||" || start === "&&")) {
-            statement = i.substring(2, i.length - 2);
-            s[index] = start + this.parseOperatorsInStatement(statement) + end;
-          }
-        }
-        index++;
+      s = s.replace(/\s+/g, '');
+      solved = false;
+      rerun = true;
+      while (rerun === true) {
+        result = this.solveStatement(s);
+        s = result[0];
+        rerun = result[1];
       }
-      console.log(s);
-      return this.parseBooleans(s);
+      return s = s === "true";
     },
-    parseBooleans: function(s) {
-      var index, k, ref;
+    solveStatement: function(s) {
+      var firstParIndex, index, k, parsed, ref, rerun, substr;
+      firstParIndex = -1;
       for (index = k = 0, ref = s.length - 1; 0 <= ref ? k <= ref : k >= ref; index = 0 <= ref ? ++k : --k) {
-        if (s[index + 1] === "||" || s[index + 1] === "&&") {
-          s[index] = this.parseOperatorsInStatement(s[index] + s[index + 1] + s[index + 2]);
-          s.splice(index + 1, 2);
-          index = 0;
+        if (s[index] === '(') {
+          firstParIndex = index;
+        }
+        if (s[index] === ')') {
+          substr = s.substring(firstParIndex + 1, index);
+          parsed = this.parseOperators(substr);
+          s = s.replace('(' + substr + ')', parsed);
+          break;
         }
       }
-      console.log(s);
-      return this.parseOperatorsInStatement(s.join(""));
+      if (firstParIndex === -1) {
+        rerun = false;
+      } else {
+        rerun = true;
+      }
+      return [s, rerun];
     },
-    parseOperatorsInStatement: function(s) {
+    parseOperators: function(s) {
       var fail, i, k, l, len, len1, m, mode, r, ref, results, statement, success;
       statement = s.split("&&");
       mode = "";
@@ -324,8 +312,9 @@ gameArea = new Vue({
       for (i = k = 0, ref = statement.length - 1; 0 <= ref ? k <= ref : k >= ref; i = 0 <= ref ? ++k : --k) {
         s = statement[i].split("||");
         if (s.length > 1) {
-          results.push(this.parseIfStatement(statement[i]));
-        } else if (this.parseEquation(statement[i])) {
+          results.push(this.parseOperators(statement[i]));
+        }
+        if (this.parseEquation(statement[i])) {
           results.push(true);
         } else {
           results.push(false);
