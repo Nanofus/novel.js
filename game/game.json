@@ -20,7 +20,7 @@
     },
     {
       "name": "road",
-      "text": "[if act.introductionSeen==1&&inv.sword>0||inv.sandwich>0&&inv.smallstone>20]<p>You are a [s1]knight[/s].</p>[/if]",
+      "text": "[if inv.smallStone>5&&(((act.introductionSeen==1&&inv.sword>0)||(inv.sandwich>0&&inv.smallstone>20))||act.introductionSeen==1)]<p>You are a [s1]knight[/s].</p>[/if]",
       "text-1": "<p>You have saved [act.villagesSaved] village[if act.villagesSaved!=1]s[/if]. [if inv.sword>0]You have a [s2]sword[/s]. [/if][if inv.sword<1]You don't have a [s2]sword[/s]. [/if]You walk on a road towards a [s1]town[/s].</p>",
       "text-2": "<p>What do you do?</p>",
       "style": "road",

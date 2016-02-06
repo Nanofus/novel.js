@@ -40,6 +40,8 @@ gameArea = new Vue(
       @readSounds(choice,true)
       if choice.nextScene != ""
         @changeScene(choice.nextScene)
+      else
+        @updateChoices(this)
 
     changeScene: (sceneNames) ->
       scene = @findSceneByName(@selectRandomScene sceneNames)
@@ -179,6 +181,39 @@ gameArea = new Vue(
       return text
 
     parseIfStatement: (s) ->
+      r = Math.random()
+      if !@checkForValidParentheses(s)
+        console.warn "ERROR: Invalid parentheses in statement"
+      s = s.split(/[()]+/)
+      s = s.filter(Boolean)
+      index = 0;
+      for i in s
+        start = i.substring(0,2)
+        end = i.substring(i.length-2,i.length)
+        if i.length > 2
+          if start != "&&" && start != "||" && end != "&&" && end != "||"
+            s[index] = @parseOperatorsInStatement(i)
+          if start != "&&" && start != "||" && (end == "||" || end == "&&")
+            statement = i.substring(0,i.length-2)
+            s[index] = @parseOperatorsInStatement(statement) + end
+          if end != "&&" && end != "||" && (start == "||" || start == "&&")
+            statement = i.substring(2,i.length)
+            s[index] = start + @parseOperatorsInStatement(statement)
+          if (end == "&&" || end == "||") && (start == "||" || start == "&&")
+            statement = i.substring(2,i.length-2)
+            s[index] = start + @parseOperatorsInStatement(statement) + end
+        index++
+      return @parseBooleans(s)
+
+    parseBooleans: (s) ->
+      for index in [0 .. s.length-1]
+        if (s[index+1] == "||" || s[index+1] == "&&")
+          s[index] = @parseOperatorsInStatement(s[index] + s[index+1] + s[index+2])
+          s.splice(index+1,2)
+          index = 0
+      return @parseOperatorsInStatement(s.join(""))
+
+    parseOperatorsInStatement: (s) ->
       statement = s.split("&&")
       mode = ""
       if statement.length > 1
@@ -218,6 +253,10 @@ gameArea = new Vue(
         return @parseEquation(statement[0])
 
     parseEquation: (s) ->
+      if s == "true"
+        return true
+      else if s == "false"
+        return false
       sign = ''
       statement = s.split("==")
       if statement.length > 1
@@ -280,6 +319,21 @@ gameArea = new Vue(
           if i.count > parsedValue
             return true
       return false
+
+    checkForValidParentheses: (s) ->
+      open = 0
+      for i in s
+        if i == "("
+          open++
+        if i == ")"
+          if open > 0
+            open--
+          else
+            return false
+      if open == 0
+        return true
+      else
+        return false
 
     parseRequirements: (requirements) ->
       reqsFilled = 0

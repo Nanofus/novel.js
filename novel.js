@@ -58,6 +58,8 @@ gameArea = new Vue({
       this.readSounds(choice, true);
       if (choice.nextScene !== "") {
         return this.changeScene(choice.nextScene);
+      } else {
+        return this.updateChoices(this);
       }
     },
     changeScene: function(sceneNames) {
@@ -256,6 +258,51 @@ gameArea = new Vue({
       return text;
     },
     parseIfStatement: function(s) {
+      var end, i, index, k, len, r, start, statement;
+      r = Math.random();
+      if (!this.checkForValidParentheses(s)) {
+        console.warn("ERROR: Invalid parentheses in statement");
+      }
+      s = s.split(/[()]+/);
+      s = s.filter(Boolean);
+      index = 0;
+      for (k = 0, len = s.length; k < len; k++) {
+        i = s[k];
+        start = i.substring(0, 2);
+        end = i.substring(i.length - 2, i.length);
+        if (i.length > 2) {
+          if (start !== "&&" && start !== "||" && end !== "&&" && end !== "||") {
+            s[index] = this.parseOperatorsInStatement(i);
+          }
+          if (start !== "&&" && start !== "||" && (end === "||" || end === "&&")) {
+            statement = i.substring(0, i.length - 2);
+            s[index] = this.parseOperatorsInStatement(statement) + end;
+          }
+          if (end !== "&&" && end !== "||" && (start === "||" || start === "&&")) {
+            statement = i.substring(2, i.length);
+            s[index] = start + this.parseOperatorsInStatement(statement);
+          }
+          if ((end === "&&" || end === "||") && (start === "||" || start === "&&")) {
+            statement = i.substring(2, i.length - 2);
+            s[index] = start + this.parseOperatorsInStatement(statement) + end;
+          }
+        }
+        index++;
+      }
+      return this.parseBooleans(s);
+    },
+    parseBooleans: function(s) {
+      var index, k, ref;
+      for (index = k = 0, ref = s.length - 1; 0 <= ref ? k <= ref : k >= ref; index = 0 <= ref ? ++k : --k) {
+        if (s[index + 1] === "||" || s[index + 1] === "&&") {
+          s[index] = this.parseOperatorsInStatement(s[index] + s[index + 1] + s[index + 2]);
+          s.splice(index + 1, 2);
+          index = 0;
+        }
+      }
+      return this.parseOperatorsInStatement(s.join(""));
+    },
+    parseOperatorsInStatement: function(s) {
       var fail, i, k, l, len, len1, m, mode, r, ref, results, statement, success;
       statement = s.split("&&");
       mode = "";
@@ -312,6 +359,11 @@ gameArea = new Vue({
     },
     parseEquation: function(s) {
       var entity, i, k, l, len, len1, parsedValue, ref, ref1, sign, statement, type;
+      if (s === "true") {
+        return true;
+      } else if (s === "false") {
+        return false;
+      }
       sign = '';
       statement = s.split("==");
       if (statement.length > 1) {
@@ -403,6 +455,28 @@ gameArea = new Vue({
           }
       }
       return false;
+    },
+    checkForValidParentheses: function(s) {
+      var i, k, len, open;
+      open = 0;
+      for (k = 0, len = s.length; k < len; k++) {
+        i = s[k];
+        if (i === "(") {
+          open++;
+        }
+        if (i === ")") {
+          if (open > 0) {
+            open--;
+          } else {
+            return false;
+          }
+        }
+      }
+      if (open === 0) {
+        return true;
+      } else {
+        return false;
+      }
     },
     parseRequirements: function(requirements) {
       var i, j, k, l, len, len1, ref, reqsFilled;
