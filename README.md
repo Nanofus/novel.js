@@ -207,15 +207,15 @@ You can also use html tags to structure and style your texts.
 
 #### Conditional statements
 
-Novel.js supports conditional rendering of parts of text. This is done with the `[if]` tag (closed with `[/if]`). Inside the tag a statement is defined. If the statement returns false, the text surrounded by the tags gets hidden by css.
+Novel.js supports conditional rendering of parts of text. This is done with the `[if]` tag (closed with `[/if]`). Inside the tag a statement is defined. The statement should always be surrounded by `()` brackets. If the statement returns false, the text surrounded by the tags gets hidden by css.
 
 An example:
 ```
-[if (inv.sword>=5||act.earnedTheTrustOfPeople>0)&&inv.swords!=500]This text is shown only if you have more than five swords in your inventory or you have earned the people's trust and you must not have exactly 500 swords![/if]
+[if ((inv.sword>=5||act.earnedTheTrustOfPeople>0)&&inv.swords!=500)]This text is shown only if you have more than five swords in your inventory or you have earned the people's trust and you must not have exactly 500 swords![/if]
 ```
 The above example shows how the statements can be used; Items must be prefixed with `inv.` and actions with `act.`. The item's or action's name is followed by an operator. The supported operators are `==`, `!=`, `<`, `<=`, `>` and `>=`. On the right side of the operator is the item's or action's `count`.
 
-Operators `||` (OR) and `&&` (AND) and parentheses `()` can also be used. If no parentheses are present, `||` operator is parsed before `&&`. This means that `condition1&&condition2||condition3` is parsed as `condition1&&(condition2||condition3)`.
+Operators `||` (OR) and `&&` (AND) and parentheses `()` can also be used. If different operators follow each other without parentheses in between, `||` operator is parsed before `&&`. This means that `(condition1&&condition2||condition3)` is parsed as `(condition1&&(condition2||condition3))`.
 
 #### Item & action counts
 
