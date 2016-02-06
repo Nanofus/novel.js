@@ -201,7 +201,9 @@ This adds one sword and one shield named "Magical Shield" to the player's invent
 
 ### Tags
 
-Novel.js has its own set of tags that can be used to show text conditionally or style text with predefined styles. They are distinguished from normal html tags (also supported) by the `[]` brackets. The tags can be used in both scene texts and choices' texts.
+Novel.js has its own set of tags that can be used to show text conditionally or style text with predefined styles. They are distinguished from normal html tags by the `[]` brackets. The tags can be used in both scene texts and choices' texts.
+
+You can also use HTML tags to structure and style your texts.
 
 #### Conditional statements
 
@@ -217,7 +219,7 @@ Operators `||` (OR) and `&&` (AND) and parentheses `()` can also be used. If no 
 
 #### Item & action counts
 
-You can display the player's items' and actions' counts by using the item's or action's name prefixed with `inv.` (items) or `act.` (actions) inside the brackets (`[]`). An example:
+You can display the player's items' and actions' counts by using the item's or action's name prefixed with `inv.` (items) or `act.` (actions) inside the `[]` brackets. An example:
 ```
 You have [inv.sword] swords.
 ```
