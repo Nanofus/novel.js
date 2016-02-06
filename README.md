@@ -24,6 +24,7 @@ Novel.js is written in CoffeeScript and SASS and uses Vue.js and jQuery.
 	- [Format for add/remove/set and requirement commands](#format-for-addremoveset-and-requirement-commands)
 	- [Tags](#tags)
 		- [Conditional statements](#conditional-statements)
+		- [Item & action counts](#item--action-counts)
 		- [Styling shorthands](#styling-shorthands)
 	- [Styling](#styling)
 - [License](#license)
