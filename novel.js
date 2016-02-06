@@ -59,7 +59,7 @@ gameArea = new Vue({
       if (choice.nextScene !== "") {
         return this.changeScene(choice.nextScene);
       } else {
-        return this.updateChoices(this);
+        return this.updateScene(this.currentScene);
       }
     },
     changeScene: function(sceneNames) {
@@ -69,12 +69,15 @@ gameArea = new Vue({
       return scene;
     },
     setupScene: function(scene) {
+      this.updateScene(scene);
+      this.readItemAndActionEdits(this.currentScene);
+      return this.readSounds(this.currentScene, false);
+    },
+    updateScene: function(scene) {
       this.currentScene = scene;
       this.parseSceneText(this.currentScene);
       this.parsedText = this.parseText(this.currentScene.combinedText);
-      this.updateChoices(this);
-      this.readItemAndActionEdits(this.currentScene);
-      return this.readSounds(this.currentScene, false);
+      return this.updateChoices(this);
     },
     updateChoices: function(vue) {
       return this.$set('parsedChoices', this.currentScene.choices.map(function(choice) {
@@ -259,6 +262,7 @@ gameArea = new Vue({
     },
     parseIfStatement: function(s) {
       var end, i, index, k, len, r, start, statement;
+      console.log("stat " + s);
       r = Math.random();
       if (!this.checkForValidParentheses(s)) {
         console.warn("ERROR: Invalid parentheses in statement");
@@ -289,6 +293,7 @@ gameArea = new Vue({
         }
         index++;
       }
+      console.log(s);
       return this.parseBooleans(s);
     },
     parseBooleans: function(s) {
@@ -300,6 +305,7 @@ gameArea = new Vue({
           index = 0;
         }
       }
+      console.log(s);
       return this.parseOperatorsInStatement(s.join(""));
     },
     parseOperatorsInStatement: function(s) {
@@ -358,7 +364,7 @@ gameArea = new Vue({
       }
     },
     parseEquation: function(s) {
-      var entity, i, k, l, len, len1, parsedValue, ref, ref1, sign, statement, type;
+      var count, entity, i, k, l, len, len1, parsedValue, ref, ref1, sign, statement, type;
       if (s === "true") {
         return true;
       } else if (s === "false") {
@@ -423,34 +429,39 @@ gameArea = new Vue({
         }
       }
       parsedValue = parseInt(statement[1]);
+      if (entity !== null) {
+        count = entity.count;
+      } else {
+        count = 0;
+      }
       switch (sign) {
         case "==":
-          if (i.count === parsedValue) {
+          if (count === parsedValue) {
             return true;
           }
           break;
         case "!=":
-          if (i.count !== parsedValue) {
+          if (count !== parsedValue) {
             return true;
           }
           break;
         case "<=":
-          if (i.count <= parsedValue) {
+          if (count <= parsedValue) {
             return true;
           }
           break;
         case ">=":
-          if (i.count >= parsedValue) {
+          if (count >= parsedValue) {
             return true;
           }
           break;
         case "<":
-          if (i.count < parsedValue) {
+          if (count < parsedValue) {
             return true;
           }
           break;
         case ">":
-          if (i.count > parsedValue) {
+          if (count > parsedValue) {
             return true;
           }
       }

@@ -41,7 +41,7 @@ gameArea = new Vue(
       if choice.nextScene != ""
         @changeScene(choice.nextScene)
       else
-        @updateChoices(this)
+        @updateScene(@currentScene)
 
     changeScene: (sceneNames) ->
       scene = @findSceneByName(@selectRandomScene sceneNames)
@@ -49,12 +49,15 @@ gameArea = new Vue(
       return scene
 
     setupScene: (scene) ->
+      @updateScene(scene)
+      @readItemAndActionEdits(@currentScene)
+      @readSounds(@currentScene,false)
+
+    updateScene: (scene) ->
       @currentScene = scene
       @parseSceneText(@currentScene)
       @parsedText = @parseText @currentScene.combinedText
       @updateChoices(this)
-      @readItemAndActionEdits(@currentScene)
-      @readSounds(@currentScene,false)
 
     updateChoices: (vue) ->
       @$set 'parsedChoices', @currentScene.choices.map((choice) ->
@@ -181,6 +184,7 @@ gameArea = new Vue(
       return text
 
     parseIfStatement: (s) ->
+      console.log "stat " + s
       r = Math.random()
       if !@checkForValidParentheses(s)
         console.warn "ERROR: Invalid parentheses in statement"
@@ -203,6 +207,7 @@ gameArea = new Vue(
             statement = i.substring(2,i.length-2)
             s[index] = start + @parseOperatorsInStatement(statement) + end
         index++
+      console.log s
       return @parseBooleans(s)
 
     parseBooleans: (s) ->
@@ -211,6 +216,7 @@ gameArea = new Vue(
           s[index] = @parseOperatorsInStatement(s[index] + s[index+1] + s[index+2])
           s.splice(index+1,2)
           index = 0
+      console.log s
       return @parseOperatorsInStatement(s.join(""))
 
     parseOperatorsInStatement: (s) ->
@@ -299,24 +305,28 @@ gameArea = new Vue(
             entity = i
             break
       parsedValue = parseInt(statement[1])
+      if entity != null
+        count = entity.count
+      else
+        count = 0
       switch sign
         when "=="
-          if i.count == parsedValue
+          if count == parsedValue
             return true
         when "!="
-          if i.count != parsedValue
+          if count != parsedValue
             return true
         when "<="
-          if i.count <= parsedValue
+          if count <= parsedValue
             return true
         when ">="
-          if i.count >= parsedValue
+          if count >= parsedValue
             return true
         when "<"
-          if i.count < parsedValue
+          if count < parsedValue
             return true
         when ">"
-          if i.count > parsedValue
+          if count > parsedValue
             return true
       return false
 
