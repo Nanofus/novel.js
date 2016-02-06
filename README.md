@@ -217,7 +217,7 @@ Operators `||` (OR) and `&&` (AND) and parentheses `()` can also be used. If no 
 
 #### Item & action counts
 
-You can display the player's items' and actions' counts by using the item's or action's name prefixed with `inv.` (items) or `act.` actions inside the brackets (`[]`). An example:
+You can display the player's items' and actions' counts by using the item's or action's name prefixed with `inv.` (items) or `act.` (actions) inside the brackets (`[]`). An example:
 ```
 You have [inv.sword] swords.
 ```
