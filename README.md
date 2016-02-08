@@ -24,7 +24,9 @@ Novel.js is written in CoffeeScript and SASS and uses Vue.js and jQuery.
 	- [Format for add/remove/set and requirement commands](#format-for-addremoveset-and-requirement-commands)
 	- [Tags](#tags)
 		- [Conditional statements](#conditional-statements)
+		- [Choice links](#choice-links)
 		- [Item & action counts](#item--action-counts)
+		- [Displaying values](#displaying-values)
 		- [Styling shorthands](#styling-shorthands)
 	- [Styling](#styling)
 - [License](#license)
@@ -137,7 +139,8 @@ A scene object can contain the following variables and parameters:
 #### Choices
 
 Choices are the options the player can choose in a scene. An example is provided in the Scenes example. Choices have the following variables and parameters:
-- `text` - Required. The text to show the player. Can be formatted using html or Novel.js's own tags.
+- `text` - Required in most cases. The text to show the player. Can be formatted using html or Novel.js's own tags. If not specified, the choice will not be shown but can be linked to using its name.
+- `name` - Optional. Not visible, but is used when this choice is referred to from a link. Cannot contain spaces.
 - `itemRequirement` - Items that the player has to have in their inventory to be able to select this choice. An unselectable choice is hidden by default, unless `showAlways` is true.
 - `actionRequirement` - Actions that the player has to have in their action list to be able to select this choice. An unselectable choice is hidden by default, unless `showAlways` is true.
 - `alwaysShow` - Show the choice even though its requirements have not been met. The choice will be grayed out, and can not be selected. Can also be set globally in the settings.
@@ -217,11 +220,33 @@ The above example shows how the statements can be used; Items must be prefixed w
 
 Operators `||` (OR) and `&&` (AND) and parentheses `()` can also be used. If different operators follow each other without parentheses in between, `||` operator is parsed before `&&`. This means that `(condition1&&condition2||condition3)` is parsed as `(condition1&&(condition2||condition3))`.
 
+#### Choice links
+
+You can embed a choice as a link into a scene's text using the `[choice name]` tag. The target choice is referred to with the `name` value. The link is closed with `[/choice]`. An example:
+
+```
+There is a [choice pickastick]stick[/choice] on the ground.
+```
+
 #### Item & action counts
 
 You can display the player's items' and actions' counts by using the item's or action's name prefixed with `inv.` (items) or `act.` (actions) inside the `[]` brackets. An example:
 ```
 You have [inv.sword] sword[if (inv.sword!=1)]s[/if].
+```
+
+#### Displaying values
+
+In addition to the simple item & action count tag, you can display any value in `game.json` by using a `[var]` tag. Note that if you display another choice's or scene's text, the text is not parsed for tags. You can use `parsedText` instead of `text` to show a parsed text, but this will print the text as it existed the last time that scene's or choice's text was parsed, so tags inside it may be out of date. In addition, if that text has never been parsed before then `parsedText` will be empty. In this case `text` will be automatically used instead.
+
+The format:
+```
+[var objectName,id,objectName,id,objectName...]
+```
+
+If the path contains arrays, give the path to that array as the first parameter, then the array index as the next parameter, and then the path inside that object as the third parameter and so forth. An example that prints another scene's choice's text:
+```
+[var scenes,1,choices,2,parsedText]
 ```
 
 #### Styling shorthands
