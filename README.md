@@ -22,11 +22,11 @@ Novel.js is written in CoffeeScript and SASS and depends only on Vue.js.
 		- [Settings](#sounds)
 		- [Sounds](#sounds)
 	- [Tags](#tags)
-		- [Conditional statements](#conditional-statements)
-		- [Choice links](#choice-links)
-		- [Item & action counts](#item--action-counts)
-		- [Displaying values](#displaying-values)
-		- [Styling shorthands](#styling-shorthands)
+		- [`if` - Conditional statements](#conditional-statements)
+		- [`choice` - Choice links](#choice-links)
+		- [`inv` & `act` - Item & action counts](#item--action-counts)
+		- [`val` - Displaying values](#displaying-values)
+		- [`s` - Styling shorthands](#styling-shorthands)
 	- [Formats for statements and commands](#formats-for-statements-and-commands)
 		- [Format for add/remove/set and requirement commands](#format-for-addremoveset-and-requirement-commands)
 		- [Format for conditional statements](#format-for-conditional-statements)
@@ -231,6 +231,20 @@ You have [inv.sword] sword[if (inv.sword!=1)]s[/if].
 In addition to the simple item & action count tag, you can display any value in `game.json` by using a `[var]` tag. Follows the format defined [here](#format-for-var-and-value-manipulation-commands). An example that prints another scene's choice's text:
 ```
 [var scenes,1,choices,2,parsedText]
+```
+
+#### Displaying a calculation
+
+You can display a calculation's result by using the `[cal]` tag. Example:
+```
+The amount of swords you have is [cal 25/5*inv.sword] times five divided by twenty-five.
+```
+
+#### Displaying an equation
+
+You can display an [equation](#format-for-conditional-statements)'s truth value by using the `[equ]` tag. Example:
+```
+That you have over 24 swords is obviously [equ inv.sword>24].
 ```
 
 #### Styling shorthands
