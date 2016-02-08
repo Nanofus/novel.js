@@ -264,9 +264,13 @@ Conditional statements allow for all kinds of complex logic, and can be used in 
 [if ((inv.sword>=5||act.earnedTheTrustOfPeople>0)&&inv.swords!=500)]This text is shown only if you have more than five swords in your inventory or you have earned the people's trust and you must not have exactly 500 swords![/if]
 ```
 
-The above example shows how the statements can be used; Items must be prefixed with `inv.` and actions with `act.`. `var.` is also available for `game.json` variables. The item's or action's name is followed by an operator. The supported operators are `==`, `!=`, `<`, `<=`, `>` and `>=`. On the right side of the operator is the item's or action's `count`.
+The above example shows how the statements can be used; Items must be prefixed with `inv.` and actions with `act.`. Items and actions return their counts. `var.` is also available for `game.json` variables. The supported operators are `==`, `!=`, `<`, `<=`, `>` and `>=`. You may also use math operators `+`, `-`, `/` and `*`. Operators `||` (OR) and `&&` (AND) and parentheses `()` can also be used.
 
-Operators `||` (OR) and `&&` (AND) and parentheses `()` can also be used. If different operators follow each other without parentheses in between, `||` operator is parsed before `&&`. This means that `condition1&&condition2||condition3` is parsed as `condition1&&(condition2||condition3)`.
+If different logic operators follow each other without parentheses in between, `||` operator is parsed before `&&`. This means that `condition1&&condition2||condition3` is parsed as `condition1&&(condition2||condition3)`.
+
+If you do string comparation, you can use `==` and `!=` to compare them. To use a string as the equation's other side, it doesn't need any special notation, because everything that cannot be parsed is assumed to be a string. Simply write `var.gameName!=testGame`, for example.
+
+If you use parentheses inside an equation/inequation, surround that side of the statement with `?` marks (for example, `inv.sword>?100/(inv.sandwich*2)?`), otherwise it won't be parsed correctly.
 
 #### Format for `[var]` and value manipulation commands
 
