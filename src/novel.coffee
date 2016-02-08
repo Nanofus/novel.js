@@ -13,6 +13,7 @@ prepareData = (json) ->
       i.displayName = i.name
   for s in json.scenes
     s.combinedText = ""
+    s.parsedText = ""
     for c in s.choices
       c.parsedText = ""
       if c.nextScene == undefined
@@ -21,26 +22,42 @@ prepareData = (json) ->
         c.alwaysShow = false
   return json
 
-loadGame = ->
-  $.getJSON './game/game.json', (json) ->
+# Load JSON
+request = new XMLHttpRequest
+request.open 'GET', gamePath + '/game.json', true
+request.onload = ->
+  if request.status >= 200 and request.status < 400
+    json = JSON.parse(request.responseText)
     json = prepareData(json)
     data.game = json
     data.currentScene = gameArea.changeScene(json.scenes[0].name)
     data.debugMode = json.debugMode
+request.onerror = ->
+  return
+request.send()
 
-loadGame()
-
+# Game area
 gameArea = new Vue(
   el: '#game-area'
   data: data
   methods:
     selectChoice: (choice) ->
+      @exitScene(@currentScene)
       @readItemAndActionEdits(choice)
       @readSounds(choice,true)
       if choice.nextScene != ""
         @changeScene(choice.nextScene)
       else
         @updateScene(@currentScene)
+
+    selectChoiceByName: (name) ->
+      for i in @currentScene.choices
+        if i.name == name
+          @selectChoice(i)
+          break
+
+    exitScene: (scene) ->
+      @updateInputs(scene)
 
     changeScene: (sceneNames) ->
       scene = @findSceneByName(@selectRandomScene sceneNames)
@@ -79,6 +96,15 @@ gameArea = new Vue(
         @editItemsOrActions(@parseItemOrAction(source.addAction),"add",false)
       if source.setAction != undefined
         @editItemsOrActions(@parseItemOrAction(source.setAction),"set",false)
+      if source.setValue != undefined
+        for val in source.setValue
+          @setValue(val.path,val.value)
+      if source.increaseValue != undefined
+        for val in source.increaseValue
+          @increaseValue(val.path,val.value)
+      if source.decreaseValue != undefined
+        for val in source.decreaseValue
+          @decreaseValue(val.path,val.value)
 
     readSounds: (source,clicked) ->
       played = false
@@ -89,13 +115,20 @@ gameArea = new Vue(
         @playDefaultClickSound()
 
     requirementsFilled: (choice) ->
+      reqs = []
       if choice.itemRequirement != undefined
         requirements = @parseItemOrAction choice.itemRequirement
-        return @parseRequirements requirements
-      else if choice.actionRequirement != undefined
+        reqs.push @parseRequirements requirements
+      if choice.actionRequirement != undefined
         requirements = @parseItemOrAction choice.actionRequirement
-        return @parseRequirements requirements
-      else return true
+        reqs.push @parseRequirements requirements
+      if choice.requirement != undefined
+        reqs.push @parseIfStatement choice.requirement
+      success = true
+      for r in reqs
+        if r == false
+          success = false
+      return success
 
     combineSceneTexts: (scene) ->
       scene.combinedText = scene.text
@@ -148,49 +181,120 @@ gameArea = new Vue(
         nameIndex++
 
     parseText: (text) ->
-      for i in [0 .. 99]
-        text = text.split("[s" + i + "]").join("<span class=\"highlight-" + i + "\">")
-      text = text.split("[/s]").join("</span>")
-      splitText = text.split(/\[|\]/)
-      index = 0
-      tagToBeClosed = false
-      for s in splitText
-        if s.substring(0,2) == "if"
-          parsed = s.split("if ")
-          if !@parseIfStatement(parsed[1])
-            splitText[index] = "<span style=\"display:none;\">"
-            tagToBeClosed = true
-          else
-            splitText[index] = ""
-        else if s.substring(0,4) == "act."
-          value = s.substring(4,s.length)
-          for i in @game.actions
-            if i.name == value
-              splitText[index] = i.count
-        else if s.substring(0,4) == "inv."
-          value = s.substring(4,s.length)
-          for i in @game.inventory
-            if i.name == value
-              splitText[index] = i.count
-        else if s.substring(0,6) == "choice"
-          parsed = s.split("choice ")
-        else if s.substring(0,3) == "/if"
-          if tagToBeClosed
-            splitText[index] = "</span>"
-            tagToBeClosed = false
-          else
-            splitText[index] = ""
-        else if s.substring(0,3) == "var"
-          parsed = s.split("var ")
-          splitted = parsed[1].split(",")
-          if splitted.length == 1
-            splitText[index] = @findValueByName(@game,parsed[1])
-            console.log parsed + " -> " + @game + ": " + splitText[index]
-          else
+      if text != undefined
+        for i in [0 .. 99]
+          text = text.split("[s" + i + "]").join("<span class=\"highlight-" + i + "\">")
+        text = text.split("[/s]").join("</span>")
+        splitText = text.split(/\[|\]/)
+        index = 0
+        spansToBeClosed = 0
+        asToBeClosed = 0
+        for s in splitText
+          if s.substring(0,2) == "if"
+            parsed = s.split("if ")
+            if !@parseIfStatement(parsed[1])
+              splitText[index] = "<span style=\"display:none;\">"
+              spansToBeClosed++
+            else
+              splitText[index] = ""
+          else if s.substring(0,4) == "act."
+            value = s.substring(4,s.length)
+            for i in @game.actions
+              if i.name == value
+                splitText[index] = i.count
+          else if s.substring(0,4) == "inv."
+            value = s.substring(4,s.length)
+            for i in @game.inventory
+              if i.name == value
+                splitText[index] = i.count
+          else if s.substring(0,3) == "cal"
+            parsed = s.split("cal ")
+            splitText[index] = @calculateEquationSide(parsed[1])
+          else if s.substring(0,3) == "equ"
+            parsed = s.split("equ ")
+            splitText[index] = @parseIfStatement(parsed[1])
+          else if s.substring(0,5) == "input"
+            parsed = s.split("input ")
+            nameText = ""
+            for i in @game.actions
+              if i.name == parsed[1]
+                nameText = i.count
+            splitText[index] = "<input type=\"text\" value=\"" + nameText + "\" name=\"input\" class=\"input-" + parsed[1] +  "\">"
+          else if s.substring(0,6) == "choice"
+            parsed = s.split("choice ")
+            splitText[index] = "<a href=\"#\" onclick=\"gameArea.selectChoiceByName('"+parsed[1]+"')\">"
+            asToBeClosed++
+          else if s.substring(0,7) == "/choice"
+            if asToBeClosed > 0
+              splitText[index] = "</a>"
+              asToBeClosed--
+            else
+              splitText[index] = ""
+          else if s.substring(0,3) == "/if"
+            if spansToBeClosed > 0
+              splitText[index] = "</span>"
+              spansToBeClosed--
+            else
+              splitText[index] = ""
+          else if s.substring(0,3) == "var"
+            splitText[index] = @findValue(s.split("var ")[1],true)
+          index++
+        text = splitText.join("")
+        return text
 
-        index++
-      text = splitText.join("")
-      return text
+    updateInputs: (scene) ->
+      inputs = document.getElementById("game-area").querySelectorAll("input")
+      for i in inputs
+        for a in @game.actions
+          if a.name == i.className.substring(6,i.className.length)
+            a.count = i.value
+
+    setValue: (parsed, newValue) ->
+      arrLast = @arrLast(parsed)
+      value = @findValue(parsed,false)
+      value[arrLast] = newValue
+
+    increaseValue: (parsed, newValue) ->
+      arrLast = @arrLast(parsed)
+      value = @findValue(parsed,false)
+      value[arrLast] = value[arrLast] + newValue
+      if !isNaN(parseFloat(value[arrLast]))
+        value[arrLast] = parseFloat(value[arrLast].toFixed(8));
+
+    decreaseValue: (parsed, newValue) ->
+      arrLast = @arrLast(parsed)
+      value = @findValue(parsed,false)
+      value[arrLast] = value[arrLast] - newValue
+      if !isNaN(parseFloat(value[arrLast]))
+        value[arrLast] = parseFloat(value[arrLast].toFixed(8));
+
+    arrLast: (parsed) ->
+      arrLast = parsed.split(",")
+      arrLast = arrLast[arrLast.length-1].split(".")
+      arrLast = arrLast[arrLast.length-1]
+      return arrLast
+
+    findValue: (parsed, toPrint) ->
+      splitted = parsed.split(",")
+      if !toPrint
+        if splitted.length > 1
+          variable = @findValueByName(@game,splitted[0])[0]
+        else
+          variable = @findValueByName(@game,splitted[0])[1]
+      else
+        variable = @findValueByName(@game,splitted[0])[0]
+      for i in [0 .. splitted.length - 1]
+        if isOdd(i)
+          variable = variable[parseInt(splitted[i])]
+        else if i != 0
+          if !toPrint
+            variable = @findValueByName(variable,splitted[i])[1]
+          else
+            if splitted[i] == "parsedText" || splitted[i] == "text"
+              splitted[i] = "parsedText"
+              variable.parsedText = @parseText(variable.text)
+            variable = @findValueByName(variable,splitted[i])[0]
+      return variable
 
     findValueByName: (obj, string) ->
       parts = string.split('.')
@@ -199,36 +303,46 @@ gameArea = new Vue(
         parts.splice 0, 1
         newString = parts.join('.')
         return @findValueByName(newObj, newString)
-      newObj
+      r = []
+      r[0] = newObj
+      r[1] = obj
+      return r
 
     parseIfStatement: (s) ->
       #console.log "stat " + s
       if !@checkForValidParentheses(s)
         console.warn "ERROR: Invalid parentheses in statement"
+      s = "("+s+")"
       s = s.replace(/\s+/g, '');
       solved = false
       rerun = true
       while rerun == true
-        result = @solveStatement(s)
+        result = @parseStatement(s)
         s = result[0]
         rerun = result[1]
       #console.log "truth: " + s
       #console.log "----------------"
       return s = (s == "true");
 
-    solveStatement: (s) ->
+    parseStatement: (s) ->
       firstParIndex = -1
       for index in [0 .. s.length-1]
-        if s[index] == '('
-          #console.log "( found " + index
-          firstParIndex = index
-        if s[index] == ')'
-          substr = s.substring(firstParIndex+1,index)
-          parsed = @parseOperators(substr)
-          #console.log ") found " + substr + " -> " + parsed
-          s = s.replace('('+substr+')',parsed)
-          #console. log "update " + s
-          break
+        if s[index] == '\?'
+          if ignore == true
+            ignore = false
+          else
+            ignore = true
+        if !ignore
+          if s[index] == '('
+            #console.log "( found " + index
+            firstParIndex = index
+          if s[index] == ')'
+            substr = s.substring(firstParIndex+1,index)
+            parsed = @parseOperators(substr)
+            #console.log ") found " + substr + " -> " + parsed
+            s = s.replace('('+substr+')',parsed)
+            #console. log "update " + s
+            break
       if firstParIndex == -1
         rerun = false
       else
@@ -303,48 +417,81 @@ gameArea = new Vue(
                 statement = s.split(">")
                 if statement.length > 1
                   sign = ">"
-      s = statement[0]
-      type = null
-      if s.substring(0,4) == "act."
-        type = "action"
-      else if s.substring(0,4) == "inv."
-        type = "item"
-      entity = null;
-      if type == "item"
-        for i in @game.inventory
-          if i.name == s.substring(4,s.length)
-            entity = i
-            break
-      if type == "action"
-        for i in @game.actions
-          if i.name == s.substring(4,s.length)
-            entity = i
-            break
-      parsedValue = parseInt(statement[1])
-      if entity != null
-        count = entity.count
-      else
-        count = 0
+      sides = @readSides(s,sign)
       switch sign
         when "=="
-          if count == parsedValue
+          if sides[0] == sides[1]
             return true
         when "!="
-          if count != parsedValue
+          if sides[0] != sides[1]
             return true
         when "<="
-          if count <= parsedValue
+          if sides[0] <= sides[1]
             return true
         when ">="
-          if count >= parsedValue
+          if sides[0] >= sides[1]
             return true
         when "<"
-          if count < parsedValue
+          if sides[0] < sides[1]
             return true
         when ">"
-          if count > parsedValue
+          if sides[0] > sides[1]
             return true
       return false
+
+    readSides: (sides,sign) ->
+      sides = sides.split(sign)
+      parsed = []
+      for s in sides
+        parsed.push @calculateEquationSide(s)
+      return parsed
+
+    calculateEquationSide: (s) ->
+      if s[0]=='\?' && s[s.length-1] == '\?'
+        s = s.substring(1,s.length-1)
+      parsedString = s.split(/\(|\)|\+|\*|\-|\//)
+      parsedValues = []
+      for val in parsedString
+        type = null
+        if val.substring(0,4) == "act."
+          type = "action"
+        else if val.substring(0,4) == "inv."
+          type = "item"
+        else if val.substring(0,4) == "var."
+          type = "var"
+        else if !isNaN(parseFloat(val)) && val.toString().indexOf(".") == -1
+          type = "int"
+        else if !isNaN(parseFloat(val)) && val.toString().indexOf(".") != -1
+          type = "float"
+        else
+          type = "string"
+        switch type
+          when "item"
+            for i in @game.inventory
+              if i.name == val.substring(4,val.length)
+                parsedValues.push i.count
+          when "action"
+            for i in @game.actions
+              if i.name == val.substring(4,val.length)
+                parsedValues.push i.count
+          when "var"
+            val = @findValue(val.substring(4,val.length),true)
+            if !isNaN(parseFloat(val))
+              parsedValues.push val
+            else
+              parsedValues.push "'" + val + "'"
+          when "float"
+            parsedValues.push parseFloat(val)
+          when "int"
+            parsedValues.push parseInt(val)
+          when "string"
+            if val != ""
+              parsedValues.push "'" + val + "'"
+            else
+              parsedValues.push ""
+      for i in [0 .. parsedString.length-1]
+        s = s.replace(new RegExp(parsedString[i],'g'),parsedValues[i])
+      return eval(s)
 
     checkForValidParentheses: (s) ->
       open = 0
@@ -437,13 +584,18 @@ gameArea = new Vue(
       console.warn "ERROR: Scene by name '"+name+"' not found!"
 
     playDefaultClickSound: (name,clicked) ->
-      @playSound(@game.settings.defaultClickSound)
+      @playSound(@game.settings.soundSettings.defaultClickSound)
 
     playSound: (name) ->
       for s in @game.sounds
         if s.name == name
           sound = new Audio(gamePath+'/sounds/'+s.file)
-          sound.volume = @game.settings.soundVolume
+          sound.volume = @game.settings.soundSettings.soundVolume
           sound.play()
-
 )
+
+isEven = (n) ->
+  n % 2 == 0
+
+isOdd = (n) ->
+  Math.abs(n % 2) == 1

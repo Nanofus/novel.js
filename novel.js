@@ -1,4 +1,4 @@
-var data, gameArea, gamePath, loadGame, prepareData;
+var data, gameArea, gamePath, isEven, isOdd, prepareData, request;
 
 data = {
   game: null,
@@ -22,6 +22,7 @@ prepareData = function(json) {
   for (l = 0, len1 = ref1.length; l < len1; l++) {
     s = ref1[l];
     s.combinedText = "";
+    s.parsedText = "";
     ref2 = s.choices;
     for (m = 0, len2 = ref2.length; m < len2; m++) {
       c = ref2[m];
@@ -37,22 +38,31 @@ prepareData = function(json) {
   return json;
 };
 
-loadGame = function() {
-  return $.getJSON('./game/game.json', function(json) {
+request = new XMLHttpRequest;
+
+request.open('GET', gamePath + '/game.json', true);
+
+request.onload = function() {
+  var json;
+  if (request.status >= 200 && request.status < 400) {
+    json = JSON.parse(request.responseText);
     json = prepareData(json);
     data.game = json;
     data.currentScene = gameArea.changeScene(json.scenes[0].name);
     return data.debugMode = json.debugMode;
-  });
+  }
 };
 
-loadGame();
+request.onerror = function() {};
+
+request.send();
 
 gameArea = new Vue({
   el: '#game-area',
   data: data,
   methods: {
     selectChoice: function(choice) {
+      this.exitScene(this.currentScene);
       this.readItemAndActionEdits(choice);
       this.readSounds(choice, true);
       if (choice.nextScene !== "") {
@@ -60,6 +70,24 @@ gameArea = new Vue({
       } else {
         return this.updateScene(this.currentScene);
       }
+    },
+    selectChoiceByName: function(name) {
+      var i, k, len, ref, results1;
+      ref = this.currentScene.choices;
+      results1 = [];
+      for (k = 0, len = ref.length; k < len; k++) {
+        i = ref[k];
+        if (i.name === name) {
+          this.selectChoice(i);
+          break;
+        } else {
+          results1.push(void 0);
+        }
+      }
+      return results1;
+    },
+    exitScene: function(scene) {
+      return this.updateInputs(scene);
     },
     changeScene: function(sceneNames) {
       var scene;
@@ -88,6 +116,7 @@ gameArea = new Vue({
       }));
     },
     readItemAndActionEdits: function(source) {
+      var k, l, len, len1, len2, m, ref, ref1, ref2, results1, val;
       if (source.removeItem !== void 0) {
         this.editItemsOrActions(this.parseItemOrAction(source.removeItem), "remove", true);
       }
@@ -104,7 +133,30 @@ gameArea = new Vue({
         this.editItemsOrActions(this.parseItemOrAction(source.addAction), "add", false);
       }
       if (source.setAction !== void 0) {
-        return this.editItemsOrActions(this.parseItemOrAction(source.setAction), "set", false);
+        this.editItemsOrActions(this.parseItemOrAction(source.setAction), "set", false);
+      }
+      if (source.setValue !== void 0) {
+        ref = source.setValue;
+        for (k = 0, len = ref.length; k < len; k++) {
+          val = ref[k];
+          this.setValue(val.path, val.value);
+        }
+      }
+      if (source.increaseValue !== void 0) {
+        ref1 = source.increaseValue;
+        for (l = 0, len1 = ref1.length; l < len1; l++) {
+          val = ref1[l];
+          this.increaseValue(val.path, val.value);
+        }
+      }
+      if (source.decreaseValue !== void 0) {
+        ref2 = source.decreaseValue;
+        results1 = [];
+        for (m = 0, len2 = ref2.length; m < len2; m++) {
+          val = ref2[m];
+          results1.push(this.decreaseValue(val.path, val.value));
+        }
+        return results1;
       }
     },
     readSounds: function(source, clicked) {
@@ -119,16 +171,27 @@ gameArea = new Vue({
       }
     },
     requirementsFilled: function(choice) {
-      var requirements;
+      var k, len, r, reqs, requirements, success;
+      reqs = [];
       if (choice.itemRequirement !== void 0) {
         requirements = this.parseItemOrAction(choice.itemRequirement);
-        return this.parseRequirements(requirements);
-      } else if (choice.actionRequirement !== void 0) {
-        requirements = this.parseItemOrAction(choice.actionRequirement);
-        return this.parseRequirements(requirements);
-      } else {
-        return true;
+        reqs.push(this.parseRequirements(requirements));
       }
+      if (choice.actionRequirement !== void 0) {
+        requirements = this.parseItemOrAction(choice.actionRequirement);
+        reqs.push(this.parseRequirements(requirements));
+      }
+      if (choice.requirement !== void 0) {
+        reqs.push(this.parseIfStatement(choice.requirement));
+      }
+      success = true;
+      for (k = 0, len = reqs.length; k < len; k++) {
+        r = reqs[k];
+        if (r === false) {
+          success = false;
+        }
+      }
+      return success;
     },
     combineSceneTexts: function(scene) {
       var key, results1;
@@ -207,68 +270,173 @@ gameArea = new Vue({
       }
     },
     parseText: function(text) {
-      var i, index, k, l, len, len1, len2, m, n, parsed, ref, ref1, s, splitText, splitted, tagToBeClosed, value;
-      for (i = k = 0; k <= 99; i = ++k) {
-        text = text.split("[s" + i + "]").join("<span class=\"highlight-" + i + "\">");
+      var asToBeClosed, i, index, k, l, len, len1, len2, len3, m, nameText, o, parsed, q, ref, ref1, ref2, s, spansToBeClosed, splitText, value;
+      if (text !== void 0) {
+        for (i = k = 0; k <= 99; i = ++k) {
+          text = text.split("[s" + i + "]").join("<span class=\"highlight-" + i + "\">");
+        }
+        text = text.split("[/s]").join("</span>");
+        splitText = text.split(/\[|\]/);
+        index = 0;
+        spansToBeClosed = 0;
+        asToBeClosed = 0;
+        for (l = 0, len = splitText.length; l < len; l++) {
+          s = splitText[l];
+          if (s.substring(0, 2) === "if") {
+            parsed = s.split("if ");
+            if (!this.parseIfStatement(parsed[1])) {
+              splitText[index] = "<span style=\"display:none;\">";
+              spansToBeClosed++;
+            } else {
+              splitText[index] = "";
+            }
+          } else if (s.substring(0, 4) === "act.") {
+            value = s.substring(4, s.length);
+            ref = this.game.actions;
+            for (m = 0, len1 = ref.length; m < len1; m++) {
+              i = ref[m];
+              if (i.name === value) {
+                splitText[index] = i.count;
+              }
+            }
+          } else if (s.substring(0, 4) === "inv.") {
+            value = s.substring(4, s.length);
+            ref1 = this.game.inventory;
+            for (o = 0, len2 = ref1.length; o < len2; o++) {
+              i = ref1[o];
+              if (i.name === value) {
+                splitText[index] = i.count;
+              }
+            }
+          } else if (s.substring(0, 3) === "cal") {
+            parsed = s.split("cal ");
+            splitText[index] = this.calculateEquationSide(parsed[1]);
+          } else if (s.substring(0, 3) === "equ") {
+            parsed = s.split("equ ");
+            splitText[index] = this.parseIfStatement(parsed[1]);
+          } else if (s.substring(0, 5) === "input") {
+            parsed = s.split("input ");
+            nameText = "";
+            ref2 = this.game.actions;
+            for (q = 0, len3 = ref2.length; q < len3; q++) {
+              i = ref2[q];
+              if (i.name === parsed[1]) {
+                nameText = i.count;
+              }
+            }
+            splitText[index] = "<input type=\"text\" value=\"" + nameText + "\" name=\"input\" class=\"input-" + parsed[1] + "\">";
+          } else if (s.substring(0, 6) === "choice") {
+            parsed = s.split("choice ");
+            splitText[index] = "<a href=\"#\" onclick=\"gameArea.selectChoiceByName('" + parsed[1] + "')\">";
+            asToBeClosed++;
+          } else if (s.substring(0, 7) === "/choice") {
+            if (asToBeClosed > 0) {
+              splitText[index] = "</a>";
+              asToBeClosed--;
+            } else {
+              splitText[index] = "";
+            }
+          } else if (s.substring(0, 3) === "/if") {
+            if (spansToBeClosed > 0) {
+              splitText[index] = "</span>";
+              spansToBeClosed--;
+            } else {
+              splitText[index] = "";
+            }
+          } else if (s.substring(0, 3) === "var") {
+            splitText[index] = this.findValue(s.split("var ")[1], true);
+          }
+          index++;
+        }
+        text = splitText.join("");
+        return text;
       }
-      text = text.split("[/s]").join("</span>");
-      splitText = text.split(/\[|\]/);
-      index = 0;
-      tagToBeClosed = false;
-      for (l = 0, len = splitText.length; l < len; l++) {
-        s = splitText[l];
-        if (s.substring(0, 2) === "if") {
-          parsed = s.split("if ");
-          if (!this.parseIfStatement(parsed[1])) {
-            splitText[index] = "<span style=\"display:none;\">";
-            tagToBeClosed = true;
-          } else {
-            splitText[index] = "";
-          }
-        } else if (s.substring(0, 4) === "act.") {
-          value = s.substring(4, s.length);
+    },
+    updateInputs: function(scene) {
+      var a, i, inputs, k, len, results1;
+      inputs = document.getElementById("game-area").querySelectorAll("input");
+      results1 = [];
+      for (k = 0, len = inputs.length; k < len; k++) {
+        i = inputs[k];
+        results1.push((function() {
+          var l, len1, ref, results2;
           ref = this.game.actions;
-          for (m = 0, len1 = ref.length; m < len1; m++) {
-            i = ref[m];
-            if (i.name === value) {
-              splitText[index] = i.count;
+          results2 = [];
+          for (l = 0, len1 = ref.length; l < len1; l++) {
+            a = ref[l];
+            if (a.name === i.className.substring(6, i.className.length)) {
+              results2.push(a.count = i.value);
+            } else {
+              results2.push(void 0);
             }
           }
-        } else if (s.substring(0, 4) === "inv.") {
-          value = s.substring(4, s.length);
-          ref1 = this.game.inventory;
-          for (n = 0, len2 = ref1.length; n < len2; n++) {
-            i = ref1[n];
-            if (i.name === value) {
-              splitText[index] = i.count;
+          return results2;
+        }).call(this));
+      }
+      return results1;
+    },
+    setValue: function(parsed, newValue) {
+      var arrLast, value;
+      arrLast = this.arrLast(parsed);
+      value = this.findValue(parsed, false);
+      return value[arrLast] = newValue;
+    },
+    increaseValue: function(parsed, newValue) {
+      var arrLast, value;
+      arrLast = this.arrLast(parsed);
+      value = this.findValue(parsed, false);
+      value[arrLast] = value[arrLast] + newValue;
+      if (!isNaN(parseFloat(value[arrLast]))) {
+        return value[arrLast] = parseFloat(value[arrLast].toFixed(8));
+      }
+    },
+    decreaseValue: function(parsed, newValue) {
+      var arrLast, value;
+      arrLast = this.arrLast(parsed);
+      value = this.findValue(parsed, false);
+      value[arrLast] = value[arrLast] - newValue;
+      if (!isNaN(parseFloat(value[arrLast]))) {
+        return value[arrLast] = parseFloat(value[arrLast].toFixed(8));
+      }
+    },
+    arrLast: function(parsed) {
+      var arrLast;
+      arrLast = parsed.split(",");
+      arrLast = arrLast[arrLast.length - 1].split(".");
+      arrLast = arrLast[arrLast.length - 1];
+      return arrLast;
+    },
+    findValue: function(parsed, toPrint) {
+      var i, k, ref, splitted, variable;
+      splitted = parsed.split(",");
+      if (!toPrint) {
+        if (splitted.length > 1) {
+          variable = this.findValueByName(this.game, splitted[0])[0];
+        } else {
+          variable = this.findValueByName(this.game, splitted[0])[1];
+        }
+      } else {
+        variable = this.findValueByName(this.game, splitted[0])[0];
+      }
+      for (i = k = 0, ref = splitted.length - 1; 0 <= ref ? k <= ref : k >= ref; i = 0 <= ref ? ++k : --k) {
+        if (isOdd(i)) {
+          variable = variable[parseInt(splitted[i])];
+        } else if (i !== 0) {
+          if (!toPrint) {
+            variable = this.findValueByName(variable, splitted[i])[1];
+          } else {
+            if (splitted[i] === "parsedText" || splitted[i] === "text") {
+              splitted[i] = "parsedText";
+              variable.parsedText = this.parseText(variable.text);
             }
-          }
-        } else if (s.substring(0, 6) === "choice") {
-          parsed = s.split("choice ");
-        } else if (s.substring(0, 3) === "/if") {
-          if (tagToBeClosed) {
-            splitText[index] = "</span>";
-            tagToBeClosed = false;
-          } else {
-            splitText[index] = "";
-          }
-        } else if (s.substring(0, 3) === "var") {
-          parsed = s.split("var ");
-          splitted = parsed[1].split(",");
-          if (splitted.length === 1) {
-            splitText[index] = this.findValueByName(this.game, parsed[1]);
-            console.log(parsed + " -> " + this.game + ": " + splitText[index]);
-          } else {
-
+            variable = this.findValueByName(variable, splitted[i])[0];
           }
         }
-        index++;
       }
-      text = splitText.join("");
-      return text;
+      return variable;
     },
     findValueByName: function(obj, string) {
-      var newObj, newString, parts;
+      var newObj, newString, parts, r;
       parts = string.split('.');
       newObj = obj[parts[0]];
       if (parts[1]) {
@@ -276,35 +444,48 @@ gameArea = new Vue({
         newString = parts.join('.');
         return this.findValueByName(newObj, newString);
       }
-      return newObj;
+      r = [];
+      r[0] = newObj;
+      r[1] = obj;
+      return r;
     },
     parseIfStatement: function(s) {
       var rerun, result, solved;
       if (!this.checkForValidParentheses(s)) {
         console.warn("ERROR: Invalid parentheses in statement");
       }
+      s = "(" + s + ")";
       s = s.replace(/\s+/g, '');
       solved = false;
       rerun = true;
       while (rerun === true) {
-        result = this.solveStatement(s);
+        result = this.parseStatement(s);
         s = result[0];
         rerun = result[1];
       }
       return s = s === "true";
     },
-    solveStatement: function(s) {
-      var firstParIndex, index, k, parsed, ref, rerun, substr;
+    parseStatement: function(s) {
+      var firstParIndex, ignore, index, k, parsed, ref, rerun, substr;
       firstParIndex = -1;
       for (index = k = 0, ref = s.length - 1; 0 <= ref ? k <= ref : k >= ref; index = 0 <= ref ? ++k : --k) {
-        if (s[index] === '(') {
-          firstParIndex = index;
+        if (s[index] === '\?') {
+          if (ignore === true) {
+            ignore = false;
+          } else {
+            ignore = true;
+          }
         }
-        if (s[index] === ')') {
-          substr = s.substring(firstParIndex + 1, index);
-          parsed = this.parseOperators(substr);
-          s = s.replace('(' + substr + ')', parsed);
-          break;
+        if (!ignore) {
+          if (s[index] === '(') {
+            firstParIndex = index;
+          }
+          if (s[index] === ')') {
+            substr = s.substring(firstParIndex + 1, index);
+            parsed = this.parseOperators(substr);
+            s = s.replace('(' + substr + ')', parsed);
+            break;
+          }
         }
       }
       if (firstParIndex === -1) {
@@ -371,7 +552,7 @@ gameArea = new Vue({
       }
     },
     parseEquation: function(s) {
-      var count, entity, i, k, l, len, len1, parsedValue, ref, ref1, sign, statement, type;
+      var sides, sign, statement;
       if (s === "true") {
         return true;
       } else if (s === "false") {
@@ -407,72 +588,118 @@ gameArea = new Vue({
           }
         }
       }
-      s = statement[0];
-      type = null;
-      if (s.substring(0, 4) === "act.") {
-        type = "action";
-      } else if (s.substring(0, 4) === "inv.") {
-        type = "item";
-      }
-      entity = null;
-      if (type === "item") {
-        ref = this.game.inventory;
-        for (k = 0, len = ref.length; k < len; k++) {
-          i = ref[k];
-          if (i.name === s.substring(4, s.length)) {
-            entity = i;
-            break;
-          }
-        }
-      }
-      if (type === "action") {
-        ref1 = this.game.actions;
-        for (l = 0, len1 = ref1.length; l < len1; l++) {
-          i = ref1[l];
-          if (i.name === s.substring(4, s.length)) {
-            entity = i;
-            break;
-          }
-        }
-      }
-      parsedValue = parseInt(statement[1]);
-      if (entity !== null) {
-        count = entity.count;
-      } else {
-        count = 0;
-      }
+      sides = this.readSides(s, sign);
       switch (sign) {
         case "==":
-          if (count === parsedValue) {
+          if (sides[0] === sides[1]) {
             return true;
           }
           break;
         case "!=":
-          if (count !== parsedValue) {
+          if (sides[0] !== sides[1]) {
             return true;
           }
           break;
         case "<=":
-          if (count <= parsedValue) {
+          if (sides[0] <= sides[1]) {
             return true;
           }
           break;
         case ">=":
-          if (count >= parsedValue) {
+          if (sides[0] >= sides[1]) {
             return true;
           }
           break;
         case "<":
-          if (count < parsedValue) {
+          if (sides[0] < sides[1]) {
             return true;
           }
           break;
         case ">":
-          if (count > parsedValue) {
+          if (sides[0] > sides[1]) {
             return true;
           }
       }
       return false;
+    },
+    readSides: function(sides, sign) {
+      var k, len, parsed, s;
+      sides = sides.split(sign);
+      parsed = [];
+      for (k = 0, len = sides.length; k < len; k++) {
+        s = sides[k];
+        parsed.push(this.calculateEquationSide(s));
+      }
+      return parsed;
+    },
+    calculateEquationSide: function(s) {
+      var i, k, l, len, len1, len2, m, o, parsedString, parsedValues, ref, ref1, ref2, type, val;
+      if (s[0] === '\?' && s[s.length - 1] === '\?') {
+        s = s.substring(1, s.length - 1);
+      }
+      parsedString = s.split(/\(|\)|\+|\*|\-|\//);
+      parsedValues = [];
+      for (k = 0, len = parsedString.length; k < len; k++) {
+        val = parsedString[k];
+        type = null;
+        if (val.substring(0, 4) === "act.") {
+          type = "action";
+        } else if (val.substring(0, 4) === "inv.") {
+          type = "item";
+        } else if (val.substring(0, 4) === "var.") {
+          type = "var";
+        } else if (!isNaN(parseFloat(val)) && val.toString().indexOf(".") === -1) {
+          type = "int";
+        } else if (!isNaN(parseFloat(val)) && val.toString().indexOf(".") !== -1) {
+          type = "float";
+        } else {
+          type = "string";
+        }
+        switch (type) {
+          case "item":
+            ref = this.game.inventory;
+            for (l = 0, len1 = ref.length; l < len1; l++) {
+              i = ref[l];
+              if (i.name === val.substring(4, val.length)) {
+                parsedValues.push(i.count);
+              }
+            }
+            break;
+          case "action":
+            ref1 = this.game.actions;
+            for (m = 0, len2 = ref1.length; m < len2; m++) {
+              i = ref1[m];
+              if (i.name === val.substring(4, val.length)) {
+                parsedValues.push(i.count);
+              }
+            }
+            break;
+          case "var":
+            val = this.findValue(val.substring(4, val.length), true);
+            if (!isNaN(parseFloat(val))) {
+              parsedValues.push(val);
+            } else {
+              parsedValues.push("'" + val + "'");
+            }
+            break;
+          case "float":
+            parsedValues.push(parseFloat(val));
+            break;
+          case "int":
+            parsedValues.push(parseInt(val));
+            break;
+          case "string":
+            if (val !== "") {
+              parsedValues.push("'" + val + "'");
+            } else {
+              parsedValues.push("");
+            }
+        }
+      }
+      for (i = o = 0, ref2 = parsedString.length - 1; 0 <= ref2 ? o <= ref2 : o >= ref2; i = 0 <= ref2 ? ++o : --o) {
+        s = s.replace(new RegExp(parsedString[i], 'g'), parsedValues[i]);
+      }
+      return eval(s);
     },
     checkForValidParentheses: function(s) {
       var i, k, len, open;
@@ -609,7 +836,7 @@ gameArea = new Vue({
       return console.warn("ERROR: Scene by name '" + name + "' not found!");
     },
     playDefaultClickSound: function(name, clicked) {
-      return this.playSound(this.game.settings.defaultClickSound);
+      return this.playSound(this.game.settings.soundSettings.defaultClickSound);
     },
     playSound: function(name) {
       var k, len, ref, results1, s, sound;
@@ -619,7 +846,7 @@ gameArea = new Vue({
         s = ref[k];
         if (s.name === name) {
           sound = new Audio(gamePath + '/sounds/' + s.file);
-          sound.volume = this.game.settings.soundVolume;
+          sound.volume = this.game.settings.soundSettings.soundVolume;
           results1.push(sound.play());
         } else {
           results1.push(void 0);
@@ -629,3 +856,11 @@ gameArea = new Vue({
     }
   }
 });
+
+isEven = function(n) {
+  return n % 2 === 0;
+};
+
+isOdd = function(n) {
+  return Math.abs(n % 2) === 1;
+};

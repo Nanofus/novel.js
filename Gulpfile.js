@@ -30,3 +30,11 @@ gulp.task('watch', function() {
 gulp.task('default', function() {
   gulp.start('sass', 'coffee');
 });
+
+var uglify = require('gulp-uglify');
+
+gulp.task('compress', function() {
+  return gulp.src('./novel.js')
+    .pipe(uglify({"mangle":true}))
+    .pipe(gulp.dest('./'));
+});
