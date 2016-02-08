@@ -133,6 +133,7 @@ A scene object can contain the following variables and parameters:
 - `addAction` - Add actions to the player's action list upon entering the scene.
 - `removeAction` - Remove actions from the player's action list upon entering the scene.
 - `setAction` - Sets the specified actions' counts in the player's action list upon entering the scene. If the action does not exist in the actions list, it is added.
+- `setValue` - See (
 - `playSound` - Play a sound with the chosen name upon entering the scene.
 - `choices` - Required (not enforced). A list of choices available in the scene.
 
@@ -166,10 +167,11 @@ In this example, the player has a 50% chance to hit and a 50% chance to miss the
 The settings object contains general settings for the game:
 
 - `debugMode` - True or false. If true, the actions list is shown to the player the same way as the inventory.
-- `soundVolume` - A float between 0 and 1. The volume of all sound effects.
-- `musicVolume` - A float between 0 and 1. The music's volume.
-- `defaultClickSound` - A sound's name. If specified, this sound is played when clicking any choice.
 - `alwaysShowDisabledChoices` - True or false. If true, choices with unmet requirements are always shown.
+- `soundSettings`:
+  - `soundVolume` - A float between 0 and 1. The volume of all sound effects.
+  - `musicVolume` - A float between 0 and 1. The music's volume.
+  - `defaultClickSound` - A sound's name. If specified, this sound is played when clicking any choice.
 
 #### Sounds
 
@@ -201,6 +203,8 @@ An example:
 "addItem": "sword[1]|shield[1,Magical Shield]|stone[2,0.5]|largestone[1,0.2,Large Stone]"
 ```
 This adds one sword and one shield named "Magical Shield" to the player's inventory. With a 50% chance, the player also gains two stones, and with a 20% probability they gain a large stone.
+
+### Format for [var] and value manipulation commands
 
 ### Tags
 
