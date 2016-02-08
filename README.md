@@ -14,7 +14,7 @@ Novel.js is written in CoffeeScript and SASS and uses Vue.js and jQuery.
 - [Installation](#installation)
 - [Getting Started](#getting-started)
 - [Documentation](#documentation)
-	- [game.json structure](#gamejson-structure)
+	- [`game.json` structure](#gamejson-structure)
 		- [Inventory](#inventory)
 		- [Actions](#actions)
 		- [Scenes](#scenes)
@@ -22,6 +22,8 @@ Novel.js is written in CoffeeScript and SASS and uses Vue.js and jQuery.
 		- [Settings](#sounds)
 		- [Sounds](#sounds)
 	- [Format for add/remove/set and requirement commands](#format-for-addremoveset-and-requirement-commands)
+	- [Format for conditional statements](#format-for-conditional-statements)
+	- [Format for `[var]` and value manipulation commands](#format-for-var-and-value-manipulation-commands)
 	- [Tags](#tags)
 		- [Conditional statements](#conditional-statements)
 		- [Choice links](#choice-links)
@@ -133,7 +135,9 @@ A scene object can contain the following variables and parameters:
 - `addAction` - Add actions to the player's action list upon entering the scene.
 - `removeAction` - Remove actions from the player's action list upon entering the scene.
 - `setAction` - Sets the specified actions' counts in the player's action list upon entering the scene. If the action does not exist in the actions list, it is added.
-- `setValue` - See (
+- `setValue` - See its [own chapter](#format-for-var-and-value-manipulation-commands).
+- `increaseValue` - See its [own chapter](#format-for-var-and-value-manipulation-commands).
+- `decreaseValue` - See its [own chapter](#format-for-var-and-value-manipulation-commands).
 - `playSound` - Play a sound with the chosen name upon entering the scene.
 - `choices` - Required (not enforced). A list of choices available in the scene.
 
@@ -151,6 +155,9 @@ Choices are the options the player can choose in a scene. An example is provided
 - `addAction` - Add actions to the player's action list upon selecting this choice.
 - `removeAction` - Remove actions from the player's action list upon selecting this choice.
 - `setAction` - Sets the specified actions' counts in the player's action list upon selecting this choice. If the action does not exist in the actions list, it is added.
+- `setValue` - See its [own chapter](#format-for-var-and-value-manipulation-commands).
+- `increaseValue` - See its [own chapter](#format-for-var-and-value-manipulation-commands).
+- `decreaseValue` - See its [own chapter](#format-for-var-and-value-manipulation-commands).
 - `playSound` - Play a sound with the chosen name upon selecting the choice.
 - `nextScene` - The scene into which the player moves if they select this choice. If omitted, the scene does not change. Supports multiple outcomes, as different probabilities can be set for different scenes. Takes the following format:
 ```
@@ -204,7 +211,32 @@ An example:
 ```
 This adds one sword and one shield named "Magical Shield" to the player's inventory. With a 50% chance, the player also gains two stones, and with a 20% probability they gain a large stone.
 
-### Format for [var] and value manipulation commands
+### Format for conditional statements
+
+Conditional statements allow for all kinds of complex logic, and can be used in requirements and `[if]` statements. An example:
+```
+[if ((inv.sword>=5||act.earnedTheTrustOfPeople>0)&&inv.swords!=500)]This text is shown only if you have more than five swords in your inventory or you have earned the people's trust and you must not have exactly 500 swords![/if]
+```
+
+The above example shows how the statements can be used; Items must be prefixed with `inv.` and actions with `act.`. The item's or action's name is followed by an operator. The supported operators are `==`, `!=`, `<`, `<=`, `>` and `>=`. On the right side of the operator is the item's or action's `count`.
+
+Operators `||` (OR) and `&&` (AND) and parentheses `()` can also be used. If different operators follow each other without parentheses in between, `||` operator is parsed before `&&`. This means that `condition1&&condition2||condition3` is parsed as `condition1&&(condition2||condition3)`.
+
+### Format for `[var]` and value manipulation commands
+
+Commands `setValue`, `increaseValue` and `decreaseValue` allow you to edit any value that is defined in `game.json`.
+
+Note that if you display another choice's or scene's text, the text is not parsed for tags. You can use `parsedText` instead of `text` to show a parsed text, but this will print the text as it existed the last time that scene's or choice's text was parsed, so tags inside it may be out of date. In addition, if that text has never been parsed before then `parsedText` will be empty. In this case `text` will be automatically used instead.
+
+The format:
+```
+objectName,id,objectName,id,objectName...
+```
+
+If the path contains arrays, give the path to that array as the first parameter, then the array index as the next parameter, and then the path inside that object as the third parameter and so forth. An example that picks a choice from another scene:
+```
+scenes,1,choices,2,parsedText
+```
 
 ### Tags
 
@@ -214,15 +246,13 @@ You can also use html tags to structure and style your texts.
 
 #### Conditional statements
 
-Novel.js supports conditional rendering of parts of text. This is done with the `[if]` tag (closed with `[/if]`). Inside the tag a statement is defined. The statement should always be surrounded by `()` brackets. If the statement returns false, the text surrounded by the tags gets hidden by css.
+Novel.js supports conditional rendering of parts of text. This is done with the `[if]` tag (closed with `[/if]`). Inside the tag a statement is defined. If the statement returns false, the text surrounded by the tags gets hidden by css.
 
 An example:
 ```
 [if ((inv.sword>=5||act.earnedTheTrustOfPeople>0)&&inv.swords!=500)]This text is shown only if you have more than five swords in your inventory or you have earned the people's trust and you must not have exactly 500 swords![/if]
 ```
-The above example shows how the statements can be used; Items must be prefixed with `inv.` and actions with `act.`. The item's or action's name is followed by an operator. The supported operators are `==`, `!=`, `<`, `<=`, `>` and `>=`. On the right side of the operator is the item's or action's `count`.
-
-Operators `||` (OR) and `&&` (AND) and parentheses `()` can also be used. If different operators follow each other without parentheses in between, `||` operator is parsed before `&&`. This means that `(condition1&&condition2||condition3)` is parsed as `(condition1&&(condition2||condition3))`.
+More information about conditional statements [here](#format-for-conditional-statements).
 
 #### Choice links
 
@@ -241,14 +271,7 @@ You have [inv.sword] sword[if (inv.sword!=1)]s[/if].
 
 #### Displaying values
 
-In addition to the simple item & action count tag, you can display any value in `game.json` by using a `[var]` tag. Note that if you display another choice's or scene's text, the text is not parsed for tags. You can use `parsedText` instead of `text` to show a parsed text, but this will print the text as it existed the last time that scene's or choice's text was parsed, so tags inside it may be out of date. In addition, if that text has never been parsed before then `parsedText` will be empty. In this case `text` will be automatically used instead.
-
-The format:
-```
-[var objectName,id,objectName,id,objectName...]
-```
-
-If the path contains arrays, give the path to that array as the first parameter, then the array index as the next parameter, and then the path inside that object as the third parameter and so forth. An example that prints another scene's choice's text:
+In addition to the simple item & action count tag, you can display any value in `game.json` by using a `[var]` tag. Follows the format defined [here](#format-for-var-and-value-manipulation-commands). An example that prints another scene's choice's text:
 ```
 [var scenes,1,choices,2,parsedText]
 ```
