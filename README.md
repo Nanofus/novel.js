@@ -24,6 +24,7 @@ Novel.js is written in CoffeeScript and SASS and depends only on Vue.js.
 	- [Tags](#tags)
 		- [`if` - Conditional statements](#conditional-statements)
 		- [`choice` - Choice links](#choice-links)
+		- [`input` - Player input](#player-input)
 		- [`inv` & `act` - Item & action counts](#item--action-counts)
 		- [`val` - Displaying values](#displaying-values)
 		- [`cal` - Displaying a calculation](#displaying-a-calculation)
@@ -219,6 +220,15 @@ You can embed a choice as a link into a scene's text using the `[choice name]` t
 
 ```
 There is a [choice pickastick]stick[/choice] on the ground.
+```
+
+#### Player input
+
+You can embed a text input field into a scene's text (choice text not recommended) by using the `[input]` tag. The input field's value is bound to an action, and the value can be printed by printing the action's count. Changes to the input fields are checked every time a choice is selected. Example:
+```html
+<p>What is your name?</p>
+<p>[input playerName]</p>
+<p>Hello, [act.playerName]!</p>
 ```
 
 #### Item & action counts
