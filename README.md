@@ -270,9 +270,7 @@ Operators `||` (OR) and `&&` (AND) and parentheses `()` can also be used. If dif
 
 #### Format for `[var]` and value manipulation commands
 
-Commands `setValue`, `increaseValue` and `decreaseValue` allow you to edit any value that is defined in `game.json`.
-
-Note that if you display another choice's or scene's text, the text is not parsed for tags. You can use `parsedText` instead of `text` to show a parsed text, but this will print the text as it existed the last time that scene's or choice's text was parsed, so tags inside it may be out of date. In addition, if that text has never been parsed before then `parsedText` will be empty. In this case `text` will be automatically used instead.
+Commands `setValue`, `increaseValue` and `decreaseValue` allow you to edit any value that is defined in `game.json`. Keep in mind that this is extremely error-prone and the changes cannot be undone without resetting the game. If you display another choice's or scene's text, that text's tags will be parsed immediately.
 
 The format:
 ```
