@@ -2,7 +2,8 @@ data = {
   game: null,
   currentScene: null,
   choices: null,
-  debugMode: false
+  debugMode: false,
+  music: []
 }
 
 gamePath = './game'
@@ -23,18 +24,21 @@ prepareData = (json) ->
   return json
 
 # Load JSON
-request = new XMLHttpRequest
-request.open 'GET', gamePath + '/game.json', true
-request.onload = ->
-  if request.status >= 200 and request.status < 400
-    json = JSON.parse(request.responseText)
-    json = prepareData(json)
-    data.game = json
-    data.currentScene = gameArea.changeScene(json.scenes[0].name)
-    data.debugMode = json.debugMode
-request.onerror = ->
-  return
-request.send()
+loadGame = ->
+  request = new XMLHttpRequest
+  request.open 'GET', gamePath + '/game.json', true
+  request.onload = ->
+    if request.status >= 200 and request.status < 400
+      json = JSON.parse(request.responseText)
+      json = prepareData(json)
+      data.game = json
+      data.currentScene = gameArea.changeScene(json.scenes[0].name)
+      data.debugMode = json.debugMode
+  request.onerror = ->
+    return
+  request.send()
+
+loadGame()
 
 # Game area
 gameArea = new Vue(
@@ -113,6 +117,10 @@ gameArea = new Vue(
         played = true
       if clicked && !played
         @playDefaultClickSound()
+      if source.startMusic != undefined
+        @startMusic(source.startMusic)
+      if source.stopMusic != undefined
+        @stopMusic(source.stopMusic)
 
     requirementsFilled: (choice) ->
       reqs = []
@@ -247,7 +255,7 @@ gameArea = new Vue(
       for i in inputs
         for a in @game.actions
           if a.name == i.className.substring(6,i.className.length)
-            a.count = i.value
+            a.count = stripHTML(i.value)
 
     setValue: (parsed, newValue) ->
       arrLast = @arrLast(parsed)
@@ -592,6 +600,31 @@ gameArea = new Vue(
           sound = new Audio(gamePath+'/sounds/'+s.file)
           sound.volume = @game.settings.soundSettings.soundVolume
           sound.play()
+          return sound
+
+    isPlaying: (name) ->
+      for i in @music
+        if i.paused
+          return false
+        else
+          return true
+
+    startMusic: (name) ->
+      music = @playSound(name)
+      music.addEventListener 'ended', (->
+        @currentTime = 0
+        @play()
+        return
+      ), false
+      @music.push {"name":name,"music":music}
+
+    stopMusic: (name) ->
+      for i in @music
+        if name == i.name
+          i.music.pause()
+          index = @music.indexOf(i)
+          @music.splice(index,1)
+
 )
 
 isEven = (n) ->
@@ -599,3 +632,7 @@ isEven = (n) ->
 
 isOdd = (n) ->
   Math.abs(n % 2) == 1
+
+stripHTML = (text) ->
+  regex = /(<([^>]+)>)/ig
+  text.replace regex, ''

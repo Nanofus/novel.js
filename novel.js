@@ -1,10 +1,11 @@
-var data, gameArea, gamePath, isEven, isOdd, prepareData, request;
+var data, gameArea, gamePath, isEven, isOdd, loadGame, prepareData, stripHTML;
 
 data = {
   game: null,
   currentScene: null,
   choices: null,
-  debugMode: false
+  debugMode: false,
+  music: []
 };
 
 gamePath = './game';
@@ -38,24 +39,25 @@ prepareData = function(json) {
   return json;
 };
 
-request = new XMLHttpRequest;
-
-request.open('GET', gamePath + '/game.json', true);
-
-request.onload = function() {
-  var json;
-  if (request.status >= 200 && request.status < 400) {
-    json = JSON.parse(request.responseText);
-    json = prepareData(json);
-    data.game = json;
-    data.currentScene = gameArea.changeScene(json.scenes[0].name);
-    return data.debugMode = json.debugMode;
-  }
+loadGame = function() {
+  var request;
+  request = new XMLHttpRequest;
+  request.open('GET', gamePath + '/game.json', true);
+  request.onload = function() {
+    var json;
+    if (request.status >= 200 && request.status < 400) {
+      json = JSON.parse(request.responseText);
+      json = prepareData(json);
+      data.game = json;
+      data.currentScene = gameArea.changeScene(json.scenes[0].name);
+      return data.debugMode = json.debugMode;
+    }
+  };
+  request.onerror = function() {};
+  return request.send();
 };
 
-request.onerror = function() {};
-
-request.send();
+loadGame();
 
 gameArea = new Vue({
   el: '#game-area',
@@ -167,7 +169,13 @@ gameArea = new Vue({
         played = true;
       }
       if (clicked && !played) {
-        return this.playDefaultClickSound();
+        this.playDefaultClickSound();
+      }
+      if (source.startMusic !== void 0) {
+        this.startMusic(source.startMusic);
+      }
+      if (source.stopMusic !== void 0) {
+        return this.stopMusic(source.stopMusic);
       }
     },
     requirementsFilled: function(choice) {
@@ -365,7 +373,7 @@ gameArea = new Vue({
           for (l = 0, len1 = ref.length; l < len1; l++) {
             a = ref[l];
             if (a.name === i.className.substring(6, i.className.length)) {
-              results2.push(a.count = i.value);
+              results2.push(a.count = stripHTML(i.value));
             } else {
               results2.push(void 0);
             }
@@ -839,15 +847,52 @@ gameArea = new Vue({
       return this.playSound(this.game.settings.soundSettings.defaultClickSound);
     },
     playSound: function(name) {
-      var k, len, ref, results1, s, sound;
+      var k, len, ref, s, sound;
       ref = this.game.sounds;
-      results1 = [];
       for (k = 0, len = ref.length; k < len; k++) {
         s = ref[k];
         if (s.name === name) {
           sound = new Audio(gamePath + '/sounds/' + s.file);
           sound.volume = this.game.settings.soundSettings.soundVolume;
-          results1.push(sound.play());
+          sound.play();
+          return sound;
+        }
+      }
+    },
+    isPlaying: function(name) {
+      var i, k, len, ref;
+      ref = this.music;
+      for (k = 0, len = ref.length; k < len; k++) {
+        i = ref[k];
+        if (i.paused) {
+          return false;
+        } else {
+          return true;
+        }
+      }
+    },
+    startMusic: function(name) {
+      var music;
+      music = this.playSound(name);
+      music.addEventListener('ended', (function() {
+        this.currentTime = 0;
+        this.play();
+      }), false);
+      return this.music.push({
+        "name": name,
+        "music": music
+      });
+    },
+    stopMusic: function(name) {
+      var i, index, k, len, ref, results1;
+      ref = this.music;
+      results1 = [];
+      for (k = 0, len = ref.length; k < len; k++) {
+        i = ref[k];
+        if (name === i.name) {
+          i.music.pause();
+          index = this.music.indexOf(i);
+          results1.push(this.music.splice(index, 1));
         } else {
           results1.push(void 0);
         }
@@ -863,4 +908,10 @@ isEven = function(n) {
 
 isOdd = function(n) {
   return Math.abs(n % 2) === 1;
+};
+
+stripHTML = function(text) {
+  var regex;
+  regex = /(<([^>]+)>)/ig;
+  return text.replace(regex, '');
 };

@@ -95,6 +95,7 @@
     {
       "name": "dragon",
       "text": "<p>You wander across a [s1]dragon[/s] with [inv.sword] teeth. What do you do?</p>",
+      "startMusic": "testMusic",
       "choices": [
         {
           "text": "Fight it! (or, randomly, run away!!)",
@@ -114,6 +115,7 @@
       "choices": [
         {
           "text": "Return to the road",
+          "stopMusic": "testMusic",
           "nextScene": "road"
         }
       ]
@@ -125,6 +127,7 @@
       "choices": [
         {
           "text": "Continue",
+          "stopMusic": "testMusic",
           "nextScene": "start"
         }
       ]
@@ -140,6 +143,7 @@
   },
   "sounds": [
     {"name": "click", "file": "click.wav"},
+    {"name": "testMusic", "file": "music.mp3"},
     {"name": "scream", "file": "wilhelm.wav"}
   ]
 }
