@@ -290,7 +290,7 @@ If you use parentheses inside an equation/inequation, surround that side of the 
 
 #### Format for `[var]` and value manipulation commands
 
-Commands `setValue`, `increaseValue` and `decreaseValue` allow you to edit any value that is defined in `game.json`. Keep in mind that this is extremely error-prone and the changes cannot be undone without resetting the game. If you display another choice's or scene's text, that text's tags will be parsed immediately.
+Commands `setValue`, `increaseValue` and `decreaseValue` allow you to edit any value that is defined in `game.json`. Keep in mind that this is extremely error-prone and the changes cannot be undone without resetting the game. If you display another or scene's text or choices, those texts will have their tags parsed immediately. Be careful not to display a text within itself.
 
 The format:
 ```
