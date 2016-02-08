@@ -230,6 +230,7 @@ You can embed a text input field into a scene's text (choice text not recommende
 <p>[input playerName]</p>
 <p>Hello, [act.playerName]!</p>
 ```
+HTML tags are stripped from the input before it is saved.
 
 #### Item & action counts
 
