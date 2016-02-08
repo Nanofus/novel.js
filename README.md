@@ -148,6 +148,7 @@ Choices are the options the player can choose in a scene. An example is provided
 - `name` - Optional. Not visible, but is used when this choice is referred to from a link. Cannot contain spaces.
 - `itemRequirement` - Items that the player has to have in their inventory to be able to select this choice. An unselectable choice is hidden by default, unless `showAlways` is true.
 - `actionRequirement` - Actions that the player has to have in their action list to be able to select this choice. An unselectable choice is hidden by default, unless `showAlways` is true.
+- `requirement` - An advanced way to define a choice's requirements. Takes a conditional statement. An unselectable choice is hidden by default, unless `showAlways` is true.
 - `alwaysShow` - Show the choice even though its requirements have not been met. The choice will be grayed out, and can not be selected. Can also be set globally in the settings.
 - `addItem` - Add items to the player's inventory upon selecting this choice.
 - `removeItem` - Remove items from the player's inventory upon selecting this choice.
@@ -193,51 +194,6 @@ A single sound has the following attributes:
 - `name` - The name is used when playing the sound with `playSound`.
 - `file` - The file name.
 
-### Format for add/remove/set and requirement commands
-
-The parameters that remove, add or set items and actions or check for requirements take the following format. You can list any amount of items or actions with one command by separating them with `|`.
-
-When adding or setting items, you can optionally define a `displayName` that may contain spaces, though this is not required (and not supported outside adding or setting items).
-
-You can also define an optional `probability`, a float between 0 and 1 that defines the operation's success chance. Probability must always be defined before `displayName`.
-
-The format:
-```
-itemOne[count,probability,displayName]|itemTwo[count,probability,displayName]|itemThree[count,probability,displayName]
-```
-An example:
-```
-"addItem": "sword[1]|shield[1,Magical Shield]|stone[2,0.5]|largestone[1,0.2,Large Stone]"
-```
-This adds one sword and one shield named "Magical Shield" to the player's inventory. With a 50% chance, the player also gains two stones, and with a 20% probability they gain a large stone.
-
-### Format for conditional statements
-
-Conditional statements allow for all kinds of complex logic, and can be used in requirements and `[if]` statements. An example:
-```
-[if ((inv.sword>=5||act.earnedTheTrustOfPeople>0)&&inv.swords!=500)]This text is shown only if you have more than five swords in your inventory or you have earned the people's trust and you must not have exactly 500 swords![/if]
-```
-
-The above example shows how the statements can be used; Items must be prefixed with `inv.` and actions with `act.`. The item's or action's name is followed by an operator. The supported operators are `==`, `!=`, `<`, `<=`, `>` and `>=`. On the right side of the operator is the item's or action's `count`.
-
-Operators `||` (OR) and `&&` (AND) and parentheses `()` can also be used. If different operators follow each other without parentheses in between, `||` operator is parsed before `&&`. This means that `condition1&&condition2||condition3` is parsed as `condition1&&(condition2||condition3)`.
-
-### Format for `[var]` and value manipulation commands
-
-Commands `setValue`, `increaseValue` and `decreaseValue` allow you to edit any value that is defined in `game.json`.
-
-Note that if you display another choice's or scene's text, the text is not parsed for tags. You can use `parsedText` instead of `text` to show a parsed text, but this will print the text as it existed the last time that scene's or choice's text was parsed, so tags inside it may be out of date. In addition, if that text has never been parsed before then `parsedText` will be empty. In this case `text` will be automatically used instead.
-
-The format:
-```
-objectName,id,objectName,id,objectName...
-```
-
-If the path contains arrays, give the path to that array as the first parameter, then the array index as the next parameter, and then the path inside that object as the third parameter and so forth. An example that picks a choice from another scene:
-```
-scenes,1,choices,2,parsedText
-```
-
 ### Tags
 
 Novel.js has its own set of tags that can be used to show text conditionally or style text with predefined styles. They are distinguished from normal html tags by the `[]` brackets. The tags can be used in both scene texts and choices' texts.
@@ -279,6 +235,53 @@ In addition to the simple item & action count tag, you can display any value in 
 #### Styling shorthands
 
 - `[s1]` through `[s99]` - Shorthand for adding a `<span class="highlight-X">` tag, where `X` is the number. Behaves like a normal `<span>` tag. Some of the highlights are predefined in `style.css`, and can be overridden in `skin.css`. Can be closed with `[/s]`.
+
+### Formats for statements and commands
+
+#### Format for add/remove/set and requirement commands
+
+The parameters that remove, add or set items and actions or check for requirements take the following format. You can list any amount of items or actions with one command by separating them with `|`.
+
+When adding or setting items, you can optionally define a `displayName` that may contain spaces, though this is not required (and not supported outside adding or setting items).
+
+You can also define an optional `probability`, a float between 0 and 1 that defines the operation's success chance. Probability must always be defined before `displayName`.
+
+The format:
+```
+itemOne[count,probability,displayName]|itemTwo[count,probability,displayName]|itemThree[count,probability,displayName]
+```
+An example:
+```
+"addItem": "sword[1]|shield[1,Magical Shield]|stone[2,0.5]|largestone[1,0.2,Large Stone]"
+```
+This adds one sword and one shield named "Magical Shield" to the player's inventory. With a 50% chance, the player also gains two stones, and with a 20% probability they gain a large stone.
+
+#### Format for conditional statements
+
+Conditional statements allow for all kinds of complex logic, and can be used in requirements and `[if]` statements. An example:
+```
+[if ((inv.sword>=5||act.earnedTheTrustOfPeople>0)&&inv.swords!=500)]This text is shown only if you have more than five swords in your inventory or you have earned the people's trust and you must not have exactly 500 swords![/if]
+```
+
+The above example shows how the statements can be used; Items must be prefixed with `inv.` and actions with `act.`. The item's or action's name is followed by an operator. The supported operators are `==`, `!=`, `<`, `<=`, `>` and `>=`. On the right side of the operator is the item's or action's `count`.
+
+Operators `||` (OR) and `&&` (AND) and parentheses `()` can also be used. If different operators follow each other without parentheses in between, `||` operator is parsed before `&&`. This means that `condition1&&condition2||condition3` is parsed as `condition1&&(condition2||condition3)`.
+
+#### Format for `[var]` and value manipulation commands
+
+Commands `setValue`, `increaseValue` and `decreaseValue` allow you to edit any value that is defined in `game.json`.
+
+Note that if you display another choice's or scene's text, the text is not parsed for tags. You can use `parsedText` instead of `text` to show a parsed text, but this will print the text as it existed the last time that scene's or choice's text was parsed, so tags inside it may be out of date. In addition, if that text has never been parsed before then `parsedText` will be empty. In this case `text` will be automatically used instead.
+
+The format:
+```
+objectName,id,objectName,id,objectName...
+```
+
+If the path contains arrays, give the path to that array as the first parameter, then the array index as the next parameter, and then the path inside that object as the third parameter and so forth. An example that picks a choice from another scene:
+```
+scenes,1,choices,2,parsedText
+```
 
 ### Styling
 
