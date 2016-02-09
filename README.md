@@ -255,7 +255,7 @@ The amount of swords you have is [print 25/5*inv.sword] times five divided by tw
 ```
 A truth value:
 ```
-That you have over 24 swords is obviously [equ inv.sword>24].
+That you have over 24 swords is obviously [print inv.sword>24].
 ```
 See [Formats for statements and commands](#formats-for-statements-and-commands) for all possible values you can display.
 
@@ -295,8 +295,6 @@ The above example shows how the statements can be used; Items must be prefixed w
 If different logic operators follow each other without parentheses in between, `||` operator is parsed before `&&`. This means that `condition1&&condition2||condition3` is parsed as `condition1&&(condition2||condition3)`.
 
 If you do string comparation, you can use `==` and `!=` to compare them. To use a string as the equation's other side, it doesn't need any special notation, because everything that cannot be parsed is assumed to be a string. Simply write `var.gameName!=testGame`, for example.
-
-If you use parentheses inside an equation/inequation, surround that side of the statement with `?` marks (for example, `inv.sword>?100/(inv.sandwich*2)?`), otherwise it won't be parsed correctly.
 
 #### Format for value statements and commands
 
