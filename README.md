@@ -25,7 +25,7 @@ Novel.js is written in CoffeeScript and SASS and depends only on Vue.js.
 		- [`if` - Conditional statements](#conditional-statements)
 		- [`choice` - Choice links](#choice-links)
 		- [`input` - Player input](#player-input)
-		- [`inv` & `act` - Item & action counts](#item--action-counts)
+		- [`inv` & `stat` - Item & stat counts & values](#item--stat-counts--values)
 		- [`print` - Displaying values](#displaying-values)
 		- [`s` - Styling shorthands](#styling-shorthands)
 	- [Formats for statements and commands](#formats-for-statements-and-commands)
