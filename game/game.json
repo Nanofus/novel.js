@@ -23,8 +23,8 @@
       "name": "road",
       "text": "[if (act.villagesSaved==10||(act.dragonsKilled>0&&(inv.sword<=5||inv.magicalshield>=5)&&(inv.smallstone>5&&inv.smallstone<10)))]<p>You are a [s1]knight[/s].</p>[/if]",
       "text-1": "<p>You have saved [act.villagesSaved] village[if (act.villagesSaved!=1)]s[/if]. You have [inv.sword] sword[if (inv.sword!=1)]s[/if]. [if inv.sword>0]You have a [s2]sword[/s]. [/if][if inv.sword<1]You don't have a [s2]sword[/s]. [/if]You walk on a road towards a [s1]town[/s].</p>",
-      "text-2": "<p>[var scenes,1,choices,0,text] What do you do? There is also a [choice pickastick]stick[/choice] on the ground.</p>",
-      "text-3": "<p>Sound volume is [var settings.soundSettings.soundVolume]. Divided by two times swords that is [cal var.settings.soundSettings.soundVolume/2*inv.sword]. That you have slain a dragon is obviously [equ act.dragonsKilled>0]. Or what do you do not do?</p>",
+      "text-2": "<p>[print var.scenes,1,choices,0,text] What do you do? There is also a [choice pickastick]stick[/choice] on the ground.</p>",
+      "text-3": "<p>Sound volume is [print var.settings.soundSettings.soundVolume]. Divided by two times swords that is [print var.settings.soundSettings.soundVolume/2*inv.sword]. That you have slain a dragon is obviously [print act.dragonsKilled>0]. Or what do you do not do?</p>",
       "text-4": "<p></p>",
       "text-5": "Your name is [input playerName]. Nice to meet you, [act.playerName]!",
       "style": "road",
@@ -39,7 +39,7 @@
           "addItem": "stick[1]"
         },
         {
-          "text": "Wander offroad [var scenes,2,text]",
+          "text": "Wander offroad [print var.scenes,2,text]",
           "setAction": "introductionSeen[1]",
           "nextScene": "dragon"
         },
@@ -69,7 +69,7 @@
           "addAction": "villagesSaved[1]"
         },
         {
-          "text": "Unsave a village [if act.villagesSaved+1>?(25/5)?]this is shown when villages 5 or more[/if]",
+          "text": "Unsave a village [if act.villagesSaved+1>(25/5)]this is shown when villages 5 or more[/if]",
           "removeAction": "villagesSaved[1]"
         },
         {

@@ -208,13 +208,13 @@ gameArea = new Vue(
           text = text.split("[s" + i + "]").join("<span class=\"highlight-" + i + "\">")
         text = text.split("[/s]").join("</span>")
         splitText = text.split(/\[|\]/)
-        index = 0
         spansToBeClosed = 0
         asToBeClosed = 0
-        for s in splitText
+        for index in [0 .. splitText.length-1]
+          s = splitText[index]
           if s.substring(0,2) == "if"
             parsed = s.split("if ")
-            if !@parseIfStatement(parsed[1])
+            if !@parseStatement(parsed[1])
               splitText[index] = "<span style=\"display:none;\">"
               spansToBeClosed++
             else
@@ -229,12 +229,9 @@ gameArea = new Vue(
             for i in @game.inventory
               if i.name == value
                 splitText[index] = i.count
-          else if s.substring(0,3) == "cal"
-            parsed = s.split("cal ")
-            splitText[index] = @calculateEquationSide(parsed[1])
-          else if s.substring(0,3) == "equ"
-            parsed = s.split("equ ")
-            splitText[index] = @parseIfStatement(parsed[1])
+          else if s.substring(0,5) == "print"
+            parsed = s.split("print ")
+            splitText[index] = @parseStatement(parsed[1])
           else if s.substring(0,5) == "input"
             parsed = s.split("input ")
             nameText = ""
@@ -258,8 +255,6 @@ gameArea = new Vue(
               spansToBeClosed--
             else
               splitText[index] = ""
-          else if s.substring(0,3) == "var"
-            splitText[index] = @findValue(s.split("var ")[1],true)
           index++
         text = splitText.join("")
         return text
@@ -330,148 +325,11 @@ gameArea = new Vue(
       r[1] = obj
       return r
 
-    parseIfStatement: (s) ->
-      #console.log "stat " + s
+    parseStatement: (s) ->
       if !@checkForValidParentheses(s)
         console.warn "ERROR: Invalid parentheses in statement"
-      s = "("+s+")"
       s = s.replace(/\s+/g, '');
-      solved = false
-      rerun = true
-      while rerun == true
-        result = @parseStatement(s)
-        s = result[0]
-        rerun = result[1]
-      #console.log "truth: " + s
-      #console.log "----------------"
-      return s = (s == "true");
-
-    parseStatement: (s) ->
-      firstParIndex = -1
-      for index in [0 .. s.length-1]
-        if s[index] == '\?'
-          if ignore == true
-            ignore = false
-          else
-            ignore = true
-        if !ignore
-          if s[index] == '('
-            #console.log "( found " + index
-            firstParIndex = index
-          if s[index] == ')'
-            substr = s.substring(firstParIndex+1,index)
-            parsed = @parseOperators(substr)
-            #console.log ") found " + substr + " -> " + parsed
-            s = s.replace('('+substr+')',parsed)
-            #console. log "update " + s
-            break
-      if firstParIndex == -1
-        rerun = false
-      else
-        rerun = true
-      return [s,rerun]
-
-    parseOperators: (s) ->
-      statement = s.split("&&")
-      mode = ""
-      if statement.length > 1
-        mode = "&&"
-      else
-        statement = s.split("||")
-        if statement.length > 1
-          mode = "||"
-      results = []
-      for i in [0 .. statement.length - 1]
-        s = statement[i].split("||")
-        if s.length > 1
-          results.push @parseOperators(statement[i])
-        if @parseEquation(statement[i])
-          results.push(true)
-        else
-          results.push(false)
-      if mode == "&&"
-        fail = false
-        for r in results
-          if r == false
-            fail = true
-        if fail
-          return false
-        else
-          return true
-      if mode == "||"
-        success = false
-        for r in results
-          if r == true
-            success = true
-        if success
-          return true
-        else
-          return false
-      if mode == ""
-        return @parseEquation(statement[0])
-
-    parseEquation: (s) ->
-      if s == "true"
-        return true
-      else if s == "false"
-        return false
-      sign = ''
-      statement = s.split("==")
-      if statement.length > 1
-        sign = "=="
-      else
-        statement = s.split("!=")
-        if statement.length > 1
-          sign = "!="
-        else
-          statement = s.split("<=")
-          if statement.length > 1
-            sign = "<="
-          else
-            statement = s.split("<")
-            if statement.length > 1
-              sign = "<"
-            else
-              statement = s.split(">=")
-              if statement.length > 1
-                sign = ">="
-              else
-                statement = s.split(">")
-                if statement.length > 1
-                  sign = ">"
-      sides = @readSides(s,sign)
-      switch sign
-        when "=="
-          if sides[0] == sides[1]
-            return true
-        when "!="
-          if sides[0] != sides[1]
-            return true
-        when "<="
-          if sides[0] <= sides[1]
-            return true
-        when ">="
-          if sides[0] >= sides[1]
-            return true
-        when "<"
-          if sides[0] < sides[1]
-            return true
-        when ">"
-          if sides[0] > sides[1]
-            return true
-      return false
-
-    readSides: (sides,sign) ->
-      sides = sides.split(sign)
-      parsed = []
-      for s in sides
-        parsed.push @calculateEquationSide(s)
-      return parsed
-
-    calculateEquationSide: (s) ->
-      if s[0]=='\?' && s[s.length-1] == '\?'
-        s = s.substring(1,s.length-1)
-      parsedString = s.split(/\(|\)|\+|\*|\-|\//)
+      parsedString = s.split(/\(|\)|\+|\*|\-|\/|<=|>=|<|>|==|!=|\|\||&&/)
       parsedValues = []
       for val in parsedString
         type = null
@@ -512,7 +370,8 @@ gameArea = new Vue(
             else
               parsedValues.push ""
       for i in [0 .. parsedString.length-1]
-        s = s.replace(new RegExp(parsedString[i],'g'),parsedValues[i])
+        if parsedString[i] != "" && parsedValues[i] != ""
+          s = s.replace(new RegExp(parsedString[i],'g'),parsedValues[i])
       return eval(s)
 
     checkForValidParentheses: (s) ->
