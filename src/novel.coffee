@@ -24,19 +24,25 @@ prepareData = (json) ->
   return json
 
 # Load JSON
-loadGame = ->
-  request = new XMLHttpRequest
-  request.open 'GET', gamePath + '/game.json', true
-  request.onload = ->
-    if request.status >= 200 and request.status < 400
-      json = JSON.parse(request.responseText)
-      json = prepareData(json)
-      data.game = json
-      data.currentScene = gameArea.changeScene(json.scenes[0].name)
-      data.debugMode = json.debugMode
-  request.onerror = ->
-    return
-  request.send()
+loadGame = (game) ->
+  if game == undefined
+    request = new XMLHttpRequest
+    request.open 'GET', gamePath + '/game.json', true
+    request.onload = ->
+      if request.status >= 200 and request.status < 400
+        json = JSON.parse(request.responseText)
+        json = prepareData(json)
+        data.game = json
+        data.currentScene = gameArea.changeScene(data.game.scenes[0].name)
+        data.debugMode = data.game.debugMode
+    request.onerror = ->
+      return
+    request.send()
+  else if game != undefined
+    data.game = JSON.parse(atob(game))
+    console.log data.game
+    data.currentScene = gameArea.changeScene(data.game.scenes[0].name)
+    data.debugMode = data.game.debugMode
 
 loadGame()
 
@@ -45,6 +51,14 @@ gameArea = new Vue(
   el: '#game-area'
   data: data
   methods:
+    saveGameAsJson: () ->
+      save = btoa(JSON.stringify(@game))
+      console.log save
+      console.log atob(save)
+      console.log JSON.parse(atob(save))
+      console.log atob(JSON.parse(save))
+      return save
+
     selectChoice: (choice) ->
       @exitScene(@currentScene)
       @readItemAndActionEdits(choice)

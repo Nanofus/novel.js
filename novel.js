@@ -39,22 +39,29 @@ prepareData = function(json) {
   return json;
 };
 
-loadGame = function() {
+loadGame = function(game) {
   var request;
-  request = new XMLHttpRequest;
-  request.open('GET', gamePath + '/game.json', true);
-  request.onload = function() {
-    var json;
-    if (request.status >= 200 && request.status < 400) {
-      json = JSON.parse(request.responseText);
-      json = prepareData(json);
-      data.game = json;
-      data.currentScene = gameArea.changeScene(json.scenes[0].name);
-      return data.debugMode = json.debugMode;
-    }
-  };
-  request.onerror = function() {};
-  return request.send();
+  if (game === void 0) {
+    request = new XMLHttpRequest;
+    request.open('GET', gamePath + '/game.json', true);
+    request.onload = function() {
+      var json;
+      if (request.status >= 200 && request.status < 400) {
+        json = JSON.parse(request.responseText);
+        json = prepareData(json);
+        data.game = json;
+        data.currentScene = gameArea.changeScene(data.game.scenes[0].name);
+        return data.debugMode = data.game.debugMode;
+      }
+    };
+    request.onerror = function() {};
+    return request.send();
+  } else if (game !== void 0) {
+    data.game = JSON.parse(atob(game));
+    console.log(data.game);
+    data.currentScene = gameArea.changeScene(data.game.scenes[0].name);
+    return data.debugMode = data.game.debugMode;
+  }
 };
 
 loadGame();
@@ -63,6 +70,15 @@ gameArea = new Vue({
   el: '#game-area',
   data: data,
   methods: {
+    saveGameAsJson: function() {
+      var save;
+      save = btoa(JSON.stringify(this.game));
+      console.log(save);
+      console.log(atob(save));
+      console.log(JSON.parse(atob(save)));
+      console.log(atob(JSON.parse(save)));
+      return save;
+    },
     selectChoice: function(choice) {
       this.exitScene(this.currentScene);
       this.readItemAndActionEdits(choice);
@@ -165,7 +181,7 @@ gameArea = new Vue({
       var played;
       played = false;
       if (source.playSound !== void 0) {
-        this.playSound(source.playSound);
+        this.playSound(source.playSound, false);
         played = true;
       }
       if (clicked && !played) {
@@ -844,16 +860,20 @@ gameArea = new Vue({
       return console.warn("ERROR: Scene by name '" + name + "' not found!");
     },
     playDefaultClickSound: function(name, clicked) {
-      return this.playSound(this.game.settings.soundSettings.defaultClickSound);
+      return this.playSound(this.game.settings.soundSettings.defaultClickSound, false);
     },
-    playSound: function(name) {
+    playSound: function(name, isMusic) {
       var k, len, ref, s, sound;
       ref = this.game.sounds;
       for (k = 0, len = ref.length; k < len; k++) {
         s = ref[k];
         if (s.name === name) {
           sound = new Audio(gamePath + '/sounds/' + s.file);
-          sound.volume = this.game.settings.soundSettings.soundVolume;
+          if (isMusic) {
+            sound.volume = this.game.settings.soundSettings.musicVolume;
+          } else {
+            sound.volume = this.game.settings.soundSettings.soundVolume;
+          }
           sound.play();
           return sound;
         }
@@ -873,7 +893,7 @@ gameArea = new Vue({
     },
     startMusic: function(name) {
       var music;
-      music = this.playSound(name);
+      music = this.playSound(name, true);
       music.addEventListener('ended', (function() {
         this.currentTime = 0;
         this.play();
