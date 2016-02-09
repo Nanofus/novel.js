@@ -47,13 +47,12 @@ Novel.js is written in CoffeeScript and SASS and depends only on Vue.js.
 - Shorthand tags for general styling of names etc.
 - An inventory system, with another hidden one to track the player's actions or other statistics.
 - Choices can have several different outcomes with different probabilities.
-- Play sound effects!
+- Play sound effects and looping music/ambient sound effects!
 - Support for css styling and html tags in text.
 
 ## Upcoming features
 
 - Saving
-- A music system and support for looping sounds
 - Alternative visual novel system
 - A settings menu for the player
 - Translation support
