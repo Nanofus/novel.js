@@ -26,14 +26,12 @@ Novel.js is written in CoffeeScript and SASS and depends only on Vue.js.
 		- [`choice` - Choice links](#choice-links)
 		- [`input` - Player input](#player-input)
 		- [`inv` & `act` - Item & action counts](#item--action-counts)
-		- [`val` - Displaying values](#displaying-values)
-		- [`cal` - Displaying a calculation](#displaying-a-calculation)
-		- [`equ` - Displaying an equation](#displaying-an-equation)
+		- [`print` - Displaying values](#displaying-values)
 		- [`s` - Styling shorthands](#styling-shorthands)
 	- [Formats for statements and commands](#formats-for-statements-and-commands)
 		- [Format for add/remove/set and requirement commands](#format-for-addremoveset-and-requirement-commands)
 		- [Format for conditional statements](#format-for-conditional-statements)
-		- [Format for `[var]` and value manipulation commands](#format-for-var-and-value-manipulation-commands)
+		- [Format for value statements and commands](#format-for-value-statements-and-commands)
 	- [Audio](#audio)
 		- [Sound effects](#sound-effects)
 		- [Music](#music)
@@ -247,24 +245,19 @@ You have [inv.sword] sword[if (inv.sword!=1)]s[/if].
 
 #### Displaying values
 
-In addition to the simple item & action count tag, you can display any value in `game.json` by using a `[var]` tag. Follows the format defined [here](#format-for-var-and-value-manipulation-commands). An example that prints another scene's choice's text:
+In addition to the simple item & action count tag, you can display any value in `game.json` or any result of an expression or the truth value of an equation or an inequation by using a `[print]` tag. Prefix any `.json` values with `var.`, actions with `act.` and inventory items with `inv.`. An example that prints another scene's choice's text:
 ```
-[var scenes,1,choices,2,parsedText]
+[print var.scenes,1,choices,2,parsedText]
 ```
-
-#### Displaying a calculation
-
-You can display a calculation's result by using the `[cal]` tag. Example:
+A calculation's result:
 ```
-The amount of swords you have is [cal 25/5*inv.sword] times five divided by twenty-five.
+The amount of swords you have is [print 25/5*inv.sword] times five divided by twenty-five.
 ```
-
-#### Displaying an equation
-
-You can display an [equation](#format-for-conditional-statements)'s truth value by using the `[equ]` tag. Example:
+A truth value:
 ```
-That you have over 24 swords is obviously [equ inv.sword>24].
+That you have over 24 swords is obviously [print inv.sword>24].
 ```
+See [Formats for statements and commands](#formats-for-statements-and-commands) for all possible values you can display.
 
 #### Styling shorthands
 
@@ -303,9 +296,7 @@ If different logic operators follow each other without parentheses in between, `
 
 If you do string comparation, you can use `==` and `!=` to compare them. To use a string as the equation's other side, it doesn't need any special notation, because everything that cannot be parsed is assumed to be a string. Simply write `var.gameName!=testGame`, for example.
 
-If you use parentheses inside an equation/inequation, surround that side of the statement with `?` marks (for example, `inv.sword>?100/(inv.sandwich*2)?`), otherwise it won't be parsed correctly.
-
-#### Format for `[var]` and value manipulation commands
+#### Format for value statements and commands
 
 Commands `setValue`, `increaseValue` and `decreaseValue` allow you to edit any value that is defined in `game.json`. Keep in mind that this is extremely error-prone and the changes cannot be undone without resetting the game. If you display another or scene's text or choices, those texts will have their tags parsed immediately. Be careful not to display a text within itself.
 
