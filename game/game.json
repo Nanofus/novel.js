@@ -5,7 +5,7 @@
     {"name": "sword", "count": 1},
     {"name": "sandwich", "count": 5}
   ],
-  "actions": [
+  "stats": [
     {"name": "villagesSaved", "count": 0},
     {"name": "dragonsKilled", "count": 0},
     {"name": "playerName", "count": "Default Name"}
@@ -21,17 +21,17 @@
     },
     {
       "name": "road",
-      "text": "[if (act.villagesSaved==10||(act.dragonsKilled>0&&(inv.sword<=5||inv.magicalshield>=5)&&(inv.smallstone>5&&inv.smallstone<10)))]<p>You are a [s1]knight[/s].</p>[/if]",
-      "text-1": "<p>You have saved [act.villagesSaved] village[if (act.villagesSaved!=1)]s[/if]. You have [inv.sword] sword[if (inv.sword!=1)]s[/if]. [if inv.sword>0]You have a [s2]sword[/s]. [/if][if inv.sword<1]You don't have a [s2]sword[/s]. [/if]You walk on a road towards a [s1]town[/s].</p>",
+      "text": "[if (stat.villagesSaved==10||(stat.dragonsKilled>0&&(inv.sword<=5||inv.magicalshield>=5)&&(inv.smallstone>5&&inv.smallstone<10)))]<p>You are a [s1]knight[/s].</p>[/if]",
+      "text-1": "<p>You have saved [stat.villagesSaved] village[if (stat.villagesSaved!=1)]s[/if]. You have [inv.sword] sword[if (inv.sword!=1)]s[/if]. [if inv.sword>0]You have a [s2]sword[/s]. [/if][if inv.sword<1]You don't have a [s2]sword[/s]. [/if]You walk on a road towards a [s1]town[/s].</p>",
       "text-2": "<p>[print var.scenes,1,choices,0,text] What do you do? There is also a [choice pickastick]stick[/choice] on the ground.</p>",
-      "text-3": "<p>Sound volume is [print var.settings.soundSettings.soundVolume]. Divided by two times swords that is [print var.settings.soundSettings.soundVolume/2*inv.sword]. That you have slain a dragon is obviously [print act.dragonsKilled>0]. Or what do you do not do?</p>",
+      "text-3": "<p>Sound volume is [print var.settings.soundSettings.soundVolume]. Divided by two times swords that is [print var.settings.soundSettings.soundVolume/2*inv.sword]. That you have slain a dragon is obviously [print stat.dragonsKilled>0]. Or what do you do not do?</p>",
       "text-4": "<p></p>",
-      "text-5": "Your name is [input playerName]. Nice to meet you, [act.playerName]!",
+      "text-5": "Your name is [input playerName]. Nice to meet you, [stat.playerName]!",
       "style": "road",
       "choices": [
         {
           "text": "Keep walking. [if var.settings.soundSettings.soundVolume>0.7]jajaja[/if][if var.gameName==kakkonen] this game has a weird [if inv.sword<3]and boearkoraeroak[/if] name[/if]",
-          "setAction": "introductionSeen[1]",
+          "setStats": "introductionSeen[1]",
           "nextScene": "road"
         },
         {
@@ -40,41 +40,41 @@
         },
         {
           "text": "Wander offroad [print var.scenes,2,text]",
-          "setAction": "introductionSeen[1]",
+          "setStats": "introductionSeen[1]",
           "nextScene": "dragon"
         },
         {
           "text": "Throw your sword and a sandwich away",
           "itemRequirement": "sword[1]|sandwich[1]",
-          "setAction": "introductionSeen[1]",
+          "setStats": "introductionSeen[1]",
           "removeItem": "sword[1]|sandwich[1]",
           "alwaysShow": true,
           "nextScene": "road"
         },
         {
           "text": "Search for a magical shield (10% success chance)",
-          "setAction": "introductionSeen[1]",
+          "setStats": "introductionSeen[1]",
           "addItem": "magicalshield[1,0.1,Magical Shield]",
           "alwaysShow": true,
           "nextScene": "road"
         },
         {
           "text": "Pick up a small stone",
-          "setAction": "introductionSeen[1]",
+          "setStats": "introductionSeen[1]",
           "addItem": "smallstone[1,Small Stone]",
           "nextScene": "road"
         },
         {
-          "text": "Save a [s1]village[/s] [if act.villagesSaved<1](You haven't saved any!!!)[/if]",
-          "addAction": "villagesSaved[1]"
+          "text": "Save a [s1]village[/s] [if stat.villagesSaved<1](You haven't saved any!!!)[/if]",
+          "addStats": "villagesSaved[1]"
         },
         {
-          "text": "Unsave a village [if act.villagesSaved+1>(25/5)]this is shown when villages 5 or more[/if]",
-          "removeAction": "villagesSaved[1]"
+          "text": "Unsave a village [if stat.villagesSaved+1>(25/5)]this is shown when villages 5 or more[/if]",
+          "removeStats": "villagesSaved[1]"
         },
         {
           "text": "Pick up a random sword lying around (50% success chance)",
-          "setAction": "introductionSeen[1]",
+          "setStats": "introductionSeen[1]",
           "addItem": "sword[1,0.5]"
         },
         {
@@ -111,7 +111,7 @@
     {
       "name": "hitDragon",
       "text": "You hit the dragon! The dragon is dead!",
-      "addAction": "dragonsKilled[1]",
+      "addStats": "dragonsKilled[1]",
       "choices": [
         {
           "text": "Return to the road",
@@ -135,6 +135,7 @@
   ],
   "settings": {
     "debugMode": true,
+    "saveMode": "cookie",
     "alwaysShowDisabledChoices": false,
     "soundSettings": {
       "soundVolume": 0.5,

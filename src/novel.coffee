@@ -1,6 +1,5 @@
 data = {
   game: null,
-  currentScene: null,
   choices: null,
   debugMode: false,
   music: []
@@ -9,6 +8,8 @@ data = {
 gamePath = './game'
 
 prepareData = (json) ->
+  json.currentScene=""
+  json.parsedChoices=""
   for i in json.inventory
     if i.displayName == undefined
       i.displayName = i.name
@@ -33,16 +34,22 @@ loadGame = (game) ->
         json = JSON.parse(request.responseText)
         json = prepareData(json)
         data.game = json
-        data.currentScene = gameArea.changeScene(data.game.scenes[0].name)
+        data.game.currentScene = gameArea.changeScene(data.game.scenes[0].name)
         data.debugMode = data.game.debugMode
     request.onerror = ->
       return
     request.send()
   else if game != undefined
     data.game = JSON.parse(atob(game))
-    console.log data.game
-    data.currentScene = gameArea.changeScene(data.game.scenes[0].name)
     data.debugMode = data.game.debugMode
+    return
+
+# Save game
+saveGame = ->
+  if data.game.settings.saveMode == "cookie"
+    console.log "cookie"
+  else if data.game.settings.saveMode == "text"
+    console.log "text"
 
 loadGame()
 
@@ -53,23 +60,20 @@ gameArea = new Vue(
   methods:
     saveGameAsJson: () ->
       save = btoa(JSON.stringify(@game))
-      console.log save
-      console.log atob(save)
-      console.log JSON.parse(atob(save))
-      console.log atob(JSON.parse(save))
+      console.log "Save data: " + save
       return save
 
     selectChoice: (choice) ->
-      @exitScene(@currentScene)
-      @readItemAndActionEdits(choice)
+      @exitScene(@game.currentScene)
+      @readItemAndStatsEdits(choice)
       @readSounds(choice,true)
       if choice.nextScene != ""
         @changeScene(choice.nextScene)
       else
-        @updateScene(@currentScene)
+        @updateScene(@game.currentScene)
 
     selectChoiceByName: (name) ->
-      for i in @currentScene.choices
+      for i in @game.currentScene.choices
         if i.name == name
           @selectChoice(i)
           break
@@ -84,36 +88,36 @@ gameArea = new Vue(
 
     setupScene: (scene) ->
       @updateScene(scene)
-      @readItemAndActionEdits(@currentScene)
-      @readSounds(@currentScene,false)
+      @readItemAndStatsEdits(@game.currentScene)
+      @readSounds(@game.currentScene,false)
 
     updateScene: (scene) ->
-      @currentScene = scene
-      @combineSceneTexts(@currentScene)
-      @currentScene.parsedText = @parseText @currentScene.combinedText
+      @combineSceneTexts(scene)
+      scene.parsedText = @parseText scene.combinedText
+      @game.currentScene = scene
       @updateChoices(this)
 
     updateChoices: (vue) ->
-      @$set 'parsedChoices', @currentScene.choices.map((choice) ->
+      @$set 'game.parsedChoices', @game.currentScene.choices.map((choice) ->
         choice.parsedText = vue.parseText(choice.text)
         if vue.game.settings.alwaysShowDisabledChoices
           choice.alwaysShow = true
         choice
       )
 
-    readItemAndActionEdits: (source) ->
+    readItemAndStatsEdits: (source) ->
       if source.removeItem != undefined
-        @editItemsOrActions(@parseItemOrAction(source.removeItem),"remove",true)
+        @editItemsOrStats(@parseItemOrStats(source.removeItem),"remove",true)
       if source.addItem != undefined
-        @editItemsOrActions(@parseItemOrAction(source.addItem),"add",true)
+        @editItemsOrStats(@parseItemOrStats(source.addItem),"add",true)
       if source.setItem != undefined
-        @editItemsOrActions(@parseItemOrAction(source.setItem),"set",true)
-      if source.removeAction != undefined
-        @editItemsOrActions(@parseItemOrAction(source.removeAction),"remove",false)
-      if source.addAction != undefined
-        @editItemsOrActions(@parseItemOrAction(source.addAction),"add",false)
-      if source.setAction != undefined
-        @editItemsOrActions(@parseItemOrAction(source.setAction),"set",false)
+        @editItemsOrStats(@parseItemOrStats(source.setItem),"set",true)
+      if source.removeStats != undefined
+        @editItemsOrStats(@parseItemOrStats(source.removeStats),"remove",false)
+      if source.addStats != undefined
+        @editItemsOrStats(@parseItemOrStats(source.addStats),"add",false)
+      if source.setStats != undefined
+        @editItemsOrStats(@parseItemOrStats(source.setStats),"set",false)
       if source.setValue != undefined
         for val in source.setValue
           @setValue(val.path,val.value)
@@ -139,10 +143,10 @@ gameArea = new Vue(
     requirementsFilled: (choice) ->
       reqs = []
       if choice.itemRequirement != undefined
-        requirements = @parseItemOrAction choice.itemRequirement
+        requirements = @parseItemOrStats choice.itemRequirement
         reqs.push @parseRequirements requirements
-      if choice.actionRequirement != undefined
-        requirements = @parseItemOrAction choice.actionRequirement
+      if choice.statsRequirement != undefined
+        requirements = @parseItemOrStats choice.statsRequirement
         reqs.push @parseRequirements requirements
       if choice.requirement != undefined
         reqs.push @parseIfStatement choice.requirement
@@ -159,7 +163,7 @@ gameArea = new Vue(
           if key.includes("text-")
             scene.combinedText = scene.combinedText.concat(scene[key])
 
-    parseItemOrAction: (items) ->
+    parseItemOrStats: (items) ->
       separate = items.split("|")
       parsed = []
       for i in separate
@@ -219,9 +223,9 @@ gameArea = new Vue(
               spansToBeClosed++
             else
               splitText[index] = ""
-          else if s.substring(0,4) == "act."
-            value = s.substring(4,s.length)
-            for i in @game.actions
+          else if s.substring(0,5) == "stat."
+            value = s.substring(5,s.length)
+            for i in @game.stats
               if i.name == value
                 splitText[index] = i.count
           else if s.substring(0,4) == "inv."
@@ -235,7 +239,7 @@ gameArea = new Vue(
           else if s.substring(0,5) == "input"
             parsed = s.split("input ")
             nameText = ""
-            for i in @game.actions
+            for i in @game.stats
               if i.name == parsed[1]
                 nameText = i.count
             splitText[index] = "<input type=\"text\" value=\"" + nameText + "\" name=\"input\" class=\"input-" + parsed[1] +  "\">"
@@ -262,7 +266,7 @@ gameArea = new Vue(
     updateInputs: (scene) ->
       inputs = document.getElementById("game-area").querySelectorAll("input")
       for i in inputs
-        for a in @game.actions
+        for a in @game.stats
           if a.name == i.className.substring(6,i.className.length)
             a.count = stripHTML(i.value)
 
@@ -333,8 +337,8 @@ gameArea = new Vue(
       parsedValues = []
       for val in parsedString
         type = null
-        if val.substring(0,4) == "act."
-          type = "action"
+        if val.substring(0,5) == "stat."
+          type = "stats"
         else if val.substring(0,4) == "inv."
           type = "item"
         else if val.substring(0,4) == "var."
@@ -350,9 +354,9 @@ gameArea = new Vue(
             for i in @game.inventory
               if i.name == val.substring(4,val.length)
                 parsedValues.push i.count
-          when "action"
-            for i in @game.actions
-              if i.name == val.substring(4,val.length)
+          when "stats"
+            for i in @game.stats
+              if i.name == val.substring(5,val.length)
                 parsedValues.push i.count
           when "var"
             val = @findValue(val.substring(4,val.length),true)
@@ -401,11 +405,11 @@ gameArea = new Vue(
       else
         return false
 
-    editItemsOrActions: (items, mode, isItem) ->
+    editItemsOrStats: (items, mode, isItem) ->
       if isItem
         inventory = @game.inventory
       else
-        inventory = @game.actions
+        inventory = @game.stats
       for j in items
         itemAdded = false
         for i in inventory
@@ -456,7 +460,7 @@ gameArea = new Vue(
       if isItem
         @game.inventory = inventory
       else
-        @game.actions = inventory
+        @game.stats = inventory
 
     findSceneByName: (name) ->
       for i in @game.scenes

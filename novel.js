@@ -1,8 +1,7 @@
-var data, gameArea, gamePath, isEven, isOdd, loadGame, prepareData, stripHTML;
+var data, gameArea, gamePath, isEven, isOdd, loadGame, prepareData, saveGame, stripHTML;
 
 data = {
   game: null,
-  currentScene: null,
   choices: null,
   debugMode: false,
   music: []
@@ -12,6 +11,8 @@ gamePath = './game';
 
 prepareData = function(json) {
   var c, i, k, l, len, len1, len2, m, ref, ref1, ref2, s;
+  json.currentScene = "";
+  json.parsedChoices = "";
   ref = json.inventory;
   for (k = 0, len = ref.length; k < len; k++) {
     i = ref[k];
@@ -50,7 +51,7 @@ loadGame = function(game) {
         json = JSON.parse(request.responseText);
         json = prepareData(json);
         data.game = json;
-        data.currentScene = gameArea.changeScene(data.game.scenes[0].name);
+        data.game.currentScene = gameArea.changeScene(data.game.scenes[0].name);
         return data.debugMode = data.game.debugMode;
       }
     };
@@ -58,9 +59,15 @@ loadGame = function(game) {
     return request.send();
   } else if (game !== void 0) {
     data.game = JSON.parse(atob(game));
-    console.log(data.game);
-    data.currentScene = gameArea.changeScene(data.game.scenes[0].name);
-    return data.debugMode = data.game.debugMode;
+    data.debugMode = data.game.debugMode;
+  }
+};
+
+saveGame = function() {
+  if (data.game.settings.saveMode === "cookie") {
+    return console.log("cookie");
+  } else if (data.game.settings.saveMode === "text") {
+    return console.log("text");
   }
 };
 
@@ -73,25 +80,22 @@ gameArea = new Vue({
     saveGameAsJson: function() {
       var save;
       save = btoa(JSON.stringify(this.game));
-      console.log(save);
-      console.log(atob(save));
-      console.log(JSON.parse(atob(save)));
-      console.log(atob(JSON.parse(save)));
+      console.log("Save data: " + save);
       return save;
     },
     selectChoice: function(choice) {
-      this.exitScene(this.currentScene);
-      this.readItemAndActionEdits(choice);
+      this.exitScene(this.game.currentScene);
+      this.readItemAndStatsEdits(choice);
       this.readSounds(choice, true);
       if (choice.nextScene !== "") {
         return this.changeScene(choice.nextScene);
       } else {
-        return this.updateScene(this.currentScene);
+        return this.updateScene(this.game.currentScene);
       }
     },
     selectChoiceByName: function(name) {
       var i, k, len, ref, results;
-      ref = this.currentScene.choices;
+      ref = this.game.currentScene.choices;
       results = [];
       for (k = 0, len = ref.length; k < len; k++) {
         i = ref[k];
@@ -115,17 +119,17 @@ gameArea = new Vue({
     },
     setupScene: function(scene) {
       this.updateScene(scene);
-      this.readItemAndActionEdits(this.currentScene);
-      return this.readSounds(this.currentScene, false);
+      this.readItemAndStatsEdits(this.game.currentScene);
+      return this.readSounds(this.game.currentScene, false);
     },
     updateScene: function(scene) {
-      this.currentScene = scene;
-      this.combineSceneTexts(this.currentScene);
-      this.currentScene.parsedText = this.parseText(this.currentScene.combinedText);
+      this.combineSceneTexts(scene);
+      scene.parsedText = this.parseText(scene.combinedText);
+      this.game.currentScene = scene;
       return this.updateChoices(this);
     },
     updateChoices: function(vue) {
-      return this.$set('parsedChoices', this.currentScene.choices.map(function(choice) {
+      return this.$set('game.parsedChoices', this.game.currentScene.choices.map(function(choice) {
         choice.parsedText = vue.parseText(choice.text);
         if (vue.game.settings.alwaysShowDisabledChoices) {
           choice.alwaysShow = true;
@@ -133,25 +137,25 @@ gameArea = new Vue({
         return choice;
       }));
     },
-    readItemAndActionEdits: function(source) {
+    readItemAndStatsEdits: function(source) {
       var k, l, len, len1, len2, m, ref, ref1, ref2, results, val;
       if (source.removeItem !== void 0) {
-        this.editItemsOrActions(this.parseItemOrAction(source.removeItem), "remove", true);
+        this.editItemsOrStats(this.parseItemOrStats(source.removeItem), "remove", true);
       }
       if (source.addItem !== void 0) {
-        this.editItemsOrActions(this.parseItemOrAction(source.addItem), "add", true);
+        this.editItemsOrStats(this.parseItemOrStats(source.addItem), "add", true);
       }
       if (source.setItem !== void 0) {
-        this.editItemsOrActions(this.parseItemOrAction(source.setItem), "set", true);
+        this.editItemsOrStats(this.parseItemOrStats(source.setItem), "set", true);
       }
-      if (source.removeAction !== void 0) {
-        this.editItemsOrActions(this.parseItemOrAction(source.removeAction), "remove", false);
+      if (source.removeStats !== void 0) {
+        this.editItemsOrStats(this.parseItemOrStats(source.removeStats), "remove", false);
       }
-      if (source.addAction !== void 0) {
-        this.editItemsOrActions(this.parseItemOrAction(source.addAction), "add", false);
+      if (source.addStats !== void 0) {
+        this.editItemsOrStats(this.parseItemOrStats(source.addStats), "add", false);
       }
-      if (source.setAction !== void 0) {
-        this.editItemsOrActions(this.parseItemOrAction(source.setAction), "set", false);
+      if (source.setStats !== void 0) {
+        this.editItemsOrStats(this.parseItemOrStats(source.setStats), "set", false);
       }
       if (source.setValue !== void 0) {
         ref = source.setValue;
@@ -198,11 +202,11 @@ gameArea = new Vue({
       var k, len, r, reqs, requirements, success;
       reqs = [];
       if (choice.itemRequirement !== void 0) {
-        requirements = this.parseItemOrAction(choice.itemRequirement);
+        requirements = this.parseItemOrStats(choice.itemRequirement);
         reqs.push(this.parseRequirements(requirements));
       }
-      if (choice.actionRequirement !== void 0) {
-        requirements = this.parseItemOrAction(choice.actionRequirement);
+      if (choice.statsRequirement !== void 0) {
+        requirements = this.parseItemOrStats(choice.statsRequirement);
         reqs.push(this.parseRequirements(requirements));
       }
       if (choice.requirement !== void 0) {
@@ -234,7 +238,7 @@ gameArea = new Vue({
       }
       return results;
     },
-    parseItemOrAction: function(items) {
+    parseItemOrStats: function(items) {
       var i, k, len, parsed, separate;
       separate = items.split("|");
       parsed = [];
@@ -313,9 +317,9 @@ gameArea = new Vue({
             } else {
               splitText[index] = "";
             }
-          } else if (s.substring(0, 4) === "act.") {
-            value = s.substring(4, s.length);
-            ref1 = this.game.actions;
+          } else if (s.substring(0, 5) === "stat.") {
+            value = s.substring(5, s.length);
+            ref1 = this.game.stats;
             for (m = 0, len = ref1.length; m < len; m++) {
               i = ref1[m];
               if (i.name === value) {
@@ -337,7 +341,7 @@ gameArea = new Vue({
           } else if (s.substring(0, 5) === "input") {
             parsed = s.split("input ");
             nameText = "";
-            ref3 = this.game.actions;
+            ref3 = this.game.stats;
             for (q = 0, len2 = ref3.length; q < len2; q++) {
               i = ref3[q];
               if (i.name === parsed[1]) {
@@ -378,7 +382,7 @@ gameArea = new Vue({
         i = inputs[k];
         results.push((function() {
           var l, len1, ref, results1;
-          ref = this.game.actions;
+          ref = this.game.stats;
           results1 = [];
           for (l = 0, len1 = ref.length; l < len1; l++) {
             a = ref[l];
@@ -478,8 +482,8 @@ gameArea = new Vue({
       for (k = 0, len = parsedString.length; k < len; k++) {
         val = parsedString[k];
         type = null;
-        if (val.substring(0, 4) === "act.") {
-          type = "action";
+        if (val.substring(0, 5) === "stat.") {
+          type = "stats";
         } else if (val.substring(0, 4) === "inv.") {
           type = "item";
         } else if (val.substring(0, 4) === "var.") {
@@ -501,11 +505,11 @@ gameArea = new Vue({
               }
             }
             break;
-          case "action":
-            ref1 = this.game.actions;
+          case "stats":
+            ref1 = this.game.stats;
             for (m = 0, len2 = ref1.length; m < len2; m++) {
               i = ref1[m];
-              if (i.name === val.substring(4, val.length)) {
+              if (i.name === val.substring(5, val.length)) {
                 parsedValues.push(i.count);
               }
             }
@@ -582,12 +586,12 @@ gameArea = new Vue({
         return false;
       }
     },
-    editItemsOrActions: function(items, mode, isItem) {
+    editItemsOrStats: function(items, mode, isItem) {
       var count, displayName, i, inventory, itemAdded, j, k, l, len, len1, p, probability, value;
       if (isItem) {
         inventory = this.game.inventory;
       } else {
-        inventory = this.game.actions;
+        inventory = this.game.stats;
       }
       for (k = 0, len = items.length; k < len; k++) {
         j = items[k];
@@ -659,7 +663,7 @@ gameArea = new Vue({
       if (isItem) {
         return this.game.inventory = inventory;
       } else {
-        return this.game.actions = inventory;
+        return this.game.stats = inventory;
       }
     },
     findSceneByName: function(name) {

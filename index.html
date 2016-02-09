@@ -4,17 +4,18 @@
     <title>Novel.js</title>
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="game/skin.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
   </head>
   <body>
     <main>
       <div id="game-area">
-        <div class="style-area {{ currentScene.style }}">
+        <div class="style-area {{ game.currentScene.style }}">
           <div class="text-area">
-            {{{ currentScene.parsedText }}}
+            {{{ game.currentScene.parsedText }}}
           </div>
           <div class="choices">
             <ul class="choice-list">
-              <div v-for="choice in parsedChoices">
+              <div v-for="choice in game.parsedChoices">
                 <li v-if="requirementsFilled(choice)" class="choice">
                   <a href="#" v-on:click="selectChoice(choice)">{{{ choice.parsedText }}}</a>
                 </li>
@@ -34,13 +35,17 @@
               </li>
             </ul>
           </div>
-          <div v-if="game.settings.debugMode" class="actions">
-            <h5>Actions:</h5>
-            <ul class="action-list">
-              <li v-for="action in game.actions" class="action-item">
-                {{{ action.name }}} - {{{ action.count }}}
+          <div v-if="game.settings.debugMode" class="stats">
+            <h5>Stats:</h5>
+            <ul class="stats-list">
+              <li v-for="stats in game.stats" class="stats-item">
+                {{{ stats.name }}} - {{{ stats.count }}}
               </li>
             </ul>
+          </div>
+          <div class="save-buttons">
+            <button type="button" onclick="saveGame()">Save</button>
+            <button type="button" onclicK="loadGame()">Load</button>
           </div>
         </div>
       </div>
