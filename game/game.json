@@ -138,6 +138,7 @@
     "alwaysShowDisabledChoices": false,
     "soundSettings": {
       "soundVolume": 0.5,
+      "musicVolume": 0.5,
       "defaultClickSound": "click"
     }
   },

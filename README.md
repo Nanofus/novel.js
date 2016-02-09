@@ -34,6 +34,9 @@ Novel.js is written in CoffeeScript and SASS and depends only on Vue.js.
 		- [Format for add/remove/set and requirement commands](#format-for-addremoveset-and-requirement-commands)
 		- [Format for conditional statements](#format-for-conditional-statements)
 		- [Format for `[var]` and value manipulation commands](#format-for-var-and-value-manipulation-commands)
+	- [Audio](#audio)
+		- [Sound effects](#sound-effects)
+		- [Music](#music)
 	- [Styling](#styling)
 - [License](#license)
 
@@ -143,6 +146,8 @@ A scene object can contain the following variables and parameters:
 - `increaseValue` - See its [own chapter](#format-for-var-and-value-manipulation-commands).
 - `decreaseValue` - See its [own chapter](#format-for-var-and-value-manipulation-commands).
 - `playSound` - Play a sound with the chosen name upon entering the scene.
+- `startMusic` - Start a music loop with the chosen name.
+- `endMusic` - End a music loop with the chosen name.
 - `choices` - Required (not enforced). A list of choices available in the scene.
 
 #### Choices
@@ -164,6 +169,8 @@ Choices are the options the player can choose in a scene. An example is provided
 - `increaseValue` - See its [own chapter](#format-for-var-and-value-manipulation-commands).
 - `decreaseValue` - See its [own chapter](#format-for-var-and-value-manipulation-commands).
 - `playSound` - Play a sound with the chosen name upon selecting the choice.
+- `startMusic` - Start a music loop with the chosen name.
+- `endMusic` - End a music loop with the chosen name.
 - `nextScene` - The scene into which the player moves if they select this choice. If omitted, the scene does not change. Supports multiple outcomes, as different probabilities can be set for different scenes. Takes the following format:
 ```
 sceneOne[probability]|sceneTwo[probability]|sceneThree[probability]
@@ -312,6 +319,40 @@ If the path contains arrays, give the path to that array as the first parameter,
 ```
 scenes,1,choices,2,parsedText
 ```
+
+### Audio
+
+Sounds and music the game uses are located in the `game/sounds` folder, and they have to be defined in `game.json`. More information [here](#sounds).
+
+All music's and sounds' volume is dependent on the `musicVolume` and `soundVolume` attributes of `settings.soundSettings`.
+
+#### Sound effects
+
+You can play sound effects by using the `playSound` command and giving it the sound's name.
+
+#### Music
+
+Music works a bit differently in Novel.js than sound effects do; music is started by using a `startMusic` command with the music's name. The music file with the chosen name loops until stopped by the `stopMusic` command, even if the scene is changed. This way you can have both looping ambient sound effects and looping music. Example:
+```json
+{
+  "name": "dragon",
+	"startMusic": "battleMusic",
+  "text": "<p>You wander across a [s1]dragon[/s]. What do you do?</p>",
+  "choices": [
+    {
+      "text": "Fight it!",
+      "itemRequirement": "sword[1]",
+      "nextScene": "hitDragon"
+    },
+    {
+      "text": "Run away!",
+			"stopMusic": "battleMusic",
+      "nextScene": "road"
+    }
+  ]
+}
+```
+You should not play multiple instances of the same music at once, because it will not stop correctly.
 
 ### Styling
 

@@ -113,7 +113,7 @@ gameArea = new Vue(
     readSounds: (source,clicked) ->
       played = false
       if source.playSound != undefined
-        @playSound(source.playSound)
+        @playSound(source.playSound,false)
         played = true
       if clicked && !played
         @playDefaultClickSound()
@@ -592,13 +592,16 @@ gameArea = new Vue(
       console.warn "ERROR: Scene by name '"+name+"' not found!"
 
     playDefaultClickSound: (name,clicked) ->
-      @playSound(@game.settings.soundSettings.defaultClickSound)
+      @playSound(@game.settings.soundSettings.defaultClickSound,false)
 
-    playSound: (name) ->
+    playSound: (name, isMusic) ->
       for s in @game.sounds
         if s.name == name
           sound = new Audio(gamePath+'/sounds/'+s.file)
-          sound.volume = @game.settings.soundSettings.soundVolume
+          if isMusic
+            sound.volume = @game.settings.soundSettings.musicVolume
+          else
+            sound.volume = @game.settings.soundSettings.soundVolume
           sound.play()
           return sound
 
@@ -610,7 +613,7 @@ gameArea = new Vue(
           return true
 
     startMusic: (name) ->
-      music = @playSound(name)
+      music = @playSound(name,true)
       music.addEventListener 'ended', (->
         @currentTime = 0
         @play()
