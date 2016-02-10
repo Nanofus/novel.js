@@ -36,21 +36,24 @@ Novel.js is written in CoffeeScript and SASS and depends only on Vue.js.
 		- [Sound effects](#sound-effects)
 		- [Music](#music)
 	- [Styling](#styling)
+	- [Saving](#saving)
+		- [Cookie](#cookie)
+		- [Text](#text)
 - [License](#license)
 
 ## Features
 
 - A classic text-based adventure view; text and choices.
-- Conditional statements to hide or show text and choices based on different conditions, such as the items the player is carrying.
+- Conditional statements to hide or show text and choices based on different conditions, such as the items the player is carrying, allowing for complex logic.
 - Shorthand tags for general styling of names etc.
 - An inventory system, with another hidden one to track the player's actions or other statistics.
 - Choices can have several different outcomes with different probabilities.
 - Play sound effects and looping music/ambient sound effects!
+- Saving as a cookie or an encoded string that is given to the player.
 - Support for css styling and html tags in text.
 
 ## Upcoming features
 
-- Saving
 - Alternative visual novel system
 - A settings menu for the player
 - Translation support
@@ -145,6 +148,8 @@ A scene object can contain the following variables and parameters:
 - `playSound` - Play a sound with the chosen name upon entering the scene.
 - `startMusic` - Start a music loop with the chosen name.
 - `endMusic` - End a music loop with the chosen name.
+- `saveGame` - Saves the game in the way defined in `settings.saveMode` upon entering the scene. Value can be anything, works as long as it is defined.
+- `loadGame` - Loads the game in the way defined in `settings.saveMode` upon entering the scene. Value can be anything, works as long as it is defined.
 - `choices` - Required (not enforced). A list of choices available in the scene.
 
 #### Choices
@@ -168,6 +173,8 @@ Choices are the options the player can choose in a scene. An example is provided
 - `playSound` - Play a sound with the chosen name upon selecting the choice.
 - `startMusic` - Start a music loop with the chosen name.
 - `endMusic` - End a music loop with the chosen name.
+- `saveGame` - Saves the game in the way defined in `settings.saveMode` upon selecting the choice. Value can be anything, works as long as it is defined.
+- `loadGame` - Loads the game in the way defined in `settings.saveMode` upon selecting the choice. Value can be anything, works as long as it is defined.
 - `nextScene` - The scene into which the player moves if they select this choice. If omitted, the scene does not change. Supports multiple outcomes, as different probabilities can be set for different scenes. Takes the following format:
 ```
 sceneOne[probability]|sceneTwo[probability]|sceneThree[probability]
@@ -184,6 +191,8 @@ The settings object contains general settings for the game:
 
 - `debugMode` - True or false. If true, the stats list is shown to the player the same way as the inventory.
 - `alwaysShowDisabledChoices` - True or false. If true, choices with unmet requirements are always shown.
+- `saveMode` - `text` or `cookie`. See [Saving](#saving).
+- `showSaveButtons` - True or false. If true, the saving and loading buttons are shown, otherwise they are hidden.
 - `soundSettings`:
   - `soundVolume` - A float between 0 and 1. The volume of all sound effects.
   - `musicVolume` - A float between 0 and 1. The music's volume.
@@ -347,6 +356,18 @@ You should not play multiple instances of the same music at once, because it wil
 ### Styling
 
 The `css` folder contains a file named `skin.css`. Styles in `skin.css` override the default styles from `style.css`.
+
+### Saving
+
+Novel.js has currently two ways to allow the player to save and load their game. This is controlled by the `settings.saveMode` value, which can be either `cookie` or `text`. Saving is done by clicking the "Save" and "Load" buttons in the game window, or by using the `saveGame` and `loadGame` commands. The buttons can be hidden by setting `settings.showSaveButtons` to false.
+
+#### Cookie
+
+The first way to save a game is to use the browser's cookies. If you use this option, make sure you have the required legal notifications in your game. The game is saved as a cookie named `gameData`, and contains the `game.json` file Base64 encoded. The cookie has an expiration time of 365 days by default. There can currently be only a single saved game. Note that cookies might not work when testing the game on `localhost` in some browsers.
+
+#### Text
+
+The second way is to save the `game.json` file as a Base64 encoded string, that is then shown to the player and prompted to be copied. The "Load" button then shows a text field that allows the player to paste in their saved game data.
 
 ## License
 
