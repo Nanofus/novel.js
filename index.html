@@ -10,6 +10,18 @@
     <main>
       <div id="game-area">
         <div class="style-area {{ game.currentScene.style }}">
+          <div id="notification-wrapper">
+            <div id="save-notification" class="notification">
+              <p>Copy and save this text:</p>
+              <p><textarea name="save-text" readonly></textarea></p>
+              <p><button type="button" onclick="closeSaveNotification()">Close</button></p>
+            </div>
+            <div id="load-notification" class="notification">
+              <p>Paste your saved game here:</p>
+              <p><textarea name="load-text"></textarea></p>
+              <p><button type="button" onclick="closeLoadNotification(false)">Close</button><button type="button" onclick="closeLoadNotification(true)">Load</button></p>
+            </div>
+          </div>
           <div class="text-area">
             {{{ game.currentScene.parsedText }}}
           </div>
@@ -44,8 +56,8 @@
             </ul>
           </div>
           <div class="save-buttons">
-            <button type="button" onclick="saveGame()">Save</button>
-            <button type="button" onclicK="loadGame()">Load</button>
+            <button type="button" id="save-button" onclick="saveGame()">Save</button>
+            <button type="button" id="load-button" onclick="showLoadNotification()">Load</button>
           </div>
         </div>
       </div>

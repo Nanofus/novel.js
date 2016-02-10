@@ -1,5 +1,5 @@
 {
-  "gameName": "kekkonen",
+  "gameName": "testGame",
   "debugMode": true,
   "inventory": [
     {"name": "sword", "count": 1},
@@ -135,7 +135,7 @@
   ],
   "settings": {
     "debugMode": true,
-    "saveMode": "cookie",
+    "saveMode": "text",
     "alwaysShowDisabledChoices": false,
     "soundSettings": {
       "soundVolume": 0.5,

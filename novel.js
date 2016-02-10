@@ -1,4 +1,4 @@
-var data, gameArea, gamePath, isEven, isOdd, loadGame, prepareData, saveGame, stripHTML;
+var closeLoadNotification, closeSaveNotification, data, gameArea, gamePath, isEven, isOdd, loadCookie, loadGame, prepareData, saveCookie, saveGame, showLoadNotification, showSaveNotification, startGame, stripHTML;
 
 data = {
   game: null,
@@ -40,38 +40,80 @@ prepareData = function(json) {
   return json;
 };
 
+loadCookie = function(cname) {
+  var c, ca, i, name;
+  name = cname + '=';
+  ca = document.cookie.split(';');
+  i = 0;
+  while (i < ca.length) {
+    c = ca[i];
+    while (c.charAt(0) === ' ') {
+      c = c.substring(1);
+    }
+    if (c.indexOf(name) === 0) {
+      return c.substring(name.length, c.length);
+    }
+    i++;
+  }
+  return '';
+};
+
+saveCookie = function(cname, cvalue, exdays) {
+  var d, expires;
+  d = new Date;
+  d.setTime(d.getTime() + exdays * 24 * 60 * 60 * 1000);
+  expires = 'expires=' + d.toUTCString();
+  return document.cookie = cname + '=' + cvalue + '; ' + expires + '; path=/';
+};
+
 loadGame = function(game) {
-  var request;
+  var cookie;
   if (game === void 0) {
-    request = new XMLHttpRequest;
-    request.open('GET', gamePath + '/game.json', true);
-    request.onload = function() {
-      var json;
-      if (request.status >= 200 && request.status < 400) {
-        json = JSON.parse(request.responseText);
-        json = prepareData(json);
-        data.game = json;
-        data.game.currentScene = gameArea.changeScene(data.game.scenes[0].name);
-        return data.debugMode = data.game.debugMode;
-      }
-    };
-    request.onerror = function() {};
-    return request.send();
+    if (loadCookie("gameData") !== '') {
+      console.log("Cookie dound!");
+      cookie = loadCookie("gameData");
+      console.log("Cookie loaded");
+      console.log(cookie);
+      data.game = JSON.parse(atob(loadCookie("gameData")));
+      console.log("Data loaded!");
+      return data.debugMode = data.game.debugMode;
+    }
   } else if (game !== void 0) {
     data.game = JSON.parse(atob(game));
     data.debugMode = data.game.debugMode;
   }
 };
 
+startGame = function() {
+  var request;
+  request = new XMLHttpRequest;
+  request.open('GET', gamePath + '/game.json', true);
+  request.onload = function() {
+    var json;
+    if (request.status >= 200 && request.status < 400) {
+      json = JSON.parse(request.responseText);
+      json = prepareData(json);
+      data.game = json;
+      data.game.currentScene = gameArea.changeScene(data.game.scenes[0].name);
+      return data.debugMode = data.game.debugMode;
+    }
+  };
+  request.onerror = function() {};
+  return request.send();
+};
+
 saveGame = function() {
+  var save;
+  save = gameArea.saveGameAsJson();
   if (data.game.settings.saveMode === "cookie") {
-    return console.log("cookie");
+    saveCookie("gameData", save, 365);
+    return console.log("Cookie saved!");
   } else if (data.game.settings.saveMode === "text") {
-    return console.log("text");
+    return showSaveNotification(save);
   }
 };
 
-loadGame();
+startGame();
 
 gameArea = new Vue({
   el: '#game-area',
@@ -80,7 +122,6 @@ gameArea = new Vue({
     saveGameAsJson: function() {
       var save;
       save = btoa(JSON.stringify(this.game));
-      console.log("Save data: " + save);
       return save;
     },
     selectChoice: function(choice) {
@@ -752,4 +793,34 @@ stripHTML = function(text) {
   var regex;
   regex = /(<([^>]+)>)/ig;
   return text.replace(regex, '');
+};
+
+showSaveNotification = function(text) {
+  var e, textArea;
+  e = document.getElementById("save-notification");
+  textArea = e.querySelectorAll("textarea");
+  textArea[0].value = text;
+  return e.style.display = 'block';
+};
+
+closeSaveNotification = function() {
+  var e;
+  e = document.getElementById("save-notification");
+  return e.style.display = 'none';
+};
+
+showLoadNotification = function(text) {
+  var e;
+  e = document.getElementById("load-notification");
+  return e.style.display = 'block';
+};
+
+closeLoadNotification = function(load) {
+  var e, textArea;
+  e = document.getElementById("load-notification");
+  if (load) {
+    textArea = e.querySelectorAll("textarea");
+    loadGame(textArea[0].value);
+  }
+  return e.style.display = 'none';
 };

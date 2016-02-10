@@ -24,34 +24,65 @@ prepareData = (json) ->
         c.alwaysShow = false
   return json
 
+loadCookie = (cname) ->
+  name = cname + '='
+  ca = document.cookie.split(';')
+  i = 0
+  while i < ca.length
+    c = ca[i]
+    while c.charAt(0) == ' '
+      c = c.substring(1)
+    if c.indexOf(name) == 0
+      return c.substring(name.length, c.length)
+    i++
+  ''
+
+saveCookie = (cname, cvalue, exdays) ->
+  d = new Date
+  d.setTime d.getTime() + exdays * 24 * 60 * 60 * 1000
+  expires = 'expires=' + d.toUTCString()
+  document.cookie = cname + '=' + cvalue + '; ' + expires + '; path=/'
+
 # Load JSON
 loadGame = (game) ->
   if game == undefined
-    request = new XMLHttpRequest
-    request.open 'GET', gamePath + '/game.json', true
-    request.onload = ->
-      if request.status >= 200 and request.status < 400
-        json = JSON.parse(request.responseText)
-        json = prepareData(json)
-        data.game = json
-        data.game.currentScene = gameArea.changeScene(data.game.scenes[0].name)
-        data.debugMode = data.game.debugMode
-    request.onerror = ->
-      return
-    request.send()
+    if loadCookie("gameData") != ''
+      console.log "Cookie dound!"
+      cookie = loadCookie("gameData")
+      console.log "Cookie loaded"
+      console.log cookie
+      data.game = JSON.parse(atob(loadCookie("gameData")))
+      console.log "Data loaded!"
+      data.debugMode = data.game.debugMode
   else if game != undefined
     data.game = JSON.parse(atob(game))
     data.debugMode = data.game.debugMode
     return
 
+startGame = ->
+  request = new XMLHttpRequest
+  request.open 'GET', gamePath + '/game.json', true
+  request.onload = ->
+    if request.status >= 200 and request.status < 400
+      json = JSON.parse(request.responseText)
+      json = prepareData(json)
+      data.game = json
+      data.game.currentScene = gameArea.changeScene(data.game.scenes[0].name)
+      data.debugMode = data.game.debugMode
+  request.onerror = ->
+    return
+  request.send()
+
 # Save game
 saveGame = ->
+  save = gameArea.saveGameAsJson()
   if data.game.settings.saveMode == "cookie"
-    console.log "cookie"
+    saveCookie("gameData",save,365)
+    console.log "Cookie saved!"
   else if data.game.settings.saveMode == "text"
-    console.log "text"
+    showSaveNotification(save)
 
-loadGame()
+startGame()
 
 # Game area
 gameArea = new Vue(
@@ -60,7 +91,6 @@ gameArea = new Vue(
   methods:
     saveGameAsJson: () ->
       save = btoa(JSON.stringify(@game))
-      console.log "Save data: " + save
       return save
 
     selectChoice: (choice) ->
@@ -516,3 +546,24 @@ isOdd = (n) ->
 stripHTML = (text) ->
   regex = /(<([^>]+)>)/ig
   text.replace regex, ''
+
+showSaveNotification = (text) ->
+  e = document.getElementById("save-notification")
+  textArea = e.querySelectorAll("textarea")
+  textArea[0].value = text
+  e.style.display = 'block';
+
+closeSaveNotification = ->
+  e = document.getElementById("save-notification")
+  e.style.display = 'none';
+
+showLoadNotification = (text) ->
+  e = document.getElementById("load-notification")
+  e.style.display = 'block';
+
+closeLoadNotification = (load) ->
+  e = document.getElementById("load-notification")
+  if load
+    textArea = e.querySelectorAll("textarea")
+    loadGame(textArea[0].value)
+  e.style.display = 'none';

@@ -15,6 +15,28 @@ body {
   padding: 2rem;
 }
 
+#notification-wrapper {
+  position: absolute;
+  left: 50%;
+  & .notification {
+    background-color: $background-color;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+    text-align: center;
+    position:relative;
+    left: -50%;
+    margin: auto;
+    padding: 1rem;
+    display: none;
+    & button {
+      margin: 0.4rem;
+    }
+    & textarea {
+      width: 40rem;
+      height: 30rem;
+    }
+  }
+}
+
 a {
   text-decoration: none;
   color: $link-color;
