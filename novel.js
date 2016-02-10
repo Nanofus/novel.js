@@ -821,6 +821,7 @@ closeLoadNotification = function(load) {
   if (load) {
     textArea = e.querySelectorAll("textarea");
     loadGame(textArea[0].value);
+    textArea[0].value = "";
   }
   return e.style.display = 'none';
 };

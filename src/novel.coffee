@@ -566,4 +566,5 @@ closeLoadNotification = (load) ->
   if load
     textArea = e.querySelectorAll("textarea")
     loadGame(textArea[0].value)
+    textArea[0].value = ""
   e.style.display = 'none';
