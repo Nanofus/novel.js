@@ -191,6 +191,8 @@ The settings object contains general settings for the game:
 
 - `debugMode` - True or false. If true, the stats list is shown to the player the same way as the inventory.
 - `alwaysShowDisabledChoices` - True or false. If true, choices with unmet requirements are always shown.
+- `saveMode` - `text` or `cookie`. See [Saving](#saving).
+- `showSaveButtons` - True or false. If true, the saving and loading buttons are shown, otherwise they are hidden.
 - `soundSettings`:
   - `soundVolume` - A float between 0 and 1. The volume of all sound effects.
   - `musicVolume` - A float between 0 and 1. The music's volume.
@@ -357,7 +359,7 @@ The `css` folder contains a file named `skin.css`. Styles in `skin.css` override
 
 ### Saving
 
-Novel.js has currently two ways to allow the player to save and load their game. This is controlled by the `settings.saveMode` value, which can be either `cookie` or `text`. Saving is done by clicking the "Save" and "Load" buttons in the game window, or by using the `saveGame` and `loadGame` commands.
+Novel.js has currently two ways to allow the player to save and load their game. This is controlled by the `settings.saveMode` value, which can be either `cookie` or `text`. Saving is done by clicking the "Save" and "Load" buttons in the game window, or by using the `saveGame` and `loadGame` commands. The buttons can be hidden by setting `settings.showSaveButtons` to false.
 
 #### Cookie
 
