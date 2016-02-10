@@ -157,9 +157,9 @@ A scene object can contain the following variables and parameters:
 Choices are the options the player can choose in a scene. An example is provided in the Scenes example. Choices have the following variables and parameters:
 - `text` - Required in most cases. The text to show the player. Can be formatted using html or Novel.js's own tags. If not specified, the choice will not be shown but can be linked to using its name.
 - `name` - Optional. Not visible, but is used when this choice is referred to from a link. Cannot contain spaces.
-- `itemRequirement` - Items that the player has to have in their inventory to be able to select this choice. An unselectable choice is hidden by default, unless `showAlways` is true.
-- `statsRequirement` - Stats that the player has to have in their stats list to be able to select this choice. An unselectable choice is hidden by default, unless `showAlways` is true.
-- `requirement` - An advanced way to define a choice's requirements. Takes a conditional statement. An unselectable choice is hidden by default, unless `showAlways` is true.
+- `itemRequirement` - Items that the player has to have in their inventory to be able to select this choice. An unselectable choice is hidden by default, unless `alwaysShow` is true.
+- `statsRequirement` - Stats that the player has to have in their stats list to be able to select this choice. An unselectable choice is hidden by default, unless `alwaysShow` is true.
+- `requirement` - An advanced way to define a choice's requirements. Takes a conditional statement. An unselectable choice is hidden by default, unless `alwaysShow` is true.
 - `alwaysShow` - Show the choice even though its requirements have not been met. The choice will be grayed out, and can not be selected. Can also be set globally in the settings.
 - `addItem` - Add items to the player's inventory upon selecting this choice.
 - `removeItem` - Remove items from the player's inventory upon selecting this choice.
