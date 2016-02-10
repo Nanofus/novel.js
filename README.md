@@ -148,6 +148,8 @@ A scene object can contain the following variables and parameters:
 - `playSound` - Play a sound with the chosen name upon entering the scene.
 - `startMusic` - Start a music loop with the chosen name.
 - `endMusic` - End a music loop with the chosen name.
+- `saveGame` - Saves the game in the way defined in `settings.saveMode` upon entering the scene. Value can be anything, works as long as it is defined.
+- `loadGame` - Loads the game in the way defined in `settings.saveMode` upon entering the scene. Value can be anything, works as long as it is defined.
 - `choices` - Required (not enforced). A list of choices available in the scene.
 
 #### Choices
@@ -171,6 +173,8 @@ Choices are the options the player can choose in a scene. An example is provided
 - `playSound` - Play a sound with the chosen name upon selecting the choice.
 - `startMusic` - Start a music loop with the chosen name.
 - `endMusic` - End a music loop with the chosen name.
+- `saveGame` - Saves the game in the way defined in `settings.saveMode` upon selecting the choice. Value can be anything, works as long as it is defined.
+- `loadGame` - Loads the game in the way defined in `settings.saveMode` upon selecting the choice. Value can be anything, works as long as it is defined.
 - `nextScene` - The scene into which the player moves if they select this choice. If omitted, the scene does not change. Supports multiple outcomes, as different probabilities can be set for different scenes. Takes the following format:
 ```
 sceneOne[probability]|sceneTwo[probability]|sceneThree[probability]
