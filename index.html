@@ -14,7 +14,7 @@
             <div id="save-notification" class="notification">
               <p>Copy and save this text:</p>
               <p><textarea name="save-text" readonly></textarea></p>
-              <p><button type="button" onclick="closeSaveNotification()">Close</button></p>
+              <p><button type="button" onclick="closeSaveNotification()">Close</button><button type="button" id="copy-button">Copy</button></p>
             </div>
             <div id="load-notification" class="notification">
               <p>Paste your saved game here:</p>
@@ -55,7 +55,7 @@
               </li>
             </ul>
           </div>
-          <div class="save-buttons">
+          <div v-if="game.settings.showSaveButtons" class="save-buttons">
             <button type="button" id="save-button" onclick="saveGame()">Save</button>
             <button type="button" id="load-button" onclick="showLoadNotification()">Load</button>
           </div>

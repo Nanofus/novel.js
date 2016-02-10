@@ -78,7 +78,6 @@ saveGame = ->
   save = gameArea.saveGameAsJson()
   if data.game.settings.saveMode == "cookie"
     saveCookie("gameData",save,365)
-    console.log "Cookie saved!"
   else if data.game.settings.saveMode == "text"
     showSaveNotification(save)
 
@@ -97,6 +96,7 @@ gameArea = new Vue(
       @exitScene(@game.currentScene)
       @readItemAndStatsEdits(choice)
       @readSounds(choice,true)
+      @readSaving(choice)
       if choice.nextScene != ""
         @changeScene(choice.nextScene)
       else
@@ -120,6 +120,7 @@ gameArea = new Vue(
       @updateScene(scene)
       @readItemAndStatsEdits(@game.currentScene)
       @readSounds(@game.currentScene,false)
+      @readSaving(@game.currentScene)
 
     updateScene: (scene) ->
       @combineSceneTexts(scene)
@@ -169,6 +170,12 @@ gameArea = new Vue(
         @startMusic(source.startMusic)
       if source.stopMusic != undefined
         @stopMusic(source.stopMusic)
+
+    readSaving: (source) ->
+      if source.saveGame != undefined
+        saveGame()
+      if source.loadGame != undefined
+        showLoadNotification()
 
     requirementsFilled: (choice) ->
       reqs = []
@@ -257,7 +264,7 @@ gameArea = new Vue(
             value = s.substring(5,s.length)
             for i in @game.stats
               if i.name == value
-                splitText[index] = i.count
+                splitText[index] = i.value
           else if s.substring(0,4) == "inv."
             value = s.substring(4,s.length)
             for i in @game.inventory
@@ -271,7 +278,7 @@ gameArea = new Vue(
             nameText = ""
             for i in @game.stats
               if i.name == parsed[1]
-                nameText = i.count
+                nameText = i.value
             splitText[index] = "<input type=\"text\" value=\"" + nameText + "\" name=\"input\" class=\"input-" + parsed[1] +  "\">"
           else if s.substring(0,6) == "choice"
             parsed = s.split("choice ")
@@ -298,7 +305,7 @@ gameArea = new Vue(
       for i in inputs
         for a in @game.stats
           if a.name == i.className.substring(6,i.className.length)
-            a.count = stripHTML(i.value)
+            a.value = stripHTML(i.value)
 
     setValue: (parsed, newValue) ->
       arrLast = @arrLast(parsed)
@@ -387,7 +394,7 @@ gameArea = new Vue(
           when "stats"
             for i in @game.stats
               if i.name == val.substring(5,val.length)
-                parsedValues.push i.count
+                parsedValues.push i.value
           when "var"
             val = @findValue(val.substring(4,val.length),true)
             if !isNaN(parseFloat(val))
@@ -438,8 +445,10 @@ gameArea = new Vue(
     editItemsOrStats: (items, mode, isItem) ->
       if isItem
         inventory = @game.inventory
+        isInv = true
       else
         inventory = @game.stats
+        isInv = false
       for j in items
         itemAdded = false
         for i in inventory
@@ -461,13 +470,24 @@ gameArea = new Vue(
             value = Math.random()
             if value < probability
               if (mode == "set")
-                i.count = parseInt(j[1])
+                if isInv
+                  i.count = parseInt(j[1])
+                else
+                  i.value = parseInt(j[1])
               else if (mode == "add")
-                i.count = parseInt(i.count) + count
+                if isInv
+                  i.count = parseInt(i.count) + count
+                else
+                  i.value = parseInt(i.value) + count
               else if (mode == "remove")
-                i.count = parseInt(i.count) - count
-                if i.count < 0
-                  i.count = 0
+                if isInv
+                  i.count = parseInt(i.count) - count
+                  if i.count < 0
+                    i.count = 0
+                else
+                  i.value = parseInt(i.value) - count
+                  if i.value < 0
+                    i.value = 0
             itemAdded = true
         if !itemAdded && mode != "remove"
           p = j[1].split(",")
@@ -557,9 +577,12 @@ closeSaveNotification = ->
   e = document.getElementById("save-notification")
   e.style.display = 'none';
 
-showLoadNotification = (text) ->
-  e = document.getElementById("load-notification")
-  e.style.display = 'block';
+showLoadNotification = ->
+  if gameArea.game.settings.saveMode == "text"
+    e = document.getElementById("load-notification")
+    e.style.display = 'block';
+  else
+    loadGame()
 
 closeLoadNotification = (load) ->
   e = document.getElementById("load-notification")
@@ -568,3 +591,13 @@ closeLoadNotification = (load) ->
     loadGame(textArea[0].value)
     textArea[0].value = ""
   e.style.display = 'none';
+
+copyButton = document.querySelector('#copy-button')
+copyButton.addEventListener 'click', (event) ->
+  copyTextarea = document.getElementById("save-notification").querySelector("textarea")
+  copyTextarea.select()
+  try
+    successful = document.execCommand('copy')
+  catch err
+    console.warn "Copying to clipboard failed: "+err
+  return

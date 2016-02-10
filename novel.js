@@ -1,4 +1,4 @@
-var closeLoadNotification, closeSaveNotification, data, gameArea, gamePath, isEven, isOdd, loadCookie, loadGame, prepareData, saveCookie, saveGame, showLoadNotification, showSaveNotification, startGame, stripHTML;
+var closeLoadNotification, closeSaveNotification, copyButton, data, gameArea, gamePath, isEven, isOdd, loadCookie, loadGame, prepareData, saveCookie, saveGame, showLoadNotification, showSaveNotification, startGame, stripHTML;
 
 data = {
   game: null,
@@ -106,8 +106,7 @@ saveGame = function() {
   var save;
   save = gameArea.saveGameAsJson();
   if (data.game.settings.saveMode === "cookie") {
-    saveCookie("gameData", save, 365);
-    return console.log("Cookie saved!");
+    return saveCookie("gameData", save, 365);
   } else if (data.game.settings.saveMode === "text") {
     return showSaveNotification(save);
   }
@@ -128,6 +127,7 @@ gameArea = new Vue({
       this.exitScene(this.game.currentScene);
       this.readItemAndStatsEdits(choice);
       this.readSounds(choice, true);
+      this.readSaving(choice);
       if (choice.nextScene !== "") {
         return this.changeScene(choice.nextScene);
       } else {
@@ -161,7 +161,8 @@ gameArea = new Vue({
     setupScene: function(scene) {
       this.updateScene(scene);
       this.readItemAndStatsEdits(this.game.currentScene);
-      return this.readSounds(this.game.currentScene, false);
+      this.readSounds(this.game.currentScene, false);
+      return this.readSaving(this.game.currentScene);
     },
     updateScene: function(scene) {
       this.combineSceneTexts(scene);
@@ -237,6 +238,14 @@ gameArea = new Vue({
       }
       if (source.stopMusic !== void 0) {
         return this.stopMusic(source.stopMusic);
+      }
+    },
+    readSaving: function(source) {
+      if (source.saveGame !== void 0) {
+        saveGame();
+      }
+      if (source.loadGame !== void 0) {
+        return showLoadNotification();
       }
     },
     requirementsFilled: function(choice) {
@@ -364,7 +373,7 @@ gameArea = new Vue({
             for (m = 0, len = ref1.length; m < len; m++) {
               i = ref1[m];
               if (i.name === value) {
-                splitText[index] = i.count;
+                splitText[index] = i.value;
               }
             }
           } else if (s.substring(0, 4) === "inv.") {
@@ -386,7 +395,7 @@ gameArea = new Vue({
             for (q = 0, len2 = ref3.length; q < len2; q++) {
               i = ref3[q];
               if (i.name === parsed[1]) {
-                nameText = i.count;
+                nameText = i.value;
               }
             }
             splitText[index] = "<input type=\"text\" value=\"" + nameText + "\" name=\"input\" class=\"input-" + parsed[1] + "\">";
@@ -428,7 +437,7 @@ gameArea = new Vue({
           for (l = 0, len1 = ref.length; l < len1; l++) {
             a = ref[l];
             if (a.name === i.className.substring(6, i.className.length)) {
-              results1.push(a.count = stripHTML(i.value));
+              results1.push(a.value = stripHTML(i.value));
             } else {
               results1.push(void 0);
             }
@@ -551,7 +560,7 @@ gameArea = new Vue({
             for (m = 0, len2 = ref1.length; m < len2; m++) {
               i = ref1[m];
               if (i.name === val.substring(5, val.length)) {
-                parsedValues.push(i.count);
+                parsedValues.push(i.value);
               }
             }
             break;
@@ -628,11 +637,13 @@ gameArea = new Vue({
       }
     },
     editItemsOrStats: function(items, mode, isItem) {
-      var count, displayName, i, inventory, itemAdded, j, k, l, len, len1, p, probability, value;
+      var count, displayName, i, inventory, isInv, itemAdded, j, k, l, len, len1, p, probability, value;
       if (isItem) {
         inventory = this.game.inventory;
+        isInv = true;
       } else {
         inventory = this.game.stats;
+        isInv = false;
       }
       for (k = 0, len = items.length; k < len; k++) {
         j = items[k];
@@ -660,13 +671,28 @@ gameArea = new Vue({
             value = Math.random();
             if (value < probability) {
               if (mode === "set") {
-                i.count = parseInt(j[1]);
+                if (isInv) {
+                  i.count = parseInt(j[1]);
+                } else {
+                  i.value = parseInt(j[1]);
+                }
               } else if (mode === "add") {
-                i.count = parseInt(i.count) + count;
+                if (isInv) {
+                  i.count = parseInt(i.count) + count;
+                } else {
+                  i.value = parseInt(i.value) + count;
+                }
               } else if (mode === "remove") {
-                i.count = parseInt(i.count) - count;
-                if (i.count < 0) {
-                  i.count = 0;
+                if (isInv) {
+                  i.count = parseInt(i.count) - count;
+                  if (i.count < 0) {
+                    i.count = 0;
+                  }
+                } else {
+                  i.value = parseInt(i.value) - count;
+                  if (i.value < 0) {
+                    i.value = 0;
+                  }
                 }
               }
             }
@@ -809,10 +835,14 @@ closeSaveNotification = function() {
   return e.style.display = 'none';
 };
 
-showLoadNotification = function(text) {
+showLoadNotification = function() {
   var e;
-  e = document.getElementById("load-notification");
-  return e.style.display = 'block';
+  if (gameArea.game.settings.saveMode === "text") {
+    e = document.getElementById("load-notification");
+    return e.style.display = 'block';
+  } else {
+    return loadGame();
+  }
 };
 
 closeLoadNotification = function(load) {
@@ -825,3 +855,17 @@ closeLoadNotification = function(load) {
   }
   return e.style.display = 'none';
 };
+
+copyButton = document.querySelector('#copy-button');
+
+copyButton.addEventListener('click', function(event) {
+  var copyTextarea, err, error, successful;
+  copyTextarea = document.getElementById("save-notification").querySelector("textarea");
+  copyTextarea.select();
+  try {
+    successful = document.execCommand('copy');
+  } catch (error) {
+    err = error;
+    console.warn("Copying to clipboard failed: " + err);
+  }
+});

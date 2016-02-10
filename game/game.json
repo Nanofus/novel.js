@@ -6,9 +6,9 @@
     {"name": "sandwich", "count": 5}
   ],
   "stats": [
-    {"name": "villagesSaved", "count": 0},
-    {"name": "dragonsKilled", "count": 0},
-    {"name": "playerName", "count": "Default Name"}
+    {"name": "villagesSaved", "value": 0},
+    {"name": "dragonsKilled", "value": 0},
+    {"name": "playerName", "value": "Default Name"}
   ],
   "scenes": [
     {
@@ -136,6 +136,7 @@
   "settings": {
     "debugMode": true,
     "saveMode": "text",
+    "showSaveButtons": true,
     "alwaysShowDisabledChoices": false,
     "soundSettings": {
       "soundVolume": 0.5,
