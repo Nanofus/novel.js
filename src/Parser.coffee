@@ -73,25 +73,17 @@ Parser = {
 
   # Parse a statement that returns true or false or calculate a value
   parseStatement: (s) ->
+    # Check for valid parentheses
     if !Util.validateParentheses(s)
       console.error "ERROR: Invalid parentheses in statement"
+    # Clean spaces
     s = s.replace(/\s+/g, '');
+    # Remove all operators and parentheses
     parsedString = s.split(/\(|\)|\+|\*|\-|\/|<=|>=|<|>|==|!=|\|\||&&/)
     parsedValues = []
+    # Parse the strings for known prefixes, and parse the values based on that.
     for val in parsedString
-      type = null
-      if val.substring(0,5) == "stat."
-        type = "stats"
-      else if val.substring(0,4) == "inv."
-        type = "item"
-      else if val.substring(0,4) == "var."
-        type = "var"
-      else if !isNaN(parseFloat(val)) && val.toString().indexOf(".") == -1
-        type = "int"
-      else if !isNaN(parseFloat(val)) && val.toString().indexOf(".") != -1
-        type = "float"
-      else
-        type = "string"
+      type = @getStatementType(val)
       switch type
         when "item"
           for i in data.game.inventory
@@ -116,15 +108,35 @@ Parser = {
             parsedValues.push "'" + val + "'"
           else
             parsedValues.push ""
+    # Replace all variables with their correct values
     for i in [0 .. parsedString.length-1]
       if parsedString[i] != "" && parsedValues[i] != ""
         s = s.replace(new RegExp(parsedString[i],'g'),parsedValues[i])
+    # Solve or calculate the statement
     return eval(s)
+
+  # Read a string's beginning to detect its type
+  getStatementType: (val) ->
+    type = null
+    if val.substring(0,5) == "stat."
+      type = "stats"
+    else if val.substring(0,4) == "inv."
+      type = "item"
+    else if val.substring(0,4) == "var."
+      type = "var"
+    else if !isNaN(parseFloat(val)) && val.toString().indexOf(".") == -1
+      type = "int"
+    else if !isNaN(parseFloat(val)) && val.toString().indexOf(".") != -1
+      type = "float"
+    else
+      type = "string"
+    return type
 
   # Find a value from the game data json
   # toPrint == true returns the value, toPrint == false returns the object
   findValue: (parsed, toPrint) ->
     splitted = parsed.split(",")
+    # Find the first object in hierarchy
     if !toPrint
       if splitted.length > 1
         variable = @findValueByName(data.game,splitted[0])[0]
@@ -132,6 +144,7 @@ Parser = {
         variable = @findValueByName(data.game,splitted[0])[1]
     else
       variable = @findValueByName(data.game,splitted[0])[0]
+    # Follow the path
     for i in [0 .. splitted.length - 1]
       if Util.isOdd(i)
         variable = variable[parseInt(splitted[i])]
