@@ -8,7 +8,8 @@
   "stats": [
     {"name": "villagesSaved", "value": 0},
     {"name": "dragonsKilled", "value": 0},
-    {"name": "playerName", "value": "Default Name"}
+    {"name": "playerName", "value": "Default Name"},
+    {"name": "introductionSeen", "value": 0}
   ],
   "scenes": [
     {
