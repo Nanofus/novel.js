@@ -16,24 +16,24 @@ gulp.task('sass', function () {
     .pipe(gulp.dest('./game'));
 });
 
-gulp.task('coffee', function() {
+gulp.task('coffee', ['concat'], function() {
   gulp.src('./novel.coffee')
     .pipe(coffee({bare: true}).on('error', gutil.log))
     .pipe(gulp.dest('./'));
 });
 
 gulp.task('watch', function() {
-  gulp.start('sass', 'coffee')
+  gulp.start('sass', 'compress')
   gulp.watch('./scss/**/*.scss', ['sass']);
   gulp.watch('./game/**/*.scss', ['sass']);
-  gulp.watch('./src/*.coffee', ['coffee']);
+  gulp.watch('./src/*.coffee', ['compress']);
 });
 
 gulp.task('default', function() {
   gulp.start('sass', 'coffee');
 });
 
-gulp.task('compress', function() {
+gulp.task('compress', ['coffee'], function() {
   return gulp.src('./novel.js')
     .pipe(uglify({"mangle":true}))
     .pipe(gulp.dest('./'));
