@@ -16,14 +16,17 @@ Parser = {
   # Parse a text for Novel.js tags, and replace them with the correct HTML tags.
   parseText: (text) ->
     if text != undefined
+      # [s] tags
       for i in [0 .. 99]
         text = text.split("[s" + i + "]").join("<span class=\"highlight-" + i + "\">")
       text = text.split("[/s]").join("</span>")
+      # Other tags
       splitText = text.split(/\[|\]/)
       spansToBeClosed = 0
       asToBeClosed = 0
       for index in [0 .. splitText.length-1]
         s = splitText[index]
+        # [if] statements
         if s.substring(0,2) == "if"
           parsed = s.split("if ")
           if !@parseStatement(parsed[1])
@@ -31,19 +34,29 @@ Parser = {
             spansToBeClosed++
           else
             splitText[index] = ""
+        else if s.substring(0,3) == "/if"
+          if spansToBeClosed > 0
+            splitText[index] = "</span>"
+            spansToBeClosed--
+          else
+            splitText[index] = ""
+        # Printed stat values
         else if s.substring(0,5) == "stat."
           value = s.substring(5,s.length)
           for i in data.game.stats
             if i.name == value
               splitText[index] = i.value
+        # Printed inventory counts
         else if s.substring(0,4) == "inv."
           value = s.substring(4,s.length)
           for i in data.game.inventory
             if i.name == value
               splitText[index] = i.count
+        # Generic print command
         else if s.substring(0,5) == "print"
           parsed = s.split("print ")
           splitText[index] = @parseStatement(parsed[1])
+        # Input field
         else if s.substring(0,5) == "input"
           parsed = s.split("input ")
           nameText = ""
@@ -51,6 +64,7 @@ Parser = {
             if i.name == parsed[1]
               nameText = i.value
           splitText[index] = "<input type=\"text\" value=\"" + nameText + "\" name=\"input\" class=\"input-" + parsed[1] +  "\">"
+        # Embedded choice
         else if s.substring(0,6) == "choice"
           parsed = s.split("choice ")
           splitText[index] = "<a href=\"#\" onclick=\"Scene.selectChoiceByName('"+parsed[1]+"')\">"
@@ -61,13 +75,8 @@ Parser = {
             asToBeClosed--
           else
             splitText[index] = ""
-        else if s.substring(0,3) == "/if"
-          if spansToBeClosed > 0
-            splitText[index] = "</span>"
-            spansToBeClosed--
-          else
-            splitText[index] = ""
         index++
+      # Join all back into a string
       text = splitText.join("")
       return text
 
