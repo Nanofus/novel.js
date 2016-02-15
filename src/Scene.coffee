@@ -31,9 +31,9 @@ Scene = {
   updateScene: (scene) ->
     Scene.combineSceneTexts(scene)
     scene.parsedText = Parser.parseText scene.combinedText
-    data.printedText = scene.parsedText
     data.game.currentScene = scene
     @updateChoices()
+    TextPrinter.printText(scene.parsedText)
 
   # Update choice texts when they are changed - Vue.js doesn't detect them without this.
   updateChoices: ->
