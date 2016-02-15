@@ -31,6 +31,7 @@ Scene = {
   updateScene: (scene) ->
     Scene.combineSceneTexts(scene)
     scene.parsedText = Parser.parseText scene.combinedText
+    data.printedText = scene.parsedText
     data.game.currentScene = scene
     @updateChoices()
 

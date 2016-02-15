@@ -1,1 +1,940 @@
-var GameManager,Inventory,Parser,Scene,Sound,UI,Util,copyButton,data,gameArea,gamePath;GameManager={loadCookie:function(e){var t,a,n,r;for(r=e+"=",a=document.cookie.split(";"),n=0;n<a.length;){for(t=a[n];" "===t.charAt(0);)t=t.substring(1);if(0===t.indexOf(r))return t.substring(r.length,t.length);n++}return""},saveCookie:function(e,t,a){var n,r;return n=new Date,n.setTime(n.getTime()+24*a*60*60*1e3),r="expires="+n.toUTCString(),document.cookie=e+"="+t+"; "+r+"; path=/"},loadGame:function(e){var t;if(void 0===e){if(""!==this.loadCookie("gameData"))return console.log("Cookie dound!"),t=this.loadCookie("gameData"),console.log("Cookie loaded"),console.log(t),data.game=JSON.parse(atob(this.loadCookie("gameData"))),console.log("Data loaded!"),data.debugMode=data.game.debugMode}else void 0!==e&&(data.game=JSON.parse(atob(e)),data.debugMode=data.game.debugMode)},startGame:function(){var e;return e=new XMLHttpRequest,e.open("GET",gamePath+"/game.json",!0),e.onload=function(){var t;return e.status>=200&&e.status<400?(t=JSON.parse(e.responseText),t=GameManager.prepareData(t),data.game=t,data.game.currentScene=Scene.changeScene(data.game.scenes[0].name),data.debugMode=data.game.debugMode):void 0},e.onerror=function(){},e.send()},saveGameAsJson:function(){var e;return e=btoa(JSON.stringify(data.game))},saveGame:function(){var e;return e=this.saveGameAsJson(),"cookie"===data.game.settings.saveMode?this.saveCookie("gameData",e,365):"text"===data.game.settings.saveMode?UI.showSaveNotification(e):void 0},prepareData:function(e){var t,a,n,r,s,i,o,u,l,d,c,m;for(e.currentScene="",e.parsedChoices="",l=e.inventory,n=0,s=l.length;s>n;n++)a=l[n],void 0===a.displayName&&(a.displayName=a.name);for(d=e.scenes,r=0,i=d.length;i>r;r++)for(m=d[r],m.combinedText="",m.parsedText="",c=m.choices,u=0,o=c.length;o>u;u++)t=c[u],t.parsedText="",void 0===t.nextScene&&(t.nextScene=""),void 0===t.alwaysShow&&(t.alwaysShow=!1);return e}},Inventory={checkRequirements:function(e,t){var a,n,r,s,i,o,u,l,d,c,m,p,g;if(g=0,t)for(m=data.game.inventory,r=0,i=m.length;i>r;r++)for(a=m[r],s=0,o=e.length;o>s;s++)n=e[s],n[0]===a.name&&n[1]<=a.count&&(g+=1);else for(p=data.game.stats,d=0,u=p.length;u>d;d++)for(a=p[d],c=0,l=e.length;l>c;c++)n=e[c],n[0]===a.name&&n[1]<=a.value&&(g+=1);return g===e.length?!0:!1},setValue:function(e,t){var a,n;return a=this.getValueArrayLast(e),n=Parser.findValue(e,!1),n[a]=t},increaseValue:function(e,t){var a,n;return a=this.getValueArrayLast(e),n=Parser.findValue(e,!1),n[a]=n[a]+t,isNaN(parseFloat(n[a]))?void 0:n[a]=parseFloat(n[a].toFixed(8))},decreaseValue:function(e,t){var a,n;return a=this.getValueArrayLast(e),n=Parser.findValue(e,!1),n[a]=n[a]-t,isNaN(parseFloat(n[a]))?void 0:n[a]=parseFloat(n[a].toFixed(8))},getValueArrayLast:function(e){var t;return t=e.split(","),t=t[t.length-1].split("."),t=t[t.length-1]},editItemsOrStats:function(e,t,a){var n,r,s,i,o,u,l,d,c,m,p,g,v,f;for(a?(i=data.game.inventory,o=!0):(i=data.game.stats,o=!1),d=0,m=e.length;m>d;d++){for(l=e[d],u=!1,c=0,p=i.length;p>c;c++)s=i[c],s.name===l[0]&&(g=l[1].split(","),v=1,g.length>1?(r=g[1],n=parseInt(g[0]),isNaN(r)||(v=g[1],r=l.name),g.length>2&&(v=parseFloat(g[1]),r=g[2])):(r=l[0],n=parseInt(l[1])),f=Math.random(),v>f&&("set"===t?o?s.count=parseInt(l[1]):s.value=parseInt(l[1]):"add"===t?o?s.count=parseInt(s.count)+n:(isNaN(parseInt(s.value))&&(s.value=0),s.value=parseInt(s.value)+n):"remove"===t&&(o?(s.count=parseInt(s.count)-n,s.count<0&&(s.count=0)):(s.value=parseInt(s.value)-n,s.value<0&&(s.value=0)))),u=!0);u||"remove"===t||(g=l[1].split(","),v=1,g.length>1?(r=g[1],n=parseInt(g[0]),isNaN(r)||(v=g[1],r=l.name),g.length>2&&(v=parseFloat(g[1]),r=g[2])):(r=l[0],n=parseInt(l[1])),f=Math.random(),v>f&&i.push({name:l[0],count:n,displayName:r}))}return a?data.game.inventory=i:data.game.stats=i}},data={game:null,choices:null,debugMode:!1,music:[]},gamePath="./game",gameArea=new Vue({el:"#game-area",data:data,methods:{requirementsFilled:function(e){return Scene.requirementsFilled(e)},selectChoice:function(e){return Scene.exitScene(this.game.currentScene),Scene.readItemAndStatsEdits(e),Scene.readSounds(e,!0),Scene.readSaving(e),""!==e.nextScene?Scene.changeScene(e.nextScene):Scene.updateScene(this.game.currentScene)}}}),GameManager.startGame(),Parser={parseItemOrStats:function(e){var t,a,n,r,s;for(s=e.split("|"),r=[],a=0,n=s.length;n>a;a++)t=s[a],t=t.substring(0,t.length-1),t=t.split("["),r.push(t);return r},parseText:function(e){var t,a,n,r,s,i,o,u,l,d,c,m,p,g,v,f,h,S,y,I,b;if(void 0!==e){for(a=r=0;99>=r;a=++r)e=e.split("[s"+a+"]").join('<span class="highlight-'+a+'">');for(e=e.split("[/s]").join("</span>"),I=e.split(/\[|\]/),y=0,t=0,n=s=0,g=I.length-1;g>=0?g>=s:s>=g;n=g>=0?++s:--s){if(S=I[n],"if"===S.substring(0,2))m=S.split("if "),this.parseStatement(m[1])?I[n]="":(I[n]='<span style="display:none;">',y++);else if("stat."===S.substring(0,5))for(b=S.substring(5,S.length),v=data.game.stats,l=0,i=v.length;i>l;l++)a=v[l],a.name===b&&(I[n]=a.value);else if("inv."===S.substring(0,4))for(b=S.substring(4,S.length),f=data.game.inventory,c=0,o=f.length;o>c;c++)a=f[c],a.name===b&&(I[n]=a.count);else if("print"===S.substring(0,5))m=S.split("print "),I[n]=this.parseStatement(m[1]);else if("input"===S.substring(0,5)){for(m=S.split("input "),d="",h=data.game.stats,p=0,u=h.length;u>p;p++)a=h[p],a.name===m[1]&&(d=a.value);I[n]='<input type="text" value="'+d+'" name="input" class="input-'+m[1]+'">'}else"choice"===S.substring(0,6)?(m=S.split("choice "),I[n]='<a href="#" onclick="Scene.selectChoiceByName(\''+m[1]+"')\">",t++):"/choice"===S.substring(0,7)?t>0?(I[n]="</a>",t--):I[n]="":"/if"===S.substring(0,3)&&(y>0?(I[n]="</span>",y--):I[n]="");n++}return e=I.join("")}},parseStatement:function(s){var i,k,l,len,len1,len2,m,o,parsedString,parsedValues,ref,ref1,ref2,type,val;for(Util.validateParentheses(s)||console.error("ERROR: Invalid parentheses in statement"),s=s.replace(/\s+/g,""),parsedString=s.split(/\(|\)|\+|\*|\-|\/|<=|>=|<|>|==|!=|\|\||&&/),parsedValues=[],k=0,len=parsedString.length;len>k;k++)switch(val=parsedString[k],type=this.getStatementType(val)){case"item":for(ref=data.game.inventory,l=0,len1=ref.length;len1>l;l++)i=ref[l],i.name===val.substring(4,val.length)&&parsedValues.push(i.count);break;case"stats":for(ref1=data.game.stats,m=0,len2=ref1.length;len2>m;m++)i=ref1[m],i.name===val.substring(5,val.length)&&parsedValues.push(i.value);break;case"var":val=this.findValue(val.substring(4,val.length),!0),isNaN(parseFloat(val))?parsedValues.push("'"+val+"'"):parsedValues.push(val);break;case"float":parsedValues.push(parseFloat(val));break;case"int":parsedValues.push(parseInt(val));break;case"string":""!==val?parsedValues.push("'"+val+"'"):parsedValues.push("")}for(i=o=0,ref2=parsedString.length-1;ref2>=0?ref2>=o:o>=ref2;i=ref2>=0?++o:--o)""!==parsedString[i]&&""!==parsedValues[i]&&(s=s.replace(new RegExp(parsedString[i],"g"),parsedValues[i]));return eval(s)},getStatementType:function(e){var t;return t=null,t="stat."===e.substring(0,5)?"stats":"inv."===e.substring(0,4)?"item":"var."===e.substring(0,4)?"var":isNaN(parseFloat(e))||-1!==e.toString().indexOf(".")?isNaN(parseFloat(e))||-1===e.toString().indexOf(".")?"string":"float":"int"},findValue:function(e,t){var a,n,r,s,i;for(s=e.split(","),i=t?this.findValueByName(data.game,s[0])[0]:s.length>1?this.findValueByName(data.game,s[0])[0]:this.findValueByName(data.game,s[0])[1],a=n=0,r=s.length-1;r>=0?r>=n:n>=r;a=r>=0?++n:--n)Util.isOdd(a)?i=i[parseInt(s[a])]:0!==a&&(t?(("parsedText"===s[a]||"text"===s[a])&&(s[a]="parsedText",i.parsedText=Parser.parseText(i.text)),i=this.findValueByName(i,s[a])[0]):i=this.findValueByName(i,s[a])[1]);return i},findValueByName:function(e,t){var a,n,r,s;return r=t.split("."),a=e[r[0]],r[1]?(r.splice(0,1),n=r.join("."),this.findValueByName(a,n)):(s=[],s[0]=a,s[1]=e,s)}},Scene={selectChoiceByName:function(e){var t,a,n,r,s;for(r=data.game.currentScene.choices,s=[],a=0,n=r.length;n>a;a++){if(t=r[a],t.name===e){gameArea.selectChoice(t);break}s.push(void 0)}return s},exitScene:function(e){return UI.updateInputs(e)},changeScene:function(e){var t;return t=this.findSceneByName(this.selectRandomScene(e)),this.setupScene(t),t},setupScene:function(e){return this.updateScene(e),this.readItemAndStatsEdits(data.game.currentScene),this.readSounds(data.game.currentScene,!1),this.readSaving(data.game.currentScene)},updateScene:function(e){return Scene.combineSceneTexts(e),e.parsedText=Parser.parseText(e.combinedText),data.game.currentScene=e,this.updateChoices()},updateChoices:function(){return gameArea.$set("game.parsedChoices",data.game.currentScene.choices.map(function(e){return e.parsedText=Parser.parseText(e.text),gameArea.game.settings.alwaysShowDisabledChoices&&(e.alwaysShow=!0),e}))},selectRandomScene:function(e){var t,a,n,r,s;if(s=e.split("|"),1===s.length)return s[0];for(r=[],a=0,n=s.length;n>a;a++)t=s[a],t=t.substring(0,t.length-1),t=t.split("["),r.push(t);return r=this.chooseFromMultipleScenes(r)},chooseFromMultipleScenes:function(e){var t,a,n,r,s,i,o,u,l,d,c,m,p,g;for(d=[],t=[],m=[],c=0,n=0,s=e.length;s>n;n++)a=e[n],d.push(a[0]),c=parseFloat(a[1])+c,t.push(c),m.push(parseFloat(a[1]));for(p=0,r=0,i=m.length;i>r;r++)a=m[r],p+=parseFloat(a);for(1!==p&&console.error("ERROR: Invalid scene odds!"),g=Math.random(),l=0,u=0,o=t.length;o>u;u++){if(a=t[u],a>g)return d[l];l++}},findSceneByName:function(e){var t,a,n,r;for(r=data.game.scenes,a=0,n=r.length;n>a;a++)if(t=r[a],t.name===e)return t;return console.error("ERROR: Scene by name '"+e+"' not found!")},combineSceneTexts:function(e){var t,a;e.combinedText=e.text,a=[];for(t in e)e.hasOwnProperty(t)&&t.includes("text-")?a.push(e.combinedText=e.combinedText.concat(e[t])):a.push(void 0);return a},readItemAndStatsEdits:function(e){var t,a,n,r,s,i,o,u,l,d,c;if(void 0!==e.removeItem&&Inventory.editItemsOrStats(Parser.parseItemOrStats(e.removeItem),"remove",!0),void 0!==e.addItem&&Inventory.editItemsOrStats(Parser.parseItemOrStats(e.addItem),"add",!0),void 0!==e.setItem&&Inventory.editItemsOrStats(Parser.parseItemOrStats(e.setItem),"set",!0),void 0!==e.removeStats&&Inventory.editItemsOrStats(Parser.parseItemOrStats(e.removeStats),"remove",!1),void 0!==e.addStats&&Inventory.editItemsOrStats(Parser.parseItemOrStats(e.addStats),"add",!1),void 0!==e.setStats&&Inventory.editItemsOrStats(Parser.parseItemOrStats(e.setStats),"set",!1),void 0!==e.setValue)for(o=e.setValue,t=0,n=o.length;n>t;t++)c=o[t],Inventory.setValue(c.path,c.value);if(void 0!==e.increaseValue)for(u=e.increaseValue,a=0,r=u.length;r>a;a++)c=u[a],Inventory.increaseValue(c.path,c.value);if(void 0!==e.decreaseValue){for(l=e.decreaseValue,d=[],i=0,s=l.length;s>i;i++)c=l[i],d.push(Inventory.decreaseValue(c.path,c.value));return d}},readSounds:function(e,t){var a;return a=!1,void 0!==e.playSound&&(Sound.playSound(e.playSound,!1),a=!0),t&&!a&&Sound.playDefaultClickSound(),void 0!==e.startMusic&&Sound.startMusic(e.startMusic),void 0!==e.stopMusic?Sound.stopMusic(e.stopMusic):void 0},readSaving:function(e){return void 0!==e.saveGame&&saveGame(),void 0!==e.loadGame?showLoadNotification():void 0},requirementsFilled:function(e){var t,a,n,r,s,i;for(r=[],void 0!==e.itemRequirement&&(s=Parser.parseItemOrStats(e.itemRequirement),r.push(Inventory.checkRequirements(s,!0))),void 0!==e.statsRequirement&&(s=Parser.parseItemOrStats(e.statsRequirement),r.push(Inventory.checkRequirements(s,!1))),void 0!==e.requirement&&r.push(Inventory.parseIfStatement(e.requirement)),i=!0,t=0,a=r.length;a>t;t++)n=r[t],n===!1&&(i=!1);return i}},Sound={playDefaultClickSound:function(e,t){return this.playSound(data.game.settings.soundSettings.defaultClickSound,!1)},playSound:function(e,t){var a,n,r,s,i;for(r=data.game.sounds,a=0,n=r.length;n>a;a++)if(s=r[a],s.name===e)return i=new Audio(gamePath+"/sounds/"+s.file),t?i.volume=data.game.settings.soundSettings.musicVolume:i.volume=data.game.settings.soundSettings.soundVolume,i.play(),i},isPlaying:function(e){var t,a,n,r;for(r=data.music,a=0,n=r.length;n>a;a++)return t=r[a],t.paused?!1:!0},startMusic:function(e){var t;return t=this.playSound(e,!0),t.addEventListener("ended",function(){this.currentTime=0,this.play()},!1),data.music.push({name:e,music:t})},stopMusic:function(e){var t,a,n,r,s,i;for(s=data.music,i=[],n=0,r=s.length;r>n;n++)t=s[n],e===t.name?(t.music.pause(),a=data.music.indexOf(t),i.push(data.music.splice(a,1))):i.push(void 0);return i}},UI={showSaveNotification:function(e){var t,a;return t=document.getElementById("save-notification"),a=t.querySelectorAll("textarea"),a[0].value=e,t.style.display="block"},closeSaveNotification:function(){var e;return e=document.getElementById("save-notification"),e.style.display="none"},showLoadNotification:function(){var e;return"text"===gameArea.game.settings.saveMode?(e=document.getElementById("load-notification"),e.style.display="block"):loadGame()},closeLoadNotification:function(e){var t,a;return t=document.getElementById("load-notification"),e&&(a=t.querySelectorAll("textarea"),loadGame(a[0].value),a[0].value=""),t.style.display="none"},updateInputs:function(e){var t,a,n,r,s,i;for(n=document.getElementById("game-area").querySelectorAll("input"),i=[],r=0,s=n.length;s>r;r++)a=n[r],i.push(function(){var e,n,r,s;for(r=data.game.stats,s=[],e=0,n=r.length;n>e;e++)t=r[e],t.name===a.className.substring(6,a.className.length)?s.push(t.value=Util.stripHTML(a.value)):s.push(void 0);return s}());return i}},copyButton=document.querySelector("#copy-button"),copyButton.addEventListener("click",function(e){var t,a,n,r;t=document.getElementById("save-notification").querySelector("textarea"),t.select();try{r=document.execCommand("copy")}catch(n){a=n,console.error("Copying to clipboard failed: "+a)}}),Util={isEven:function(e){return e%2===0},isOdd:function(e){return 1===Math.abs(e%2)},stripHTML:function(e){var t;return t=/(<([^>]+)>)/gi,e.replace(t,"")},validateParentheses:function(e){var t,a,n,r;for(r=0,a=0,n=e.length;n>a;a++)if(t=e[a],"("===t&&r++,")"===t){if(!(r>0))return!1;r--}return 0===r?!0:!1}};
+
+/* SAVING AND LOADING */
+var GameManager, Inventory, Parser, Scene, Sound, UI, Util, copyButton, data, gameArea, gamePath;
+
+GameManager = {
+  loadCookie: function(cname) {
+    var c, ca, i, name;
+    name = cname + '=';
+    ca = document.cookie.split(';');
+    i = 0;
+    while (i < ca.length) {
+      c = ca[i];
+      while (c.charAt(0) === ' ') {
+        c = c.substring(1);
+      }
+      if (c.indexOf(name) === 0) {
+        return c.substring(name.length, c.length);
+      }
+      i++;
+    }
+    return '';
+  },
+  saveCookie: function(cname, cvalue, exdays) {
+    var d, expires;
+    d = new Date;
+    d.setTime(d.getTime() + exdays * 24 * 60 * 60 * 1000);
+    expires = 'expires=' + d.toUTCString();
+    return document.cookie = cname + '=' + cvalue + '; ' + expires + '; path=/';
+  },
+  loadGame: function(game) {
+    var cookie;
+    if (game === void 0) {
+      if (this.loadCookie("gameData") !== '') {
+        console.log("Cookie dound!");
+        cookie = this.loadCookie("gameData");
+        console.log("Cookie loaded");
+        console.log(cookie);
+        data.game = JSON.parse(atob(this.loadCookie("gameData")));
+        console.log("Data loaded!");
+        return data.debugMode = data.game.debugMode;
+      }
+    } else if (game !== void 0) {
+      data.game = JSON.parse(atob(game));
+      data.debugMode = data.game.debugMode;
+    }
+  },
+  startGame: function() {
+    var request;
+    request = new XMLHttpRequest;
+    request.open('GET', gamePath + '/game.json', true);
+    request.onload = function() {
+      var json;
+      if (request.status >= 200 && request.status < 400) {
+        json = JSON.parse(request.responseText);
+        json = GameManager.prepareData(json);
+        data.game = json;
+        data.game.currentScene = Scene.changeScene(data.game.scenes[0].name);
+        return data.debugMode = data.game.debugMode;
+      }
+    };
+    request.onerror = function() {};
+    return request.send();
+  },
+  saveGameAsJson: function() {
+    var save;
+    save = btoa(JSON.stringify(data.game));
+    return save;
+  },
+  saveGame: function() {
+    var save;
+    save = this.saveGameAsJson();
+    if (data.game.settings.saveMode === "cookie") {
+      return this.saveCookie("gameData", save, 365);
+    } else if (data.game.settings.saveMode === "text") {
+      return UI.showSaveNotification(save);
+    }
+  },
+  prepareData: function(json) {
+    var c, i, k, l, len, len1, len2, m, ref, ref1, ref2, s;
+    json.currentScene = "";
+    json.parsedChoices = "";
+    ref = json.inventory;
+    for (k = 0, len = ref.length; k < len; k++) {
+      i = ref[k];
+      if (i.displayName === void 0) {
+        i.displayName = i.name;
+      }
+    }
+    ref1 = json.scenes;
+    for (l = 0, len1 = ref1.length; l < len1; l++) {
+      s = ref1[l];
+      s.combinedText = "";
+      s.parsedText = "";
+      ref2 = s.choices;
+      for (m = 0, len2 = ref2.length; m < len2; m++) {
+        c = ref2[m];
+        c.parsedText = "";
+        if (c.nextScene === void 0) {
+          c.nextScene = "";
+        }
+        if (c.alwaysShow === void 0) {
+          c.alwaysShow = false;
+        }
+      }
+    }
+    return json;
+  }
+};
+
+
+/* INVENTORY, STAT & VALUE OPERATIONS */
+
+Inventory = {
+  checkRequirements: function(requirements, isItem) {
+    var i, j, k, l, len, len1, len2, len3, m, o, ref, ref1, reqsFilled;
+    reqsFilled = 0;
+    if (isItem) {
+      ref = data.game.inventory;
+      for (k = 0, len = ref.length; k < len; k++) {
+        i = ref[k];
+        for (l = 0, len1 = requirements.length; l < len1; l++) {
+          j = requirements[l];
+          if (j[0] === i.name) {
+            if (j[1] <= i.count) {
+              reqsFilled = reqsFilled + 1;
+            }
+          }
+        }
+      }
+    } else {
+      ref1 = data.game.stats;
+      for (m = 0, len2 = ref1.length; m < len2; m++) {
+        i = ref1[m];
+        for (o = 0, len3 = requirements.length; o < len3; o++) {
+          j = requirements[o];
+          if (j[0] === i.name) {
+            if (j[1] <= i.value) {
+              reqsFilled = reqsFilled + 1;
+            }
+          }
+        }
+      }
+    }
+    if (reqsFilled === requirements.length) {
+      return true;
+    } else {
+      return false;
+    }
+  },
+  setValue: function(parsed, newValue) {
+    var getValueArrayLast, value;
+    getValueArrayLast = this.getValueArrayLast(parsed);
+    value = Parser.findValue(parsed, false);
+    return value[getValueArrayLast] = newValue;
+  },
+  increaseValue: function(parsed, change) {
+    var getValueArrayLast, value;
+    getValueArrayLast = this.getValueArrayLast(parsed);
+    value = Parser.findValue(parsed, false);
+    value[getValueArrayLast] = value[getValueArrayLast] + change;
+    if (!isNaN(parseFloat(value[getValueArrayLast]))) {
+      return value[getValueArrayLast] = parseFloat(value[getValueArrayLast].toFixed(8));
+    }
+  },
+  decreaseValue: function(parsed, change) {
+    var getValueArrayLast, value;
+    getValueArrayLast = this.getValueArrayLast(parsed);
+    value = Parser.findValue(parsed, false);
+    value[getValueArrayLast] = value[getValueArrayLast] - change;
+    if (!isNaN(parseFloat(value[getValueArrayLast]))) {
+      return value[getValueArrayLast] = parseFloat(value[getValueArrayLast].toFixed(8));
+    }
+  },
+  getValueArrayLast: function(parsed) {
+    var getValueArrayLast;
+    getValueArrayLast = parsed.split(",");
+    getValueArrayLast = getValueArrayLast[getValueArrayLast.length - 1].split(".");
+    getValueArrayLast = getValueArrayLast[getValueArrayLast.length - 1];
+    return getValueArrayLast;
+  },
+  editItemsOrStats: function(items, mode, isItem) {
+    var count, displayName, i, inventory, isInv, itemAdded, j, k, l, len, len1, p, probability, value;
+    if (isItem) {
+      inventory = data.game.inventory;
+      isInv = true;
+    } else {
+      inventory = data.game.stats;
+      isInv = false;
+    }
+    for (k = 0, len = items.length; k < len; k++) {
+      j = items[k];
+      itemAdded = false;
+      for (l = 0, len1 = inventory.length; l < len1; l++) {
+        i = inventory[l];
+        if (i.name === j[0]) {
+          p = j[1].split(",");
+          probability = 1;
+          if (p.length > 1) {
+            displayName = p[1];
+            count = parseInt(p[0]);
+            if (!isNaN(displayName)) {
+              probability = p[1];
+              displayName = j.name;
+            }
+            if (p.length > 2) {
+              probability = parseFloat(p[1]);
+              displayName = p[2];
+            }
+          } else {
+            displayName = j[0];
+            count = parseInt(j[1]);
+          }
+          value = Math.random();
+          if (value < probability) {
+            if (mode === "set") {
+              if (isInv) {
+                i.count = parseInt(j[1]);
+              } else {
+                i.value = parseInt(j[1]);
+              }
+            } else if (mode === "add") {
+              if (isInv) {
+                i.count = parseInt(i.count) + count;
+              } else {
+                if (isNaN(parseInt(i.value))) {
+                  i.value = 0;
+                }
+                i.value = parseInt(i.value) + count;
+              }
+            } else if (mode === "remove") {
+              if (isInv) {
+                i.count = parseInt(i.count) - count;
+                if (i.count < 0) {
+                  i.count = 0;
+                }
+              } else {
+                i.value = parseInt(i.value) - count;
+                if (i.value < 0) {
+                  i.value = 0;
+                }
+              }
+            }
+          }
+          itemAdded = true;
+        }
+      }
+      if (!itemAdded && mode !== "remove") {
+        p = j[1].split(",");
+        probability = 1;
+        if (p.length > 1) {
+          displayName = p[1];
+          count = parseInt(p[0]);
+          if (!isNaN(displayName)) {
+            probability = p[1];
+            displayName = j.name;
+          }
+          if (p.length > 2) {
+            probability = parseFloat(p[1]);
+            displayName = p[2];
+          }
+        } else {
+          displayName = j[0];
+          count = parseInt(j[1]);
+        }
+        value = Math.random();
+        if (value < probability) {
+          inventory.push({
+            "name": j[0],
+            "count": count,
+            "displayName": displayName
+          });
+        }
+      }
+    }
+    if (isItem) {
+      return data.game.inventory = inventory;
+    } else {
+      return data.game.stats = inventory;
+    }
+  }
+};
+
+data = {
+  game: null,
+  choices: null,
+  debugMode: false,
+  printedText: "",
+  music: []
+};
+
+gamePath = './game';
+
+gameArea = new Vue({
+  el: '#game-area',
+  data: data,
+  methods: {
+    requirementsFilled: function(choice) {
+      return Scene.requirementsFilled(choice);
+    },
+    selectChoice: function(choice) {
+      Scene.exitScene(this.game.currentScene);
+      Scene.readItemAndStatsEdits(choice);
+      Scene.readSounds(choice, true);
+      Scene.readSaving(choice);
+      if (choice.nextScene !== "") {
+        return Scene.changeScene(choice.nextScene);
+      } else {
+        return Scene.updateScene(this.game.currentScene);
+      }
+    }
+  }
+});
+
+
+/* And finally, start the game... */
+
+GameManager.startGame();
+
+
+/* PARSERS */
+
+Parser = {
+  parseItemOrStats: function(items) {
+    var i, k, len, parsed, separate;
+    separate = items.split("|");
+    parsed = [];
+    for (k = 0, len = separate.length; k < len; k++) {
+      i = separate[k];
+      i = i.substring(0, i.length - 1);
+      i = i.split("[");
+      parsed.push(i);
+    }
+    return parsed;
+  },
+  parseText: function(text) {
+    var asToBeClosed, i, index, k, l, len, len1, len2, m, nameText, o, parsed, q, ref, ref1, ref2, ref3, s, spansToBeClosed, splitText, value;
+    if (text !== void 0) {
+      for (i = k = 0; k <= 99; i = ++k) {
+        text = text.split("[s" + i + "]").join("<span class=\"highlight-" + i + "\">");
+      }
+      text = text.split("[/s]").join("</span>");
+      splitText = text.split(/\[|\]/);
+      spansToBeClosed = 0;
+      asToBeClosed = 0;
+      for (index = l = 0, ref = splitText.length - 1; 0 <= ref ? l <= ref : l >= ref; index = 0 <= ref ? ++l : --l) {
+        s = splitText[index];
+        if (s.substring(0, 2) === "if") {
+          parsed = s.split("if ");
+          if (!this.parseStatement(parsed[1])) {
+            splitText[index] = "<span style=\"display:none;\">";
+            spansToBeClosed++;
+          } else {
+            splitText[index] = "";
+          }
+        } else if (s.substring(0, 3) === "/if") {
+          if (spansToBeClosed > 0) {
+            splitText[index] = "</span>";
+            spansToBeClosed--;
+          } else {
+            splitText[index] = "";
+          }
+        } else if (s.substring(0, 5) === "stat.") {
+          value = s.substring(5, s.length);
+          ref1 = data.game.stats;
+          for (m = 0, len = ref1.length; m < len; m++) {
+            i = ref1[m];
+            if (i.name === value) {
+              splitText[index] = i.value;
+            }
+          }
+        } else if (s.substring(0, 4) === "inv.") {
+          value = s.substring(4, s.length);
+          ref2 = data.game.inventory;
+          for (o = 0, len1 = ref2.length; o < len1; o++) {
+            i = ref2[o];
+            if (i.name === value) {
+              splitText[index] = i.count;
+            }
+          }
+        } else if (s.substring(0, 5) === "print") {
+          parsed = s.split("print ");
+          splitText[index] = this.parseStatement(parsed[1]);
+        } else if (s.substring(0, 5) === "input") {
+          parsed = s.split("input ");
+          nameText = "";
+          ref3 = data.game.stats;
+          for (q = 0, len2 = ref3.length; q < len2; q++) {
+            i = ref3[q];
+            if (i.name === parsed[1]) {
+              nameText = i.value;
+            }
+          }
+          splitText[index] = "<input type=\"text\" value=\"" + nameText + "\" name=\"input\" class=\"input-" + parsed[1] + "\">";
+        } else if (s.substring(0, 5) === "speed") {
+          parsed = s.split("speed ");
+          splitText[index] = "<span class=\"speed-" + parsed[1] + "\">";
+        } else if (s.substring(0, 6) === "/speed") {
+          if (spansToBeClosed > 0) {
+            splitText[index] = "</span>";
+            spansToBeClosed--;
+          } else {
+            splitText[index] = "";
+          }
+        } else if (s.substring(0, 6) === "choice") {
+          parsed = s.split("choice ");
+          splitText[index] = "<a href=\"#\" onclick=\"Scene.selectChoiceByName('" + parsed[1] + "')\">";
+          asToBeClosed++;
+        } else if (s.substring(0, 7) === "/choice") {
+          if (asToBeClosed > 0) {
+            splitText[index] = "</a>";
+            asToBeClosed--;
+          } else {
+            splitText[index] = "";
+          }
+        }
+        index++;
+      }
+      text = splitText.join("");
+      return text;
+    }
+  },
+  parseStatement: function(s) {
+    var i, k, l, len, len1, len2, m, o, parsedString, parsedValues, ref, ref1, ref2, type, val;
+    if (!Util.validateParentheses(s)) {
+      console.error("ERROR: Invalid parentheses in statement");
+    }
+    s = s.replace(/\s+/g, '');
+    parsedString = s.split(/\(|\)|\+|\*|\-|\/|<=|>=|<|>|==|!=|\|\||&&/);
+    parsedValues = [];
+    for (k = 0, len = parsedString.length; k < len; k++) {
+      val = parsedString[k];
+      type = this.getStatementType(val);
+      switch (type) {
+        case "item":
+          ref = data.game.inventory;
+          for (l = 0, len1 = ref.length; l < len1; l++) {
+            i = ref[l];
+            if (i.name === val.substring(4, val.length)) {
+              parsedValues.push(i.count);
+            }
+          }
+          break;
+        case "stats":
+          ref1 = data.game.stats;
+          for (m = 0, len2 = ref1.length; m < len2; m++) {
+            i = ref1[m];
+            if (i.name === val.substring(5, val.length)) {
+              parsedValues.push(i.value);
+            }
+          }
+          break;
+        case "var":
+          val = this.findValue(val.substring(4, val.length), true);
+          if (!isNaN(parseFloat(val))) {
+            parsedValues.push(val);
+          } else {
+            parsedValues.push("'" + val + "'");
+          }
+          break;
+        case "float":
+          parsedValues.push(parseFloat(val));
+          break;
+        case "int":
+          parsedValues.push(parseInt(val));
+          break;
+        case "string":
+          if (val !== "") {
+            parsedValues.push("'" + val + "'");
+          } else {
+            parsedValues.push("");
+          }
+      }
+    }
+    for (i = o = 0, ref2 = parsedString.length - 1; 0 <= ref2 ? o <= ref2 : o >= ref2; i = 0 <= ref2 ? ++o : --o) {
+      if (parsedString[i] !== "" && parsedValues[i] !== "") {
+        s = s.replace(new RegExp(parsedString[i], 'g'), parsedValues[i]);
+      }
+    }
+    return eval(s);
+  },
+  getStatementType: function(val) {
+    var type;
+    type = null;
+    if (val.substring(0, 5) === "stat.") {
+      type = "stats";
+    } else if (val.substring(0, 4) === "inv.") {
+      type = "item";
+    } else if (val.substring(0, 4) === "var.") {
+      type = "var";
+    } else if (!isNaN(parseFloat(val)) && val.toString().indexOf(".") === -1) {
+      type = "int";
+    } else if (!isNaN(parseFloat(val)) && val.toString().indexOf(".") !== -1) {
+      type = "float";
+    } else {
+      type = "string";
+    }
+    return type;
+  },
+  findValue: function(parsed, toPrint) {
+    var i, k, ref, splitted, variable;
+    splitted = parsed.split(",");
+    if (!toPrint) {
+      if (splitted.length > 1) {
+        variable = this.findValueByName(data.game, splitted[0])[0];
+      } else {
+        variable = this.findValueByName(data.game, splitted[0])[1];
+      }
+    } else {
+      variable = this.findValueByName(data.game, splitted[0])[0];
+    }
+    for (i = k = 0, ref = splitted.length - 1; 0 <= ref ? k <= ref : k >= ref; i = 0 <= ref ? ++k : --k) {
+      if (Util.isOdd(i)) {
+        variable = variable[parseInt(splitted[i])];
+      } else if (i !== 0) {
+        if (!toPrint) {
+          variable = this.findValueByName(variable, splitted[i])[1];
+        } else {
+          if (splitted[i] === "parsedText" || splitted[i] === "text") {
+            splitted[i] = "parsedText";
+            variable.parsedText = Parser.parseText(variable.text);
+          }
+          variable = this.findValueByName(variable, splitted[i])[0];
+        }
+      }
+    }
+    return variable;
+  },
+  findValueByName: function(obj, string) {
+    var newObj, newString, parts, r;
+    parts = string.split('.');
+    newObj = obj[parts[0]];
+    if (parts[1]) {
+      parts.splice(0, 1);
+      newString = parts.join('.');
+      return this.findValueByName(newObj, newString);
+    }
+    r = [];
+    r[0] = newObj;
+    r[1] = obj;
+    return r;
+  }
+};
+
+
+/* SCENE MANIPULATION */
+
+Scene = {
+  selectChoiceByName: function(name) {
+    var i, k, len, ref, results;
+    ref = data.game.currentScene.choices;
+    results = [];
+    for (k = 0, len = ref.length; k < len; k++) {
+      i = ref[k];
+      if (i.name === name) {
+        gameArea.selectChoice(i);
+        break;
+      } else {
+        results.push(void 0);
+      }
+    }
+    return results;
+  },
+  exitScene: function(scene) {
+    return UI.updateInputs(scene);
+  },
+  changeScene: function(sceneNames) {
+    var scene;
+    scene = this.findSceneByName(this.selectRandomScene(sceneNames));
+    this.setupScene(scene);
+    return scene;
+  },
+  setupScene: function(scene) {
+    this.updateScene(scene);
+    this.readItemAndStatsEdits(data.game.currentScene);
+    this.readSounds(data.game.currentScene, false);
+    return this.readSaving(data.game.currentScene);
+  },
+  updateScene: function(scene) {
+    Scene.combineSceneTexts(scene);
+    scene.parsedText = Parser.parseText(scene.combinedText);
+    data.printedText = scene.parsedText;
+    data.game.currentScene = scene;
+    return this.updateChoices();
+  },
+  updateChoices: function() {
+    return gameArea.$set('game.parsedChoices', data.game.currentScene.choices.map(function(choice) {
+      choice.parsedText = Parser.parseText(choice.text);
+      if (gameArea.game.settings.alwaysShowDisabledChoices) {
+        choice.alwaysShow = true;
+      }
+      return choice;
+    }));
+  },
+  selectRandomScene: function(name) {
+    var i, k, len, parsed, separate;
+    separate = name.split("|");
+    if (separate.length === 1) {
+      return separate[0];
+    }
+    parsed = [];
+    for (k = 0, len = separate.length; k < len; k++) {
+      i = separate[k];
+      i = i.substring(0, i.length - 1);
+      i = i.split("[");
+      parsed.push(i);
+    }
+    parsed = this.chooseFromMultipleScenes(parsed);
+    return parsed;
+  },
+  chooseFromMultipleScenes: function(scenes) {
+    var chances, i, k, l, len, len1, len2, m, nameIndex, names, previous, rawChances, totalChance, value;
+    names = [];
+    chances = [];
+    rawChances = [];
+    previous = 0;
+    for (k = 0, len = scenes.length; k < len; k++) {
+      i = scenes[k];
+      names.push(i[0]);
+      previous = parseFloat(i[1]) + previous;
+      chances.push(previous);
+      rawChances.push(parseFloat(i[1]));
+    }
+    totalChance = 0;
+    for (l = 0, len1 = rawChances.length; l < len1; l++) {
+      i = rawChances[l];
+      totalChance = totalChance + parseFloat(i);
+    }
+    if (totalChance !== 1) {
+      console.error("ERROR: Invalid scene odds!");
+    }
+    value = Math.random();
+    nameIndex = 0;
+    for (m = 0, len2 = chances.length; m < len2; m++) {
+      i = chances[m];
+      if (value < i) {
+        return names[nameIndex];
+      }
+      nameIndex++;
+    }
+  },
+  findSceneByName: function(name) {
+    var i, k, len, ref;
+    ref = data.game.scenes;
+    for (k = 0, len = ref.length; k < len; k++) {
+      i = ref[k];
+      if (i.name === name) {
+        return i;
+      }
+    }
+    return console.error("ERROR: Scene by name '" + name + "' not found!");
+  },
+  combineSceneTexts: function(scene) {
+    var key, results;
+    scene.combinedText = scene.text;
+    results = [];
+    for (key in scene) {
+      if (scene.hasOwnProperty(key)) {
+        if (key.includes("text-")) {
+          results.push(scene.combinedText = scene.combinedText.concat(scene[key]));
+        } else {
+          results.push(void 0);
+        }
+      } else {
+        results.push(void 0);
+      }
+    }
+    return results;
+  },
+  readItemAndStatsEdits: function(source) {
+    var k, l, len, len1, len2, m, ref, ref1, ref2, results, val;
+    if (source.removeItem !== void 0) {
+      Inventory.editItemsOrStats(Parser.parseItemOrStats(source.removeItem), "remove", true);
+    }
+    if (source.addItem !== void 0) {
+      Inventory.editItemsOrStats(Parser.parseItemOrStats(source.addItem), "add", true);
+    }
+    if (source.setItem !== void 0) {
+      Inventory.editItemsOrStats(Parser.parseItemOrStats(source.setItem), "set", true);
+    }
+    if (source.removeStats !== void 0) {
+      Inventory.editItemsOrStats(Parser.parseItemOrStats(source.removeStats), "remove", false);
+    }
+    if (source.addStats !== void 0) {
+      Inventory.editItemsOrStats(Parser.parseItemOrStats(source.addStats), "add", false);
+    }
+    if (source.setStats !== void 0) {
+      Inventory.editItemsOrStats(Parser.parseItemOrStats(source.setStats), "set", false);
+    }
+    if (source.setValue !== void 0) {
+      ref = source.setValue;
+      for (k = 0, len = ref.length; k < len; k++) {
+        val = ref[k];
+        Inventory.setValue(val.path, val.value);
+      }
+    }
+    if (source.increaseValue !== void 0) {
+      ref1 = source.increaseValue;
+      for (l = 0, len1 = ref1.length; l < len1; l++) {
+        val = ref1[l];
+        Inventory.increaseValue(val.path, val.value);
+      }
+    }
+    if (source.decreaseValue !== void 0) {
+      ref2 = source.decreaseValue;
+      results = [];
+      for (m = 0, len2 = ref2.length; m < len2; m++) {
+        val = ref2[m];
+        results.push(Inventory.decreaseValue(val.path, val.value));
+      }
+      return results;
+    }
+  },
+  readSounds: function(source, clicked) {
+    var played;
+    played = false;
+    if (source.playSound !== void 0) {
+      Sound.playSound(source.playSound, false);
+      played = true;
+    }
+    if (clicked && !played) {
+      Sound.playDefaultClickSound();
+    }
+    if (source.startMusic !== void 0) {
+      Sound.startMusic(source.startMusic);
+    }
+    if (source.stopMusic !== void 0) {
+      return Sound.stopMusic(source.stopMusic);
+    }
+  },
+  readSaving: function(source) {
+    if (source.saveGame !== void 0) {
+      saveGame();
+    }
+    if (source.loadGame !== void 0) {
+      return showLoadNotification();
+    }
+  },
+  requirementsFilled: function(choice) {
+    var k, len, r, reqs, requirements, success;
+    reqs = [];
+    if (choice.itemRequirement !== void 0) {
+      requirements = Parser.parseItemOrStats(choice.itemRequirement);
+      reqs.push(Inventory.checkRequirements(requirements, true));
+    }
+    if (choice.statsRequirement !== void 0) {
+      requirements = Parser.parseItemOrStats(choice.statsRequirement);
+      reqs.push(Inventory.checkRequirements(requirements, false));
+    }
+    if (choice.requirement !== void 0) {
+      reqs.push(Inventory.parseIfStatement(choice.requirement));
+    }
+    success = true;
+    for (k = 0, len = reqs.length; k < len; k++) {
+      r = reqs[k];
+      if (r === false) {
+        success = false;
+      }
+    }
+    return success;
+  }
+};
+
+
+/* SOUNDS */
+
+Sound = {
+  playDefaultClickSound: function(name, clicked) {
+    return this.playSound(data.game.settings.soundSettings.defaultClickSound, false);
+  },
+  playSound: function(name, isMusic) {
+    var k, len, ref, s, sound;
+    ref = data.game.sounds;
+    for (k = 0, len = ref.length; k < len; k++) {
+      s = ref[k];
+      if (s.name === name) {
+        sound = new Audio(gamePath + '/sounds/' + s.file);
+        if (isMusic) {
+          sound.volume = data.game.settings.soundSettings.musicVolume;
+        } else {
+          sound.volume = data.game.settings.soundSettings.soundVolume;
+        }
+        sound.play();
+        return sound;
+      }
+    }
+  },
+  isPlaying: function(name) {
+    var i, k, len, ref;
+    ref = data.music;
+    for (k = 0, len = ref.length; k < len; k++) {
+      i = ref[k];
+      if (i.paused) {
+        return false;
+      } else {
+        return true;
+      }
+    }
+  },
+  startMusic: function(name) {
+    var music;
+    music = this.playSound(name, true);
+    music.addEventListener('ended', (function() {
+      this.currentTime = 0;
+      this.play();
+    }), false);
+    return data.music.push({
+      "name": name,
+      "music": music
+    });
+  },
+  stopMusic: function(name) {
+    var i, index, k, len, ref, results;
+    ref = data.music;
+    results = [];
+    for (k = 0, len = ref.length; k < len; k++) {
+      i = ref[k];
+      if (name === i.name) {
+        i.music.pause();
+        index = data.music.indexOf(i);
+        results.push(data.music.splice(index, 1));
+      } else {
+        results.push(void 0);
+      }
+    }
+    return results;
+  }
+};
+
+
+/* UI SCRIPTS */
+
+UI = {
+  showSaveNotification: function(text) {
+    var e, textArea;
+    e = document.getElementById("save-notification");
+    textArea = e.querySelectorAll("textarea");
+    textArea[0].value = text;
+    return e.style.display = 'block';
+  },
+  closeSaveNotification: function() {
+    var e;
+    e = document.getElementById("save-notification");
+    return e.style.display = 'none';
+  },
+  showLoadNotification: function() {
+    var e;
+    if (gameArea.game.settings.saveMode === "text") {
+      e = document.getElementById("load-notification");
+      return e.style.display = 'block';
+    } else {
+      return loadGame();
+    }
+  },
+  closeLoadNotification: function(load) {
+    var e, textArea;
+    e = document.getElementById("load-notification");
+    if (load) {
+      textArea = e.querySelectorAll("textarea");
+      loadGame(textArea[0].value);
+      textArea[0].value = "";
+    }
+    return e.style.display = 'none';
+  },
+  updateInputs: function(scene) {
+    var a, i, inputs, k, len, results;
+    inputs = document.getElementById("game-area").querySelectorAll("input");
+    results = [];
+    for (k = 0, len = inputs.length; k < len; k++) {
+      i = inputs[k];
+      results.push((function() {
+        var l, len1, ref, results1;
+        ref = data.game.stats;
+        results1 = [];
+        for (l = 0, len1 = ref.length; l < len1; l++) {
+          a = ref[l];
+          if (a.name === i.className.substring(6, i.className.length)) {
+            results1.push(a.value = Util.stripHTML(i.value));
+          } else {
+            results1.push(void 0);
+          }
+        }
+        return results1;
+      })());
+    }
+    return results;
+  }
+};
+
+copyButton = document.querySelector('#copy-button');
+
+copyButton.addEventListener('click', function(event) {
+  var copyTextarea, err, error, successful;
+  copyTextarea = document.getElementById("save-notification").querySelector("textarea");
+  copyTextarea.select();
+  try {
+    successful = document.execCommand('copy');
+  } catch (error) {
+    err = error;
+    console.error("Copying to clipboard failed: " + err);
+  }
+});
+
+
+/* UTILITY SCRIPTS */
+
+Util = {
+  isEven: function(n) {
+    return n % 2 === 0;
+  },
+  isOdd: function(n) {
+    return Math.abs(n % 2) === 1;
+  },
+  stripHTML: function(text) {
+    var regex;
+    regex = /(<([^>]+)>)/ig;
+    return text.replace(regex, '');
+  },
+  validateParentheses: function(s) {
+    var i, k, len, open;
+    open = 0;
+    for (k = 0, len = s.length; k < len; k++) {
+      i = s[k];
+      if (i === "(") {
+        open++;
+      }
+      if (i === ")") {
+        if (open > 0) {
+          open--;
+        } else {
+          return false;
+        }
+      }
+    }
+    if (open === 0) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+};

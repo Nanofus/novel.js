@@ -64,6 +64,16 @@ Parser = {
             if i.name == parsed[1]
               nameText = i.value
           splitText[index] = "<input type=\"text\" value=\"" + nameText + "\" name=\"input\" class=\"input-" + parsed[1] +  "\">"
+        # Print speed changer
+        else if s.substring(0,5) == "speed"
+          parsed = s.split("speed ")
+          splitText[index] = "<span class=\"speed-" + parsed[1] + "\">"
+        else if s.substring(0,6) == "/speed"
+          if spansToBeClosed > 0
+            splitText[index] = "</span>"
+            spansToBeClosed--
+          else
+            splitText[index] = ""
         # Embedded choice
         else if s.substring(0,6) == "choice"
           parsed = s.split("choice ")
