@@ -1,11 +1,9 @@
 
 /* SAVING AND LOADING */
-var GameManager, Inventory, Parser, Scene, Sound, TextPrinter, UI, Util, copyButton, data, gameArea, gamePath, gm;
+var GameManager, Inventory, Parser, Scene, Sound, TextPrinter, UI, Util, copyButton, currentOffset, data, defaultInterval, fullText, gameArea, gamePath, timer, timer2;
 
-GameManager = (function() {
-  function GameManager() {}
-
-  GameManager.prototype.loadCookie = function(cname) {
+GameManager = {
+  loadCookie: function(cname) {
     var c, ca, i, name;
     name = cname + '=';
     ca = document.cookie.split(';');
@@ -21,17 +19,15 @@ GameManager = (function() {
       i++;
     }
     return '';
-  };
-
-  GameManager.prototype.saveCookie = function(cname, cvalue, exdays) {
+  },
+  saveCookie: function(cname, cvalue, exdays) {
     var d, expires;
     d = new Date;
     d.setTime(d.getTime() + exdays * 24 * 60 * 60 * 1000);
     expires = 'expires=' + d.toUTCString();
     return document.cookie = cname + '=' + cvalue + '; ' + expires + '; path=/';
-  };
-
-  GameManager.prototype.loadGame = function(game) {
+  },
+  loadGame: function(game) {
     var cookie;
     if (game === void 0) {
       if (this.loadCookie("gameData") !== '') {
@@ -47,9 +43,8 @@ GameManager = (function() {
       data.game = JSON.parse(atob(game));
       data.debugMode = data.game.debugMode;
     }
-  };
-
-  GameManager.prototype.startGame = function() {
+  },
+  startGame: function() {
     var request;
     request = new XMLHttpRequest;
     request.open('GET', gamePath + '/game.json', true);
@@ -65,15 +60,13 @@ GameManager = (function() {
     };
     request.onerror = function() {};
     return request.send();
-  };
-
-  GameManager.prototype.saveGameAsJson = function() {
+  },
+  saveGameAsJson: function() {
     var save;
     save = btoa(JSON.stringify(data.game));
     return save;
-  };
-
-  GameManager.prototype.saveGame = function() {
+  },
+  saveGame: function() {
     var save;
     save = this.saveGameAsJson();
     if (data.game.settings.saveMode === "cookie") {
@@ -81,9 +74,8 @@ GameManager = (function() {
     } else if (data.game.settings.saveMode === "text") {
       return UI.showSaveNotification(save);
     }
-  };
-
-  GameManager.prototype.prepareData = function(json) {
+  },
+  prepareData: function(json) {
     var c, i, k, l, len, len1, len2, m, ref, ref1, ref2, s;
     json.currentScene = "";
     json.parsedChoices = "";
@@ -112,19 +104,14 @@ GameManager = (function() {
       }
     }
     return json;
-  };
-
-  return GameManager;
-
-})();
+  }
+};
 
 
 /* INVENTORY, STAT & VALUE OPERATIONS */
 
-Inventory = (function() {
-  function Inventory() {}
-
-  Inventory.prototype.checkRequirements = function(requirements, isItem) {
+Inventory = {
+  checkRequirements: function(requirements, isItem) {
     var i, j, k, l, len, len1, len2, len3, m, o, ref, ref1, reqsFilled;
     reqsFilled = 0;
     if (isItem) {
@@ -159,16 +146,14 @@ Inventory = (function() {
     } else {
       return false;
     }
-  };
-
-  Inventory.prototype.setValue = function(parsed, newValue) {
+  },
+  setValue: function(parsed, newValue) {
     var getValueArrayLast, value;
     getValueArrayLast = this.getValueArrayLast(parsed);
     value = Parser.findValue(parsed, false);
     return value[getValueArrayLast] = newValue;
-  };
-
-  Inventory.prototype.increaseValue = function(parsed, change) {
+  },
+  increaseValue: function(parsed, change) {
     var getValueArrayLast, value;
     getValueArrayLast = this.getValueArrayLast(parsed);
     value = Parser.findValue(parsed, false);
@@ -176,9 +161,8 @@ Inventory = (function() {
     if (!isNaN(parseFloat(value[getValueArrayLast]))) {
       return value[getValueArrayLast] = parseFloat(value[getValueArrayLast].toFixed(8));
     }
-  };
-
-  Inventory.prototype.decreaseValue = function(parsed, change) {
+  },
+  decreaseValue: function(parsed, change) {
     var getValueArrayLast, value;
     getValueArrayLast = this.getValueArrayLast(parsed);
     value = Parser.findValue(parsed, false);
@@ -186,17 +170,15 @@ Inventory = (function() {
     if (!isNaN(parseFloat(value[getValueArrayLast]))) {
       return value[getValueArrayLast] = parseFloat(value[getValueArrayLast].toFixed(8));
     }
-  };
-
-  Inventory.prototype.getValueArrayLast = function(parsed) {
+  },
+  getValueArrayLast: function(parsed) {
     var getValueArrayLast;
     getValueArrayLast = parsed.split(",");
     getValueArrayLast = getValueArrayLast[getValueArrayLast.length - 1].split(".");
     getValueArrayLast = getValueArrayLast[getValueArrayLast.length - 1];
     return getValueArrayLast;
-  };
-
-  Inventory.prototype.editItemsOrStats = function(items, mode, isItem) {
+  },
+  editItemsOrStats: function(items, mode, isItem) {
     var count, displayName, i, inventory, isInv, itemAdded, j, k, l, len, len1, p, probability, value;
     if (isItem) {
       inventory = data.game.inventory;
@@ -295,11 +277,8 @@ Inventory = (function() {
     } else {
       return data.game.stats = inventory;
     }
-  };
-
-  return Inventory;
-
-})();
+  }
+};
 
 data = {
   game: null,
@@ -332,20 +311,16 @@ gameArea = new Vue({
   }
 });
 
-gm = new GameManager;
-
 
 /* And finally, start the game... */
 
-gm.startGame();
+GameManager.startGame();
 
 
 /* PARSERS */
 
-Parser = (function() {
-  function Parser() {}
-
-  Parser.prototype.parseItemOrStats = function(items) {
+Parser = {
+  parseItemOrStats: function(items) {
     var i, k, len, parsed, separate;
     separate = items.split("|");
     parsed = [];
@@ -356,9 +331,8 @@ Parser = (function() {
       parsed.push(i);
     }
     return parsed;
-  };
-
-  Parser.prototype.parseText = function(text) {
+  },
+  parseText: function(text) {
     var asToBeClosed, i, index, k, l, len, len1, len2, m, nameText, o, parsed, q, ref, ref1, ref2, ref3, s, spansToBeClosed, splitText, value;
     if (text !== void 0) {
       for (i = k = 0; k <= 99; i = ++k) {
@@ -444,9 +418,8 @@ Parser = (function() {
       text = splitText.join("");
       return text;
     }
-  };
-
-  Parser.prototype.parseStatement = function(s) {
+  },
+  parseStatement: function(s) {
     var i, k, l, len, len1, len2, m, o, parsedString, parsedValues, ref, ref1, ref2, type, val;
     if (!Util.validateParentheses(s)) {
       console.error("ERROR: Invalid parentheses in statement");
@@ -504,9 +477,8 @@ Parser = (function() {
       }
     }
     return eval(s);
-  };
-
-  Parser.prototype.getStatementType = function(val) {
+  },
+  getStatementType: function(val) {
     var type;
     type = null;
     if (val.substring(0, 5) === "stat.") {
@@ -523,9 +495,8 @@ Parser = (function() {
       type = "string";
     }
     return type;
-  };
-
-  Parser.prototype.findValue = function(parsed, toPrint) {
+  },
+  findValue: function(parsed, toPrint) {
     var i, k, ref, splitted, variable;
     splitted = parsed.split(",");
     if (!toPrint) {
@@ -553,9 +524,8 @@ Parser = (function() {
       }
     }
     return variable;
-  };
-
-  Parser.prototype.findValueByName = function(obj, string) {
+  },
+  findValueByName: function(obj, string) {
     var newObj, newString, parts, r;
     parts = string.split('.');
     newObj = obj[parts[0]];
@@ -568,19 +538,14 @@ Parser = (function() {
     r[0] = newObj;
     r[1] = obj;
     return r;
-  };
-
-  return Parser;
-
-})();
+  }
+};
 
 
 /* SCENE MANIPULATION */
 
-Scene = (function() {
-  function Scene() {}
-
-  Scene.prototype.selectChoiceByName = function(name) {
+Scene = {
+  selectChoiceByName: function(name) {
     var i, k, len, ref, results;
     ref = data.game.currentScene.choices;
     results = [];
@@ -594,35 +559,30 @@ Scene = (function() {
       }
     }
     return results;
-  };
-
-  Scene.prototype.exitScene = function(scene) {
+  },
+  exitScene: function(scene) {
     return UI.updateInputs(scene);
-  };
-
-  Scene.prototype.changeScene = function(sceneNames) {
+  },
+  changeScene: function(sceneNames) {
     var scene;
     scene = this.findSceneByName(this.selectRandomScene(sceneNames));
     this.setupScene(scene);
     return scene;
-  };
-
-  Scene.prototype.setupScene = function(scene) {
+  },
+  setupScene: function(scene) {
     this.updateScene(scene);
     this.readItemAndStatsEdits(data.game.currentScene);
     this.readSounds(data.game.currentScene, false);
     return this.readSaving(data.game.currentScene);
-  };
-
-  Scene.prototype.updateScene = function(scene) {
+  },
+  updateScene: function(scene) {
     Scene.combineSceneTexts(scene);
     scene.parsedText = Parser.parseText(scene.combinedText);
     data.game.currentScene = scene;
-    this.updateChoices();
+    data.game.parsedChoices = null;
     return TextPrinter.printText(scene.parsedText);
-  };
-
-  Scene.prototype.updateChoices = function() {
+  },
+  updateChoices: function() {
     return gameArea.$set('game.parsedChoices', data.game.currentScene.choices.map(function(choice) {
       choice.parsedText = Parser.parseText(choice.text);
       if (gameArea.game.settings.alwaysShowDisabledChoices) {
@@ -630,9 +590,8 @@ Scene = (function() {
       }
       return choice;
     }));
-  };
-
-  Scene.prototype.selectRandomScene = function(name) {
+  },
+  selectRandomScene: function(name) {
     var i, k, len, parsed, separate;
     separate = name.split("|");
     if (separate.length === 1) {
@@ -647,9 +606,8 @@ Scene = (function() {
     }
     parsed = this.chooseFromMultipleScenes(parsed);
     return parsed;
-  };
-
-  Scene.prototype.chooseFromMultipleScenes = function(scenes) {
+  },
+  chooseFromMultipleScenes: function(scenes) {
     var chances, i, k, l, len, len1, len2, m, nameIndex, names, previous, rawChances, totalChance, value;
     names = [];
     chances = [];
@@ -679,9 +637,8 @@ Scene = (function() {
       }
       nameIndex++;
     }
-  };
-
-  Scene.prototype.findSceneByName = function(name) {
+  },
+  findSceneByName: function(name) {
     var i, k, len, ref;
     ref = data.game.scenes;
     for (k = 0, len = ref.length; k < len; k++) {
@@ -691,9 +648,8 @@ Scene = (function() {
       }
     }
     return console.error("ERROR: Scene by name '" + name + "' not found!");
-  };
-
-  Scene.prototype.combineSceneTexts = function(scene) {
+  },
+  combineSceneTexts: function(scene) {
     var key, results;
     scene.combinedText = scene.text;
     results = [];
@@ -709,9 +665,8 @@ Scene = (function() {
       }
     }
     return results;
-  };
-
-  Scene.prototype.readItemAndStatsEdits = function(source) {
+  },
+  readItemAndStatsEdits: function(source) {
     var k, l, len, len1, len2, m, ref, ref1, ref2, results, val;
     if (source.removeItem !== void 0) {
       Inventory.editItemsOrStats(Parser.parseItemOrStats(source.removeItem), "remove", true);
@@ -754,9 +709,8 @@ Scene = (function() {
       }
       return results;
     }
-  };
-
-  Scene.prototype.readSounds = function(source, clicked) {
+  },
+  readSounds: function(source, clicked) {
     var played;
     played = false;
     if (source.playSound !== void 0) {
@@ -772,18 +726,16 @@ Scene = (function() {
     if (source.stopMusic !== void 0) {
       return Sound.stopMusic(source.stopMusic);
     }
-  };
-
-  Scene.prototype.readSaving = function(source) {
+  },
+  readSaving: function(source) {
     if (source.saveGame !== void 0) {
       saveGame();
     }
     if (source.loadGame !== void 0) {
       return showLoadNotification();
     }
-  };
-
-  Scene.prototype.requirementsFilled = function(choice) {
+  },
+  requirementsFilled: function(choice) {
     var k, len, r, reqs, requirements, success;
     reqs = [];
     if (choice.itemRequirement !== void 0) {
@@ -805,23 +757,17 @@ Scene = (function() {
       }
     }
     return success;
-  };
-
-  return Scene;
-
-})();
+  }
+};
 
 
 /* SOUNDS */
 
-Sound = (function() {
-  function Sound() {}
-
-  Sound.prototype.playDefaultClickSound = function(name, clicked) {
+Sound = {
+  playDefaultClickSound: function(name, clicked) {
     return this.playSound(data.game.settings.soundSettings.defaultClickSound, false);
-  };
-
-  Sound.prototype.playSound = function(name, isMusic) {
+  },
+  playSound: function(name, isMusic) {
     var k, len, ref, s, sound;
     ref = data.game.sounds;
     for (k = 0, len = ref.length; k < len; k++) {
@@ -837,9 +783,8 @@ Sound = (function() {
         return sound;
       }
     }
-  };
-
-  Sound.prototype.isPlaying = function(name) {
+  },
+  isPlaying: function(name) {
     var i, k, len, ref;
     ref = data.music;
     for (k = 0, len = ref.length; k < len; k++) {
@@ -850,9 +795,8 @@ Sound = (function() {
         return true;
       }
     }
-  };
-
-  Sound.prototype.startMusic = function(name) {
+  },
+  startMusic: function(name) {
     var music;
     music = this.playSound(name, true);
     music.addEventListener('ended', (function() {
@@ -863,9 +807,8 @@ Sound = (function() {
       "name": name,
       "music": music
     });
-  };
-
-  Sound.prototype.stopMusic = function(name) {
+  },
+  stopMusic: function(name) {
     var i, index, k, len, ref, results;
     ref = data.music;
     results = [];
@@ -880,65 +823,86 @@ Sound = (function() {
       }
     }
     return results;
-  };
-
-  return Sound;
-
-})();
-
-TextPrinter = (function() {
-  function TextPrinter() {
-    this.fullText = '';
-    this.timer = null;
-    this.currentOffset = 0;
   }
+};
 
-  TextPrinter.prototype.printText = function(text) {
-    this.fullText = text;
-    this.currentOffset = 0;
-    this.timer = setInterval(this.onTick, 100);
-  };
+fullText = "";
 
-  TextPrinter.prototype.onTick = function() {
-    this.currentOffset++;
-    if (this.currentOffset === this.fullText.length) {
-      this.complete();
+timer = null;
+
+timer2 = null;
+
+currentOffset = 0;
+
+defaultInterval = 50;
+
+TextPrinter = {
+  printText: function(text) {
+    fullText = text;
+    console.log(fullText);
+    currentOffset = 0;
+    return timer = setInterval(this.onTick, defaultInterval);
+  },
+  complete: function() {
+    clearInterval(timer);
+    timer = null;
+    data.printedText = fullText;
+    return Scene.updateChoices();
+  },
+  onTick: function() {
+    var endTag, i, k, ref, ref1, skip, string, tag;
+    endTag = "";
+    if (fullText[currentOffset] === '<') {
+      string = "";
+      tag = fullText.substring(currentOffset + 1, fullText.length).split(/[\s<>]+/)[0];
+      console.log("TAG: " + tag);
+      for (i = k = ref = currentOffset, ref1 = fullText.length; ref <= ref1 ? k <= ref1 : k >= ref1; i = ref <= ref1 ? ++k : --k) {
+        string = string + fullText[i];
+        if (string === "<span style=\"display:none;\">") {
+          skip = true;
+          console.log("Skipping hidden at " + i);
+        }
+        if (string.substring(string.length - 7, string.length) === "</span>") {
+          console.log("/span found");
+          if (skip === true) {
+            console.log("Skip: " + currentOffset);
+            currentOffset = i;
+            console.log("Skipped! " + currentOffset);
+          }
+        }
+        currentOffset++;
+        if (fullText[i] === '>') {
+          console.log("found");
+          break;
+        }
+      }
+    }
+    currentOffset++;
+    if (currentOffset === fullText.length) {
+      TextPrinter.complete();
       return;
     }
-    data.printedText = this.fullText.substring(0, currentOffset);
-  };
-
-  TextPrinter.prototype.complete = function() {
-    clearInterval(timer);
-    this.timer = null;
-    data.printedText = this.fullText;
-  };
-
-  return TextPrinter;
-
-})();
+    return data.printedText = fullText.substring(0, currentOffset);
+  }
+};
 
 
 /* UI SCRIPTS */
 
-UI = (function() {
-  function UI() {}
-
-  UI.prototype.showSaveNotification = function(text) {
+UI = {
+  showSaveNotification: function(text) {
     var e, textArea;
     e = document.getElementById("save-notification");
     textArea = e.querySelectorAll("textarea");
     textArea[0].value = text;
     return e.style.display = 'block';
-  };
-
-  UI.prototype.closeSaveNotification = function() {
+  },
+  closeSaveNotification: function() {
     var e;
     e = document.getElementById("save-notification");
     return e.style.display = 'none';
-  };
-
-  UI.prototype.showLoadNotification = function() {
+  },
+  showLoadNotification: function() {
     var e;
     if (gameArea.game.settings.saveMode === "text") {
       e = document.getElementById("load-notification");
@@ -946,9 +910,8 @@ UI = (function() {
     } else {
       return loadGame();
     }
-  };
-
-  UI.prototype.closeLoadNotification = function(load) {
+  },
+  closeLoadNotification: function(load) {
     var e, textArea;
     e = document.getElementById("load-notification");
     if (load) {
@@ -957,9 +920,8 @@ UI = (function() {
       textArea[0].value = "";
     }
     return e.style.display = 'none';
-  };
-
-  UI.prototype.updateInputs = function(scene) {
+  },
+  updateInputs: function(scene) {
     var a, i, inputs, k, len, results;
     inputs = document.getElementById("game-area").querySelectorAll("input");
     results = [];
@@ -981,11 +943,8 @@ UI = (function() {
       })());
     }
     return results;
-  };
-
-  return UI;
-
-})();
+  }
+};
 
 copyButton = document.querySelector('#copy-button');
 
@@ -1004,24 +963,19 @@ copyButton.addEventListener('click', function(event) {
 
 /* UTILITY SCRIPTS */
 
-Util = (function() {
-  function Util() {}
-
-  Util.prototype.isEven = function(n) {
+Util = {
+  isEven: function(n) {
     return n % 2 === 0;
-  };
-
-  Util.prototype.isOdd = function(n) {
+  },
+  isOdd: function(n) {
     return Math.abs(n % 2) === 1;
-  };
-
-  Util.prototype.stripHTML = function(text) {
+  },
+  stripHTML: function(text) {
     var regex;
     regex = /(<([^>]+)>)/ig;
     return text.replace(regex, '');
-  };
-
-  Util.prototype.validateParentheses = function(s) {
+  },
+  validateParentheses: function(s) {
     var i, k, len, open;
     open = 0;
     for (k = 0, len = s.length; k < len; k++) {
@@ -1042,8 +996,5 @@ Util = (function() {
     } else {
       return false;
     }
-  };
-
-  return Util;
-
-})();
+  }
+};

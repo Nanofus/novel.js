@@ -6,6 +6,7 @@ var coffee = require('gulp-coffee');
 var gutil = require('gulp-util');
 var concat = require('gulp-concat');
 var uglify = require('gulp-uglify');
+var sourcemaps = require('gulp-sourcemaps');
 
 gulp.task('sass', function () {
   gulp.src('./scss/**/*.scss')
@@ -23,10 +24,10 @@ gulp.task('coffee', ['concat'], function() {
 });
 
 gulp.task('watch', function() {
-  gulp.start('sass', 'compress')
+  gulp.start('sass')
   gulp.watch('./scss/**/*.scss', ['sass']);
   gulp.watch('./game/**/*.scss', ['sass']);
-  gulp.watch('./src/*.coffee', ['compress']);
+  gulp.watch('./src/*.coffee', ['coffee']);
 });
 
 gulp.task('default', function() {
@@ -41,6 +42,8 @@ gulp.task('compress', ['coffee'], function() {
 
 gulp.task('concat', function() {
   return gulp.src('./src/*.coffee')
-    .pipe(concat('novel.coffee'))
+    .pipe(sourcemaps.init())
+      .pipe(concat('novel.coffee'))
+    .pipe(sourcemaps.write())
     .pipe(gulp.dest('./'));
 });
