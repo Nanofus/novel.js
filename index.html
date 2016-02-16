@@ -58,7 +58,7 @@
             </ul>
           </div>
           <div v-if="game.settings.showSaveButtons" class="save-buttons">
-            <button type="button" id="save-button" onclick="saveGame()">Save</button>
+            <button type="button" id="save-button" onclick="GameManager.saveGame()">Save</button>
             <button type="button" id="load-button" onclick="UI.showLoadNotification()">Load</button>
           </div>
         </div>

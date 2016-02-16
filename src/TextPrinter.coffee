@@ -1,16 +1,22 @@
 fullText = ""
 timer = null
-timer2 = null
 currentOffset = 0
 defaultInterval = 50
+currentInterval = 0
 
 TextPrinter = {
 
-  printText: (text) ->
+  printText: (text,interval) ->
+    if timer != null
+      clearInterval timer
     fullText = text
     #console.log fullText
     currentOffset = 0
-    timer = setInterval(@onTick, defaultInterval)
+    if interval == undefined
+      currentInterval = defaultInterval
+    else
+      currentInterval = interval
+    timer = setInterval(@onTick, currentInterval)
 
   complete: ->
     clearInterval timer
@@ -20,6 +26,10 @@ TextPrinter = {
     return false
 
   onTick: ->
+    if currentInterval == 0
+      TextPrinter.complete()
+      return
+
     #console.log currentOffset + ": " + fullText[currentOffset]
     if fullText[currentOffset] == '<'
       i = currentOffset
@@ -37,6 +47,7 @@ TextPrinter = {
           i++
           disp = disp + fullText[i]
         #console.log "Disp: " + disp
+      if str.indexOf("play-sound") > -1
       currentOffset = i
 
     #console.log currentOffset

@@ -56,6 +56,14 @@ Parser = {
         else if s.substring(0,5) == "print"
           parsed = s.split("print ")
           splitText[index] = @parseStatement(parsed[1])
+        # Play sound
+        else if s.substring(0,5) == "sound"
+          parsed = s.split("sound ")
+          splitText[index] = "<span class=\"play-sound " + parsed[1] + "\">"
+        # Change speed
+        else if s.substring(0,5) == "speed"
+          parsed = s.split("speed ")
+          splitText[index] = "<span class=\"set-speed " + parsed[1] + "\">"
         # Input field
         else if s.substring(0,5) == "input"
           parsed = s.split("input ")
