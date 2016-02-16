@@ -22,22 +22,24 @@
               <p><button type="button" onclick="UI.closeLoadNotification(false)">Close</button><button type="button" onclick="UI.closeLoadNotification(true)">Load</button></p>
             </div>
           </div>
-          <div class="text-area">
-            {{{ printedText }}}
-          </div>
-          <div class="choices">
-            <ul class="choice-list">
-              <div v-for="choice in game.parsedChoices">
-                <li v-if="requirementsFilled(choice)" class="choice">
-                  <a href="#" v-on:click="selectChoice(choice)">{{{ choice.parsedText }}}</a>
-                </li>
-                <div v-if="choice.alwaysShow">
-                  <li v-if="!requirementsFilled(choice)">
-                    {{{ choice.parsedText }}}
+          <div class="text-and-choices-area">
+            <div class="text-area" onclick="TextPrinter.complete()">
+              {{{ printedText }}}
+            </div>
+            <div class="choices">
+              <ul class="choice-list">
+                <div v-for="choice in game.parsedChoices">
+                  <li v-if="requirementsFilled(choice)" class="choice">
+                    <a href="#" v-on:click="selectChoice(choice)">{{{ choice.parsedText }}}</a>
                   </li>
+                  <div v-if="choice.alwaysShow">
+                    <li v-if="!requirementsFilled(choice)">
+                      {{{ choice.parsedText }}}
+                    </li>
+                  </div>
                 </div>
-              </div>
-            </ul>
+              </ul>
+            </div>
           </div>
           <div class="inventory">
             <h5>Inventory:</h5>

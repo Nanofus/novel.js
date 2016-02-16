@@ -77,7 +77,7 @@ Parser = {
         # Embedded choice
         else if s.substring(0,6) == "choice"
           parsed = s.split("choice ")
-          splitText[index] = "<a href=\"#\" onclick=\"Scene.selectChoiceByName('"+parsed[1]+"')\">"
+          splitText[index] = "<a href=\"#\" onclick=\"Scene.selectChoiceByNameByClicking(event,'"+parsed[1]+"')\">"
           asToBeClosed++
         else if s.substring(0,7) == "/choice"
           if asToBeClosed > 0

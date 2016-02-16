@@ -3,6 +3,12 @@
 
 Scene = {
 
+  #
+  selectChoiceByNameByClicking: (event, name) ->
+    event.stopPropagation()
+    event.preventDefault()
+    @selectChoiceByName(name)
+
   # Select a choice by name
   selectChoiceByName: (name) ->
     for i in data.game.currentScene.choices
