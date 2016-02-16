@@ -19,7 +19,9 @@ gulp.task('sass', function () {
 
 gulp.task('coffee', ['concat'], function() {
   gulp.src('./novel.coffee')
+    .pipe(sourcemaps.init())
     .pipe(coffee({bare: true}).on('error', gutil.log))
+    .pipe(sourcemaps.write())
     .pipe(gulp.dest('./'));
 });
 
