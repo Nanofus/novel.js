@@ -1,19 +1,17 @@
 fullText = ""
 timer = null
 currentOffset = 0
-defaultInterval = 50
 currentInterval = 0
 
 TextPrinter = {
 
   printText: (text,interval) ->
-    if timer != null
-      clearInterval timer
+    clearInterval timer
     fullText = text
     #console.log fullText
     currentOffset = 0
     if interval == undefined
-      currentInterval = defaultInterval
+      currentInterval = data.game.settings.defaultScrollSpeed
     else
       currentInterval = interval
     timer = setInterval(@onTick, currentInterval)
@@ -25,11 +23,18 @@ TextPrinter = {
     Scene.updateChoices()
     return false
 
+  changeTimer: (time) ->
+    clearInterval timer
+    timer = setInterval(@onTick, time)
+
+  resetTimer: ->
+    clearInterval timer
+    timer = setInterval(@onTick, currentInterval)
+
   onTick: ->
     if currentInterval == 0
       TextPrinter.complete()
       return
-
     #console.log currentOffset + ": " + fullText[currentOffset]
     if fullText[currentOffset] == '<'
       i = currentOffset
@@ -48,9 +53,15 @@ TextPrinter = {
           disp = disp + fullText[i]
         #console.log "Disp: " + disp
       if str.indexOf("play-sound") > -1
+        s = str.split("play-sound ")
+        s = s[1].split(/\s|\"/)[0]
+      if str.indexOf("set-speed") > -1
+        s = str.split("set-speed ")
+        s = s[1].split(/\s|\"/)[0]
+        TextPrinter.changeTimer(Parser.parseStatement(s))
+      if str.indexOf("default-speed") > -1
+        TextPrinter.resetTimer()
       currentOffset = i
-
-    #console.log currentOffset
 
     currentOffset++
     if currentOffset == fullText.length

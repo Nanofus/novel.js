@@ -59,11 +59,14 @@ Parser = {
         # Play sound
         else if s.substring(0,5) == "sound"
           parsed = s.split("sound ")
-          splitText[index] = "<span class=\"play-sound " + parsed[1] + "\">"
+          splitText[index] = "<span class=\"play-sound " + parsed[1] + "\"></span>"
+        # Reset text speed
+        else if s.substring(0,6) == "/speed"
+          splitText[index] = "<span class=\"default-speed\"></span>"
         # Change speed
         else if s.substring(0,5) == "speed"
           parsed = s.split("speed ")
-          splitText[index] = "<span class=\"set-speed " + parsed[1] + "\">"
+          splitText[index] = "<span class=\"set-speed " + parsed[1] + "\"></span>"
         # Input field
         else if s.substring(0,5) == "input"
           parsed = s.split("input ")
@@ -72,16 +75,6 @@ Parser = {
             if i.name == parsed[1]
               nameText = i.value
           splitText[index] = "<input type=\"text\" value=\"" + nameText + "\" name=\"input\" class=\"input-" + parsed[1] +  "\">"
-        # Print speed changer
-        else if s.substring(0,5) == "speed"
-          parsed = s.split("speed ")
-          splitText[index] = "<span class=\"speed-" + parsed[1] + "\">"
-        else if s.substring(0,6) == "/speed"
-          if spansToBeClosed > 0
-            splitText[index] = "</span>"
-            spansToBeClosed--
-          else
-            splitText[index] = ""
         # Embedded choice
         else if s.substring(0,6) == "choice"
           parsed = s.split("choice ")

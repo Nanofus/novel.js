@@ -16,6 +16,7 @@ gameArea = new Vue(
     requirementsFilled: (choice) ->
       return Scene.requirementsFilled(choice)
 
+    # Select a choice
     selectChoice: (choice) ->
       Scene.exitScene(@game.currentScene)
       Scene.readItemAndStatsEdits(choice)

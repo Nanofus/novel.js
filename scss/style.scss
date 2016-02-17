@@ -15,6 +15,10 @@ body {
   padding: 2rem;
 }
 
+.text-and-choices-area {
+  overflow: auto;
+}
+
 #notification-wrapper {
   position: absolute;
   left: 50%;
@@ -35,6 +39,10 @@ body {
       height: 30rem;
     }
   }
+}
+
+#skip-button {
+  float: right;
 }
 
 a {

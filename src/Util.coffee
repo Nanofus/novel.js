@@ -2,7 +2,6 @@
 ### UTILITY SCRIPTS ###
 
 Util = {
-
   # Check if a value is even or not
   isEven: (n) ->
     n % 2 == 0
@@ -31,5 +30,4 @@ Util = {
       return true
     else
       return false
-
 }

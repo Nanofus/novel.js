@@ -9,6 +9,9 @@ body {
   margin-top: 2rem;
   padding: 2rem; }
 
+.text-and-choices-area {
+  overflow: auto; }
+
 #notification-wrapper {
   position: absolute;
   left: 50%; }
@@ -26,6 +29,9 @@ body {
     #notification-wrapper .notification textarea {
       width: 40rem;
       height: 30rem; }
+
+#skip-button {
+  float: right; }
 
 a {
   text-decoration: none;
