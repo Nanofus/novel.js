@@ -19,7 +19,7 @@ Novel.js is written in CoffeeScript and SASS and depends only on Vue.js.
 		- [Stats](#stats)
 		- [Scenes](#scenes)
 		- [Choices](#choices)
-		- [Settings](#sounds)
+		- [Settings](#settings)
 		- [Sounds](#sounds)
 	- [Tags](#tags)
 		- [`if` - Conditional statements](#conditional-statements)
@@ -27,6 +27,10 @@ Novel.js is written in CoffeeScript and SASS and depends only on Vue.js.
 		- [`input` - Player input](#player-input)
 		- [`inv` & `stat` - Item & stat counts & values](#item--stat-counts--values)
 		- [`print` - Displaying values](#displaying-values)
+		- [`speed` - Setting text scrolling speed](#setting-text-scrolling-speed)
+		- [`sound` - Playing sounds while text scrolls](#play-sounds-while-text-scrolls)
+		- [`music` - Playing music while text scrolls](#play-music-while-text-scrolls)
+		- [`stopMusic` - Stopping music while text scrolls](#stop-music-while-text-scrolls)
 		- [`s` - Styling shorthands](#styling-shorthands)
 	- [Formats for statements and commands](#formats-for-statements-and-commands)
 		- [Format for add/remove/set and requirement commands](#format-for-addremoveset-and-requirement-commands)
@@ -46,6 +50,7 @@ Novel.js is written in CoffeeScript and SASS and depends only on Vue.js.
 - A classic text-based adventure view; text and choices.
 - Conditional statements to hide or show text and choices based on different conditions, such as the items the player is carrying, allowing for complex logic.
 - Shorthand tags for general styling of names etc.
+- Scrolling text!
 - An inventory system, with another hidden one to track the player's actions or other statistics.
 - Choices can have several different outcomes with different probabilities.
 - Play sound effects and looping music/ambient sound effects!
@@ -145,6 +150,8 @@ A scene object can contain the following variables and parameters:
 - `setValue` - See its [own chapter](#format-for-var-and-value-manipulation-commands).
 - `increaseValue` - See its [own chapter](#format-for-var-and-value-manipulation-commands).
 - `decreaseValue` - See its [own chapter](#format-for-var-and-value-manipulation-commands).
+- `scrollSpeed` - Override the scene's text scrolling speed.
+- `skipEnabled` - Override the player's ability to skip the scene's text.
 - `playSound` - Play a sound with the chosen name upon entering the scene.
 - `startMusic` - Start a music loop with the chosen name.
 - `endMusic` - End a music loop with the chosen name.
@@ -193,6 +200,8 @@ The settings object contains general settings for the game:
 - `alwaysShowDisabledChoices` - True or false. If true, choices with unmet requirements are always shown.
 - `saveMode` - `text` or `cookie`. See [Saving](#saving).
 - `showSaveButtons` - True or false. If true, the saving and loading buttons are shown, otherwise they are hidden.
+- `defaultScrollSpeed` - The default speed at which text scrolls
+- `textSkipEnabled` - If disabled, text can't be skipped.
 - `soundSettings`:
   - `soundVolume` - A float between 0 and 1. The volume of all sound effects.
   - `musicVolume` - A float between 0 and 1. The music's volume.
@@ -268,6 +277,22 @@ That you have over 24 swords is obviously [print inv.sword>24].
 ```
 See [Formats for statements and commands](#formats-for-statements-and-commands) for all possible values you can display.
 
+#### Setting text scrolling speed
+
+You can override the text's default scrolling speed by using the tag `[speed x]`, where x is the tick interval in milliseconds. The default value is defined in [settings](#settings). If the tag is inside an if-statement that returns false, so that it is not shown, the tag is ignored.
+
+#### Playing sounds while text scrolls
+
+You can play a sound at any point of the text's scrolling with the tag `[sound x]`, where x is the sound's name. If the text scrolling is skipped, these are buffered and will be played all at once at the end.
+
+#### Playing music while text scrolls
+
+You can start a song at any point of the text's scrolling with the tag `[music x]`, where x is the song's name. If the text scrolling is skipped, these are buffered and will be started all at once at the end.
+
+#### Stopping music while text scrolls
+
+You can stop a song at any point of the text's scrolling with the tag `[stopMusic x]`, where x is the song's name. If the text scrolling is skipped, these are buffered and will be stopped all at once at the end.
+
 #### Styling shorthands
 
 - `[s1]` through `[s99]` - Shorthand for adding a `<span class="highlight-X">` tag, where `X` is the number. Behaves like a normal `<span>` tag. Some of the highlights are predefined in `style.css`, and can be overridden in `skin.css`. Can be closed with `[/s]`.
@@ -325,9 +350,13 @@ Sounds and music the game uses are located in the `game/sounds` folder, and they
 
 All music's and sounds' volume is dependent on the `musicVolume` and `soundVolume` attributes of `settings.soundSettings`.
 
+You can also use an inline tag.
+
 #### Sound effects
 
 You can play sound effects by using the `playSound` command and giving it the sound's name.
+
+You can also use an inline tag.
 
 #### Music
 
@@ -352,6 +381,8 @@ Music works a bit differently in Novel.js than sound effects do; music is starte
 }
 ```
 You should not play multiple instances of the same music at once, because it will not stop correctly.
+
+You can also use an inline tag.
 
 ### Styling
 

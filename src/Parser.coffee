@@ -60,6 +60,14 @@ Parser = {
         else if s.substring(0,5) == "sound"
           parsed = s.split("sound ")
           splitText[index] = "<span class=\"play-sound " + parsed[1] + "\"></span>"
+        # Stop music
+        else if s.substring(0,9) == "stopMusic"
+          parsed = s.split("stopMusic ")
+          splitText[index] = "<span class=\"stop-music " + parsed[1] + "\"></span>"
+        # Play music
+        else if s.substring(0,5) == "music"
+          parsed = s.split("music ")
+          splitText[index] = "<span class=\"play-music " + parsed[1] + "\"></span>"
         # Reset text speed
         else if s.substring(0,6) == "/speed"
           splitText[index] = "<span class=\"default-speed\"></span>"

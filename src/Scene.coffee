@@ -3,7 +3,7 @@
 
 Scene = {
 
-  #
+  # Select a choice by clicking a link embedded in text
   selectChoiceByNameByClicking: (event, name) ->
     event.stopPropagation()
     event.preventDefault()
@@ -32,6 +32,7 @@ Scene = {
     @readItemAndStatsEdits(data.game.currentScene)
     @readSounds(data.game.currentScene,false)
     @readSaving(data.game.currentScene)
+    @readMisc(data.game.currentScene)
 
   # If not changing scenes but update needed, this is called
   updateScene: (scene) ->
@@ -137,6 +138,17 @@ Scene = {
       Sound.startMusic(source.startMusic)
     if source.stopMusic != undefined
       Sound.stopMusic(source.stopMusic)
+
+  # Read miscellaneous values
+  readMisc: (source) ->
+    if source.skipEnabled != undefined
+      data.game.currentScene.skipEnabled = source.skipEnabled
+    else
+      data.game.currentScene.skipEnabled = data.game.settings.textSkipEnabled
+    if source.scrollSpeed != undefined
+      data.game.currentScene.scrollSpeed = source.scrollSpeed
+    else
+      data.game.currentScene.scrollSpeed = data.game.settings.defaultScrollSpeed
 
   # Read save and load commands from scene or choice
   readSaving: (source) ->
