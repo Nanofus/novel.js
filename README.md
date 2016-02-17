@@ -200,7 +200,7 @@ The settings object contains general settings for the game:
 - `alwaysShowDisabledChoices` - True or false. If true, choices with unmet requirements are always shown.
 - `saveMode` - `text` or `cookie`. See [Saving](#saving).
 - `showSaveButtons` - True or false. If true, the saving and loading buttons are shown, otherwise they are hidden.
-- `defaultScrollSpeed` - The default speed at which text scrolls
+- `defaultScrollSpeed` - The default speed (letter interval in ms) at which text scrolls. If set to 0, all text appears instantly.
 - `textSkipEnabled` - If disabled, text can't be skipped.
 - `soundSettings`:
   - `soundVolume` - A float between 0 and 1. The volume of all sound effects.
