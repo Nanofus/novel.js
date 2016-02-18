@@ -63,8 +63,7 @@
         {
           "text": "Pick up a small stone",
           "setStats": "introductionSeen[1]",
-          "addItem": "smallstone[1,Small Stone]",
-          "nextScene": "road"
+          "addItem": "smallstone[1,Small Stone]"
         },
         {
           "text": "Save a [s1]village[/s] [if stat.villagesSaved<1](You haven't saved any!!!)[/if]",
