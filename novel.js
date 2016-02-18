@@ -465,13 +465,13 @@ Parser = {
         case "var":
           val = this.findValue(val.substring(4, val.length), true);
           if (!isNaN(parseFloat(val))) {
-            parsedValues.push(val);
+            parsedValues.push(parseFloat(val).toFixed(5));
           } else {
             parsedValues.push("'" + val + "'");
           }
           break;
         case "float":
-          parsedValues.push(parseFloat(val));
+          parsedValues.push(parseFloat(val).toFixed(5));
           break;
         case "int":
           parsedValues.push(parseInt(val));

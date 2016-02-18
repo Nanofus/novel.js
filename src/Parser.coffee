@@ -131,11 +131,11 @@ Parser = {
         when "var"
           val = @findValue(val.substring(4,val.length),true)
           if !isNaN(parseFloat(val))
-            parsedValues.push val
+            parsedValues.push parseFloat(val).toFixed(5)
           else
             parsedValues.push "'" + val + "'"
         when "float"
-          parsedValues.push parseFloat(val)
+          parsedValues.push parseFloat(val).toFixed(5)
         when "int"
           parsedValues.push parseInt(val)
         when "string"
