@@ -28,6 +28,7 @@ Novel.js is written in CoffeeScript and SASS and depends only on Vue.js.
 		- [`inv` & `stat` - Item & stat counts & values](#item--stat-counts--values)
 		- [`print` - Displaying values](#displaying-values)
 		- [`speed` - Setting text scrolling speed](#setting-text-scrolling-speed)
+		- [`scrollSound` - Setting text scrolling sound](#setting-text-scrolling-sound)
 		- [`sound` - Playing sounds while text scrolls](#playing-sounds-while-text-scrolls)
 		- [`music` - Playing music while text scrolls](#playing-music-while-text-scrolls)
 		- [`stopMusic` - Stopping music while text scrolls](#stopping-music-while-text-scrolls)
@@ -279,7 +280,11 @@ See [Formats for statements and commands](#formats-for-statements-and-commands) 
 
 #### Setting text scrolling speed
 
-You can override the text's default scrolling speed by using the tag `[speed x]`, where x is the tick interval in milliseconds. The default value is defined in [settings](#settings). If the tag is inside an if-statement that returns false, so that it is not shown, the tag is ignored.
+You can override the text's default scrolling speed by using the tag `[speed x]`, where x is the tick interval in milliseconds. The default value is defined in [settings](#settings). If the tag is inside an if-statement that returns false, so that it is not shown, the tag is ignored. Can be restored to default with `[/speed]`.
+
+#### Setting text scrolling sound
+
+You can override the text's default scrolling sound by using the tag `[scrollSound x]`, where x is the sound's name. The default value is defined in [settings](#settings). Can be restored to default with `[/scrollSound]`.
 
 #### Playing sounds while text scrolls
 
