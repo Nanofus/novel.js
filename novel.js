@@ -981,7 +981,7 @@ TextPrinter = {
     }
     offsetChanged = false;
     while (fullText[currentOffset] === ' ' || fullText[currentOffset] === '<' || fullText[currentOffset] === '>') {
-      TextPrinter.solveString();
+      TextPrinter.parseText();
     }
     data.printedText = fullText.substring(0, currentOffset);
     if (!offsetChanged) {
@@ -1001,7 +1001,7 @@ TextPrinter = {
       return Sound.playSound(data.game.currentScene.scrollSound);
     }
   },
-  solveString: function() {
+  parseText: function() {
     var disp, i, offsetChanged, s, spans, str;
     if (fullText[currentOffset] === ' ') {
       currentOffset++;

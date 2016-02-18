@@ -34,15 +34,12 @@ TextPrinter = {
 
   # Instantly show all text
   complete: ->
-
     # Re-enable skip button
     if document.querySelector("#skip-button") != null
       document.querySelector("#skip-button").disabled = true;
-
     # Reset timer
     clearInterval timer
     timer = null
-
     # Play missed sounds
     ss = []
     if fullText.indexOf("play-sound") > -1
@@ -71,7 +68,6 @@ TextPrinter = {
       for i in [0 .. ss.length]
         if !(ss[i] in stopMusicBuffer)
           Sound.stopMusic(ss[i])
-
     # Set printed text and update choices
     data.printedText = fullText
     Scene.updateChoices()
@@ -97,7 +93,7 @@ TextPrinter = {
     offsetChanged = false
 
     while (fullText[currentOffset] == ' ' || fullText[currentOffset] == '<' || fullText[currentOffset] == '>')
-      TextPrinter.solveString()
+      TextPrinter.parseText()
 
     #console.log fullText[currentOffset-3] + fullText[currentOffset-2] + fullText[currentOffset-1] + " - " + fullText[currentOffset] + " - " + fullText[currentOffset+1]+fullText[currentOffset+2]+fullText[currentOffset+3]
 
@@ -117,7 +113,8 @@ TextPrinter = {
     else if (data.game.currentScene.scrollSound != undefined)
       Sound.playSound(data.game.currentScene.scrollSound)
 
-  solveString: ->
+  # Skip chars that are not printed, and parse tags
+  parseText: ->
     if fullText[currentOffset] == ' '
       currentOffset++
     if fullText[currentOffset] == '>'
