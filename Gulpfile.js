@@ -6,7 +6,6 @@ var coffee = require('gulp-coffee');
 var gutil = require('gulp-util');
 var concat = require('gulp-concat');
 var uglify = require('gulp-uglify');
-var sourcemaps = require('gulp-sourcemaps');
 
 gulp.task('sass', function () {
   gulp.src('./scss/**/*.scss')
@@ -19,9 +18,7 @@ gulp.task('sass', function () {
 
 gulp.task('coffee', ['concat'], function() {
   gulp.src('./novel.coffee')
-    .pipe(sourcemaps.init())
     .pipe(coffee({bare: true}).on('error', gutil.log))
-    .pipe(sourcemaps.write())
     .pipe(gulp.dest('./'));
 });
 
@@ -44,8 +41,6 @@ gulp.task('compress', ['coffee'], function() {
 
 gulp.task('concat', function() {
   return gulp.src('./src/*.coffee')
-    .pipe(sourcemaps.init())
-      .pipe(concat('novel.coffee'))
-    .pipe(sourcemaps.write())
+    .pipe(concat('novel.coffee'))
     .pipe(gulp.dest('./'));
 });

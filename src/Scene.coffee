@@ -33,6 +33,7 @@ Scene = {
     @readSounds(data.game.currentScene,false)
     @readSaving(data.game.currentScene)
     @readMisc(data.game.currentScene)
+    TextPrinter.printText(scene.parsedText)
 
   # If not changing scenes but update needed, this is called
   updateScene: (scene) ->
@@ -40,7 +41,6 @@ Scene = {
     scene.parsedText = Parser.parseText scene.combinedText
     data.game.currentScene = scene
     data.game.parsedChoices = null
-    TextPrinter.printText(scene.parsedText)
 
   # Update choice texts when they are changed - Vue.js doesn't detect them without this.
   updateChoices: ->
@@ -138,6 +138,13 @@ Scene = {
       Sound.startMusic(source.startMusic)
     if source.stopMusic != undefined
       Sound.stopMusic(source.stopMusic)
+    if source.scrollSound != undefined
+      data.game.currentScene.scrollSound = source.scrollSound
+    else
+      if data.game.settings.soundSettings.defaultScrollSound
+        data.game.currentScene.scrollSound = data.game.settings.soundSettings.defaultScrollSound
+      else
+        data.game.currentScene.scrollSound = undefined
 
   # Read miscellaneous values
   readMisc: (source) ->

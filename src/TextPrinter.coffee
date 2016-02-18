@@ -8,15 +8,16 @@ currentInterval = 0
 soundBuffer = []
 musicBuffer = []
 stopMusicBuffer = []
+scrollSound = null
 
 TextPrinter = {
 
   # Print a scene's text
   printText: (text,interval) ->
+    data.printedText = ""
     # Disable the skip button
     if document.querySelector("#skip-button") != null
       document.querySelector("#skip-button").disabled = false;
-    clearInterval timer
     fullText = text
     #console.log fullText
     currentOffset = 0
@@ -27,6 +28,8 @@ TextPrinter = {
       currentInterval = data.game.currentScene.scrollSpeed
     else
       currentInterval = interval
+    clearInterval timer
+    timer = null
     timer = setInterval(@onTick, currentInterval)
 
   # Instantly show all text
@@ -88,22 +91,32 @@ TextPrinter = {
       TextPrinter.complete()
       return
     #console.log currentOffset + ": " + fullText[currentOffset]
+    console.log fullText[currentOffset]
+    offsetChanged = false
     if fullText[currentOffset] == '<'
       i = currentOffset
       str = ""
       while fullText[i] != '>'
         i++
         str = str + fullText[i]
+      i++
       str = str.substring(0,str.length-1)
-      #console.log "Haa! " + str
+      console.log "Haa! " + str
       if str.indexOf("display:none;") > -1
         #console.log "DISPLAY NONE FOUND"
         disp = ""
-        i++
-        while disp.indexOf("/span") == -1
+        spans = 1
+        while true
           i++
           disp = disp + fullText[i]
-        #console.log "Disp: " + disp
+          if disp.indexOf("/span") != -1
+            spans--
+            disp = ""
+          else if disp.indexOf("span") != -1
+            spans++
+            disp = ""
+          if spans == 0
+            break
       if str.indexOf("play-sound") > -1 && str.indexOf("display:none;") > -1
         s = str.split("play-sound ")
         s = s[1].split(/\s|\"/)[0]
@@ -134,16 +147,28 @@ TextPrinter = {
           TextPrinter.changeTimer(Parser.parseStatement(s))
         if str.indexOf("default-speed") > -1
           TextPrinter.resetTimer()
+        if str.indexOf("set-scroll-sound") > -1
+          s = str.split("set-scroll-sound ")
+          s = s[1].split(/\s|\"/)[0]
+          console.log s
+          scrollSound = s
+        if str.indexOf("default-scroll-sound") > -1
+          scrollSound = null
       currentOffset = i
+      offsetChanged = true
 
-    currentOffset++
-    if currentOffset == fullText.length
+    if !offsetChanged
+      currentOffset++
+    if currentOffset >= fullText.length
+      if (data.game.currentScene.scrollSound != undefined)
+        Sound.playSound(data.game.currentScene.scrollSound)
+      currentOffset = 0
       TextPrinter.complete()
       return
 
-    if fullText[currentOffset] == '<'
-      data.printedText = fullText.substring(0, currentOffset-1)
-    else
-      data.printedText = fullText.substring(0, currentOffset)
-
+    data.printedText = fullText.substring(0, currentOffset)
+    if scrollSound != null
+      Sound.playSound(scrollSound)
+    else if (data.game.currentScene.scrollSound != undefined)
+      Sound.playSound(data.game.currentScene.scrollSound)
 }

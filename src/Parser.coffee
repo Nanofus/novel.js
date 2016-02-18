@@ -75,6 +75,13 @@ Parser = {
         else if s.substring(0,5) == "speed"
           parsed = s.split("speed ")
           splitText[index] = "<span class=\"set-speed " + parsed[1] + "\"></span>"
+        # Reset scroll sound
+        else if s.substring(0,12) == "/scrollSound"
+          splitText[index] = "<span class=\"default-scroll-sound\"></span>"
+        # Scroll sound
+        else if s.substring(0,11) == "scrollSound"
+          parsed = s.split("scrollSound ")
+          splitText[index] = "<span class=\"set-scroll-sound " + parsed[1] + "\"></span>"
         # Input field
         else if s.substring(0,5) == "input"
           parsed = s.split("input ")
