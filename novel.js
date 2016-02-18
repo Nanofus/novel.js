@@ -892,7 +892,7 @@ TextPrinter = {
       document.querySelector("#skip-button").disabled = false;
     }
     fullText = text;
-    currentOffset = 0;
+    currentOffset = -1;
     soundBuffer = [];
     musicBuffer = [];
     stopMusicBuffer = [];
@@ -974,18 +974,18 @@ TextPrinter = {
       TextPrinter.complete();
       return;
     }
-    console.log(fullText[currentOffset]);
     offsetChanged = false;
     if (fullText[currentOffset] === '<') {
+      console.log("Found <");
       i = currentOffset;
       str = "";
-      while (fullText[i] !== '>') {
-        i++;
-        str = str + fullText[i];
-      }
       i++;
-      str = str.substring(0, str.length - 1);
-      console.log("Haa! " + str);
+      while (fullText[i - 1] !== '>' && fullText[i] !== '<') {
+        str = str + fullText[i];
+        i++;
+      }
+      console.log("Skipped to >");
+      str = str.substring(1, str.length);
       if (str.indexOf("display:none;") > -1) {
         disp = "";
         spans = 1;
@@ -1003,6 +1003,7 @@ TextPrinter = {
             break;
           }
         }
+        i++;
       }
       if (str.indexOf("play-sound") > -1 && str.indexOf("display:none;") > -1) {
         s = str.split("play-sound ");
@@ -1044,7 +1045,6 @@ TextPrinter = {
         if (str.indexOf("set-scroll-sound") > -1) {
           s = str.split("set-scroll-sound ");
           s = s[1].split(/\s|\"/)[0];
-          console.log(s);
           scrollSound = s;
         }
         if (str.indexOf("default-scroll-sound") > -1) {
@@ -1054,6 +1054,8 @@ TextPrinter = {
       currentOffset = i;
       offsetChanged = true;
     }
+    console.log(fullText[currentOffset - 3] + fullText[currentOffset - 2] + fullText[currentOffset - 1] + " - " + fullText[currentOffset] + " - " + fullText[currentOffset + 1] + fullText[currentOffset + 2] + fullText[currentOffset + 3]);
+    data.printedText = fullText.substring(0, currentOffset);
     if (!offsetChanged) {
       currentOffset++;
     }
@@ -1065,7 +1067,6 @@ TextPrinter = {
       TextPrinter.complete();
       return;
     }
-    data.printedText = fullText.substring(0, currentOffset);
     if (scrollSound !== null) {
       return Sound.playSound(scrollSound);
     } else if (data.game.currentScene.scrollSound !== void 0) {
