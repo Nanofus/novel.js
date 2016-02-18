@@ -309,7 +309,7 @@ gameArea = new Vue({
       if (choice.nextScene !== "") {
         return Scene.changeScene(choice.nextScene);
       } else {
-        return Scene.updateScene(this.game.currentScene);
+        return Scene.updateScene(this.game.currentScene, true);
       }
     }
   }
@@ -588,18 +588,23 @@ Scene = {
     return scene;
   },
   setupScene: function(scene) {
-    this.updateScene(scene);
+    this.updateScene(scene, false);
     this.readItemAndStatsEdits(data.game.currentScene);
     this.readSounds(data.game.currentScene, false);
     this.readSaving(data.game.currentScene);
     this.readMisc(data.game.currentScene);
     return TextPrinter.printText(scene.parsedText);
   },
-  updateScene: function(scene) {
+  updateScene: function(scene, onlyUpdating) {
     Scene.combineSceneTexts(scene);
     scene.parsedText = Parser.parseText(scene.combinedText);
     data.game.currentScene = scene;
-    return data.game.parsedChoices = null;
+    if (!onlyUpdating) {
+      return data.game.parsedChoices = null;
+    } else {
+      TextPrinter.printText(scene.parsedText);
+      return TextPrinter.complete();
+    }
   },
   updateChoices: function() {
     return gameArea.$set('game.parsedChoices', data.game.currentScene.choices.map(function(choice) {

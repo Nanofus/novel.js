@@ -28,7 +28,7 @@ Scene = {
 
   # Setup a scene changed to
   setupScene: (scene) ->
-    @updateScene(scene)
+    @updateScene(scene, false)
     @readItemAndStatsEdits(data.game.currentScene)
     @readSounds(data.game.currentScene,false)
     @readSaving(data.game.currentScene)
@@ -36,11 +36,15 @@ Scene = {
     TextPrinter.printText(scene.parsedText)
 
   # If not changing scenes but update needed, this is called
-  updateScene: (scene) ->
+  updateScene: (scene, onlyUpdating) ->
     Scene.combineSceneTexts(scene)
     scene.parsedText = Parser.parseText scene.combinedText
     data.game.currentScene = scene
-    data.game.parsedChoices = null
+    if !onlyUpdating
+      data.game.parsedChoices = null
+    else
+      TextPrinter.printText(scene.parsedText)
+      TextPrinter.complete()
 
   # Update choice texts when they are changed - Vue.js doesn't detect them without this.
   updateChoices: ->

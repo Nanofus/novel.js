@@ -34,6 +34,7 @@ TextPrinter = {
 
   # Instantly show all text
   complete: ->
+
     # Re-enable skip button
     if document.querySelector("#skip-button") != null
       document.querySelector("#skip-button").disabled = true;

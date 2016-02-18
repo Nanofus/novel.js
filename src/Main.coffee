@@ -30,7 +30,7 @@ gameArea = new Vue(
       if choice.nextScene != ""
         Scene.changeScene(choice.nextScene)
       else
-        Scene.updateScene(@game.currentScene)
+        Scene.updateScene(@game.currentScene,true)
 )
 
 ### And finally, start the game... ###
