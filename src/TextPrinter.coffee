@@ -92,16 +92,44 @@ TextPrinter = {
       return
     #console.log currentOffset + ": " + fullText[currentOffset]
     #console.log fullText[currentOffset]
+
     offsetChanged = false
+
+    while (fullText[currentOffset] == ' ' || fullText[currentOffset] == '<' || fullText[currentOffset] == '>')
+      TextPrinter.solveString()
+
+    #console.log fullText[currentOffset-3] + fullText[currentOffset-2] + fullText[currentOffset-1] + " - " + fullText[currentOffset] + " - " + fullText[currentOffset+1]+fullText[currentOffset+2]+fullText[currentOffset+3]
+
+    data.printedText = fullText.substring(0, currentOffset)
+
+    if !offsetChanged
+      currentOffset++
+    if currentOffset >= fullText.length
+      if (data.game.currentScene.scrollSound != undefined)
+        Sound.playSound(data.game.currentScene.scrollSound)
+      currentOffset = 0
+      TextPrinter.complete()
+      return
+
+    if scrollSound != null
+      Sound.playSound(scrollSound)
+    else if (data.game.currentScene.scrollSound != undefined)
+      Sound.playSound(data.game.currentScene.scrollSound)
+
+  solveString: ->
+    if fullText[currentOffset] == ' '
+      currentOffset++
+    if fullText[currentOffset] == '>'
+      currentOffset++
     if fullText[currentOffset] == '<'
-      console.log "Found <"
+      #console.log "Found <"
       i = currentOffset
       str = ""
       i++
       while (fullText[i-1] != '>' && fullText[i] != '<')
         str = str + fullText[i]
         i++
-      console.log "Skipped to >"
+      #console.log "Skipped to >"
       str = str.substring(1,str.length)
       #console.log "Haa! " + str
       if str.indexOf("display:none;") > -1
@@ -160,21 +188,4 @@ TextPrinter = {
       currentOffset = i
       offsetChanged = true
 
-    console.log fullText[currentOffset-3] + fullText[currentOffset-2] + fullText[currentOffset-1] + " - " + fullText[currentOffset] + " - " + fullText[currentOffset+1]+fullText[currentOffset+2]+fullText[currentOffset+3]
-
-    data.printedText = fullText.substring(0, currentOffset)
-
-    if !offsetChanged
-      currentOffset++
-    if currentOffset >= fullText.length
-      if (data.game.currentScene.scrollSound != undefined)
-        Sound.playSound(data.game.currentScene.scrollSound)
-      currentOffset = 0
-      TextPrinter.complete()
-      return
-
-    if scrollSound != null
-      Sound.playSound(scrollSound)
-    else if (data.game.currentScene.scrollSound != undefined)
-      Sound.playSound(data.game.currentScene.scrollSound)
 }

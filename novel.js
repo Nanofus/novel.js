@@ -969,14 +969,42 @@ TextPrinter = {
     return timer = setInterval(this.onTick, currentInterval);
   },
   onTick: function() {
-    var disp, i, offsetChanged, s, spans, str;
+    var offsetChanged;
     if (currentInterval === 0) {
       TextPrinter.complete();
       return;
     }
     offsetChanged = false;
+    while (fullText[currentOffset] === ' ' || fullText[currentOffset] === '<' || fullText[currentOffset] === '>') {
+      TextPrinter.solveString();
+    }
+    data.printedText = fullText.substring(0, currentOffset);
+    if (!offsetChanged) {
+      currentOffset++;
+    }
+    if (currentOffset >= fullText.length) {
+      if (data.game.currentScene.scrollSound !== void 0) {
+        Sound.playSound(data.game.currentScene.scrollSound);
+      }
+      currentOffset = 0;
+      TextPrinter.complete();
+      return;
+    }
+    if (scrollSound !== null) {
+      return Sound.playSound(scrollSound);
+    } else if (data.game.currentScene.scrollSound !== void 0) {
+      return Sound.playSound(data.game.currentScene.scrollSound);
+    }
+  },
+  solveString: function() {
+    var disp, i, offsetChanged, s, spans, str;
+    if (fullText[currentOffset] === ' ') {
+      currentOffset++;
+    }
+    if (fullText[currentOffset] === '>') {
+      currentOffset++;
+    }
     if (fullText[currentOffset] === '<') {
-      console.log("Found <");
       i = currentOffset;
       str = "";
       i++;
@@ -984,7 +1012,6 @@ TextPrinter = {
         str = str + fullText[i];
         i++;
       }
-      console.log("Skipped to >");
       str = str.substring(1, str.length);
       if (str.indexOf("display:none;") > -1) {
         disp = "";
@@ -1052,25 +1079,7 @@ TextPrinter = {
         }
       }
       currentOffset = i;
-      offsetChanged = true;
-    }
-    console.log(fullText[currentOffset - 3] + fullText[currentOffset - 2] + fullText[currentOffset - 1] + " - " + fullText[currentOffset] + " - " + fullText[currentOffset + 1] + fullText[currentOffset + 2] + fullText[currentOffset + 3]);
-    data.printedText = fullText.substring(0, currentOffset);
-    if (!offsetChanged) {
-      currentOffset++;
-    }
-    if (currentOffset >= fullText.length) {
-      if (data.game.currentScene.scrollSound !== void 0) {
-        Sound.playSound(data.game.currentScene.scrollSound);
-      }
-      currentOffset = 0;
-      TextPrinter.complete();
-      return;
-    }
-    if (scrollSound !== null) {
-      return Sound.playSound(scrollSound);
-    } else if (data.game.currentScene.scrollSound !== void 0) {
-      return Sound.playSound(data.game.currentScene.scrollSound);
+      return offsetChanged = true;
     }
   }
 };
