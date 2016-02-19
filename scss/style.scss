@@ -1,6 +1,8 @@
 $link-color: #1976D2;
 $link-hover-color: #42A5F5;
 $background-color: #FAFAFA;
+$footer-text-color: #BDBDBD;
+$footer-link-color: #757575;
 
 body {
   transition: all 250ms;
@@ -56,6 +58,15 @@ a {
 ul {
   padding-left: 1rem;
   list-style-type: none;
+}
+
+.footer-text {
+  padding-top: 1rem;
+  font-size: 80%;
+  color: $footer-text-color;
+  & a {
+    color: $footer-link-color;
+  }
 }
 
 .highlight-1 {

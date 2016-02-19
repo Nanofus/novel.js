@@ -44,6 +44,7 @@ Novel.js is written in CoffeeScript, HTML and SASS and depends only on Vue.js.
 		- [Sound effects](#sound-effects)
 		- [Music](#music)
 	- [Styling](#styling)
+	- [Checkpoints](#checkpoints)
 	- [Saving](#saving)
 		- [Cookie](#cookie)
 		- [Text](#text)
@@ -168,6 +169,8 @@ A scene object can contain the following variables and parameters:
 - `executeJs` - JavaScript to be executed when the scene is loaded. You can access the game data through the `data.game` object.
 - `saveGame` - Saves the game in the way defined in `settings.saveMode` upon entering the scene. Value can be anything, works as long as it is defined.
 - `loadGame` - Loads the game in the way defined in `settings.saveMode` upon entering the scene. Value can be anything, works as long as it is defined.
+- `saveCheckpoint` - Save this scene as a checkpoint with the chosen name. See [Checkpoints](#checkpoints).
+- `loadCheckpoint` - Load a checkpoint with the chosen name. See [Checkpoints](#checkpoints).
 - `choices` - Required (not enforced). A list of choices available in the scene.
 
 #### Choices
@@ -194,6 +197,8 @@ Choices are the options the player can choose in a scene. An example is provided
 - `executeJs` - JavaScript to be executed when the choice is selected. You can access the game data through the `data.game` object.
 - `saveGame` - Saves the game in the way defined in `settings.saveMode` upon selecting the choice. Value can be anything, works as long as it is defined.
 - `loadGame` - Loads the game in the way defined in `settings.saveMode` upon selecting the choice. Value can be anything, works as long as it is defined.
+- `saveCheckpoint` - Save this scene as a checkpoint with the chosen name. See [Checkpoints](#checkpoints).
+- `loadCheckpoint` - Load a checkpoint with the chosen name. See [Checkpoints](#checkpoints).
 - `nextChoice` - Redirect to another choice after handling this choice. Cannot be used in the same choice with `nextScene`. Supports multiple outcomes, as different probabilities can be set for different choices. See the format for [probabilities](#format-for-probabilities).
 - `nextScene` - The scene into which the player moves if they select this choice. If omitted, the scene does not change. Supports multiple outcomes, as different probabilities can be set for different scenes. See the format for [probabilities](#format-for-probabilities).
 
@@ -437,6 +442,12 @@ You can also use an inline tag.
 ### Styling
 
 The `css` folder contains a file named `skin.css`. Styles in `skin.css` override the default styles from `style.css`.
+
+### Checkpoints
+
+By using the `saveCheckpoint` and `loadCheckpoint` commands it is possible to "tag" scenes so that they can easily be returned to later. This is useful when, for example, creating a menu with a "continue game" button.
+
+Checkpoints do not affect the player's items or stats. Use saving and loading to reset them.
 
 ### Saving
 

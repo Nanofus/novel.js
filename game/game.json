@@ -34,6 +34,7 @@
       "text-4": "<p></p>",
       "text-5": "<p>[scrollSound scream]Your name is [input playerName].[/scrollSound] Nice to meet you, [stat.playerName]!</p>",
       "style": "road",
+      "saveCheckpoint": "road",
       "executeJs": "console.log(\"Hello there! The game version is \" + data.game.version)",
       "choices": [
         {
@@ -118,6 +119,7 @@
       "startMusic": "testMusic",
       "scrollSpeed": 20,
       "skipEnabled": false,
+      "saveCheckpoint": "beforeBattle",
       "choices": [
         {
           "text": "Fight it! (or, randomly, run away!!)",
@@ -140,6 +142,10 @@
           "name": "Continue",
           "stopMusic": "testMusic",
           "nextScene": "story"
+        },
+        {
+          "text": "Travel back in time",
+          "loadCheckpoint": "road"
         }
       ]
     },
@@ -163,7 +169,7 @@
           "text": "Continue",
           "name": "Continue",
           "stopMusic": "testMusic",
-          "nextScene": "start"
+          "loadCheckpoint": "beforeBattle"
         }
       ]
     }

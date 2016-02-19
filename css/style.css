@@ -43,6 +43,13 @@ ul {
   padding-left: 1rem;
   list-style-type: none; }
 
+.footer-text {
+  padding-top: 1rem;
+  font-size: 80%;
+  color: #BDBDBD; }
+  .footer-text a {
+    color: #757575; }
+
 .highlight-1 {
   font-weight: bold; }
 

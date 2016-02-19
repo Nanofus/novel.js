@@ -634,6 +634,7 @@ Scene = {
     this.readSounds(choice, true);
     this.readSaving(choice);
     this.readExecutes(choice);
+    this.readCheckpoints(choice);
     if (choice.nextScene !== "") {
       return this.changeScene(choice.nextScene);
     } else if (choice.nextScene === "") {
@@ -679,6 +680,7 @@ Scene = {
     this.readSounds(data.game.currentScene, false);
     this.readSaving(data.game.currentScene);
     this.readExecutes(data.game.currentScene);
+    this.readCheckpoints(data.game.currentScene);
     this.readMisc(data.game.currentScene);
     return TextPrinter.printText(scene.parsedText, false);
   },
@@ -870,6 +872,46 @@ Scene = {
     }
     if (source.loadGame !== void 0) {
       return UI.showLoadNotification();
+    }
+  },
+  readCheckpoints: function(source) {
+    var checkpoint, dataChanged, i, k, l, len, len1, ref, ref1, results;
+    if (source.saveCheckpoint !== void 0) {
+      if (data.game.checkpoints === void 0) {
+        data.game.checkpoints = [];
+      }
+      dataChanged = false;
+      ref = data.game.checkpoints;
+      for (k = 0, len = ref.length; k < len; k++) {
+        i = ref[k];
+        if (i.name === source.saveCheckpoint) {
+          i.scene = data.game.currentScene.name;
+          dataChanged = true;
+        }
+      }
+      if (!dataChanged) {
+        checkpoint = {
+          name: source.saveCheckpoint,
+          scene: data.game.currentScene.name
+        };
+        data.game.checkpoints.push(checkpoint);
+      }
+    }
+    if (source.loadCheckpoint !== void 0) {
+      if (data.game.checkpoints === void 0) {
+        data.game.checkpoints = [];
+      }
+      ref1 = data.game.checkpoints;
+      results = [];
+      for (l = 0, len1 = ref1.length; l < len1; l++) {
+        i = ref1[l];
+        if (i.name === source.loadCheckpoint) {
+          results.push(this.changeScene(i.scene));
+        } else {
+          results.push(void 0);
+        }
+      }
+      return results;
     }
   },
   requirementsFilled: function(choice) {

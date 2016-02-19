@@ -15,6 +15,7 @@ Scene = {
     @readSounds(choice,true)
     @readSaving(choice)
     @readExecutes(choice)
+    @readCheckpoints(choice)
     if choice.nextScene != ""
       @changeScene(choice.nextScene)
     else if choice.nextScene == ""
@@ -53,6 +54,7 @@ Scene = {
     @readSounds(data.game.currentScene,false)
     @readSaving(data.game.currentScene)
     @readExecutes(data.game.currentScene)
+    @readCheckpoints(data.game.currentScene)
     @readMisc(data.game.currentScene)
     TextPrinter.printText(scene.parsedText,false)
 
@@ -193,6 +195,30 @@ Scene = {
       GameManager.saveGame()
     if source.loadGame != undefined
       UI.showLoadNotification()
+
+  # Read checkpoint commands
+  readCheckpoints: (source) ->
+    if source.saveCheckpoint != undefined
+      if data.game.checkpoints == undefined
+        data.game.checkpoints = []
+      dataChanged = false
+      for i in data.game.checkpoints
+        if i.name == source.saveCheckpoint
+          i.scene = data.game.currentScene.name
+          dataChanged = true
+          #console.log "Updated checkpoint!"
+      if !dataChanged
+        checkpoint = {name:source.saveCheckpoint,scene:data.game.currentScene.name}
+        data.game.checkpoints.push(checkpoint)
+      #console.log "Checkpoint saved!"
+      #console.log checkpoint
+    if source.loadCheckpoint != undefined
+      if data.game.checkpoints == undefined
+        data.game.checkpoints = []
+      for i in data.game.checkpoints
+        if i.name == source.loadCheckpoint
+          #console.log "Checkpoint found!"
+          @changeScene(i.scene)
 
   # Check whether the requirements for a choice have been met
   requirementsFilled: (choice) ->
