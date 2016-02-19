@@ -1,6 +1,6 @@
 
 /* SAVING AND LOADING */
-var GameManager, Inventory, Parser, Scene, Sound, TextPrinter, UI, Util, copyButton, currentInterval, currentOffset, data, fullText, gameArea, gamePath, musicBuffer, scrollSound, soundBuffer, stopMusicBuffer, timer,
+var GameManager, InputManager, Inventory, Parser, Scene, Sound, TextPrinter, UI, Util, copyButton, currentInterval, currentOffset, data, fullText, gameArea, gamePath, musicBuffer, printCompleted, scrollSound, soundBuffer, stopMusicBuffer, tickCounter, tickSoundFrequency, timer,
   indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
 GameManager = {
@@ -106,6 +106,29 @@ GameManager = {
     }
     return json;
   }
+};
+
+
+/* HANDLES KEYBOARD INPUT */
+
+InputManager = {
+  keyPressed: function(charCode) {
+    if ((charCode === 13 || charCode === 32) && data.game.settings.scrollSettings.skipWithKeyboard) {
+      if (printCompleted) {
+        return Scene.tryContinue();
+      } else {
+        return TextPrinter.trySkip();
+      }
+    }
+  }
+};
+
+document.onkeypress = function(evt) {
+  var charCode, charStr;
+  evt = evt || window.event;
+  charCode = evt.keyCode || evt.which;
+  InputManager.keyPressed(charCode);
+  return charStr = String.fromCharCode(charCode);
 };
 
 
@@ -308,8 +331,12 @@ gameArea = new Vue({
       Scene.readSaving(choice);
       if (choice.nextScene !== "") {
         return Scene.changeScene(choice.nextScene);
-      } else {
-        return Scene.updateScene(this.game.currentScene, true);
+      } else if (choice.nextScene === "") {
+        if (choice.nextChoice !== void 0) {
+          return Scene.selectChoiceByName(choice.nextChoice);
+        } else {
+          return Scene.updateScene(this.game.currentScene, true);
+        }
       }
     }
   }
@@ -558,6 +585,11 @@ Parser = {
 /* SCENE MANIPULATION */
 
 Scene = {
+  tryContinue: function() {
+    if (printCompleted) {
+      return this.selectChoiceByName("Continue");
+    }
+  },
   selectChoiceByNameByClicking: function(event, name) {
     event.stopPropagation();
     event.preventDefault();
@@ -764,12 +796,12 @@ Scene = {
     if (source.skipEnabled !== void 0) {
       data.game.currentScene.skipEnabled = source.skipEnabled;
     } else {
-      data.game.currentScene.skipEnabled = data.game.settings.textSkipEnabled;
+      data.game.currentScene.skipEnabled = data.game.settings.scrollSettings.textSkipEnabled;
     }
     if (source.scrollSpeed !== void 0) {
       return data.game.currentScene.scrollSpeed = source.scrollSpeed;
     } else {
-      return data.game.currentScene.scrollSpeed = data.game.settings.defaultScrollSpeed;
+      return data.game.currentScene.scrollSpeed = data.game.settings.scrollSettings.defaultScrollSpeed;
     }
   },
   readSaving: function(source) {
@@ -890,8 +922,15 @@ stopMusicBuffer = [];
 
 scrollSound = null;
 
+tickSoundFrequency = 1;
+
+tickCounter = 0;
+
+printCompleted = false;
+
 TextPrinter = {
   printText: function(text, interval) {
+    printCompleted = false;
     data.printedText = "";
     if (document.querySelector("#skip-button") !== null) {
       document.querySelector("#skip-button").disabled = false;
@@ -906,12 +945,19 @@ TextPrinter = {
     } else {
       currentInterval = interval;
     }
+    this.setTickFrequency(currentInterval);
     clearInterval(timer);
     timer = null;
     return timer = setInterval(this.onTick, currentInterval);
   },
+  trySkip: function() {
+    if (data.game.currentScene.skipEnabled) {
+      return this.complete();
+    }
+  },
   complete: function() {
     var i, k, l, len, len1, len2, m, o, q, ref, ref1, ref2, ref3, ref4, ref5, s, ss, t;
+    printCompleted = true;
     if (document.querySelector("#skip-button") !== null) {
       document.querySelector("#skip-button").disabled = true;
     }
@@ -966,12 +1012,23 @@ TextPrinter = {
     return Scene.updateChoices();
   },
   changeTimer: function(time) {
+    this.setTickFrequency(time);
     clearInterval(timer);
     return timer = setInterval(this.onTick, time);
   },
   resetTimer: function() {
+    this.setTickFrequency(currentInterval);
     clearInterval(timer);
     return timer = setInterval(this.onTick, currentInterval);
+  },
+  setTickFrequency: function(freq) {
+    tickSoundFrequency = 1;
+    if (freq < data.game.settings.scrollSettings.soundEverySecondTickThreshold) {
+      tickSoundFrequency = 2;
+    }
+    if (freq < data.game.settings.scrollSettings.soundEveryThirdTickThreshold) {
+      return tickSoundFrequency = 3;
+    }
   },
   onTick: function() {
     var offsetChanged;
@@ -995,10 +1052,14 @@ TextPrinter = {
       TextPrinter.complete();
       return;
     }
-    if (scrollSound !== null) {
-      return Sound.playSound(scrollSound);
-    } else if (data.game.currentScene.scrollSound !== void 0) {
-      return Sound.playSound(data.game.currentScene.scrollSound);
+    tickCounter++;
+    if (tickCounter === tickSoundFrequency) {
+      if (scrollSound !== null) {
+        Sound.playSound(scrollSound);
+      } else if (data.game.currentScene.scrollSound !== void 0) {
+        Sound.playSound(data.game.currentScene.scrollSound);
+      }
+      return tickCounter = 0;
     }
   },
   parseText: function() {

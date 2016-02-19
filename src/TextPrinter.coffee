@@ -9,11 +9,15 @@ soundBuffer = []
 musicBuffer = []
 stopMusicBuffer = []
 scrollSound = null
+tickSoundFrequency = 1
+tickCounter = 0
+printCompleted = false
 
 TextPrinter = {
 
   # Print a scene's text
   printText: (text,interval) ->
+    printCompleted = false
     data.printedText = ""
     # Disable the skip button
     if document.querySelector("#skip-button") != null
@@ -28,12 +32,19 @@ TextPrinter = {
       currentInterval = data.game.currentScene.scrollSpeed
     else
       currentInterval = interval
+    @setTickFrequency(currentInterval)
     clearInterval timer
     timer = null
     timer = setInterval(@onTick, currentInterval)
 
+  # Try to skip text, if allowed
+  trySkip: ->
+    if data.game.currentScene.skipEnabled
+      @complete()
+
   # Instantly show all text
   complete: ->
+    printCompleted = true
     # Re-enable skip button
     if document.querySelector("#skip-button") != null
       document.querySelector("#skip-button").disabled = true;
@@ -74,13 +85,22 @@ TextPrinter = {
 
   # Change the interval timer
   changeTimer: (time) ->
+    @setTickFrequency(time)
     clearInterval timer
     timer = setInterval(@onTick, time)
 
   # Return the interval timer to default
   resetTimer: ->
+    @setTickFrequency(currentInterval)
     clearInterval timer
     timer = setInterval(@onTick, currentInterval)
+
+  setTickFrequency: (freq) ->
+    tickSoundFrequency = 1
+    if freq < data.game.settings.scrollSettings.soundEverySecondTickThreshold
+      tickSoundFrequency = 2
+    if freq < data.game.settings.scrollSettings.soundEveryThirdTickThreshold
+      tickSoundFrequency = 3
 
   # Show a new letter
   onTick: ->
@@ -108,10 +128,13 @@ TextPrinter = {
       TextPrinter.complete()
       return
 
-    if scrollSound != null
-      Sound.playSound(scrollSound)
-    else if (data.game.currentScene.scrollSound != undefined)
-      Sound.playSound(data.game.currentScene.scrollSound)
+    tickCounter++
+    if tickCounter == tickSoundFrequency
+      if scrollSound != null
+        Sound.playSound(scrollSound)
+      else if (data.game.currentScene.scrollSound != undefined)
+        Sound.playSound(data.game.currentScene.scrollSound)
+      tickCounter = 0
 
   # Skip chars that are not printed, and parse tags
   parseText: ->

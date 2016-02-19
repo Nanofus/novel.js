@@ -3,6 +3,11 @@
 
 Scene = {
 
+  # Try to select "Continue"
+  tryContinue: ->
+    if printCompleted
+      @selectChoiceByName("Continue")
+
   # Select a choice by clicking a link embedded in text
   selectChoiceByNameByClicking: (event, name) ->
     event.stopPropagation()
@@ -155,11 +160,11 @@ Scene = {
     if source.skipEnabled != undefined
       data.game.currentScene.skipEnabled = source.skipEnabled
     else
-      data.game.currentScene.skipEnabled = data.game.settings.textSkipEnabled
+      data.game.currentScene.skipEnabled = data.game.settings.scrollSettings.textSkipEnabled
     if source.scrollSpeed != undefined
       data.game.currentScene.scrollSpeed = source.scrollSpeed
     else
-      data.game.currentScene.scrollSpeed = data.game.settings.defaultScrollSpeed
+      data.game.currentScene.scrollSpeed = data.game.settings.scrollSettings.defaultScrollSpeed
 
   # Read save and load commands from scene or choice
   readSaving: (source) ->

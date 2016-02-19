@@ -183,6 +183,7 @@ Choices are the options the player can choose in a scene. An example is provided
 - `endMusic` - End a music loop with the chosen name.
 - `saveGame` - Saves the game in the way defined in `settings.saveMode` upon selecting the choice. Value can be anything, works as long as it is defined.
 - `loadGame` - Loads the game in the way defined in `settings.saveMode` upon selecting the choice. Value can be anything, works as long as it is defined.
+- `nextChoice` - Redirect to another choice after handling this choice. Should not be used with `nextScene`.
 - `nextScene` - The scene into which the player moves if they select this choice. If omitted, the scene does not change. Supports multiple outcomes, as different probabilities can be set for different scenes. Takes the following format:
 ```
 sceneOne[probability]|sceneTwo[probability]|sceneThree[probability]
@@ -201,12 +202,17 @@ The settings object contains general settings for the game:
 - `alwaysShowDisabledChoices` - True or false. If true, choices with unmet requirements are always shown.
 - `saveMode` - `text` or `cookie`. See [Saving](#saving).
 - `showSaveButtons` - True or false. If true, the saving and loading buttons are shown, otherwise they are hidden.
-- `defaultScrollSpeed` - The default speed (letter interval in ms) at which text scrolls. If set to 0, all text appears instantly.
-- `textSkipEnabled` - If disabled, text can't be skipped.
+- `scrollSettings`:
+	- `defaultScrollSpeed` - The default speed (letter interval in ms) at which text scrolls. If set to 0, all text appears instantly.
+	- `textSkipEnabled` - If disabled, text can't be skipped.
+	- `skipWithKeyboard` - If enabled, the player can skip text by pressing space or enter.
+	- `soundEverySecondTickThreshold` - If scroll speed is smaller than this, sound is played only every second tick.
+	- `soundEveryThirdTickThreshold` - If scroll speed is smaller than this, sound is played only every third tick.
 - `soundSettings`:
   - `soundVolume` - A float between 0 and 1. The volume of all sound effects.
   - `musicVolume` - A float between 0 and 1. The music's volume.
   - `defaultClickSound` - A sound's name. If specified, this sound is played when clicking any choice.
+	- `defaultScrollSound` - A sound's name. The default scrolling sound. If not defined, no sound is played.
 
 #### Sounds
 

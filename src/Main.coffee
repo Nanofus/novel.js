@@ -29,8 +29,11 @@ gameArea = new Vue(
       Scene.readSaving(choice)
       if choice.nextScene != ""
         Scene.changeScene(choice.nextScene)
-      else
-        Scene.updateScene(@game.currentScene,true)
+      else if choice.nextScene == ""
+        if choice.nextChoice != undefined
+          Scene.selectChoiceByName(choice.nextChoice)
+        else
+          Scene.updateScene(@game.currentScene,true)
 )
 
 ### And finally, start the game... ###

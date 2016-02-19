@@ -17,7 +17,11 @@
       "text": "SUPER AMAZING MEDIEVAL ADVENTURE!",
       "style": "main-menu",
       "choices": [
-        {"text": "Start","nextScene": "road"}
+        {
+          "text": "Start",
+          "name": "Continue",
+          "nextScene": "road"
+        }
       ]
     },
     {
@@ -32,12 +36,14 @@
       "choices": [
         {
           "text": "Keep walking. [if var.settings.soundSettings.soundVolume>0.7]jajaja[/if][if var.gameName==kakkonen] this game has a weird [if inv.sword<3]and boearkoraeroak[/if] name[/if]",
+          "name": "Continue",
           "setStats": "introductionSeen[1]",
           "nextScene": "road"
         },
         {
           "name": "pickastick",
-          "addItem": "stick[1]"
+          "addItem": "stick[1]",
+          "nextChoice": "shieldSearch"
         },
         {
           "text": "Wander offroad [print var.scenes,2,text]",
@@ -55,10 +61,10 @@
         },
         {
           "text": "Search for a magical shield (10% success chance)",
+          "name": "shieldSearch",
           "setStats": "introductionSeen[1]",
           "addItem": "magicalshield[1,0.1,Magical Shield]",
-          "alwaysShow": true,
-          "nextScene": "road"
+          "alwaysShow": true
         },
         {
           "text": "Pick up a small stone",
@@ -103,7 +109,7 @@
       "name": "dragon",
       "text": "<p>You wander across a [s1]dragon[/s] with [inv.sword] teeth. What do you do?</p>",
       "startMusic": "testMusic",
-      "scrollSpeed": 1000,
+      "scrollSpeed": 20,
       "skipEnabled": false,
       "choices": [
         {
@@ -124,7 +130,19 @@
       "choices": [
         {
           "text": "Return to the road",
+          "name": "Continue",
           "stopMusic": "testMusic",
+          "nextScene": "story"
+        }
+      ]
+    },
+    {
+      "name": "story",
+      "text": "But before that, let me tell you a story...",
+      "choices": [
+        {
+          "text": "REALLY return to the road",
+          "name": "Continue",
           "nextScene": "road"
         }
       ]
@@ -136,6 +154,7 @@
       "choices": [
         {
           "text": "Continue",
+          "name": "Continue",
           "stopMusic": "testMusic",
           "nextScene": "start"
         }
@@ -147,8 +166,14 @@
     "saveMode": "text",
     "showSaveButtons": true,
     "alwaysShowDisabledChoices": false,
-    "defaultScrollSpeed": 60,
-    "textSkipEnabled": true,
+    "scrollSettings": {
+      "defaultScrollSpeed": 60,
+      "textSkipEnabled": true,
+      "skipWithKeyboard": true,
+      "fastScrollWithKeyboard": true,
+      "soundEverySecondTickThreshold": 140,
+      "soundEveryThirdTickThreshold": 100
+    },
     "soundSettings": {
       "soundVolume": 0.5,
       "musicVolume": 0.5,
