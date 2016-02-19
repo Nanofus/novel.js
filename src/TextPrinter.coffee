@@ -19,8 +19,8 @@ printCompleted = false
 
 TextPrinter = {
 
-  # Print a scene's text
-  printText: (text, printInterval) ->
+  # Print a scene's text - noBuffers prevents buffers from replaying when scene is not changed
+  printText: (text, noBuffers) ->
     printCompleted = false
     data.printedText = ""
     # Disable the skip button
@@ -34,10 +34,9 @@ TextPrinter = {
     stopMusicBuffer = []
     executeBuffer = []
     buffersExecuted = false
-    if printInterval == undefined
-      defaultInterval = data.game.currentScene.scrollSpeed
-    else
-      defaultInterval = printInterval
+    if noBuffers
+      buffersExecuted = true
+    defaultInterval = data.game.currentScene.scrollSpeed
     @setTickSoundFrequency(defaultInterval)
     setTimeout(@onTick(),defaultInterval)
 
@@ -103,7 +102,7 @@ TextPrinter = {
         for i in [0 .. ss.length]
           if !(ss[i] in executeBuffer) && ss[i] != undefined
             eval(ss[i]+"()")
-    buffersExecuted = true
+      buffersExecuted = true
     # Set printed text and update choices
     data.printedText = fullText
     Scene.updateChoices()
@@ -142,7 +141,7 @@ TextPrinter = {
     offsetChanged = false
 
     while (fullText[currentOffset] == ' ' || fullText[currentOffset] == '<' || fullText[currentOffset] == '>')
-      TextPrinter.parseText()
+      TextPrinter.readTags()
 
     #console.log fullText[currentOffset-3] + fullText[currentOffset-2] + fullText[currentOffset-1] + " - " + fullText[currentOffset] + " - " + fullText[currentOffset+1]+fullText[currentOffset+2]+fullText[currentOffset+3]
 
@@ -172,7 +171,7 @@ TextPrinter = {
     ), interval / tickSpeedMultiplier
 
   # Skip chars that are not printed, and parse tags
-  parseText: ->
+  readTags: ->
     if fullText[currentOffset] == ' '
       currentOffset++
     if fullText[currentOffset] == '>'
@@ -204,9 +203,11 @@ TextPrinter = {
           if spans == 0
             break
         i++
+      # Buffering
       if str.indexOf("play-sound") > -1 && str.indexOf("display:none;") > -1
         s = str.split("play-sound ")
         s = s[1].split(/\s|\"/)[0]
+        console.log ":I"
         soundBuffer.push(s)
       if str.indexOf("play-music") > -1 && str.indexOf("display:none;") > -1
         s = str.split("play-music ")
@@ -224,6 +225,7 @@ TextPrinter = {
         if str.indexOf("play-sound") > -1
           s = str.split("play-sound ")
           s = s[1].split(/\s|\"/)[0]
+          console.log ":I"
           soundBuffer.push(s)
           Sound.playSound(s)
         if str.indexOf("play-music") > -1

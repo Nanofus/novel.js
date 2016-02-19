@@ -8,9 +8,6 @@ data = {
 
 gamePath = './game'
 
-consolePrint= ->
-  console.log("It's not a real dragon!")
-
 # Game area
 gameArea = new Vue(
   el: '#game-area'

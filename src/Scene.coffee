@@ -38,7 +38,7 @@ Scene = {
     @readSounds(data.game.currentScene,false)
     @readSaving(data.game.currentScene)
     @readMisc(data.game.currentScene)
-    TextPrinter.printText(scene.parsedText)
+    TextPrinter.printText(scene.parsedText,false)
 
   # If not changing scenes but update needed, this is called
   updateScene: (scene, onlyUpdating) ->
@@ -48,7 +48,7 @@ Scene = {
     if !onlyUpdating
       data.game.parsedChoices = null
     else
-      TextPrinter.printText(scene.parsedText)
+      TextPrinter.printText(scene.parsedText,true)
       TextPrinter.complete()
 
   # Update choice texts when they are changed - Vue.js doesn't detect them without this.
@@ -169,9 +169,9 @@ Scene = {
   # Read save and load commands from scene or choice
   readSaving: (source) ->
     if source.saveGame != undefined
-      saveGame()
+      GameManager.saveGame()
     if source.loadGame != undefined
-      showLoadNotification()
+      UI.showLoadNotification()
 
   # Check whether the requirements for a choice have been met
   requirementsFilled: (choice) ->

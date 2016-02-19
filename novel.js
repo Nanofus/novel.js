@@ -1,6 +1,6 @@
 
 /* SAVING AND LOADING */
-var GameManager, InputManager, Inventory, Parser, Scene, Sound, TextPrinter, UI, Util, buffersExecuted, consolePrint, copyButton, currentOffset, data, defaultInterval, executeBuffer, fullText, gameArea, gamePath, interval, musicBuffer, printCompleted, scrollSound, soundBuffer, speedMod, stopMusicBuffer, tickCounter, tickSoundFrequency, tickSpeedMultiplier,
+var GameManager, InputManager, Inventory, Parser, Scene, Sound, TextPrinter, UI, Util, buffersExecuted, copyButton, currentOffset, data, defaultInterval, executeBuffer, fullText, gameArea, gamePath, interval, musicBuffer, printCompleted, scrollSound, soundBuffer, speedMod, stopMusicBuffer, tickCounter, tickSoundFrequency, tickSpeedMultiplier,
   indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
 GameManager = {
@@ -329,10 +329,6 @@ data = {
 
 gamePath = './game';
 
-consolePrint = function() {
-  return console.log("It's not a real dragon!");
-};
-
 gameArea = new Vue({
   el: '#game-area',
   data: data,
@@ -647,7 +643,7 @@ Scene = {
     this.readSounds(data.game.currentScene, false);
     this.readSaving(data.game.currentScene);
     this.readMisc(data.game.currentScene);
-    return TextPrinter.printText(scene.parsedText);
+    return TextPrinter.printText(scene.parsedText, false);
   },
   updateScene: function(scene, onlyUpdating) {
     Scene.combineSceneTexts(scene);
@@ -656,7 +652,7 @@ Scene = {
     if (!onlyUpdating) {
       return data.game.parsedChoices = null;
     } else {
-      TextPrinter.printText(scene.parsedText);
+      TextPrinter.printText(scene.parsedText, true);
       return TextPrinter.complete();
     }
   },
@@ -828,10 +824,10 @@ Scene = {
   },
   readSaving: function(source) {
     if (source.saveGame !== void 0) {
-      saveGame();
+      GameManager.saveGame();
     }
     if (source.loadGame !== void 0) {
-      return showLoadNotification();
+      return UI.showLoadNotification();
     }
   },
   requirementsFilled: function(choice) {
@@ -959,7 +955,7 @@ interval = 0;
 printCompleted = false;
 
 TextPrinter = {
-  printText: function(text, printInterval) {
+  printText: function(text, noBuffers) {
     printCompleted = false;
     data.printedText = "";
     if (document.querySelector("#skip-button") !== null) {
@@ -972,11 +968,10 @@ TextPrinter = {
     stopMusicBuffer = [];
     executeBuffer = [];
     buffersExecuted = false;
-    if (printInterval === void 0) {
-      defaultInterval = data.game.currentScene.scrollSpeed;
-    } else {
-      defaultInterval = printInterval;
+    if (noBuffers) {
+      buffersExecuted = true;
     }
+    defaultInterval = data.game.currentScene.scrollSpeed;
     this.setTickSoundFrequency(defaultInterval);
     return setTimeout(this.onTick(), defaultInterval);
   },
@@ -1069,8 +1064,8 @@ TextPrinter = {
           }
         }
       }
+      buffersExecuted = true;
     }
-    buffersExecuted = true;
     data.printedText = fullText;
     return Scene.updateChoices();
   },
@@ -1107,7 +1102,7 @@ TextPrinter = {
     }
     offsetChanged = false;
     while (fullText[currentOffset] === ' ' || fullText[currentOffset] === '<' || fullText[currentOffset] === '>') {
-      TextPrinter.parseText();
+      TextPrinter.readTags();
     }
     data.printedText = fullText.substring(0, currentOffset);
     if (!offsetChanged) {
@@ -1133,7 +1128,7 @@ TextPrinter = {
       TextPrinter.onTick();
     }), interval / tickSpeedMultiplier);
   },
-  parseText: function() {
+  readTags: function() {
     var disp, i, offsetChanged, s, spans, str;
     if (fullText[currentOffset] === ' ') {
       currentOffset++;
@@ -1172,6 +1167,7 @@ TextPrinter = {
       if (str.indexOf("play-sound") > -1 && str.indexOf("display:none;") > -1) {
         s = str.split("play-sound ");
         s = s[1].split(/\s|\"/)[0];
+        console.log(":I");
         soundBuffer.push(s);
       }
       if (str.indexOf("play-music") > -1 && str.indexOf("display:none;") > -1) {
@@ -1193,6 +1189,7 @@ TextPrinter = {
         if (str.indexOf("play-sound") > -1) {
           s = str.split("play-sound ");
           s = s[1].split(/\s|\"/)[0];
+          console.log(":I");
           soundBuffer.push(s);
           Sound.playSound(s);
         }

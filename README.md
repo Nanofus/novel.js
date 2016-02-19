@@ -283,7 +283,7 @@ See [Formats for statements and commands](#formats-for-statements-and-commands) 
 
 #### Executing JavaScript while text scrolls
 
-You can run JavaScript functions by using the `[call x]` tag, where x is the function's name (without parentheses). For example, `[call printSomethingToConsole]`. The function is executed with JavaScript's `eval()` function. If the tag is inside an if-statement that returns false, so that it is not shown, the tag is ignored. If the text scrolling is skipped, these are buffered and will be executed all at once at the end.
+You can run JavaScript functions by using the `[call x]` tag, where x is the function's name (without parentheses). For example, `[call printSomethingToConsole]`. The function is executed with JavaScript's `eval()` function. If the tag is inside an if-statement that returns false, so that it is not shown, the tag is ignored. If the text scrolling is skipped, these are buffered and will be executed at the end.
 
 #### Setting text scrolling speed
 
