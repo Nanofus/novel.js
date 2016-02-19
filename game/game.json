@@ -4,7 +4,8 @@
   "debugMode": true,
   "inventory": [
     {"name": "sword", "count": 1},
-    {"name": "sandwich", "count": 5}
+    {"name": "sandwich", "count": 5},
+    {"name": "magicalshield", "displayName": "Magical Shield", "count": 1}
   ],
   "stats": [
     {"name": "villagesSaved", "value": 0},
@@ -67,7 +68,7 @@
           "text": "Search for a magical shield (10% success chance)",
           "name": "shieldSearch",
           "setStats": "introductionSeen[1]",
-          "addItem": "magicalshield[1,0.1,Magical Shield]",
+          "addItem": "magicalshield[2*inv.magicalshield,0.1,Magical Shield]",
           "alwaysShow": true
         },
         {
@@ -92,6 +93,12 @@
           "text": "Increase sound volume by 0.1",
           "increaseValue": [
             {"path": "settings.soundSettings.soundVolume", "value": 0.1}
+          ]
+        },
+        {
+          "text": "Add double the current sound volume to volume",
+          "increaseValue": [
+            {"path": "settings.soundSettings.soundVolume", "value": "var.settings.soundSettings.soundVolume*2"}
           ]
         },
         {

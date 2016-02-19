@@ -209,7 +209,7 @@ Inventory = {
     value = Parser.findValue(parsed, false);
     value[getValueArrayLast] = value[getValueArrayLast] + change;
     if (!isNaN(parseFloat(value[getValueArrayLast]))) {
-      return value[getValueArrayLast] = parseFloat(value[getValueArrayLast].toFixed(8));
+      return value[getValueArrayLast] = parseFloat(value[getValueArrayLast].toFixed(data.game.settings.floatPrecision));
     }
   },
   decreaseValue: function(parsed, change) {
@@ -218,7 +218,7 @@ Inventory = {
     value = Parser.findValue(parsed, false);
     value[getValueArrayLast] = value[getValueArrayLast] - change;
     if (!isNaN(parseFloat(value[getValueArrayLast]))) {
-      return value[getValueArrayLast] = parseFloat(value[getValueArrayLast].toFixed(8));
+      return value[getValueArrayLast] = parseFloat(value[getValueArrayLast].toFixed(data.game.settings.floatPrecision));
     }
   },
   getValueArrayLast: function(parsed) {
@@ -247,7 +247,7 @@ Inventory = {
           probability = 1;
           if (p.length > 1) {
             displayName = p[1];
-            count = parseInt(p[0]);
+            count = parseInt(Parser.parseStatement(p[0]));
             if (!isNaN(displayName)) {
               probability = p[1];
               displayName = j.name;
@@ -258,7 +258,7 @@ Inventory = {
             }
           } else {
             displayName = j[0];
-            count = parseInt(j[1]);
+            count = parseInt(Parser.parseStatement(j[1]));
           }
           value = Math.random();
           if (value < probability) {
@@ -299,7 +299,7 @@ Inventory = {
         probability = 1;
         if (p.length > 1) {
           displayName = p[1];
-          count = parseInt(p[0]);
+          count = parseInt(Parser.parseStatement(p[0]));
           if (!isNaN(displayName)) {
             probability = p[1];
             displayName = j.name;
@@ -310,7 +310,7 @@ Inventory = {
           }
         } else {
           displayName = j[0];
-          count = parseInt(j[1]);
+          count = parseInt(Parser.parseStatement(j[1]));
         }
         value = Math.random();
         if (value < probability) {
@@ -350,6 +350,19 @@ gameArea = new Vue({
     },
     textSkipEnabled: function(choice) {
       return data.game.currentScene.skipEnabled;
+    },
+    itemsOverZero: function(item) {
+      var i, k, len, ref;
+      ref = this.game.inventory;
+      for (k = 0, len = ref.length; k < len; k++) {
+        i = ref[k];
+        if (i.name === item.name) {
+          if (i.count > 0) {
+            return true;
+          }
+        }
+      }
+      return false;
     },
     selectChoice: function(choice) {
       return Scene.selectChoice(choice);
@@ -498,7 +511,7 @@ Parser = {
     }
   },
   parseStatement: function(s) {
-    var i, k, l, len, len1, len2, m, o, parsedString, parsedValues, ref, ref1, ref2, type, val;
+    var found, i, k, l, len, len1, len2, m, o, parsedString, parsedValues, ref, ref1, ref2, type, val;
     if (!Util.validateParentheses(s)) {
       console.error("ERROR: Invalid parentheses in statement");
     }
@@ -510,21 +523,31 @@ Parser = {
       type = this.getStatementType(val);
       switch (type) {
         case "item":
+          found = false;
           ref = data.game.inventory;
           for (l = 0, len1 = ref.length; l < len1; l++) {
             i = ref[l];
             if (i.name === val.substring(4, val.length)) {
               parsedValues.push(i.count);
+              found = true;
             }
+          }
+          if (!found) {
+            parsedValues.push(0);
           }
           break;
         case "stats":
+          found = false;
           ref1 = data.game.stats;
           for (m = 0, len2 = ref1.length; m < len2; m++) {
             i = ref1[m];
             if (i.name === val.substring(5, val.length)) {
               parsedValues.push(i.value);
+              found = true;
             }
+          }
+          if (!found) {
+            parsedValues.push(0);
           }
           break;
         case "var":
@@ -803,14 +826,14 @@ Scene = {
       ref = source.setValue;
       for (k = 0, len = ref.length; k < len; k++) {
         val = ref[k];
-        Inventory.setValue(val.path, val.value);
+        Inventory.setValue(val.path, Parser.parseStatement(val.value.toString()));
       }
     }
     if (source.increaseValue !== void 0) {
       ref1 = source.increaseValue;
       for (l = 0, len1 = ref1.length; l < len1; l++) {
         val = ref1[l];
-        Inventory.increaseValue(val.path, val.value);
+        Inventory.increaseValue(val.path, Parser.parseStatement(val.value.toString()));
       }
     }
     if (source.decreaseValue !== void 0) {
@@ -818,7 +841,7 @@ Scene = {
       results = [];
       for (m = 0, len2 = ref2.length; m < len2; m++) {
         val = ref2[m];
-        results.push(Inventory.decreaseValue(val.path, val.value));
+        results.push(Inventory.decreaseValue(val.path, Parser.parseStatement(val.value.toString())));
       }
       return results;
     }

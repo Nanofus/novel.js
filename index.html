@@ -45,7 +45,7 @@
           <div class="inventory">
             <h5>Inventory:</h5>
             <ul class="item-list">
-              <li v-for="item in game.inventory" class="inventory-item">
+              <li v-for="item in game.inventory" class="inventory-item" v-if="itemsOverZero(item)">
                 {{{ item.displayName }}} - {{{ item.count }}}
               </li>
             </ul>

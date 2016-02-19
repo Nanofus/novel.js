@@ -35,7 +35,7 @@ Inventory = {
     value = Parser.findValue(parsed,false)
     value[getValueArrayLast] = value[getValueArrayLast] + change
     if !isNaN(parseFloat(value[getValueArrayLast]))
-      value[getValueArrayLast] = parseFloat(value[getValueArrayLast].toFixed(8));
+      value[getValueArrayLast] = parseFloat(value[getValueArrayLast].toFixed(data.game.settings.floatPrecision));
 
   # Decrease a value in JSON
   decreaseValue: (parsed, change) ->
@@ -43,7 +43,7 @@ Inventory = {
     value = Parser.findValue(parsed,false)
     value[getValueArrayLast] = value[getValueArrayLast] - change
     if !isNaN(parseFloat(value[getValueArrayLast]))
-      value[getValueArrayLast] = parseFloat(value[getValueArrayLast].toFixed(8));
+      value[getValueArrayLast] = parseFloat(value[getValueArrayLast].toFixed(data.game.settings.floatPrecision));
 
   # Get the last item in a value array
   getValueArrayLast: (parsed) ->
@@ -68,7 +68,8 @@ Inventory = {
           probability = 1
           if p.length > 1
             displayName = p[1]
-            count = parseInt(p[0])
+            count = parseInt(Parser.parseStatement(p[0]))
+            #console.log count
             if !isNaN(displayName)
               probability = p[1]
               displayName = j.name
@@ -77,7 +78,8 @@ Inventory = {
               displayName = p[2]
           else
             displayName = j[0]
-            count = parseInt(j[1])
+            count = parseInt(Parser.parseStatement(j[1]))
+            #console.log count
           value = Math.random()
           if value < probability
             if (mode == "set")
@@ -107,7 +109,9 @@ Inventory = {
         probability = 1
         if p.length > 1
           displayName = p[1]
-          count = parseInt(p[0])
+          #console.log "p0: " + Parser.parseStatement(p[0])
+          count = parseInt(Parser.parseStatement(p[0]))
+          #console.log count
           if !isNaN(displayName)
             probability = p[1]
             displayName = j.name
@@ -116,7 +120,8 @@ Inventory = {
             displayName = p[2]
         else
           displayName = j[0]
-          count = parseInt(j[1])
+          count = parseInt(Parser.parseStatement(j[1]))
+          #console.log count
         value = Math.random()
         if value < probability
           inventory.push({"name": j[0], "count": count, "displayName": displayName})

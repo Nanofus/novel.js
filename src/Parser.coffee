@@ -140,13 +140,21 @@ Parser = {
       type = @getStatementType(val)
       switch type
         when "item"
+          found = false
           for i in data.game.inventory
             if i.name == val.substring(4,val.length)
               parsedValues.push i.count
+              found = true
+          if !found
+            parsedValues.push 0
         when "stats"
+          found = false
           for i in data.game.stats
             if i.name == val.substring(5,val.length)
               parsedValues.push i.value
+              found = true
+          if !found
+            parsedValues.push 0
         when "var"
           val = @findValue(val.substring(4,val.length),true)
           if !isNaN(parseFloat(val))

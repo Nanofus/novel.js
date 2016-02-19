@@ -38,7 +38,7 @@ Novel.js is written in CoffeeScript, HTML and SASS and depends only on Vue.js.
 	- [Formats for statements and commands](#formats-for-statements-and-commands)
 		- [Format for add/remove/set and requirement commands](#format-for-addremoveset-and-requirement-commands)
 		- [Format for probabilities](#format-for-probabilities)
-		- [Format for conditional statements](#format-for-conditional-statements)
+		- [Format for conditional statements and calculations](#format-for-conditional-statements-and-calculations)
 		- [Format for value statements and commands](#format-for-value-statements-and-commands)
 	- [Audio](#audio)
 		- [Sound effects](#sound-effects)
@@ -253,7 +253,7 @@ An example:
 ```
 [if ((inv.sword>=5||stat.earnedTheTrustOfPeople>0)&&inv.swords!=500)]This text is shown only if you have more than five swords in your inventory or you have earned the people's trust and you must not have exactly 500 swords![/if]
 ```
-More information about conditional statements [here](#format-for-conditional-statements).
+More information about conditional statements [here](#format-for-conditional-statements-and-calculations).
 
 #### Choice links
 
@@ -359,9 +359,9 @@ itemOne[count,probability,displayName]|itemTwo[count,probability,displayName]|it
 ```
 An example:
 ```
-"addItem": "sword[1]|shield[1,Magical Shield]|stone[2,0.5]|largestone[1,0.2,Large Stone]"
+"addItem": "sword[1]|shield[1,Magical Shield]|stone[inv.stone,0.5]|largestone[1,0.2,Large Stone]"
 ```
-This adds one sword and one shield named "Magical Shield" to the player's inventory. With a 50% chance, the player also gains two stones, and with a 20% probability they gain a large stone.
+This adds one sword and one shield named "Magical Shield" to the player's inventory. With a 50% chance, the player also doubles their supply of stones, and with a 20% probability they gain a large stone. The item counts support mathematical operations and reading item, stat and value counts when prefixed with `inv.`, `stat.` and `var.` respectively.
 
 #### Format for probabilities
 
@@ -375,9 +375,9 @@ hitEnemySuccess[0.5]|hitEnemyFail[0.5]
 ```
 In this example, the player has a 50% chance to hit (go to hit scene) and a 50% chance to miss the enemy (go to miss scene).
 
-#### Format for conditional statements
+#### Format for conditional statements and calculations
 
-Conditional statements allow for all kinds of complex logic, and can be used in requirements and `[if]` statements. An example:
+Conditional statements and calculations allow for all kinds of complex logic, and can be used in requirements, item adding/removing and `[if]` statements. An example:
 ```
 [if ((inv.sword>=5||stat.earnedTheTrustOfPeople>0)&&inv.swords!=500)]This text is shown only if you have more than five swords in your inventory or you have earned the people's trust and you must not have exactly 500 swords![/if]
 ```

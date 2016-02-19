@@ -145,13 +145,13 @@ Scene = {
       Inventory.editItemsOrStats(Parser.parseItemOrStats(source.setStats),"set",false)
     if source.setValue != undefined
       for val in source.setValue
-        Inventory.setValue(val.path,val.value)
+        Inventory.setValue(val.path,Parser.parseStatement(val.value.toString()))
     if source.increaseValue != undefined
       for val in source.increaseValue
-        Inventory.increaseValue(val.path,val.value)
+        Inventory.increaseValue(val.path,Parser.parseStatement(val.value.toString()))
     if source.decreaseValue != undefined
       for val in source.decreaseValue
-        Inventory.decreaseValue(val.path,val.value)
+        Inventory.decreaseValue(val.path,Parser.parseStatement(val.value.toString()))
 
   # Read sound commands from scene or choice
   readSounds: (source,clicked) ->
