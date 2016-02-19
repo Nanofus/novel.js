@@ -447,7 +447,7 @@ The `css` folder contains a file named `skin.css`. Styles in `skin.css` override
 
 By using the `saveCheckpoint` and `loadCheckpoint` commands in scenes or choices it is possible to "tag" scenes so that they can easily be returned to later. This is useful when, for example, creating a menu with a "continue game" button. Both commands take a name for the checkpoint as a parameter. The checkpoint objects are saved to `data.game.checkpoints`, so they are saved when the game is saved. The objects have two values: `name`, which is the checkpoint's name used in the commands, and `scene`, the name of the scene it refers to.
 
-Checkpoints do not affect the player's items or stats. Use saving and loading to reset them.
+Checkpoints do not affect the player's items, stats or other values. Use saving and loading to return those to a previous state.
 
 ### Saving
 
