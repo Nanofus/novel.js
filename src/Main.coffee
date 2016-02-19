@@ -31,7 +31,7 @@ gameArea = new Vue(
         Scene.changeScene(choice.nextScene)
       else if choice.nextScene == ""
         if choice.nextChoice != undefined
-          Scene.selectChoiceByName(choice.nextChoice)
+          Scene.selectChoiceByName(Scene.selectRandomOption(choice.nextChoice))
         else
           Scene.updateScene(@game.currentScene,true)
 )

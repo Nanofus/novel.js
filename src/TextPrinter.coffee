@@ -7,6 +7,7 @@ defaultInterval = 0
 soundBuffer = []
 musicBuffer = []
 stopMusicBuffer = []
+bufferedSoundsPlayed = false
 scrollSound = null
 tickSoundFrequency = 1
 tickCounter = 0
@@ -30,11 +31,12 @@ TextPrinter = {
     soundBuffer = []
     musicBuffer = []
     stopMusicBuffer = []
+    bufferedSoundsPlayed = false
     if printInterval == undefined
       defaultInterval = data.game.currentScene.scrollSpeed
     else
       defaultInterval = printInterval
-    @setTickFrequency(defaultInterval)
+    @setTickSoundFrequency(defaultInterval)
     setTimeout(@onTick(),defaultInterval)
 
   # Try to skip text, if allowed
@@ -45,37 +47,40 @@ TextPrinter = {
   # Instantly show all text
   complete: ->
     printCompleted = true
+    currentOffset = 0
     # Re-enable skip button
     if document.querySelector("#skip-button") != null
       document.querySelector("#skip-button").disabled = true;
-    # Play missed sounds
-    ss = []
-    if fullText.indexOf("play-sound") > -1
-      s = fullText.split("play-sound ")
-      for i in s
-        ss.push(i.split(/\s|\"/)[0])
-    if ss.length > 0
-      for i in [0 .. ss.length]
-        if !(ss[i] in soundBuffer)
-          Sound.playSound(ss[i])
-    ss = []
-    if fullText.indexOf("play-music") > -1
-      s = fullText.split("play-music ")
-      for i in s
-        ss.push(i.split(/\s|\"/)[0])
-    if ss.length > 0
-      for i in [0 .. ss.length]
-        if !(ss[i] in musicBuffer)
-          Sound.startMusic(ss[i])
-    ss = []
-    if fullText.indexOf("stop-music") > -1
-      s = fullText.split("stop-music ")
-      for i in s
-        ss.push(i.split(/\s|\"/)[0])
-    if ss.length > 0
-      for i in [0 .. ss.length]
-        if !(ss[i] in stopMusicBuffer)
-          Sound.stopMusic(ss[i])
+    # Play missed sounds and start missed music
+    if !bufferedSoundsPlayed
+      ss = []
+      if fullText.indexOf("play-sound") > -1
+        s = fullText.split("play-sound ")
+        for i in s
+          ss.push(i.split(/\s|\"/)[0])
+      if ss.length > 0
+        for i in [0 .. ss.length]
+          if !(ss[i] in soundBuffer)
+            Sound.playSound(ss[i])
+      ss = []
+      if fullText.indexOf("play-music") > -1
+        s = fullText.split("play-music ")
+        for i in s
+          ss.push(i.split(/\s|\"/)[0])
+      if ss.length > 0
+        for i in [0 .. ss.length]
+          if !(ss[i] in musicBuffer)
+            Sound.startMusic(ss[i])
+      ss = []
+      if fullText.indexOf("stop-music") > -1
+        s = fullText.split("stop-music ")
+        for i in s
+          ss.push(i.split(/\s|\"/)[0])
+      if ss.length > 0
+        for i in [0 .. ss.length]
+          if !(ss[i] in stopMusicBuffer)
+            Sound.stopMusic(ss[i])
+    bufferedSoundsPlayed = true
     # Set printed text and update choices
     data.printedText = fullText
     Scene.updateChoices()
@@ -89,11 +94,14 @@ TextPrinter = {
   stopFastScroll: () ->
     tickSpeedMultiplier = 1
 
-  setTickFrequency: (freq) ->
+  # Set the
+  setTickSoundFrequency: (freq) ->
+    console.log tickSoundFrequency
+    threshold = data.game.settings.scrollSettings.tickFreqThreshold
     tickSoundFrequency = 1
-    if freq < data.game.settings.scrollSettings.soundEverySecondTickThreshold
+    if freq <= (threshold * 2)
       tickSoundFrequency = 2
-    if freq < data.game.settings.scrollSettings.soundEveryThirdTickThreshold
+    if freq <= (threshold)
       tickSoundFrequency = 3
 
   # Show a new letter
@@ -103,6 +111,8 @@ TextPrinter = {
 
     if defaultInterval == 0
       TextPrinter.complete()
+      return
+    if data.printedText == fullText
       return
     #console.log currentOffset + ": " + fullText[currentOffset]
     #console.log fullText[currentOffset]
@@ -119,21 +129,20 @@ TextPrinter = {
     if !offsetChanged
       currentOffset++
     if currentOffset >= fullText.length
-      if (data.game.currentScene.scrollSound != undefined)
-        Sound.playSound(data.game.currentScene.scrollSound)
-      currentOffset = 0
       TextPrinter.complete()
       return
 
     tickCounter++
-    if tickCounter == tickSoundFrequency
+    #console.log tickSpeedMultiplier + " / " + tickSoundFrequency + " / " + tickCounter
+    if tickCounter >= tickSoundFrequency
+      #console.log "RESET"
       if scrollSound != null
         Sound.playSound(scrollSound)
       else if (data.game.currentScene.scrollSound != undefined)
         Sound.playSound(data.game.currentScene.scrollSound)
       tickCounter = 0
 
-    @setTickFrequency(interval / tickSpeedMultiplier)
+    @setTickSoundFrequency(interval / tickSpeedMultiplier)
     setTimeout (->
       TextPrinter.onTick()
       return

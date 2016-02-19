@@ -27,7 +27,7 @@ Scene = {
 
   # Called when changing a scene
   changeScene: (sceneNames) ->
-    scene = @findSceneByName(@selectRandomScene sceneNames)
+    scene = @findSceneByName(@selectRandomOption sceneNames)
     @setupScene(scene)
     return scene
 
@@ -60,8 +60,8 @@ Scene = {
       choice
     )
 
-  # Select a random scene from a list separated by |, takes string
-  selectRandomScene: (name) ->
+  # Select a random scene or choice from a list separated by |, takes string
+  selectRandomOption: (name) ->
     separate = name.split("|")
     if separate.length == 1
       return separate[0]
@@ -70,16 +70,16 @@ Scene = {
       i = i.substring(0, i.length - 1)
       i = i.split("[")
       parsed.push(i)
-    parsed = @chooseFromMultipleScenes parsed
+    parsed = @chooseRandomly(parsed)
     return parsed
 
-  # Select a scene randomly from multiple scenes with different probabilities, takes array
-  chooseFromMultipleScenes: (scenes) ->
+  # Select a scene or choice randomly from multiple scenes with different probabilities, takes array
+  chooseRandomly: (options) ->
     names = []
     chances = []
     rawChances = []
     previous = 0
-    for i in scenes
+    for i in options
       names.push i[0]
       previous = parseFloat(i[1])+previous
       chances.push previous
@@ -88,7 +88,7 @@ Scene = {
     for i in rawChances
       totalChance = totalChance + parseFloat(i)
     if totalChance != 1
-      console.error "ERROR: Invalid scene odds (should add up to exactly 1)!"
+      console.error "ERROR: Invalid scene or choice odds (should add up to exactly 1)!"
     value = Math.random()
     nameIndex = 0
     for i in chances

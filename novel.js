@@ -1,6 +1,6 @@
 
 /* SAVING AND LOADING */
-var GameManager, InputManager, Inventory, Parser, Scene, Sound, TextPrinter, UI, Util, copyButton, currentOffset, data, defaultInterval, fullText, gameArea, gamePath, interval, musicBuffer, printCompleted, scrollSound, soundBuffer, speedMod, stopMusicBuffer, tickCounter, tickSoundFrequency, tickSpeedMultiplier,
+var GameManager, InputManager, Inventory, Parser, Scene, Sound, TextPrinter, UI, Util, bufferedSoundsPlayed, copyButton, currentOffset, data, defaultInterval, fullText, gameArea, gamePath, interval, musicBuffer, printCompleted, scrollSound, soundBuffer, speedMod, stopMusicBuffer, tickCounter, tickSoundFrequency, tickSpeedMultiplier,
   indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
 GameManager = {
@@ -348,7 +348,7 @@ gameArea = new Vue({
         return Scene.changeScene(choice.nextScene);
       } else if (choice.nextScene === "") {
         if (choice.nextChoice !== void 0) {
-          return Scene.selectChoiceByName(choice.nextChoice);
+          return Scene.selectChoiceByName(Scene.selectRandomOption(choice.nextChoice));
         } else {
           return Scene.updateScene(this.game.currentScene, true);
         }
@@ -630,7 +630,7 @@ Scene = {
   },
   changeScene: function(sceneNames) {
     var scene;
-    scene = this.findSceneByName(this.selectRandomScene(sceneNames));
+    scene = this.findSceneByName(this.selectRandomOption(sceneNames));
     this.setupScene(scene);
     return scene;
   },
@@ -662,7 +662,7 @@ Scene = {
       return choice;
     }));
   },
-  selectRandomScene: function(name) {
+  selectRandomOption: function(name) {
     var i, k, len, parsed, separate;
     separate = name.split("|");
     if (separate.length === 1) {
@@ -675,17 +675,17 @@ Scene = {
       i = i.split("[");
       parsed.push(i);
     }
-    parsed = this.chooseFromMultipleScenes(parsed);
+    parsed = this.chooseRandomly(parsed);
     return parsed;
   },
-  chooseFromMultipleScenes: function(scenes) {
+  chooseRandomly: function(options) {
     var chances, i, k, l, len, len1, len2, m, nameIndex, names, previous, rawChances, totalChance, value;
     names = [];
     chances = [];
     rawChances = [];
     previous = 0;
-    for (k = 0, len = scenes.length; k < len; k++) {
-      i = scenes[k];
+    for (k = 0, len = options.length; k < len; k++) {
+      i = options[k];
       names.push(i[0]);
       previous = parseFloat(i[1]) + previous;
       chances.push(previous);
@@ -697,7 +697,7 @@ Scene = {
       totalChance = totalChance + parseFloat(i);
     }
     if (totalChance !== 1) {
-      console.error("ERROR: Invalid scene odds (should add up to exactly 1)!");
+      console.error("ERROR: Invalid scene or choice odds (should add up to exactly 1)!");
     }
     value = Math.random();
     nameIndex = 0;
@@ -933,6 +933,8 @@ musicBuffer = [];
 
 stopMusicBuffer = [];
 
+bufferedSoundsPlayed = false;
+
 scrollSound = null;
 
 tickSoundFrequency = 1;
@@ -959,12 +961,13 @@ TextPrinter = {
     soundBuffer = [];
     musicBuffer = [];
     stopMusicBuffer = [];
+    bufferedSoundsPlayed = false;
     if (printInterval === void 0) {
       defaultInterval = data.game.currentScene.scrollSpeed;
     } else {
       defaultInterval = printInterval;
     }
-    this.setTickFrequency(defaultInterval);
+    this.setTickSoundFrequency(defaultInterval);
     return setTimeout(this.onTick(), defaultInterval);
   },
   trySkip: function() {
@@ -975,54 +978,58 @@ TextPrinter = {
   complete: function() {
     var i, k, l, len, len1, len2, m, o, q, ref, ref1, ref2, ref3, ref4, ref5, s, ss, t;
     printCompleted = true;
+    currentOffset = 0;
     if (document.querySelector("#skip-button") !== null) {
       document.querySelector("#skip-button").disabled = true;
     }
-    ss = [];
-    if (fullText.indexOf("play-sound") > -1) {
-      s = fullText.split("play-sound ");
-      for (k = 0, len = s.length; k < len; k++) {
-        i = s[k];
-        ss.push(i.split(/\s|\"/)[0]);
+    if (!bufferedSoundsPlayed) {
+      ss = [];
+      if (fullText.indexOf("play-sound") > -1) {
+        s = fullText.split("play-sound ");
+        for (k = 0, len = s.length; k < len; k++) {
+          i = s[k];
+          ss.push(i.split(/\s|\"/)[0]);
+        }
       }
-    }
-    if (ss.length > 0) {
-      for (i = l = 0, ref = ss.length; 0 <= ref ? l <= ref : l >= ref; i = 0 <= ref ? ++l : --l) {
-        if (!(ref1 = ss[i], indexOf.call(soundBuffer, ref1) >= 0)) {
-          Sound.playSound(ss[i]);
+      if (ss.length > 0) {
+        for (i = l = 0, ref = ss.length; 0 <= ref ? l <= ref : l >= ref; i = 0 <= ref ? ++l : --l) {
+          if (!(ref1 = ss[i], indexOf.call(soundBuffer, ref1) >= 0)) {
+            Sound.playSound(ss[i]);
+          }
+        }
+      }
+      ss = [];
+      if (fullText.indexOf("play-music") > -1) {
+        s = fullText.split("play-music ");
+        for (m = 0, len1 = s.length; m < len1; m++) {
+          i = s[m];
+          ss.push(i.split(/\s|\"/)[0]);
+        }
+      }
+      if (ss.length > 0) {
+        for (i = o = 0, ref2 = ss.length; 0 <= ref2 ? o <= ref2 : o >= ref2; i = 0 <= ref2 ? ++o : --o) {
+          if (!(ref3 = ss[i], indexOf.call(musicBuffer, ref3) >= 0)) {
+            Sound.startMusic(ss[i]);
+          }
+        }
+      }
+      ss = [];
+      if (fullText.indexOf("stop-music") > -1) {
+        s = fullText.split("stop-music ");
+        for (q = 0, len2 = s.length; q < len2; q++) {
+          i = s[q];
+          ss.push(i.split(/\s|\"/)[0]);
+        }
+      }
+      if (ss.length > 0) {
+        for (i = t = 0, ref4 = ss.length; 0 <= ref4 ? t <= ref4 : t >= ref4; i = 0 <= ref4 ? ++t : --t) {
+          if (!(ref5 = ss[i], indexOf.call(stopMusicBuffer, ref5) >= 0)) {
+            Sound.stopMusic(ss[i]);
+          }
         }
       }
     }
-    ss = [];
-    if (fullText.indexOf("play-music") > -1) {
-      s = fullText.split("play-music ");
-      for (m = 0, len1 = s.length; m < len1; m++) {
-        i = s[m];
-        ss.push(i.split(/\s|\"/)[0]);
-      }
-    }
-    if (ss.length > 0) {
-      for (i = o = 0, ref2 = ss.length; 0 <= ref2 ? o <= ref2 : o >= ref2; i = 0 <= ref2 ? ++o : --o) {
-        if (!(ref3 = ss[i], indexOf.call(musicBuffer, ref3) >= 0)) {
-          Sound.startMusic(ss[i]);
-        }
-      }
-    }
-    ss = [];
-    if (fullText.indexOf("stop-music") > -1) {
-      s = fullText.split("stop-music ");
-      for (q = 0, len2 = s.length; q < len2; q++) {
-        i = s[q];
-        ss.push(i.split(/\s|\"/)[0]);
-      }
-    }
-    if (ss.length > 0) {
-      for (i = t = 0, ref4 = ss.length; 0 <= ref4 ? t <= ref4 : t >= ref4; i = 0 <= ref4 ? ++t : --t) {
-        if (!(ref5 = ss[i], indexOf.call(stopMusicBuffer, ref5) >= 0)) {
-          Sound.stopMusic(ss[i]);
-        }
-      }
-    }
+    bufferedSoundsPlayed = true;
     data.printedText = fullText;
     return Scene.updateChoices();
   },
@@ -1034,12 +1041,15 @@ TextPrinter = {
   stopFastScroll: function() {
     return tickSpeedMultiplier = 1;
   },
-  setTickFrequency: function(freq) {
+  setTickSoundFrequency: function(freq) {
+    var threshold;
+    console.log(tickSoundFrequency);
+    threshold = data.game.settings.scrollSettings.tickFreqThreshold;
     tickSoundFrequency = 1;
-    if (freq < data.game.settings.scrollSettings.soundEverySecondTickThreshold) {
+    if (freq <= (threshold * 2)) {
       tickSoundFrequency = 2;
     }
-    if (freq < data.game.settings.scrollSettings.soundEveryThirdTickThreshold) {
+    if (freq <= threshold) {
       return tickSoundFrequency = 3;
     }
   },
@@ -1052,6 +1062,9 @@ TextPrinter = {
       TextPrinter.complete();
       return;
     }
+    if (data.printedText === fullText) {
+      return;
+    }
     offsetChanged = false;
     while (fullText[currentOffset] === ' ' || fullText[currentOffset] === '<' || fullText[currentOffset] === '>') {
       TextPrinter.parseText();
@@ -1061,15 +1074,11 @@ TextPrinter = {
       currentOffset++;
     }
     if (currentOffset >= fullText.length) {
-      if (data.game.currentScene.scrollSound !== void 0) {
-        Sound.playSound(data.game.currentScene.scrollSound);
-      }
-      currentOffset = 0;
       TextPrinter.complete();
       return;
     }
     tickCounter++;
-    if (tickCounter === tickSoundFrequency) {
+    if (tickCounter >= tickSoundFrequency) {
       if (scrollSound !== null) {
         Sound.playSound(scrollSound);
       } else if (data.game.currentScene.scrollSound !== void 0) {
@@ -1077,7 +1086,7 @@ TextPrinter = {
       }
       tickCounter = 0;
     }
-    this.setTickFrequency(interval / tickSpeedMultiplier);
+    this.setTickSoundFrequency(interval / tickSpeedMultiplier);
     return setTimeout((function() {
       TextPrinter.onTick();
     }), interval / tickSpeedMultiplier);
