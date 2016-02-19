@@ -1043,7 +1043,6 @@ TextPrinter = {
   },
   setTickSoundFrequency: function(freq) {
     var threshold;
-    console.log(tickSoundFrequency);
     threshold = data.game.settings.scrollSettings.tickFreqThreshold;
     tickSoundFrequency = 1;
     if (freq <= (threshold * 2)) {
@@ -1079,12 +1078,14 @@ TextPrinter = {
     }
     tickCounter++;
     if (tickCounter >= tickSoundFrequency) {
-      if (scrollSound !== null) {
-        Sound.playSound(scrollSound);
-      } else if (data.game.currentScene.scrollSound !== void 0) {
-        Sound.playSound(data.game.currentScene.scrollSound);
+      if (scrollSound !== "none") {
+        if (scrollSound !== null) {
+          Sound.playSound(scrollSound);
+        } else if (data.game.currentScene.scrollSound !== void 0) {
+          Sound.playSound(data.game.currentScene.scrollSound);
+        }
+        tickCounter = 0;
       }
-      tickCounter = 0;
     }
     this.setTickSoundFrequency(interval / tickSpeedMultiplier);
     return setTimeout((function() {
@@ -1169,6 +1170,7 @@ TextPrinter = {
         if (str.indexOf("set-scroll-sound") > -1) {
           s = str.split("set-scroll-sound ");
           s = s[1].split(/\s|\"/)[0];
+          console.log(s);
           scrollSound = s;
         }
         if (str.indexOf("default-scroll-sound") > -1) {

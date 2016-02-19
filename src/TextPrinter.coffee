@@ -96,7 +96,6 @@ TextPrinter = {
 
   # Set the
   setTickSoundFrequency: (freq) ->
-    console.log tickSoundFrequency
     threshold = data.game.settings.scrollSettings.tickFreqThreshold
     tickSoundFrequency = 1
     if freq <= (threshold * 2)
@@ -136,11 +135,12 @@ TextPrinter = {
     #console.log tickSpeedMultiplier + " / " + tickSoundFrequency + " / " + tickCounter
     if tickCounter >= tickSoundFrequency
       #console.log "RESET"
-      if scrollSound != null
-        Sound.playSound(scrollSound)
-      else if (data.game.currentScene.scrollSound != undefined)
-        Sound.playSound(data.game.currentScene.scrollSound)
-      tickCounter = 0
+      if scrollSound != "none"
+        if scrollSound != null
+          Sound.playSound(scrollSound)
+        else if (data.game.currentScene.scrollSound != undefined)
+          Sound.playSound(data.game.currentScene.scrollSound)
+        tickCounter = 0
 
     @setTickSoundFrequency(interval / tickSpeedMultiplier)
     setTimeout (->
@@ -216,7 +216,7 @@ TextPrinter = {
         if str.indexOf("set-scroll-sound") > -1
           s = str.split("set-scroll-sound ")
           s = s[1].split(/\s|\"/)[0]
-          #console.log s
+          console.log s
           scrollSound = s
         if str.indexOf("default-scroll-sound") > -1
           scrollSound = null
