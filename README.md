@@ -164,7 +164,7 @@ A scene object can contain the following variables and parameters:
 
 Choices are the options the player can choose in a scene. An example is provided in the Scenes example. Choices have the following variables and parameters:
 - `text` - Required in most cases. The text to show the player. Can be formatted using html or Novel.js's own tags. If not specified, the choice will not be shown but can be linked to using its name.
-- `name` - Optional. Not visible, but is used when this choice is referred to from a link. Cannot contain spaces.
+- `name` - Optional. Not visible, but is used when this choice is referred to from a link. Cannot contain spaces. If set to `"Continue"`, this selection is selected by default when skipping text.
 - `itemRequirement` - Items that the player has to have in their inventory to be able to select this choice. An unselectable choice is hidden by default, unless `alwaysShow` is true.
 - `statsRequirement` - Stats that the player has to have in their stats list to be able to select this choice. An unselectable choice is hidden by default, unless `alwaysShow` is true.
 - `requirement` - An advanced way to define a choice's requirements. Takes a conditional statement. An unselectable choice is hidden by default, unless `alwaysShow` is true.
