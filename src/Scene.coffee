@@ -5,7 +5,7 @@ Scene = {
 
   # Try to select "Continue"
   tryContinue: ->
-    if printCompleted
+    if printCompleted && tickSpeedMultiplier == 1
       @selectChoiceByName("Continue")
 
   # Select a choice by clicking a link embedded in text
@@ -88,7 +88,7 @@ Scene = {
     for i in rawChances
       totalChance = totalChance + parseFloat(i)
     if totalChance != 1
-      console.error "ERROR: Invalid scene odds!"
+      console.error "ERROR: Invalid scene odds (should add up to exactly 1)!"
     value = Math.random()
     nameIndex = 0
     for i in chances

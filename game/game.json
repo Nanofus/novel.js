@@ -29,7 +29,7 @@
       "text": "[if (stat.villagesSaved==10||(stat.dragonsKilled>0&&(inv.sword<=5||inv.magicalshield>=5)&&(inv.smallstone>5&&inv.smallstone<10)))]<p>[sound click]You are a [s1]knight[/s].</p>[/if]",
       "text-1": "<p>You have saved [stat.villagesSaved] village[if (stat.villagesSaved!=1)]s[/if]. You have [inv.sword] sword[if (inv.sword!=1)]s[/if]. [if inv.sword>0]You have a [s2]sword[/s]. [/if][if inv.sword<1]You don't have a [s2]sword[/s]. [/if]You walk on a road towards a [s1]town[/s].</p>",
       "text-2": "<p>[print var.scenes,1,choices,0,text] [speed 50]What do you do? There is also a [choice pickastick]stick[/choice] on the ground. You faintly hear a [choice dragon]dragon[/choice].</p>",
-      "text-3": "<p>[speed 150*2][sound scream]Sound volume is [print var.settings.soundSettings.soundVolume].[/speed] <a href=\"http://google.com\">This links to Google</a>. Divided by two times swords that is [print var.settings.soundSettings.soundVolume/2*inv.sword]. That you have slain a dragon is obviously [print stat.dragonsKilled>0]. Or what do you do not do?[/speed]</p>",
+      "text-3": "<p>[speed 500*2][sound scream]Sound volume is [print var.settings.soundSettings.soundVolume].[/speed] <a href=\"http://google.com\">This links to Google</a>. Divided by two times swords that is [print var.settings.soundSettings.soundVolume/2*inv.sword]. That you have slain a dragon is obviously [print stat.dragonsKilled>0]. Or what do you do not do?[/speed]</p>",
       "text-4": "<p></p>",
       "text-5": "<p>[scrollSound scream]Your name is [input playerName].[sound click][/scrollSound] Nice to meet you, [stat.playerName]!</p>",
       "style": "road",
@@ -169,8 +169,10 @@
     "scrollSettings": {
       "defaultScrollSpeed": 60,
       "textSkipEnabled": true,
-      "skipWithKeyboard": true,
+      "skipWithKeyboard": false,
+      "continueWithKeyboard": true,
       "fastScrollWithKeyboard": true,
+      "fastScrollSpeedMultiplier": 10,
       "soundEverySecondTickThreshold": 140,
       "soundEveryThirdTickThreshold": 100
     },

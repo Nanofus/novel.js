@@ -1,6 +1,6 @@
 
 /* SAVING AND LOADING */
-var GameManager, InputManager, Inventory, Parser, Scene, Sound, TextPrinter, UI, Util, copyButton, currentInterval, currentOffset, data, fullText, gameArea, gamePath, musicBuffer, printCompleted, scrollSound, soundBuffer, stopMusicBuffer, tickCounter, tickSoundFrequency, timer,
+var GameManager, InputManager, Inventory, Parser, Scene, Sound, TextPrinter, UI, Util, copyButton, currentOffset, data, defaultInterval, fullText, gameArea, gamePath, interval, musicBuffer, printCompleted, scrollSound, soundBuffer, speedMod, stopMusicBuffer, tickCounter, tickSoundFrequency, tickSpeedMultiplier,
   indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
 GameManager = {
@@ -113,22 +113,37 @@ GameManager = {
 
 InputManager = {
   keyPressed: function(charCode) {
-    if ((charCode === 13 || charCode === 32) && data.game.settings.scrollSettings.skipWithKeyboard) {
-      if (printCompleted) {
-        return Scene.tryContinue();
-      } else {
-        return TextPrinter.trySkip();
+    if (charCode === 13 || charCode === 32) {
+      if (data.game.settings.scrollSettings.continueWithKeyboard) {
+        Scene.tryContinue();
       }
+      if (data.game.settings.scrollSettings.skipWithKeyboard) {
+        TextPrinter.trySkip();
+      }
+      if (data.game.settings.scrollSettings.fastScrollWithKeyboard) {
+        return TextPrinter.fastScroll();
+      }
+    }
+  },
+  keyUp: function(charCode) {
+    if (charCode === 13 || charCode === 32) {
+      return TextPrinter.stopFastScroll();
     }
   }
 };
 
 document.onkeypress = function(evt) {
-  var charCode, charStr;
+  var charCode;
   evt = evt || window.event;
   charCode = evt.keyCode || evt.which;
-  InputManager.keyPressed(charCode);
-  return charStr = String.fromCharCode(charCode);
+  return InputManager.keyPressed(charCode);
+};
+
+document.onkeyup = function(evt) {
+  var charCode;
+  evt = evt || window.event;
+  charCode = evt.keyCode || evt.which;
+  return InputManager.keyUp(charCode);
 };
 
 
@@ -586,7 +601,7 @@ Parser = {
 
 Scene = {
   tryContinue: function() {
-    if (printCompleted) {
+    if (printCompleted && tickSpeedMultiplier === 1) {
       return this.selectChoiceByName("Continue");
     }
   },
@@ -682,7 +697,7 @@ Scene = {
       totalChance = totalChance + parseFloat(i);
     }
     if (totalChance !== 1) {
-      console.error("ERROR: Invalid scene odds!");
+      console.error("ERROR: Invalid scene odds (should add up to exactly 1)!");
     }
     value = Math.random();
     nameIndex = 0;
@@ -908,11 +923,9 @@ Sound = {
 
 fullText = "";
 
-timer = null;
-
 currentOffset = 0;
 
-currentInterval = 0;
+defaultInterval = 0;
 
 soundBuffer = [];
 
@@ -926,10 +939,16 @@ tickSoundFrequency = 1;
 
 tickCounter = 0;
 
+tickSpeedMultiplier = 1;
+
+speedMod = false;
+
+interval = 0;
+
 printCompleted = false;
 
 TextPrinter = {
-  printText: function(text, interval) {
+  printText: function(text, printInterval) {
     printCompleted = false;
     data.printedText = "";
     if (document.querySelector("#skip-button") !== null) {
@@ -940,15 +959,13 @@ TextPrinter = {
     soundBuffer = [];
     musicBuffer = [];
     stopMusicBuffer = [];
-    if (interval === void 0) {
-      currentInterval = data.game.currentScene.scrollSpeed;
+    if (printInterval === void 0) {
+      defaultInterval = data.game.currentScene.scrollSpeed;
     } else {
-      currentInterval = interval;
+      defaultInterval = printInterval;
     }
-    this.setTickFrequency(currentInterval);
-    clearInterval(timer);
-    timer = null;
-    return timer = setInterval(this.onTick, currentInterval);
+    this.setTickFrequency(defaultInterval);
+    return setTimeout(this.onTick(), defaultInterval);
   },
   trySkip: function() {
     if (data.game.currentScene.skipEnabled) {
@@ -961,8 +978,6 @@ TextPrinter = {
     if (document.querySelector("#skip-button") !== null) {
       document.querySelector("#skip-button").disabled = true;
     }
-    clearInterval(timer);
-    timer = null;
     ss = [];
     if (fullText.indexOf("play-sound") > -1) {
       s = fullText.split("play-sound ");
@@ -1011,15 +1026,13 @@ TextPrinter = {
     data.printedText = fullText;
     return Scene.updateChoices();
   },
-  changeTimer: function(time) {
-    this.setTickFrequency(time);
-    clearInterval(timer);
-    return timer = setInterval(this.onTick, time);
+  fastScroll: function() {
+    if (data.game.currentScene.skipEnabled) {
+      return tickSpeedMultiplier = data.game.settings.scrollSettings.fastScrollSpeedMultiplier;
+    }
   },
-  resetTimer: function() {
-    this.setTickFrequency(currentInterval);
-    clearInterval(timer);
-    return timer = setInterval(this.onTick, currentInterval);
+  stopFastScroll: function() {
+    return tickSpeedMultiplier = 1;
   },
   setTickFrequency: function(freq) {
     tickSoundFrequency = 1;
@@ -1032,7 +1045,10 @@ TextPrinter = {
   },
   onTick: function() {
     var offsetChanged;
-    if (currentInterval === 0) {
+    if (!speedMod) {
+      interval = defaultInterval;
+    }
+    if (defaultInterval === 0) {
       TextPrinter.complete();
       return;
     }
@@ -1059,8 +1075,12 @@ TextPrinter = {
       } else if (data.game.currentScene.scrollSound !== void 0) {
         Sound.playSound(data.game.currentScene.scrollSound);
       }
-      return tickCounter = 0;
+      tickCounter = 0;
     }
+    this.setTickFrequency(interval / tickSpeedMultiplier);
+    return setTimeout((function() {
+      TextPrinter.onTick();
+    }), interval / tickSpeedMultiplier);
   },
   parseText: function() {
     var disp, i, offsetChanged, s, spans, str;
@@ -1130,10 +1150,12 @@ TextPrinter = {
         if (str.indexOf("set-speed") > -1) {
           s = str.split("set-speed ");
           s = s[1].split(/\s|\"/)[0];
-          TextPrinter.changeTimer(Parser.parseStatement(s));
+          interval = Parser.parseStatement(s);
+          speedMod = true;
         }
         if (str.indexOf("default-speed") > -1) {
-          TextPrinter.resetTimer();
+          interval = defaultInterval;
+          speedMod = false;
         }
         if (str.indexOf("set-scroll-sound") > -1) {
           s = str.split("set-scroll-sound ");

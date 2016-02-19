@@ -205,7 +205,10 @@ The settings object contains general settings for the game:
 - `scrollSettings`:
 	- `defaultScrollSpeed` - The default speed (letter interval in ms) at which text scrolls. If set to 0, all text appears instantly.
 	- `textSkipEnabled` - If disabled, text can't be skipped.
-	- `skipWithKeyboard` - If enabled, the player can skip text by pressing space or enter.
+	- `skipWithKeyboard` - If enabled, the player can skip text by pressing space or enter. Does not work with `fastScrollWithKeyboard`.
+	- `continueWithKeyboard` - If enabled, the player can choose the default choice (with `name` set to `"Continue"`) by pressing space or enter.
+	- `fastScrollWithKeyboard` - If enabled, the player can make text scroll faster by pressing space or enter. Does not work with `skipWithKeyboard`.
+	- `fastScrollSpeedMultiplier` - The multiplier by which the scrolling speed is multiplied when fast scrolling.
 	- `soundEverySecondTickThreshold` - If scroll speed is smaller than this, sound is played only every second tick.
 	- `soundEveryThirdTickThreshold` - If scroll speed is smaller than this, sound is played only every third tick.
 - `soundSettings`:

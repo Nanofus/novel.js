@@ -2,21 +2,23 @@
 ### TEXT PRINTING (letter by letter etc.) ###
 
 fullText = ""
-timer = null
 currentOffset = 0
-currentInterval = 0
+defaultInterval = 0
 soundBuffer = []
 musicBuffer = []
 stopMusicBuffer = []
 scrollSound = null
 tickSoundFrequency = 1
 tickCounter = 0
+tickSpeedMultiplier = 1
+speedMod = false
+interval = 0
 printCompleted = false
 
 TextPrinter = {
 
   # Print a scene's text
-  printText: (text,interval) ->
+  printText: (text, printInterval) ->
     printCompleted = false
     data.printedText = ""
     # Disable the skip button
@@ -28,14 +30,12 @@ TextPrinter = {
     soundBuffer = []
     musicBuffer = []
     stopMusicBuffer = []
-    if interval == undefined
-      currentInterval = data.game.currentScene.scrollSpeed
+    if printInterval == undefined
+      defaultInterval = data.game.currentScene.scrollSpeed
     else
-      currentInterval = interval
-    @setTickFrequency(currentInterval)
-    clearInterval timer
-    timer = null
-    timer = setInterval(@onTick, currentInterval)
+      defaultInterval = printInterval
+    @setTickFrequency(defaultInterval)
+    setTimeout(@onTick(),defaultInterval)
 
   # Try to skip text, if allowed
   trySkip: ->
@@ -48,9 +48,6 @@ TextPrinter = {
     # Re-enable skip button
     if document.querySelector("#skip-button") != null
       document.querySelector("#skip-button").disabled = true;
-    # Reset timer
-    clearInterval timer
-    timer = null
     # Play missed sounds
     ss = []
     if fullText.indexOf("play-sound") > -1
@@ -83,17 +80,14 @@ TextPrinter = {
     data.printedText = fullText
     Scene.updateChoices()
 
-  # Change the interval timer
-  changeTimer: (time) ->
-    @setTickFrequency(time)
-    clearInterval timer
-    timer = setInterval(@onTick, time)
+  # Fast text scrolling
+  fastScroll: () ->
+    if data.game.currentScene.skipEnabled
+      tickSpeedMultiplier = data.game.settings.scrollSettings.fastScrollSpeedMultiplier
 
-  # Return the interval timer to default
-  resetTimer: ->
-    @setTickFrequency(currentInterval)
-    clearInterval timer
-    timer = setInterval(@onTick, currentInterval)
+  # Stop fast text scrolling
+  stopFastScroll: () ->
+    tickSpeedMultiplier = 1
 
   setTickFrequency: (freq) ->
     tickSoundFrequency = 1
@@ -104,7 +98,10 @@ TextPrinter = {
 
   # Show a new letter
   onTick: ->
-    if currentInterval == 0
+    if !speedMod
+      interval = defaultInterval
+
+    if defaultInterval == 0
       TextPrinter.complete()
       return
     #console.log currentOffset + ": " + fullText[currentOffset]
@@ -135,6 +132,12 @@ TextPrinter = {
       else if (data.game.currentScene.scrollSound != undefined)
         Sound.playSound(data.game.currentScene.scrollSound)
       tickCounter = 0
+
+    @setTickFrequency(interval / tickSpeedMultiplier)
+    setTimeout (->
+      TextPrinter.onTick()
+      return
+    ), interval / tickSpeedMultiplier
 
   # Skip chars that are not printed, and parse tags
   parseText: ->
@@ -196,9 +199,11 @@ TextPrinter = {
         if str.indexOf("set-speed") > -1
           s = str.split("set-speed ")
           s = s[1].split(/\s|\"/)[0]
-          TextPrinter.changeTimer(Parser.parseStatement(s))
+          interval = Parser.parseStatement(s)
+          speedMod = true
         if str.indexOf("default-speed") > -1
-          TextPrinter.resetTimer()
+          interval = defaultInterval
+          speedMod = false
         if str.indexOf("set-scroll-sound") > -1
           s = str.split("set-scroll-sound ")
           s = s[1].split(/\s|\"/)[0]
