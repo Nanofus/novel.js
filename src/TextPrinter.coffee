@@ -101,7 +101,7 @@ TextPrinter = {
       if ss.length > 0
         for i in [0 .. ss.length]
           if !(ss[i] in executeBuffer) && ss[i] != undefined
-            eval(ss[i]+"()")
+            eval(data.parsedJavascriptCommands[parseInt(s.substring(4,s.length))])
       buffersExecuted = true
     # Set printed text and update choices
     data.printedText = fullText
@@ -207,7 +207,6 @@ TextPrinter = {
       if str.indexOf("play-sound") > -1 && str.indexOf("display:none;") > -1
         s = str.split("play-sound ")
         s = s[1].split(/\s|\"/)[0]
-        console.log ":I"
         soundBuffer.push(s)
       if str.indexOf("play-music") > -1 && str.indexOf("display:none;") > -1
         s = str.split("play-music ")
@@ -225,7 +224,6 @@ TextPrinter = {
         if str.indexOf("play-sound") > -1
           s = str.split("play-sound ")
           s = s[1].split(/\s|\"/)[0]
-          console.log ":I"
           soundBuffer.push(s)
           Sound.playSound(s)
         if str.indexOf("play-music") > -1
@@ -243,7 +241,7 @@ TextPrinter = {
           s = s[1].split(/\s|\"/)[0]
           executeBuffer.push(s)
           if s != undefined
-            eval(s+"()")
+            eval(data.parsedJavascriptCommands[parseInt(s.substring(4,s.length))])
         if str.indexOf("set-speed") > -1
           s = str.split("set-speed ")
           s = s[1].split(/\s|\"/)[0]

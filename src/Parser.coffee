@@ -1,3 +1,4 @@
+parsedJavascriptCommands = []
 
 ### PARSERS ###
 
@@ -57,9 +58,11 @@ Parser = {
           parsed = s.split("print ")
           splitText[index] = @parseStatement(parsed[1])
         # Execute JavaScript
-        else if s.substring(0,4) == "call"
+        else if s.substring(0,4) == "exec"
           parsed = s.substring(5,s.length)
-          splitText[index] = "<span class=\"execute-command " + parsed + "\"></span>"
+          p = data.parsedJavascriptCommands.push(parsed)
+          p--
+          splitText[index] = "<span class=\"execute-command com-" + p + "\"></span>"
         # Play sound
         else if s.substring(0,5) == "sound"
           parsed = s.split("sound ")

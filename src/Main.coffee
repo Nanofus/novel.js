@@ -3,6 +3,7 @@ data = {
   choices: null,
   debugMode: false,
   printedText: "",
+  parsedJavascriptCommands: [],
   music: []
 }
 
@@ -27,6 +28,7 @@ gameArea = new Vue(
       Scene.readItemAndStatsEdits(choice)
       Scene.readSounds(choice,true)
       Scene.readSaving(choice)
+      Scene.readExecutes(choice)
       if choice.nextScene != ""
         Scene.changeScene(choice.nextScene)
       else if choice.nextScene == ""

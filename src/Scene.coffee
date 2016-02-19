@@ -37,6 +37,7 @@ Scene = {
     @readItemAndStatsEdits(data.game.currentScene)
     @readSounds(data.game.currentScene,false)
     @readSaving(data.game.currentScene)
+    @readExecutes(data.game.currentScene)
     @readMisc(data.game.currentScene)
     TextPrinter.printText(scene.parsedText,false)
 
@@ -155,7 +156,12 @@ Scene = {
       else
         data.game.currentScene.scrollSound = undefined
 
-  # Read miscellaneous values
+  # Read JS commands
+  readExecutes: (source) ->
+    if source.executeJs != undefined
+      eval(source.executeJs)
+
+  # Read miscellaneous scene values
   readMisc: (source) ->
     if source.skipEnabled != undefined
       data.game.currentScene.skipEnabled = source.skipEnabled

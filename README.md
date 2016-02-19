@@ -27,7 +27,7 @@ Novel.js is written in CoffeeScript, HTML and SASS and depends only on Vue.js.
 		- [`input` - Player input](#player-input)
 		- [`inv` & `stat` - Item & stat counts & values](#item--stat-counts--values)
 		- [`print` - Displaying values](#displaying-values)
-		- [`call` - Executing JavaScript while text scrolls](#executing-javascript-while-text-scrolls)
+		- [`exec` - Executing JavaScript while text scrolls](#executing-javascript-while-text-scrolls)
 		- [`speed` - Setting text scrolling speed](#setting-text-scrolling-speed)
 		- [`scrollSound` - Setting text scrolling sound](#setting-text-scrolling-sound)
 		- [`sound` - Playing sounds while text scrolls](#playing-sounds-while-text-scrolls)
@@ -90,6 +90,7 @@ Novel.js comes with a simple example game that demostrates all available feature
 
 `game.json` is a JavaScript Object Notation file - a neat way to work with structured information. The top level of the structure contains the following variables:
 - `gameName` - Use this to set your game's name.
+- `version` - The game's version number.
 - `inventory` - A list of the player's items.
 - `stats` - A list of things the player has done, or any other variables that should not be seen by the player.
 - `scenes` - A list of the game's scenes, i.e. views, areas, different texts the player can see.
@@ -158,6 +159,7 @@ A scene object can contain the following variables and parameters:
 - `playSound` - Play a sound with the chosen name upon entering the scene.
 - `startMusic` - Start a music loop with the chosen name.
 - `endMusic` - End a music loop with the chosen name.
+- `executeJs` - JavaScript to be executed when the scene is loaded. You can access the game data through the `data.game` object.
 - `saveGame` - Saves the game in the way defined in `settings.saveMode` upon entering the scene. Value can be anything, works as long as it is defined.
 - `loadGame` - Loads the game in the way defined in `settings.saveMode` upon entering the scene. Value can be anything, works as long as it is defined.
 - `choices` - Required (not enforced). A list of choices available in the scene.
@@ -180,9 +182,10 @@ Choices are the options the player can choose in a scene. An example is provided
 - `setValue` - See its [own chapter](#format-for-var-and-value-manipulation-commands).
 - `increaseValue` - See its [own chapter](#format-for-var-and-value-manipulation-commands).
 - `decreaseValue` - See its [own chapter](#format-for-var-and-value-manipulation-commands).
-- `playSound` - Play a sound with the chosen name upon selecting the choice.
+- `playSound` - Play a sound with the chosen name upon selecting the choice. Overrides the default click sound.
 - `startMusic` - Start a music loop with the chosen name.
 - `endMusic` - End a music loop with the chosen name.
+- `executeJs` - JavaScript to be executed when the choice is selected. You can access the game data through the `data.game` object.
 - `saveGame` - Saves the game in the way defined in `settings.saveMode` upon selecting the choice. Value can be anything, works as long as it is defined.
 - `loadGame` - Loads the game in the way defined in `settings.saveMode` upon selecting the choice. Value can be anything, works as long as it is defined.
 - `nextChoice` - Redirect to another choice after handling this choice. Cannot be used in the same choice with `nextScene`. Supports multiple outcomes, as different probabilities can be set for different choices. See the format for [probabilities](#format-for-probabilities).
@@ -208,7 +211,7 @@ The settings object contains general settings for the game:
 - `soundSettings`:
   - `soundVolume` - A float between 0 and 1. The volume of all sound effects.
   - `musicVolume` - A float between 0 and 1. The music's volume.
-  - `defaultClickSound` - A sound's name. If specified, this sound is played when clicking any choice.
+  - `defaultClickSound` - A sound's name. If defined, this sound is played when clicking any choice.
 	- `defaultScrollSound` - A sound's name. The default scrolling sound. If not defined, no sound is played.
 
 #### Sounds
@@ -283,7 +286,7 @@ See [Formats for statements and commands](#formats-for-statements-and-commands) 
 
 #### Executing JavaScript while text scrolls
 
-You can run JavaScript functions by using the `[call x]` tag, where x is the function's name (without parentheses). For example, `[call printSomethingToConsole]`. The function is executed with JavaScript's `eval()` function. If the tag is inside an if-statement that returns false, so that it is not shown, the tag is ignored. If the text scrolling is skipped, these are buffered and will be executed at the end.
+You can run JavaScript while the text scrolls by using the `[exec x]` tag, where x is JavaScript code, such as a function call. For example, `[exec console.log(\"Hello world! The game's name is \" + data.game.gameName)]`. The code is executed with JavaScript's `eval()` function. You can access the game's data through the `data.game` object. If the tag is inside an if-statement that returns false, so that it is not shown, the tag is ignored. If the text scrolling is skipped, these are buffered and will be executed at the end.
 
 #### Setting text scrolling speed
 

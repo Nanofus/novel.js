@@ -1,6 +1,6 @@
 
 /* SAVING AND LOADING */
-var GameManager, InputManager, Inventory, Parser, Scene, Sound, TextPrinter, UI, Util, buffersExecuted, copyButton, currentOffset, data, defaultInterval, executeBuffer, fullText, gameArea, gamePath, interval, musicBuffer, printCompleted, scrollSound, soundBuffer, speedMod, stopMusicBuffer, tickCounter, tickSoundFrequency, tickSpeedMultiplier,
+var GameManager, InputManager, Inventory, Parser, Scene, Sound, TextPrinter, UI, Util, buffersExecuted, copyButton, currentOffset, data, defaultInterval, executeBuffer, fullText, gameArea, gamePath, interval, musicBuffer, parsedJavascriptCommands, printCompleted, scrollSound, soundBuffer, speedMod, stopMusicBuffer, tickCounter, tickSoundFrequency, tickSpeedMultiplier,
   indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
 GameManager = {
@@ -324,6 +324,7 @@ data = {
   choices: null,
   debugMode: false,
   printedText: "",
+  parsedJavascriptCommands: [],
   music: []
 };
 
@@ -344,6 +345,7 @@ gameArea = new Vue({
       Scene.readItemAndStatsEdits(choice);
       Scene.readSounds(choice, true);
       Scene.readSaving(choice);
+      Scene.readExecutes(choice);
       if (choice.nextScene !== "") {
         return Scene.changeScene(choice.nextScene);
       } else if (choice.nextScene === "") {
@@ -362,6 +364,8 @@ gameArea = new Vue({
 
 GameManager.startGame();
 
+parsedJavascriptCommands = [];
+
 
 /* PARSERS */
 
@@ -379,7 +383,7 @@ Parser = {
     return parsed;
   },
   parseText: function(text) {
-    var asToBeClosed, i, index, k, l, len, len1, len2, m, nameText, o, parsed, q, ref, ref1, ref2, ref3, s, spansToBeClosed, splitText, value;
+    var asToBeClosed, i, index, k, l, len, len1, len2, m, nameText, o, p, parsed, q, ref, ref1, ref2, ref3, s, spansToBeClosed, splitText, value;
     if (text !== void 0) {
       for (i = k = 0; k <= 99; i = ++k) {
         text = text.split("[s" + i + "]").join("<span class=\"highlight-" + i + "\">");
@@ -426,9 +430,11 @@ Parser = {
         } else if (s.substring(0, 5) === "print") {
           parsed = s.split("print ");
           splitText[index] = this.parseStatement(parsed[1]);
-        } else if (s.substring(0, 4) === "call") {
+        } else if (s.substring(0, 4) === "exec") {
           parsed = s.substring(5, s.length);
-          splitText[index] = "<span class=\"execute-command " + parsed + "\"></span>";
+          p = data.parsedJavascriptCommands.push(parsed);
+          p--;
+          splitText[index] = "<span class=\"execute-command com-" + p + "\"></span>";
         } else if (s.substring(0, 5) === "sound") {
           parsed = s.split("sound ");
           splitText[index] = "<span class=\"play-sound " + parsed[1] + "\"></span>";
@@ -642,6 +648,7 @@ Scene = {
     this.readItemAndStatsEdits(data.game.currentScene);
     this.readSounds(data.game.currentScene, false);
     this.readSaving(data.game.currentScene);
+    this.readExecutes(data.game.currentScene);
     this.readMisc(data.game.currentScene);
     return TextPrinter.printText(scene.parsedText, false);
   },
@@ -808,6 +815,11 @@ Scene = {
       } else {
         return data.game.currentScene.scrollSound = void 0;
       }
+    }
+  },
+  readExecutes: function(source) {
+    if (source.executeJs !== void 0) {
+      return eval(source.executeJs);
     }
   },
   readMisc: function(source) {
@@ -1060,7 +1072,7 @@ TextPrinter = {
       if (ss.length > 0) {
         for (i = v = 0, ref6 = ss.length; 0 <= ref6 ? v <= ref6 : v >= ref6; i = 0 <= ref6 ? ++v : --v) {
           if (!(ref7 = ss[i], indexOf.call(executeBuffer, ref7) >= 0) && ss[i] !== void 0) {
-            eval(ss[i] + "()");
+            eval(data.parsedJavascriptCommands[parseInt(s.substring(4, s.length))]);
           }
         }
       }
@@ -1167,7 +1179,6 @@ TextPrinter = {
       if (str.indexOf("play-sound") > -1 && str.indexOf("display:none;") > -1) {
         s = str.split("play-sound ");
         s = s[1].split(/\s|\"/)[0];
-        console.log(":I");
         soundBuffer.push(s);
       }
       if (str.indexOf("play-music") > -1 && str.indexOf("display:none;") > -1) {
@@ -1189,7 +1200,6 @@ TextPrinter = {
         if (str.indexOf("play-sound") > -1) {
           s = str.split("play-sound ");
           s = s[1].split(/\s|\"/)[0];
-          console.log(":I");
           soundBuffer.push(s);
           Sound.playSound(s);
         }
@@ -1210,7 +1220,7 @@ TextPrinter = {
           s = s[1].split(/\s|\"/)[0];
           executeBuffer.push(s);
           if (s !== void 0) {
-            eval(s + "()");
+            eval(data.parsedJavascriptCommands[parseInt(s.substring(4, s.length))]);
           }
         }
         if (str.indexOf("set-speed") > -1) {
