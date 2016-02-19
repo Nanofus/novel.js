@@ -53,17 +53,17 @@ Novel.js is written in CoffeeScript, HTML and SASS and depends only on Vue.js.
 
 - A classic text-based adventure view; text and choices.
 - Conditional statements to hide or show text and choices based on different conditions, such as the items the player is carrying, allowing for complex logic.
-- Shorthand tags for general styling of names etc.
-- Scrolling text!
+- Scrolling text! Many ways to customize it and execute logic during scrolling to allow for voice acting, interesting effects etc.
 - An inventory system, with another hidden one to track the player's actions or other statistics.
-- Choices can have several different outcomes with different probabilities.
+- Choices can have several different outcomes with different probabilities, and can be chained to prevent repetition.
 - Play sound effects and looping music/ambient sound effects!
-- Saving as a cookie or an encoded string that is given to the player.
-- Support for css styling and html tags in text.
+- Shorthand tags for general styling of names etc. and presets to help with repetitive tags.
+- Saving the game as a cookie or an encoded string that is given to the player.
+- Support for CSS styling, custom JavaScript and HTML tags in text.
 
 ## Upcoming features
 
-- Alternative visual novel system
+- Alternative visual novel system with animations
 - A settings menu for the player
 - Translation support
 
@@ -123,7 +123,11 @@ The stats list works exactly the same way as the inventory, except `count` is ca
 
 #### Scenes
 
-Scenes are the most important of the things defined in `game.json`, as the entire game itself consists of a group of scenes with choices connecting them. An example scene:
+Scenes are the most important of the things defined in `game.json`, as the entire game itself consists of a group of scenes with choices connecting them.
+
+The scene the game loads upon startup is the first defined scene.
+
+An example scene:
 
 ```json
 {
@@ -374,7 +378,7 @@ Conditional statements allow for all kinds of complex logic, and can be used in 
 
 The above example shows how the statements can be used; Items must be prefixed with `inv.` and stats with `stat.`. Items and stats return their counts and values. `var.` is also available for `game.json` variables. The supported operators are `==`, `!=`, `<`, `<=`, `>` and `>=`. You may also use math operators `+`, `-`, `/` and `*`. Operators `||` (OR) and `&&` (AND) and parentheses `()` can also be used.
 
-If you do string comparation, you can use `==` and `!=` to compare them. To use a string as the equation's other side, it doesn't need any special notation, because everything that cannot be parsed is assumed to be a string. Simply write `var.gameName!=testGame`, for example.
+If you do string comparation, you can use `==` and `!=` to compare them. To use a string as the equation's other side, it doesn't need any special notation, because everything that cannot be parsed as anything else is assumed to be a string. Simply write `var.gameName!=testGame`, for example.
 
 #### Format for value statements and commands
 
