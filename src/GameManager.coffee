@@ -28,17 +28,25 @@ GameManager = {
   loadGame: (game) ->
     if game == undefined
       if @loadCookie("gameData") != ''
-        console.log "Cookie dound!"
+        console.log "Cookie found!"
         cookie = @loadCookie("gameData")
         console.log "Cookie loaded"
         console.log cookie
-        data.game = JSON.parse(atob(@loadCookie("gameData")))
-        console.log "Data loaded!"
-        data.debugMode = data.game.debugMode
+        loadedData = JSON.parse(atob(@loadCookie("gameData")))
+        @prepareGame(loadedData)
     else if game != undefined
-      data.game = JSON.parse(atob(game))
-      data.debugMode = data.game.debugMode
+      loadedData = JSON.parse(atob(game))
+      @prepareGame(loadedData)
+
+  prepareGame: (loadedData) ->
+    if data.game.gameName != loadedData.gameName
+      console.error "ERROR! Game name mismatch"
       return
+    if data.game.version != loadedData.version
+      console.warn "WARNING! Game version mismatch"
+    data.game = loadedData
+    data.debugMode = data.game.debugMode
+    Scene.updateScene(data.game.currentScene,true)
 
   # Start the game by loading the default game.json
   startGame: ->

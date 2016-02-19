@@ -419,6 +419,8 @@ The `css` folder contains a file named `skin.css`. Styles in `skin.css` override
 
 Novel.js has currently two ways to allow the player to save and load their game. This is controlled by the `settings.saveMode` value, which can be either `cookie` or `text`. Saving is done by clicking the "Save" and "Load" buttons in the game window, or by using the `saveGame` and `loadGame` commands. The buttons can be hidden by setting `settings.showSaveButtons` to false.
 
+If the game's name does not match the loaded data's game name, an error is thrown and loading is cancelled. If the save version does not match the game's version, a warning is thrown.
+
 #### Cookie
 
 The first way to save a game is to use the browser's cookies. If you use this option, make sure you have the required legal notifications in your game. The game is saved as a cookie named `gameData`, and contains the `game.json` file Base64 encoded. The cookie has an expiration time of 365 days by default. There can currently be only a single saved game. Note that cookies might not work when testing the game on `localhost` in some browsers.

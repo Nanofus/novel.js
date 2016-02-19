@@ -29,21 +29,32 @@ GameManager = {
     return document.cookie = cname + '=' + cvalue + '; ' + expires + '; path=/';
   },
   loadGame: function(game) {
-    var cookie;
+    var cookie, loadedData;
     if (game === void 0) {
       if (this.loadCookie("gameData") !== '') {
-        console.log("Cookie dound!");
+        console.log("Cookie found!");
         cookie = this.loadCookie("gameData");
         console.log("Cookie loaded");
         console.log(cookie);
-        data.game = JSON.parse(atob(this.loadCookie("gameData")));
-        console.log("Data loaded!");
-        return data.debugMode = data.game.debugMode;
+        loadedData = JSON.parse(atob(this.loadCookie("gameData")));
+        return this.prepareGame(loadedData);
       }
     } else if (game !== void 0) {
-      data.game = JSON.parse(atob(game));
-      data.debugMode = data.game.debugMode;
+      loadedData = JSON.parse(atob(game));
+      return this.prepareGame(loadedData);
     }
+  },
+  prepareGame: function(loadedData) {
+    if (data.game.gameName !== loadedData.gameName) {
+      console.error("ERROR! Game name mismatch");
+      return;
+    }
+    if (data.game.version !== loadedData.version) {
+      console.warn("WARNING! Game version mismatch");
+    }
+    data.game = loadedData;
+    data.debugMode = data.game.debugMode;
+    return Scene.updateScene(data.game.currentScene, true);
   },
   startGame: function() {
     var request;
@@ -1270,7 +1281,7 @@ UI = {
       e = document.getElementById("load-notification");
       return e.style.display = 'block';
     } else {
-      return loadGame();
+      return GameManager.loadGame();
     }
   },
   closeLoadNotification: function(load) {
@@ -1278,7 +1289,7 @@ UI = {
     e = document.getElementById("load-notification");
     if (load) {
       textArea = e.querySelectorAll("textarea");
-      loadGame(textArea[0].value);
+      GameManager.loadGame(textArea[0].value);
       textArea[0].value = "";
     }
     return e.style.display = 'none';

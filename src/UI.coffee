@@ -21,14 +21,14 @@ UI = {
       e = document.getElementById("load-notification")
       e.style.display = 'block';
     else
-      loadGame()
+      GameManager.loadGame()
 
   # Close the load notification - if load, then load a save.
   closeLoadNotification: (load) ->
     e = document.getElementById("load-notification")
     if load
       textArea = e.querySelectorAll("textarea")
-      loadGame(textArea[0].value)
+      GameManager.loadGame(textArea[0].value)
       textArea[0].value = ""
     e.style.display = 'none'
 

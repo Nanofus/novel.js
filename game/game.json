@@ -1,6 +1,6 @@
 {
   "gameName": "testGame",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "debugMode": true,
   "inventory": [
     {"name": "sword", "count": 1},
