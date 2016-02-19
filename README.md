@@ -168,7 +168,7 @@ A scene object can contain the following variables and parameters:
 
 #### Choices
 
-Choices are the options the player can choose in a scene. An example is provided in the Scenes example. Choices have the following variables and parameters:
+Choices are the options the player can choose in a scene. An example is provided in the Scenes example. Choices can have the following variables and parameters:
 - `text` - Required in most cases. The text to show the player. Can be formatted using html or Novel.js's own tags. If not specified, the choice will not be shown but can be linked to using its name.
 - `name` - Optional. Not visible, but is used when this choice is referred to from a link. Cannot contain spaces. If set to `"Continue"`, this selection is selected by default when skipping text.
 - `itemRequirement` - Items that the player has to have in their inventory to be able to select this choice. An unselectable choice is hidden by default, unless `alwaysShow` is true.
@@ -373,8 +373,6 @@ Conditional statements allow for all kinds of complex logic, and can be used in 
 ```
 
 The above example shows how the statements can be used; Items must be prefixed with `inv.` and stats with `stat.`. Items and stats return their counts and values. `var.` is also available for `game.json` variables. The supported operators are `==`, `!=`, `<`, `<=`, `>` and `>=`. You may also use math operators `+`, `-`, `/` and `*`. Operators `||` (OR) and `&&` (AND) and parentheses `()` can also be used.
-
-If different logic operators follow each other without parentheses in between, `||` operator is parsed before `&&`. This means that `condition1&&condition2||condition3` is parsed as `condition1&&(condition2||condition3)`.
 
 If you do string comparation, you can use `==` and `!=` to compare them. To use a string as the equation's other side, it doesn't need any special notation, because everything that cannot be parsed is assumed to be a string. Simply write `var.gameName!=testGame`, for example.
 
