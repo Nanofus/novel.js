@@ -293,7 +293,7 @@ You can override the text's default scrolling speed by using the tag `[speed x]`
 
 #### Setting text scrolling sound
 
-You can override the text's default scrolling sound by using the tag `[scrollSound x]`, where x is the sound's name. The default value is defined in [settings](#settings). Can be restored to default with `[/scrollSound]`.
+You can override the text's default scrolling sound by using the tag `[scrollSound x]`, where x is the sound's name. If x is `none`, no sound is played. The default value is defined in [settings](#settings). Can be restored to default with `[/scrollSound]`.
 
 #### Playing sounds while text scrolls
 
