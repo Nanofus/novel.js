@@ -27,7 +27,7 @@ Novel.js is written in CoffeeScript, HTML and SASS and depends only on Vue.js.
 		- [`input` - Player input](#player-input)
 		- [`inv` & `stat` - Item & stat counts & values](#item--stat-counts--values)
 		- [`print` - Displaying values](#displaying-values)
-		- [`call` - Executing JavaScript](#executing-javascript)
+		- [`call` - Executing JavaScript while text scrolls](#executing-javascript-while-text-scrolls)
 		- [`speed` - Setting text scrolling speed](#setting-text-scrolling-speed)
 		- [`scrollSound` - Setting text scrolling sound](#setting-text-scrolling-sound)
 		- [`sound` - Playing sounds while text scrolls](#playing-sounds-while-text-scrolls)
@@ -36,6 +36,7 @@ Novel.js is written in CoffeeScript, HTML and SASS and depends only on Vue.js.
 		- [`s` - Styling shorthands](#styling-shorthands)
 	- [Formats for statements and commands](#formats-for-statements-and-commands)
 		- [Format for add/remove/set and requirement commands](#format-for-addremoveset-and-requirement-commands)
+		- [Format for probabilities](#format-for-probabilities)
 		- [Format for conditional statements](#format-for-conditional-statements)
 		- [Format for value statements and commands](#format-for-value-statements-and-commands)
 	- [Audio](#audio)
@@ -184,16 +185,8 @@ Choices are the options the player can choose in a scene. An example is provided
 - `endMusic` - End a music loop with the chosen name.
 - `saveGame` - Saves the game in the way defined in `settings.saveMode` upon selecting the choice. Value can be anything, works as long as it is defined.
 - `loadGame` - Loads the game in the way defined in `settings.saveMode` upon selecting the choice. Value can be anything, works as long as it is defined.
-- `nextChoice` - Redirect to another choice after handling this choice. Cannot be used in the same choice with `nextScene`.
-- `nextScene` - The scene into which the player moves if they select this choice. If omitted, the scene does not change. Supports multiple outcomes, as different probabilities can be set for different scenes. Takes the following format:
-```
-sceneOne[probability]|sceneTwo[probability]|sceneThree[probability]
-```
-You can list any amount of scenes by separating them with `|`. All of the probabilities have to add up to exactly `1`. An example:
-```
-hitEnemySuccess[0.5]|hitEnemyFail[0.5]
-```
-In this example, the player has a 50% chance to hit and a 50% chance to miss the enemy.
+- `nextChoice` - Redirect to another choice after handling this choice. Cannot be used in the same choice with `nextScene`. Supports multiple outcomes, as different probabilities can be set for different choices. See the format for [probabilities](#format-for-probabilities).
+- `nextScene` - The scene into which the player moves if they select this choice. If omitted, the scene does not change. Supports multiple outcomes, as different probabilities can be set for different scenes. See the format for [probabilities](#format-for-probabilities).
 
 #### Settings
 
@@ -288,7 +281,7 @@ That you have over 24 swords is obviously [print inv.sword>24].
 ```
 See [Formats for statements and commands](#formats-for-statements-and-commands) for all possible values you can display.
 
-#### Executing JavaScript
+#### Executing JavaScript while text scrolls
 
 You can run JavaScript functions by using the `[call x]` tag, where x is the function's name (without parentheses). For example, `[call printSomethingToConsole]`. The function is executed with JavaScript's `eval()` function. If the tag is inside an if-statement that returns false, so that it is not shown, the tag is ignored. If the text scrolling is skipped, these are buffered and will be executed all at once at the end.
 
@@ -335,6 +328,18 @@ An example:
 "addItem": "sword[1]|shield[1,Magical Shield]|stone[2,0.5]|largestone[1,0.2,Large Stone]"
 ```
 This adds one sword and one shield named "Magical Shield" to the player's inventory. With a 50% chance, the player also gains two stones, and with a 20% probability they gain a large stone.
+
+#### Format for probabilities
+
+Some commands allow you to define probabilities for different outcomes. Takes the following format:
+```
+option[probability]|option[probability]|option[probability]
+```
+You can list any amount of options by separating them with `|`. All of the probabilities have to add up to exactly `1`. An example for a choice's `nextScene`:
+```
+hitEnemySuccess[0.5]|hitEnemyFail[0.5]
+```
+In this example, the player has a 50% chance to hit (go to hit scene) and a 50% chance to miss the enemy (go to miss scene).
 
 #### Format for conditional statements
 
