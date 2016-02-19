@@ -183,7 +183,7 @@ Choices are the options the player can choose in a scene. An example is provided
 - `endMusic` - End a music loop with the chosen name.
 - `saveGame` - Saves the game in the way defined in `settings.saveMode` upon selecting the choice. Value can be anything, works as long as it is defined.
 - `loadGame` - Loads the game in the way defined in `settings.saveMode` upon selecting the choice. Value can be anything, works as long as it is defined.
-- `nextChoice` - Redirect to another choice after handling this choice. Should not be used with `nextScene`.
+- `nextChoice` - Redirect to another choice after handling this choice. Cannot be used in the same choice with `nextScene`.
 - `nextScene` - The scene into which the player moves if they select this choice. If omitted, the scene does not change. Supports multiple outcomes, as different probabilities can be set for different scenes. Takes the following format:
 ```
 sceneOne[probability]|sceneTwo[probability]|sceneThree[probability]
