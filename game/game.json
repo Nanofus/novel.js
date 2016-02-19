@@ -51,7 +51,7 @@
           "nextChoice": "shieldSearch"
         },
         {
-          "text": "Wander offroad [print var.scenes,2,text]",
+          "text": "Wander offroad. The following awaits you: \"[print var.scenes,2,text]\"",
           "name": "dragon",
           "setStats": "introductionSeen[1]",
           "nextScene": "dragon"
