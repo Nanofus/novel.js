@@ -1,6 +1,6 @@
 
 /* SAVING AND LOADING */
-var GameManager, InputManager, Inventory, Parser, Scene, Sound, TextPrinter, UI, Util, bufferedSoundsPlayed, copyButton, currentOffset, data, defaultInterval, fullText, gameArea, gamePath, interval, musicBuffer, printCompleted, scrollSound, soundBuffer, speedMod, stopMusicBuffer, tickCounter, tickSoundFrequency, tickSpeedMultiplier,
+var GameManager, InputManager, Inventory, Parser, Scene, Sound, TextPrinter, UI, Util, buffersExecuted, consolePrint, copyButton, currentOffset, data, defaultInterval, executeBuffer, fullText, gameArea, gamePath, interval, musicBuffer, printCompleted, scrollSound, soundBuffer, speedMod, stopMusicBuffer, tickCounter, tickSoundFrequency, tickSpeedMultiplier,
   indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
 GameManager = {
@@ -329,6 +329,10 @@ data = {
 
 gamePath = './game';
 
+consolePrint = function() {
+  return console.log("It's not a real dragon!");
+};
+
 gameArea = new Vue({
   el: '#game-area',
   data: data,
@@ -426,6 +430,9 @@ Parser = {
         } else if (s.substring(0, 5) === "print") {
           parsed = s.split("print ");
           splitText[index] = this.parseStatement(parsed[1]);
+        } else if (s.substring(0, 4) === "call") {
+          parsed = s.substring(5, s.length);
+          splitText[index] = "<span class=\"execute-command " + parsed + "\"></span>";
         } else if (s.substring(0, 5) === "sound") {
           parsed = s.split("sound ");
           splitText[index] = "<span class=\"play-sound " + parsed[1] + "\"></span>";
@@ -933,7 +940,9 @@ musicBuffer = [];
 
 stopMusicBuffer = [];
 
-bufferedSoundsPlayed = false;
+executeBuffer = [];
+
+buffersExecuted = false;
 
 scrollSound = null;
 
@@ -961,7 +970,8 @@ TextPrinter = {
     soundBuffer = [];
     musicBuffer = [];
     stopMusicBuffer = [];
-    bufferedSoundsPlayed = false;
+    executeBuffer = [];
+    buffersExecuted = false;
     if (printInterval === void 0) {
       defaultInterval = data.game.currentScene.scrollSpeed;
     } else {
@@ -976,19 +986,23 @@ TextPrinter = {
     }
   },
   complete: function() {
-    var i, k, l, len, len1, len2, m, o, q, ref, ref1, ref2, ref3, ref4, ref5, s, ss, t;
+    var first, i, k, l, len, len1, len2, len3, m, o, q, ref, ref1, ref2, ref3, ref4, ref5, ref6, ref7, s, ss, t, u, v;
     printCompleted = true;
     currentOffset = 0;
     if (document.querySelector("#skip-button") !== null) {
       document.querySelector("#skip-button").disabled = true;
     }
-    if (!bufferedSoundsPlayed) {
+    if (!buffersExecuted) {
       ss = [];
+      first = true;
       if (fullText.indexOf("play-sound") > -1) {
         s = fullText.split("play-sound ");
         for (k = 0, len = s.length; k < len; k++) {
           i = s[k];
-          ss.push(i.split(/\s|\"/)[0]);
+          if (!first) {
+            ss.push(i.split(/\s|\"/)[0]);
+          }
+          first = false;
         }
       }
       if (ss.length > 0) {
@@ -999,11 +1013,15 @@ TextPrinter = {
         }
       }
       ss = [];
+      first = true;
       if (fullText.indexOf("play-music") > -1) {
         s = fullText.split("play-music ");
         for (m = 0, len1 = s.length; m < len1; m++) {
           i = s[m];
-          ss.push(i.split(/\s|\"/)[0]);
+          if (!first) {
+            ss.push(i.split(/\s|\"/)[0]);
+          }
+          first = false;
         }
       }
       if (ss.length > 0) {
@@ -1014,11 +1032,15 @@ TextPrinter = {
         }
       }
       ss = [];
+      first = true;
       if (fullText.indexOf("stop-music") > -1) {
         s = fullText.split("stop-music ");
         for (q = 0, len2 = s.length; q < len2; q++) {
           i = s[q];
-          ss.push(i.split(/\s|\"/)[0]);
+          if (!first) {
+            ss.push(i.split(/\s|\"/)[0]);
+          }
+          first = false;
         }
       }
       if (ss.length > 0) {
@@ -1028,8 +1050,27 @@ TextPrinter = {
           }
         }
       }
+      ss = [];
+      first = true;
+      if (fullText.indexOf("execute-command") > -1) {
+        s = fullText.split("execute-command ");
+        for (u = 0, len3 = s.length; u < len3; u++) {
+          i = s[u];
+          if (!first) {
+            ss.push(i.split(/\s|\"/)[0]);
+          }
+          first = false;
+        }
+      }
+      if (ss.length > 0) {
+        for (i = v = 0, ref6 = ss.length; 0 <= ref6 ? v <= ref6 : v >= ref6; i = 0 <= ref6 ? ++v : --v) {
+          if (!(ref7 = ss[i], indexOf.call(executeBuffer, ref7) >= 0) && ss[i] !== void 0) {
+            eval(ss[i] + "()");
+          }
+        }
+      }
     }
-    bufferedSoundsPlayed = true;
+    buffersExecuted = true;
     data.printedText = fullText;
     return Scene.updateChoices();
   },
@@ -1078,7 +1119,7 @@ TextPrinter = {
     }
     tickCounter++;
     if (tickCounter >= tickSoundFrequency) {
-      if (scrollSound !== "none") {
+      if (scrollSound !== "none" && interval !== 0) {
         if (scrollSound !== null) {
           Sound.playSound(scrollSound);
         } else if (data.game.currentScene.scrollSound !== void 0) {
@@ -1138,6 +1179,16 @@ TextPrinter = {
         s = s[1].split(/\s|\"/)[0];
         musicBuffer.push(s);
       }
+      if (str.indexOf("stop-music") > -1 && str.indexOf("display:none;") > -1) {
+        s = str.split("stop-music ");
+        s = s[1].split(/\s|\"/)[0];
+        stopMusicBuffer.push(s);
+      }
+      if (str.indexOf("execute-command") > -1 && str.indexOf("display:none;") > -1) {
+        s = str.split("execute-command ");
+        s = s[1].split(/\s|\"/)[0];
+        executeBuffer.push(s);
+      }
       if (str.indexOf("display:none;") === -1) {
         if (str.indexOf("play-sound") > -1) {
           s = str.split("play-sound ");
@@ -1157,6 +1208,14 @@ TextPrinter = {
           stopMusicBuffer.push(s);
           Sound.stopMusic(s);
         }
+        if (str.indexOf("execute-command") > -1) {
+          s = str.split("execute-command ");
+          s = s[1].split(/\s|\"/)[0];
+          executeBuffer.push(s);
+          if (s !== void 0) {
+            eval(s + "()");
+          }
+        }
         if (str.indexOf("set-speed") > -1) {
           s = str.split("set-speed ");
           s = s[1].split(/\s|\"/)[0];
@@ -1170,7 +1229,6 @@ TextPrinter = {
         if (str.indexOf("set-scroll-sound") > -1) {
           s = str.split("set-scroll-sound ");
           s = s[1].split(/\s|\"/)[0];
-          console.log(s);
           scrollSound = s;
         }
         if (str.indexOf("default-scroll-sound") > -1) {

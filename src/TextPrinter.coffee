@@ -7,7 +7,8 @@ defaultInterval = 0
 soundBuffer = []
 musicBuffer = []
 stopMusicBuffer = []
-bufferedSoundsPlayed = false
+executeBuffer = []
+buffersExecuted = false
 scrollSound = null
 tickSoundFrequency = 1
 tickCounter = 0
@@ -31,7 +32,8 @@ TextPrinter = {
     soundBuffer = []
     musicBuffer = []
     stopMusicBuffer = []
-    bufferedSoundsPlayed = false
+    executeBuffer = []
+    buffersExecuted = false
     if printInterval == undefined
       defaultInterval = data.game.currentScene.scrollSpeed
     else
@@ -52,35 +54,56 @@ TextPrinter = {
     if document.querySelector("#skip-button") != null
       document.querySelector("#skip-button").disabled = true;
     # Play missed sounds and start missed music
-    if !bufferedSoundsPlayed
+    if !buffersExecuted
       ss = []
+      first = true
       if fullText.indexOf("play-sound") > -1
         s = fullText.split("play-sound ")
         for i in s
-          ss.push(i.split(/\s|\"/)[0])
+          if !first
+            ss.push(i.split(/\s|\"/)[0])
+          first = false
       if ss.length > 0
         for i in [0 .. ss.length]
           if !(ss[i] in soundBuffer)
             Sound.playSound(ss[i])
       ss = []
+      first = true
       if fullText.indexOf("play-music") > -1
         s = fullText.split("play-music ")
         for i in s
-          ss.push(i.split(/\s|\"/)[0])
+          if !first
+            ss.push(i.split(/\s|\"/)[0])
+          first = false
       if ss.length > 0
         for i in [0 .. ss.length]
           if !(ss[i] in musicBuffer)
             Sound.startMusic(ss[i])
       ss = []
+      first = true
       if fullText.indexOf("stop-music") > -1
         s = fullText.split("stop-music ")
         for i in s
-          ss.push(i.split(/\s|\"/)[0])
+          if !first
+            ss.push(i.split(/\s|\"/)[0])
+          first = false
       if ss.length > 0
         for i in [0 .. ss.length]
           if !(ss[i] in stopMusicBuffer)
             Sound.stopMusic(ss[i])
-    bufferedSoundsPlayed = true
+      ss = []
+      first = true
+      if fullText.indexOf("execute-command") > -1
+        s = fullText.split("execute-command ")
+        for i in s
+          if !first
+            ss.push(i.split(/\s|\"/)[0])
+          first = false
+      if ss.length > 0
+        for i in [0 .. ss.length]
+          if !(ss[i] in executeBuffer) && ss[i] != undefined
+            eval(ss[i]+"()")
+    buffersExecuted = true
     # Set printed text and update choices
     data.printedText = fullText
     Scene.updateChoices()
@@ -135,7 +158,7 @@ TextPrinter = {
     #console.log tickSpeedMultiplier + " / " + tickSoundFrequency + " / " + tickCounter
     if tickCounter >= tickSoundFrequency
       #console.log "RESET"
-      if scrollSound != "none"
+      if scrollSound != "none" && interval != 0
         if scrollSound != null
           Sound.playSound(scrollSound)
         else if (data.game.currentScene.scrollSound != undefined)
@@ -189,6 +212,14 @@ TextPrinter = {
         s = str.split("play-music ")
         s = s[1].split(/\s|\"/)[0]
         musicBuffer.push(s)
+      if str.indexOf("stop-music") > -1 && str.indexOf("display:none;") > -1
+        s = str.split("stop-music ")
+        s = s[1].split(/\s|\"/)[0]
+        stopMusicBuffer.push(s)
+      if str.indexOf("execute-command") > -1 && str.indexOf("display:none;") > -1
+        s = str.split("execute-command ")
+        s = s[1].split(/\s|\"/)[0]
+        executeBuffer.push(s)
       if str.indexOf("display:none;") == -1
         if str.indexOf("play-sound") > -1
           s = str.split("play-sound ")
@@ -205,6 +236,12 @@ TextPrinter = {
           s = s[1].split(/\s|\"/)[0]
           stopMusicBuffer.push(s)
           Sound.stopMusic(s)
+        if str.indexOf("execute-command") > -1
+          s = str.split("execute-command ")
+          s = s[1].split(/\s|\"/)[0]
+          executeBuffer.push(s)
+          if s != undefined
+            eval(s+"()")
         if str.indexOf("set-speed") > -1
           s = str.split("set-speed ")
           s = s[1].split(/\s|\"/)[0]
@@ -216,7 +253,6 @@ TextPrinter = {
         if str.indexOf("set-scroll-sound") > -1
           s = str.split("set-scroll-sound ")
           s = s[1].split(/\s|\"/)[0]
-          console.log s
           scrollSound = s
         if str.indexOf("default-scroll-sound") > -1
           scrollSound = null

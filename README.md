@@ -27,6 +27,7 @@ Novel.js is written in CoffeeScript, HTML and SASS and depends only on Vue.js.
 		- [`input` - Player input](#player-input)
 		- [`inv` & `stat` - Item & stat counts & values](#item--stat-counts--values)
 		- [`print` - Displaying values](#displaying-values)
+		- [`call` - Executing JavaScript](#executing-javascript)
 		- [`speed` - Setting text scrolling speed](#setting-text-scrolling-speed)
 		- [`scrollSound` - Setting text scrolling sound](#setting-text-scrolling-sound)
 		- [`sound` - Playing sounds while text scrolls](#playing-sounds-while-text-scrolls)
@@ -287,13 +288,17 @@ That you have over 24 swords is obviously [print inv.sword>24].
 ```
 See [Formats for statements and commands](#formats-for-statements-and-commands) for all possible values you can display.
 
+#### Executing JavaScript
+
+You can run JavaScript functions by using the `[call x]` tag, where x is the function's name (without parentheses). For example, `[call printSomethingToConsole]`. The function is executed with JavaScript's `eval()` function.
+
 #### Setting text scrolling speed
 
 You can override the text's default scrolling speed by using the tag `[speed x]`, where x is the tick interval in milliseconds. The default value is defined in [settings](#settings). If the tag is inside an if-statement that returns false, so that it is not shown, the tag is ignored. Can be restored to default with `[/speed]`.
 
 #### Setting text scrolling sound
 
-You can override the text's default scrolling sound by using the tag `[scrollSound x]`, where x is the sound's name. If x is `none`, no sound is played. The default value is defined in [settings](#settings). Can be restored to default with `[/scrollSound]`.
+You can override the text's default scrolling sound by using the tag `[scrollSound x]`, where x is the sound's name. If x is `"none"`, no sound is played. The default value is defined in [settings](#settings). Can be restored to default with `[/scrollSound]`.
 
 #### Playing sounds while text scrolls
 
