@@ -33,12 +33,13 @@ GameManager = {
         console.log "Cookie loaded"
         console.log cookie
         loadedData = JSON.parse(atob(@loadCookie("gameData")))
-        @prepareGame(loadedData)
+        @prepareLoadedGame(loadedData)
     else if game != undefined
       loadedData = JSON.parse(atob(game))
-      @prepareGame(loadedData)
+      @prepareLoadedGame(loadedData)
 
-  prepareGame: (loadedData) ->
+  # Prepare the game from the loaded save file
+  prepareLoadedGame: (loadedData) ->
     if data.game.gameName != loadedData.gameName
       console.error "ERROR! Game name mismatch"
       return

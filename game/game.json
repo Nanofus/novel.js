@@ -114,7 +114,7 @@
     },
     {
       "name": "dragon",
-      "text": "<p>You wander across a [s1]dragon[/s] with [inv.sword] teeth. What do you do?</p>",
+      "text": "<p>You wander across a [s1]dragon[/s] with [inv.sword] teeth. [p dragon]ROAAARRRRRRRR[/p dragon], it says. What do you do?</p>",
       "startMusic": "testMusic",
       "scrollSpeed": 20,
       "skipEnabled": false,
@@ -166,6 +166,13 @@
           "nextScene": "start"
         }
       ]
+    }
+  ],
+  "tagPresets": [
+    {
+      "name": "dragon",
+      "start": "[s2][speed 400][scrollSound scream]",
+      "end": "[/scrollSound][/speed][/s]"
     }
   ],
   "settings": {

@@ -37,14 +37,14 @@ GameManager = {
         console.log("Cookie loaded");
         console.log(cookie);
         loadedData = JSON.parse(atob(this.loadCookie("gameData")));
-        return this.prepareGame(loadedData);
+        return this.prepareLoadedGame(loadedData);
       }
     } else if (game !== void 0) {
       loadedData = JSON.parse(atob(game));
-      return this.prepareGame(loadedData);
+      return this.prepareLoadedGame(loadedData);
     }
   },
-  prepareGame: function(loadedData) {
+  prepareLoadedGame: function(loadedData) {
     if (data.game.gameName !== loadedData.gameName) {
       console.error("ERROR! Game name mismatch");
       return;
@@ -394,16 +394,28 @@ Parser = {
     return parsed;
   },
   parseText: function(text) {
-    var asToBeClosed, i, index, k, l, len, len1, len2, m, nameText, o, p, parsed, q, ref, ref1, ref2, ref3, s, spansToBeClosed, splitText, value;
+    var asToBeClosed, i, index, k, l, len, len1, len2, len3, m, nameText, o, p, parsed, q, ref, ref1, ref2, ref3, ref4, s, spansToBeClosed, splitText, t, tagName, value;
     if (text !== void 0) {
-      for (i = k = 0; k <= 99; i = ++k) {
+      ref = data.game.tagPresets;
+      for (k = 0, len = ref.length; k < len; k++) {
+        i = ref[k];
+        tagName = "[p " + i.name + "]";
+        if (text.indexOf(tagName) > -1) {
+          text = text.split(tagName).join(i.start);
+        }
+        tagName = "[/p " + i.name + "]";
+        if (text.indexOf(tagName) > -1) {
+          text = text.split(tagName).join(i.end);
+        }
+      }
+      for (i = l = 0; l <= 99; i = ++l) {
         text = text.split("[s" + i + "]").join("<span class=\"highlight-" + i + "\">");
       }
       text = text.split("[/s]").join("</span>");
       splitText = text.split(/\[|\]/);
       spansToBeClosed = 0;
       asToBeClosed = 0;
-      for (index = l = 0, ref = splitText.length - 1; 0 <= ref ? l <= ref : l >= ref; index = 0 <= ref ? ++l : --l) {
+      for (index = m = 0, ref1 = splitText.length - 1; 0 <= ref1 ? m <= ref1 : m >= ref1; index = 0 <= ref1 ? ++m : --m) {
         s = splitText[index];
         if (s.substring(0, 2) === "if") {
           parsed = s.split("if ");
@@ -422,18 +434,18 @@ Parser = {
           }
         } else if (s.substring(0, 5) === "stat.") {
           value = s.substring(5, s.length);
-          ref1 = data.game.stats;
-          for (m = 0, len = ref1.length; m < len; m++) {
-            i = ref1[m];
+          ref2 = data.game.stats;
+          for (o = 0, len1 = ref2.length; o < len1; o++) {
+            i = ref2[o];
             if (i.name === value) {
               splitText[index] = i.value;
             }
           }
         } else if (s.substring(0, 4) === "inv.") {
           value = s.substring(4, s.length);
-          ref2 = data.game.inventory;
-          for (o = 0, len1 = ref2.length; o < len1; o++) {
-            i = ref2[o];
+          ref3 = data.game.inventory;
+          for (q = 0, len2 = ref3.length; q < len2; q++) {
+            i = ref3[q];
             if (i.name === value) {
               splitText[index] = i.count;
             }
@@ -468,9 +480,9 @@ Parser = {
         } else if (s.substring(0, 5) === "input") {
           parsed = s.split("input ");
           nameText = "";
-          ref3 = data.game.stats;
-          for (q = 0, len2 = ref3.length; q < len2; q++) {
-            i = ref3[q];
+          ref4 = data.game.stats;
+          for (t = 0, len3 = ref4.length; t < len3; t++) {
+            i = ref4[t];
             if (i.name === parsed[1]) {
               nameText = i.value;
             }

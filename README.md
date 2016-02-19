@@ -33,6 +33,7 @@ Novel.js is written in CoffeeScript, HTML and SASS and depends only on Vue.js.
 		- [`sound` - Playing sounds while text scrolls](#playing-sounds-while-text-scrolls)
 		- [`music` - Playing music while text scrolls](#playing-music-while-text-scrolls)
 		- [`stopMusic` - Stopping music while text scrolls](#stopping-music-while-text-scrolls)
+		- [`p` - Tag and string presets](#tag-and-string-presets)
 		- [`s` - Styling shorthands](#styling-shorthands)
 	- [Formats for statements and commands](#formats-for-statements-and-commands)
 		- [Format for add/remove/set and requirement commands](#format-for-addremoveset-and-requirement-commands)
@@ -94,6 +95,7 @@ Novel.js comes with a simple example game that demostrates all available feature
 - `inventory` - A list of the player's items.
 - `stats` - A list of things the player has done, or any other variables that should not be seen by the player.
 - `scenes` - A list of the game's scenes, i.e. views, areas, different texts the player can see.
+- `presets` - Pre-defined strings that can contain tags and be embedded in scenes and choices. See [definition](#tag-and-string-presets)
 - `settings` - Settings to edit, can also be made visible to the player.
 - `sounds` - A list of the game's sound effects.
 
@@ -307,6 +309,25 @@ You can start a song at any point of the text's scrolling with the tag `[music x
 #### Stopping music while text scrolls
 
 You can stop a song at any point of the text's scrolling with the tag `[stopMusic x]`, where x is the song's name. If the text scrolling is skipped, these are buffered and will be stopped all at once at the end.
+
+#### Tag and string presets
+
+If you frequently use the same tags and strings in multiple scenes, you can pre-define them as presets that can be used with the `[p]` tag. An example:
+```json
+"tagPresets": [
+	{
+		"name": "dragon",
+		"start": "[s2][speed 400][scrollSound scream]",
+		"end": "[/scrollSound][/speed][/s]"
+	}
+],
+```
+Usage:
+```
+You wander across a [s1]dragon[/s]. [p dragon]ROAAARRRRRRRR[/p dragon], it says.
+```
+
+This means the value of `start` can be embedded into a scene or a choice with the `[p name]` tag, where `name` is the preset's name. The `end` value can be embedded by using `[/p name]`. The use of the end tag is not required - it is allowed to use only the start tag.
 
 #### Styling shorthands
 

@@ -116,7 +116,7 @@ TextPrinter = {
   stopFastScroll: () ->
     tickSpeedMultiplier = 1
 
-  # Set the
+  # Set how frequently the scrolling sound is played
   setTickSoundFrequency: (freq) ->
     threshold = data.game.settings.scrollSettings.tickFreqThreshold
     tickSoundFrequency = 1
