@@ -59,6 +59,7 @@ Novel.js is written in CoffeeScript, HTML and SASS and depends only on Vue.js.
 - Choices can have several different outcomes with different probabilities, and can be chained to prevent repetition.
 - Play sound effects and looping music/ambient sound effects!
 - Shorthand tags for general styling of names etc. and presets to help with repetitive tags.
+- Checkpoints to easily jump back and forth between scenes.
 - Saving the game as a cookie or an encoded string that is given to the player.
 - Support for CSS styling, custom JavaScript and HTML tags in text.
 
