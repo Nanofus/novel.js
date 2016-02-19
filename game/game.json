@@ -180,6 +180,7 @@
     "saveMode": "text",
     "showSaveButtons": true,
     "alwaysShowDisabledChoices": false,
+    "floatPrecision": 5,
     "scrollSettings": {
       "defaultScrollSpeed": 60,
       "textSkipEnabled": true,

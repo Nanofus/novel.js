@@ -352,20 +352,7 @@ gameArea = new Vue({
       return data.game.currentScene.skipEnabled;
     },
     selectChoice: function(choice) {
-      Scene.exitScene(this.game.currentScene);
-      Scene.readItemAndStatsEdits(choice);
-      Scene.readSounds(choice, true);
-      Scene.readSaving(choice);
-      Scene.readExecutes(choice);
-      if (choice.nextScene !== "") {
-        return Scene.changeScene(choice.nextScene);
-      } else if (choice.nextScene === "") {
-        if (choice.nextChoice !== void 0) {
-          return Scene.selectChoiceByName(Scene.selectRandomOption(choice.nextChoice));
-        } else {
-          return Scene.updateScene(this.game.currentScene, true);
-        }
-      }
+      return Scene.selectChoice(choice);
     }
   }
 });
@@ -452,7 +439,11 @@ Parser = {
           }
         } else if (s.substring(0, 5) === "print") {
           parsed = s.split("print ");
-          splitText[index] = this.parseStatement(parsed[1]);
+          parsed = this.parseStatement(parsed[1]);
+          if (!isNaN(parseFloat(parsed))) {
+            parsed = parseFloat(parsed.toFixed(data.game.settings.floatPrecision));
+          }
+          splitText[index] = parsed;
         } else if (s.substring(0, 4) === "exec") {
           parsed = s.substring(5, s.length);
           p = data.parsedJavascriptCommands.push(parsed);
@@ -539,13 +530,13 @@ Parser = {
         case "var":
           val = this.findValue(val.substring(4, val.length), true);
           if (!isNaN(parseFloat(val))) {
-            parsedValues.push(parseFloat(val).toFixed(5));
+            parsedValues.push(parseFloat(val).toFixed(data.game.settings.floatPrecision));
           } else {
             parsedValues.push("'" + val + "'");
           }
           break;
         case "float":
-          parsedValues.push(parseFloat(val).toFixed(5));
+          parsedValues.push(parseFloat(val).toFixed(data.game.settings.floatPrecision));
           break;
         case "int":
           parsedValues.push(parseInt(val));
@@ -635,6 +626,22 @@ Scene = {
   tryContinue: function() {
     if (printCompleted && tickSpeedMultiplier === 1) {
       return this.selectChoiceByName("Continue");
+    }
+  },
+  selectChoice: function(choice) {
+    this.exitScene(data.game.currentScene);
+    this.readItemAndStatsEdits(choice);
+    this.readSounds(choice, true);
+    this.readSaving(choice);
+    this.readExecutes(choice);
+    if (choice.nextScene !== "") {
+      return this.changeScene(choice.nextScene);
+    } else if (choice.nextScene === "") {
+      if (choice.nextChoice !== void 0) {
+        return this.selectChoiceByName(this.selectRandomOption(choice.nextChoice));
+      } else {
+        return this.updateScene(data.game.currentScene, true);
+      }
     }
   },
   selectChoiceByNameByClicking: function(event, name) {

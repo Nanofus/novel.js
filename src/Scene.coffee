@@ -8,6 +8,21 @@ Scene = {
     if printCompleted && tickSpeedMultiplier == 1
       @selectChoiceByName("Continue")
 
+  # Select a choice
+  selectChoice: (choice) ->
+    @exitScene(data.game.currentScene)
+    @readItemAndStatsEdits(choice)
+    @readSounds(choice,true)
+    @readSaving(choice)
+    @readExecutes(choice)
+    if choice.nextScene != ""
+      @changeScene(choice.nextScene)
+    else if choice.nextScene == ""
+      if choice.nextChoice != undefined
+        @selectChoiceByName(@selectRandomOption(choice.nextChoice))
+      else
+        @updateScene(data.game.currentScene,true)
+
   # Select a choice by clicking a link embedded in text
   selectChoiceByNameByClicking: (event, name) ->
     event.stopPropagation()

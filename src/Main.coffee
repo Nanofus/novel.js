@@ -24,18 +24,8 @@ gameArea = new Vue(
 
     # Select a choice
     selectChoice: (choice) ->
-      Scene.exitScene(@game.currentScene)
-      Scene.readItemAndStatsEdits(choice)
-      Scene.readSounds(choice,true)
-      Scene.readSaving(choice)
-      Scene.readExecutes(choice)
-      if choice.nextScene != ""
-        Scene.changeScene(choice.nextScene)
-      else if choice.nextScene == ""
-        if choice.nextChoice != undefined
-          Scene.selectChoiceByName(Scene.selectRandomOption(choice.nextChoice))
-        else
-          Scene.updateScene(@game.currentScene,true)
+      Scene.selectChoice(choice)
+      
 )
 
 ### And finally, start the game... ###

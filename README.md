@@ -96,7 +96,7 @@ Novel.js comes with a simple example game that demostrates all available feature
 - `stats` - A list of things the player has done, or any other variables that should not be seen by the player.
 - `scenes` - A list of the game's scenes, i.e. views, areas, different texts the player can see.
 - `presets` - Pre-defined strings that can contain tags and be embedded in scenes and choices. See [definition](#tag-and-string-presets)
-- `settings` - Settings to edit, can also be made visible to the player.
+- `settings` - Settings to edit, some of which can also be made visible to the player.
 - `sounds` - A list of the game's sound effects.
 
 Now lets take a closer look on the lists:
@@ -199,21 +199,21 @@ Choices are the options the player can choose in a scene. An example is provided
 
 #### Settings
 
-The settings object contains general settings for the game:
+The settings object contains settings for the game. All of the settings values should always be defined, unless otherwise stated; see the example game for default values.
 
 - `debugMode` - True or false. If true, the stats list is shown to the player the same way as the inventory.
 - `alwaysShowDisabledChoices` - True or false. If true, choices with unmet requirements are always shown.
 - `saveMode` - `text` or `cookie`. See [Saving](#saving).
 - `showSaveButtons` - True or false. If true, the saving and loading buttons are shown, otherwise they are hidden.
+- `floatPrecision` - How many significant digits printed floats should have, used to prevent JavaScript's handling of floats from causing strange values.
 - `scrollSettings`:
 	- `defaultScrollSpeed` - The default speed (letter interval in ms) at which text scrolls. If set to 0, all text appears instantly.
-	- `textSkipEnabled` - If disabled, text can't be skipped.
-	- `skipWithKeyboard` - If enabled, the player can skip text by pressing space or enter. Does not work with `fastScrollWithKeyboard`.
-	- `continueWithKeyboard` - If enabled, the player can choose the default choice (with `name` set to `"Continue"`) by pressing space or enter.
-	- `fastScrollWithKeyboard` - If enabled, the player can make text scroll faster by pressing space or enter. Does not work with `skipWithKeyboard`.
+	- `textSkipEnabled` - True or false. If disabled, text can't be skipped.
+	- `skipWithKeyboard` - True or false. If enabled, the player can skip text by pressing space or enter. Does not work with `fastScrollWithKeyboard`.
+	- `continueWithKeyboard` - True or false. If enabled, the player can choose the default choice (with `name` set to `"Continue"`) by pressing space or enter.
+	- `fastScrollWithKeyboard` - True or false. If enabled, the player can make text scroll faster by pressing space or enter. Does not work with `skipWithKeyboard`.
 	- `fastScrollSpeedMultiplier` - The multiplier by which the scrolling speed is multiplied when fast scrolling.
-	- `soundEverySecondTickThreshold` - If scroll speed is smaller than this, sound is played only every second tick.
-	- `soundEveryThirdTickThreshold` - If scroll speed is smaller than this, sound is played only every third tick.
+	- `tickFreqThreshold` - A value that defines how often the scrolling sound plays; if the letter interval is smaller than this, the sound is played on every third character. If it is smaller than two times this, it is played on every second character. Otherwise, on every character.
 - `soundSettings`:
   - `soundVolume` - A float between 0 and 1. The volume of all sound effects.
   - `musicVolume` - A float between 0 and 1. The music's volume.

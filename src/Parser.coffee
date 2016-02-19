@@ -65,7 +65,10 @@ Parser = {
         # Generic print command
         else if s.substring(0,5) == "print"
           parsed = s.split("print ")
-          splitText[index] = @parseStatement(parsed[1])
+          parsed = @parseStatement(parsed[1])
+          if !isNaN(parseFloat(parsed))
+            parsed = parseFloat(parsed.toFixed(data.game.settings.floatPrecision))
+          splitText[index] = parsed
         # Execute JavaScript
         else if s.substring(0,4) == "exec"
           parsed = s.substring(5,s.length)
@@ -147,11 +150,11 @@ Parser = {
         when "var"
           val = @findValue(val.substring(4,val.length),true)
           if !isNaN(parseFloat(val))
-            parsedValues.push parseFloat(val).toFixed(5)
+            parsedValues.push parseFloat(val).toFixed(data.game.settings.floatPrecision)
           else
             parsedValues.push "'" + val + "'"
         when "float"
-          parsedValues.push parseFloat(val).toFixed(5)
+          parsedValues.push parseFloat(val).toFixed(data.game.settings.floatPrecision)
         when "int"
           parsedValues.push parseInt(val)
         when "string"
