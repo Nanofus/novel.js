@@ -71,6 +71,7 @@ Contributions are welcome!
 
 ## Upcoming features
 
+These features are planned or currently in development.
 - Alternative visual novel system with animations
 - A settings menu for the player
 - Item descriptions
