@@ -3,9 +3,11 @@
 [![Dependency Status](https://david-dm.org/Nanofus/novel.js.svg)](https://david-dm.org/Nanofus/novel.js) [![devDependency Status](https://david-dm.org/Nanofus/novel.js/dev-status.svg)](https://david-dm.org/Nanofus/novel.js#info=devDependencies)
 [![Github All Releases](https://img.shields.io/github/downloads/Nanofus/novel.js/total.svg)]() [![GitHub release](https://img.shields.io/github/release/Nanofus/novel.js.svg)]()
 
-Novel.js is a lightweight JavaScript text adventure engine. It requires only a `game.json` file containing all the text, choices, items and so on, and optionally a stylesheet (`skin.css`), images and sounds.
+Novel.js is a versatile, lightweight JavaScript text game engine, suitable for interactive fiction such as "choose your own adventure" games and other kinds of text-based entertainment. It also works well as a base for straightforward prose frosted with images and sounds. It requires only a `game.json` file containing all the text, choices, items and so on, an `html` file to display the game and optionally a stylesheet (`skin.css`), images and sounds.
 
-Novel.js is written in CoffeeScript, HTML and SASS and depends only on Vue.js.
+Novel.js is written in CoffeeScript, HTML and SASS and depends only on Vue.js. It was born out of need for a lightweight, easy-to-use but fully-featured text adventure system that could easily be embedded on a webpage.
+
+Novel.js works in all modern web browsers.
 
 **Table of Contents**
 
@@ -69,6 +71,7 @@ Novel.js is written in CoffeeScript, HTML and SASS and depends only on Vue.js.
 
 - Alternative visual novel system with animations
 - A settings menu for the player
+- Item descriptions
 - Translation support
 
 ## Installation
