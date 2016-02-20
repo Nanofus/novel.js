@@ -54,14 +54,16 @@ Novel.js is written in CoffeeScript, HTML and SASS and depends only on Vue.js.
 
 - A classic text-based adventure view; text and choices.
 - Conditional statements to hide or show text and choices based on different conditions, such as the items the player is carrying, allowing for complex logic.
-- Scrolling text! Many ways to customize it and execute logic during scrolling to allow for voice acting, interesting effects etc.
+- Print values such as item counts or even text from other scenes.
+- Scrolling text! Many ways to customize it and execute logic during scrolling to allow for voice acting, mood setting, character specific styles etc.
 - An inventory system, with another hidden one to track the player's actions or other statistics.
-- Choices can have several different outcomes with different probabilities, and can be chained to prevent repetition.
+- Choices can have several different outcomes with different probabilities, loads of different customization options and can be chained to prevent repetition.
 - Play sound effects and looping music/ambient sound effects!
-- Shorthand tags for general styling of names etc. and presets to help with repetitive tags.
+- Shorthand tags for general styling of names etc. and presets to help with recurring styles.
 - Checkpoints to easily jump back and forth between scenes.
 - Saving the game as a cookie or an encoded string that is given to the player.
 - Support for CSS styling, custom JavaScript and HTML tags in text.
+- ... And much more ~!
 
 ## Upcoming features
 
