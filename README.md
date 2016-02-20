@@ -7,7 +7,9 @@ Novel.js is a versatile, lightweight JavaScript text game engine that works dire
 
 It is suitable for interactive fiction such as "choose your own adventure" games and other kinds of text-based entertainment. It also works well as a base for straightforward prose frosted with images and sounds. It requires only a `game.json` file containing all the text, choices, items and so on, an `html` file to display the game and optionally a stylesheet (`skin.css`), images and sounds.
 
-Novel.js is written in CoffeeScript, HTML and SASS and depends only on Vue.js. It was born out of a need for a lightweight, easy-to-use but fully-featured text adventure system that could easily be embedded on a webpage.
+Novel.js is written in CoffeeScript, HTML and SASS and depends only on Vue.js. It was born out of a need for a lightweight, easy-to-use but fully-featured text adventure system that could easily be embedded on a webpage. It is open source (MIT License) and free to use both commercially and non-commercially.
+
+Contributions are welcome!
 
 **Table of Contents**
 
@@ -472,4 +474,4 @@ The second way is to save the `game.json` file as a Base64 encoded string, that 
 ## License
 
 Novel.js is licensed under the MIT License.
-© Ville Talonpoika 2016
+Copyright © Ville Talonpoika 2016
