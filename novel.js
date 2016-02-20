@@ -491,7 +491,7 @@ Parser = {
               nameText = i.value;
             }
           }
-          splitText[index] = "<input type=\"text\" value=\"" + nameText + "\" name=\"input\" class=\"input-" + parsed[1] + "\">";
+          splitText[index] = "<input type=\"text\" value=\"" + nameText + "\" name=\"input\" class=\"input-" + parsed[1] + "\" onblur=\"UI.updateInputs(true)\">";
         } else if (s.substring(0, 6) === "choice") {
           parsed = s.split("choice ");
           splitText[index] = "<a href=\"#\" onclick=\"Scene.selectChoiceByNameByClicking(event,'" + parsed[1] + "')\">";
@@ -689,7 +689,7 @@ Scene = {
     return results;
   },
   exitScene: function(scene) {
-    return UI.updateInputs(scene);
+    return UI.updateInputs(false);
   },
   changeScene: function(sceneNames) {
     var scene;
@@ -1378,7 +1378,7 @@ UI = {
     }
     return e.style.display = 'none';
   },
-  updateInputs: function(scene) {
+  updateInputs: function(needForUpdate) {
     var a, i, inputs, k, len, results;
     inputs = document.getElementById("game-area").querySelectorAll("input");
     results = [];
@@ -1391,7 +1391,12 @@ UI = {
         for (l = 0, len1 = ref.length; l < len1; l++) {
           a = ref[l];
           if (a.name === i.className.substring(6, i.className.length)) {
-            results1.push(a.value = Util.stripHTML(i.value));
+            a.value = Util.stripHTML(i.value);
+            if (needForUpdate) {
+              results1.push(Scene.updateScene(data.game.currentScene, true));
+            } else {
+              results1.push(void 0);
+            }
           } else {
             results1.push(void 0);
           }

@@ -265,7 +265,7 @@ There is a [choice pickastick]stick[/choice] on the ground.
 
 #### Player input
 
-You can embed a text input field into a scene's text (choice text not recommended) by using the `[input]` tag. The input field's value is bound to a stat, and the value can be printed by printing the stat's value. Changes to the input fields are checked every time a choice is selected. Example:
+You can embed a text input field into a scene's text (choice text not recommended) by using the `[input]` tag. The input field's value is bound to a stat, and the value can be printed by printing the stat's value. Changes to the input fields are checked every time a choice is selected or the input field loses focus. Example:
 ```html
 <p>What is your name?</p>
 <p>[input playerName]</p>

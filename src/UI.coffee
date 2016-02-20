@@ -33,12 +33,14 @@ UI = {
     e.style.display = 'none'
 
   # Update the values of the input fields
-  updateInputs: (scene) ->
+  updateInputs: (needForUpdate) ->
     inputs = document.getElementById("game-area").querySelectorAll("input")
     for i in inputs
       for a in data.game.stats
         if a.name == i.className.substring(6,i.className.length)
           a.value = Util.stripHTML(i.value)
+          if needForUpdate
+            Scene.updateScene(data.game.currentScene,true)
 
 }
 

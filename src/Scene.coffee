@@ -39,7 +39,7 @@ Scene = {
 
   # Called when exiting a scene
   exitScene: (scene) ->
-    UI.updateInputs(scene)
+    UI.updateInputs(false)
 
   # Called when changing a scene
   changeScene: (sceneNames) ->
