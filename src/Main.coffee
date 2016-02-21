@@ -20,7 +20,7 @@ gameArea = new Vue(
 
     # Return whether the text can be skipped
     textSkipEnabled: (choice) ->
-      return data.game.currentScene.skipEnabled
+      return data.game.currentScene.skipEnabled && data.game.settings.skipButtonShown
 
     # Check if specific item's count is over 0; if it isn't, it's not shown.
     itemsOverZero: (item) ->

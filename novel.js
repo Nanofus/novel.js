@@ -349,7 +349,7 @@ gameArea = new Vue({
       return Scene.requirementsFilled(choice);
     },
     textSkipEnabled: function(choice) {
-      return data.game.currentScene.skipEnabled;
+      return data.game.currentScene.skipEnabled && data.game.settings.skipButtonShown;
     },
     itemsOverZero: function(item) {
       var i, k, len, ref;

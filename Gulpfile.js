@@ -20,6 +20,9 @@ gulp.task('coffee', ['concat'], function() {
   gulp.src('./novel.coffee')
     .pipe(coffee({bare: true}).on('error', gutil.log))
     .pipe(gulp.dest('./'));
+  gulp.src('./test.coffee')
+    .pipe(coffee({bare: true}).on('error', gutil.log))
+    .pipe(gulp.dest('./'));
 });
 
 gulp.task('watch', function() {
@@ -40,7 +43,10 @@ gulp.task('compress', ['coffee'], function() {
 });
 
 gulp.task('concat', function() {
-  return gulp.src('./src/*.coffee')
+  gulp.src('./src/*.coffee')
     .pipe(concat('novel.coffee'))
+    .pipe(gulp.dest('./'));
+  gulp.src('./test/*.coffee')
+    .pipe(concat('test.coffee'))
     .pipe(gulp.dest('./'));
 });
