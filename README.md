@@ -232,7 +232,7 @@ The settings object contains settings for the game. All of the settings values s
   - `soundVolume` - A float between 0 and 1. The volume of all sound effects.
   - `musicVolume` - A float between 0 and 1. The music's volume.
   - `defaultClickSound` - A sound's name. If defined, this sound is played when clicking any choice.
-	- `defaultScrollSound` - A sound's name. The default scrolling sound. If not defined, no sound is played.
+  - `defaultScrollSound` - A sound's name. The default scrolling sound. If not defined, no sound is played.
 
 #### Sounds
 
