@@ -434,7 +434,7 @@ Music works a bit differently in Novel.js than sound effects do; music is starte
 ```json
 {
   "name": "dragon",
-	"startMusic": "battleMusic",
+  "startMusic": "battleMusic",
   "text": "<p>You wander across a [s1]dragon[/s]. What do you do?</p>",
   "choices": [
     {
@@ -444,7 +444,7 @@ Music works a bit differently in Novel.js than sound effects do; music is starte
     },
     {
       "text": "Run away!",
-			"stopMusic": "battleMusic",
+      "stopMusic": "battleMusic",
       "nextScene": "road"
     }
   ]
