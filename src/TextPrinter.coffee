@@ -14,6 +14,7 @@ tickSoundFrequency = 1
 tickCounter = 0
 tickSpeedMultiplier = 1
 speedMod = false
+pause = 0
 interval = 0
 printCompleted = false
 
@@ -107,6 +108,13 @@ TextPrinter = {
     data.printedText = fullText
     Scene.updateChoices()
 
+  # Stop pause
+  unpause: () ->
+    if document.querySelector("#continue-button") != null
+      document.querySelector("#continue-button").style.display = 'none'
+    if pause == "input"
+      pause = 0
+
   # Fast text scrolling
   fastScroll: () ->
     if data.game.currentScene.skipEnabled
@@ -127,42 +135,45 @@ TextPrinter = {
 
   # Show a new letter
   onTick: ->
-    if !speedMod
-      interval = defaultInterval
+    if pause != "input" && pause > 0
+      pause--
+    if pause == 0
+      if !speedMod
+        interval = defaultInterval
 
-    if defaultInterval == 0
-      TextPrinter.complete()
-      return
-    if data.printedText == fullText
-      return
-    #console.log currentOffset + ": " + fullText[currentOffset]
-    #console.log fullText[currentOffset]
+      if defaultInterval == 0
+        TextPrinter.complete()
+        return
+      if data.printedText == fullText
+        return
+      #console.log currentOffset + ": " + fullText[currentOffset]
+      #console.log fullText[currentOffset]
 
-    offsetChanged = false
+      offsetChanged = false
 
-    while (fullText[currentOffset] == ' ' || fullText[currentOffset] == '<' || fullText[currentOffset] == '>')
-      TextPrinter.readTags()
+      while (fullText[currentOffset] == ' ' || fullText[currentOffset] == '<' || fullText[currentOffset] == '>')
+        TextPrinter.readTags()
 
-    #console.log fullText[currentOffset-3] + fullText[currentOffset-2] + fullText[currentOffset-1] + " - " + fullText[currentOffset] + " - " + fullText[currentOffset+1]+fullText[currentOffset+2]+fullText[currentOffset+3]
+      #console.log fullText[currentOffset-3] + fullText[currentOffset-2] + fullText[currentOffset-1] + " - " + fullText[currentOffset] + " - " + fullText[currentOffset+1]+fullText[currentOffset+2]+fullText[currentOffset+3]
 
-    data.printedText = fullText.substring(0, currentOffset)
+      data.printedText = fullText.substring(0, currentOffset)
 
-    if !offsetChanged
-      currentOffset++
-    if currentOffset >= fullText.length
-      TextPrinter.complete()
-      return
+      if !offsetChanged
+        currentOffset++
+      if currentOffset >= fullText.length
+        TextPrinter.complete()
+        return
 
-    tickCounter++
-    #console.log tickSpeedMultiplier + " / " + tickSoundFrequency + " / " + tickCounter
-    if tickCounter >= tickSoundFrequency
-      #console.log "RESET"
-      if scrollSound != "none" && interval != 0
-        if scrollSound != null
-          Sound.playSound(scrollSound)
-        else if (data.game.currentScene.scrollSound != undefined)
-          Sound.playSound(data.game.currentScene.scrollSound)
-        tickCounter = 0
+      tickCounter++
+      #console.log tickSpeedMultiplier + " / " + tickSoundFrequency + " / " + tickCounter
+      if tickCounter >= tickSoundFrequency
+        #console.log "RESET"
+        if scrollSound != "none" && interval != 0
+          if scrollSound != null
+            Sound.playSound(scrollSound)
+          else if (data.game.currentScene.scrollSound != undefined)
+            Sound.playSound(data.game.currentScene.scrollSound)
+          tickCounter = 0
 
     @setTickSoundFrequency(interval / tickSpeedMultiplier)
     setTimeout (->
@@ -236,6 +247,12 @@ TextPrinter = {
           s = s[1].split(/\s|\"/)[0]
           stopMusicBuffer.push(s)
           Sound.stopMusic(s)
+        if str.indexOf("pause") > -1
+          s = str.split("pause ")
+          s = s[1].split(/\s|\"/)[0]
+          pause = s
+          if document.querySelector("#continue-button") != null
+            document.querySelector("#continue-button").style.display = 'inline';
         if str.indexOf("execute-command") > -1
           s = str.split("execute-command ")
           s = s[1].split(/\s|\"/)[0]

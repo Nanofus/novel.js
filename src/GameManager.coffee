@@ -63,6 +63,8 @@ GameManager = {
     request.onerror = ->
       return
     request.send()
+    if document.querySelector("#continue-button") != null
+      document.querySelector("#continue-button").style.display = 'none'
 
   # Converts the game's state into json and Base64 encode it
   saveGameAsJson: () ->

@@ -75,6 +75,10 @@ Parser = {
           p = data.parsedJavascriptCommands.push(parsed)
           p--
           splitText[index] = "<span class=\"execute-command com-" + p + "\"></span>"
+        # Pause
+        else if s.substring(0,5) == "pause"
+          parsed = s.substring(6,s.length)
+          splitText[index] = "<span class=\"pause " + parsed + "\"></span>"
         # Play sound
         else if s.substring(0,5) == "sound"
           parsed = s.split("sound ")

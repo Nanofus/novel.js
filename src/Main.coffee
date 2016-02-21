@@ -18,6 +18,14 @@ gameArea = new Vue(
     requirementsFilled: (choice) ->
       return Scene.requirementsFilled(choice)
 
+    # Return whether the game is paused or not
+    paused: ->
+      if pause > 0 || pause == "input"
+        console.log "paused"
+        return true
+      console.log "not paused"
+      return false
+
     # Return whether the text can be skipped
     textSkipEnabled: (choice) ->
       return data.game.currentScene.skipEnabled && data.game.settings.skipButtonShown

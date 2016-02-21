@@ -1,6 +1,6 @@
 
 /* SAVING AND LOADING */
-var GameManager, InputManager, Inventory, Parser, Scene, Sound, TextPrinter, UI, Util, buffersExecuted, copyButton, currentOffset, data, defaultInterval, executeBuffer, fullText, gameArea, gamePath, interval, musicBuffer, parsedJavascriptCommands, printCompleted, scrollSound, soundBuffer, speedMod, stopMusicBuffer, tickCounter, tickSoundFrequency, tickSpeedMultiplier,
+var GameManager, InputManager, Inventory, Parser, Scene, Sound, TextPrinter, UI, Util, buffersExecuted, copyButton, currentOffset, data, defaultInterval, executeBuffer, fullText, gameArea, gamePath, interval, musicBuffer, parsedJavascriptCommands, pause, presses, printCompleted, scrollSound, soundBuffer, speedMod, stopMusicBuffer, tickCounter, tickSoundFrequency, tickSpeedMultiplier,
   indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
 GameManager = {
@@ -71,7 +71,10 @@ GameManager = {
       }
     };
     request.onerror = function() {};
-    return request.send();
+    request.send();
+    if (document.querySelector("#continue-button") !== null) {
+      return document.querySelector("#continue-button").style.display = 'none';
+    }
   },
   saveGameAsJson: function() {
     var save;
@@ -122,8 +125,10 @@ GameManager = {
 
 /* HANDLES KEYBOARD INPUT */
 
+presses = 0;
+
 InputManager = {
-  keyPressed: function(charCode) {
+  keyDown: function(charCode) {
     if (charCode === 13 || charCode === 32) {
       if (data.game.settings.scrollSettings.continueWithKeyboard) {
         Scene.tryContinue();
@@ -131,16 +136,32 @@ InputManager = {
       if (data.game.settings.scrollSettings.skipWithKeyboard) {
         TextPrinter.trySkip();
       }
-      if (data.game.settings.scrollSettings.fastScrollWithKeyboard) {
-        return TextPrinter.fastScroll();
+      return TextPrinter.unpause();
+    }
+  },
+  keyPressed: function(charCode) {
+    presses++;
+    if (charCode === 13 || charCode === 32) {
+      if (presses > 2) {
+        if (data.game.settings.scrollSettings.fastScrollWithKeyboard) {
+          return TextPrinter.fastScroll();
+        }
       }
     }
   },
   keyUp: function(charCode) {
+    presses = 0;
     if (charCode === 13 || charCode === 32) {
       return TextPrinter.stopFastScroll();
     }
   }
+};
+
+document.onkeydown = function(evt) {
+  var charCode;
+  evt = evt || window.event;
+  charCode = evt.keyCode || evt.which;
+  return InputManager.keyDown(charCode);
 };
 
 document.onkeypress = function(evt) {
@@ -348,6 +369,14 @@ gameArea = new Vue({
     requirementsFilled: function(choice) {
       return Scene.requirementsFilled(choice);
     },
+    paused: function() {
+      if (pause > 0 || pause === "input") {
+        console.log("paused");
+        return true;
+      }
+      console.log("not paused");
+      return false;
+    },
     textSkipEnabled: function(choice) {
       return data.game.currentScene.skipEnabled && data.game.settings.skipButtonShown;
     },
@@ -462,6 +491,9 @@ Parser = {
           p = data.parsedJavascriptCommands.push(parsed);
           p--;
           splitText[index] = "<span class=\"execute-command com-" + p + "\"></span>";
+        } else if (s.substring(0, 5) === "pause") {
+          parsed = s.substring(6, s.length);
+          splitText[index] = "<span class=\"pause " + parsed + "\"></span>";
         } else if (s.substring(0, 5) === "sound") {
           parsed = s.split("sound ");
           splitText[index] = "<span class=\"play-sound " + parsed[1] + "\"></span>";
@@ -786,21 +818,18 @@ Scene = {
     return console.error("ERROR: Scene by name '" + name + "' not found!");
   },
   combineSceneTexts: function(scene) {
-    var key, results;
-    scene.combinedText = scene.text;
-    results = [];
-    for (key in scene) {
-      if (scene.hasOwnProperty(key)) {
-        if (key.includes("text-")) {
-          results.push(scene.combinedText = scene.combinedText.concat(scene[key]));
-        } else {
-          results.push(void 0);
-        }
-      } else {
-        results.push(void 0);
+    var i, k, len, ref, results;
+    if (Object.prototype.toString.call(scene.text) === "[object Array]") {
+      ref = scene.text;
+      results = [];
+      for (k = 0, len = ref.length; k < len; k++) {
+        i = ref[k];
+        results.push(scene.combinedText = scene.combinedText + "<p>" + i + "</p>");
       }
+      return results;
+    } else {
+      return scene.combinedText = scene.text;
     }
-    return results;
   },
   readItemAndStatsEdits: function(source) {
     var k, l, len, len1, len2, m, ref, ref1, ref2, results, val;
@@ -1057,6 +1086,8 @@ tickSpeedMultiplier = 1;
 
 speedMod = false;
 
+pause = 0;
+
 interval = 0;
 
 printCompleted = false;
@@ -1176,6 +1207,14 @@ TextPrinter = {
     data.printedText = fullText;
     return Scene.updateChoices();
   },
+  unpause: function() {
+    if (document.querySelector("#continue-button") !== null) {
+      document.querySelector("#continue-button").style.display = 'none';
+    }
+    if (pause === "input") {
+      return pause = 0;
+    }
+  },
   fastScroll: function() {
     if (data.game.currentScene.skipEnabled) {
       return tickSpeedMultiplier = data.game.settings.scrollSettings.fastScrollSpeedMultiplier;
@@ -1197,37 +1236,42 @@ TextPrinter = {
   },
   onTick: function() {
     var offsetChanged;
-    if (!speedMod) {
-      interval = defaultInterval;
+    if (pause !== "input" && pause > 0) {
+      pause--;
     }
-    if (defaultInterval === 0) {
-      TextPrinter.complete();
-      return;
-    }
-    if (data.printedText === fullText) {
-      return;
-    }
-    offsetChanged = false;
-    while (fullText[currentOffset] === ' ' || fullText[currentOffset] === '<' || fullText[currentOffset] === '>') {
-      TextPrinter.readTags();
-    }
-    data.printedText = fullText.substring(0, currentOffset);
-    if (!offsetChanged) {
-      currentOffset++;
-    }
-    if (currentOffset >= fullText.length) {
-      TextPrinter.complete();
-      return;
-    }
-    tickCounter++;
-    if (tickCounter >= tickSoundFrequency) {
-      if (scrollSound !== "none" && interval !== 0) {
-        if (scrollSound !== null) {
-          Sound.playSound(scrollSound);
-        } else if (data.game.currentScene.scrollSound !== void 0) {
-          Sound.playSound(data.game.currentScene.scrollSound);
+    if (pause === 0) {
+      if (!speedMod) {
+        interval = defaultInterval;
+      }
+      if (defaultInterval === 0) {
+        TextPrinter.complete();
+        return;
+      }
+      if (data.printedText === fullText) {
+        return;
+      }
+      offsetChanged = false;
+      while (fullText[currentOffset] === ' ' || fullText[currentOffset] === '<' || fullText[currentOffset] === '>') {
+        TextPrinter.readTags();
+      }
+      data.printedText = fullText.substring(0, currentOffset);
+      if (!offsetChanged) {
+        currentOffset++;
+      }
+      if (currentOffset >= fullText.length) {
+        TextPrinter.complete();
+        return;
+      }
+      tickCounter++;
+      if (tickCounter >= tickSoundFrequency) {
+        if (scrollSound !== "none" && interval !== 0) {
+          if (scrollSound !== null) {
+            Sound.playSound(scrollSound);
+          } else if (data.game.currentScene.scrollSound !== void 0) {
+            Sound.playSound(data.game.currentScene.scrollSound);
+          }
+          tickCounter = 0;
         }
-        tickCounter = 0;
       }
     }
     this.setTickSoundFrequency(interval / tickSpeedMultiplier);
@@ -1309,6 +1353,14 @@ TextPrinter = {
           s = s[1].split(/\s|\"/)[0];
           stopMusicBuffer.push(s);
           Sound.stopMusic(s);
+        }
+        if (str.indexOf("pause") > -1) {
+          s = str.split("pause ");
+          s = s[1].split(/\s|\"/)[0];
+          pause = s;
+          if (document.querySelector("#continue-button") !== null) {
+            document.querySelector("#continue-button").style.display = 'inline';
+          }
         }
         if (str.indexOf("execute-command") > -1) {
           s = str.split("execute-command ");

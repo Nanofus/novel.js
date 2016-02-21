@@ -123,11 +123,11 @@ Scene = {
 
   # Combine the multiple scene text rows
   combineSceneTexts: (scene) ->
-    scene.combinedText = scene.text
-    for key of scene
-      if scene.hasOwnProperty(key)
-        if key.includes("text-")
-          scene.combinedText = scene.combinedText.concat(scene[key])
+    if Object.prototype.toString.call(scene.text) == "[object Array]"
+      for i in scene.text
+        scene.combinedText = scene.combinedText + "<p>" + i + "</p>"
+    else
+      scene.combinedText = scene.text
 
   # Read item, stat and val edit commands from scene or choice
   readItemAndStatsEdits: (source) ->

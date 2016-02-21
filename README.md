@@ -33,6 +33,7 @@ Contributions are welcome!
 		- [`print` - Displaying values](#displaying-values)
 		- [`exec` - Executing JavaScript while text scrolls](#executing-javascript-while-text-scrolls)
 		- [`speed` - Setting text scrolling speed](#setting-text-scrolling-speed)
+		- [`pause` - Pausing text scrolling](#pausing-text-scrolling)
 		- [`scrollSound` - Setting text scrolling sound](#setting-text-scrolling-sound)
 		- [`sound` - Playing sounds while text scrolls](#playing-sounds-while-text-scrolls)
 		- [`music` - Playing music while text scrolls](#playing-music-while-text-scrolls)
@@ -159,7 +160,7 @@ An example scene:
 
 A scene object can contain the following variables and parameters:
 - `name` - Required. The scene's name. Not visible to the user, used internally to navigate between scenes.
-- `text` - Required (not enforced). The scene's text. Can be formatted using html and Novel.js's own tags. For texts longer than one paragraph you should use `<p></p>` tags to separate the text into clean paragraphs. If you find it inconvenient to fit all the text on one json line, you can also add `text-1`, `text-2`... below it, those get appended to `text` when the game is started.
+- `text` - Required (not enforced). The scene's text. Can be formatted using html and Novel.js's own tags. The text can be a simple string, or an array of strings. If it is an array, each of the array items gets surrounded by paragraph tags (`<p></p>`). This makes formatting long text easier.
 - `style` - The scene's style. Adds a html class that can be styled in `skin.css` to give different looks to different scenes.
 - `addItem` - Add items to the player's inventory upon entering the scene.
 - `removeItem` - Remove items from the player's inventory upon entering the scene.
@@ -312,6 +313,10 @@ You can run JavaScript while the text scrolls by using the `[exec x]` tag, where
 #### Setting text scrolling speed
 
 You can override the text's default scrolling speed by using the tag `[speed x]`, where x is the tick interval in milliseconds. The default value is defined in [settings](#settings). If the tag is inside an if-statement that returns false, so that it is not shown, the tag is ignored. Can be restored to default with `[/speed]`.
+
+#### Pausing text scrolling
+
+You can pause the scrolling text by using the `[pause]` tag. It can take two different parameters; if you use `[pause input]`, the game waits until the player has pressed the skip button or the appearing continue symbol. If you use `[pause x]` where x is a number, such as `[pause 50]`, the game waits for that amount of "ticks". One tick is equal to the interval between letters, so the length of a tick varies based on the text scrolling speed. This way the pauses are also affected by fast scrolling.
 
 #### Setting text scrolling sound
 

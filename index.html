@@ -27,6 +27,7 @@
               {{{ printedText }}}
             </div>
             <button v-if="textSkipEnabled()" type="button" id="skip-button" onclick="TextPrinter.complete()">Skip</button>
+            <button v-if="paused()" type="button" id="continue-button" onclick="TextPrinter.unpause()">Continue</button>
             <div class="choices">
               <ul class="choice-list">
                 <div v-for="choice in game.parsedChoices">
