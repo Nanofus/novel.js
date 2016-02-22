@@ -27,7 +27,6 @@ class Parser
         tagName = "[/p " + i.name + "]"
         if text.indexOf(tagName) > -1
           text = text.split(tagName).join(i.end)
-
       # [s] tags
       for i in [0 .. 99]
         text = text.split("[s" + i + "]").join("<span class=\"highlight-" + i + "\">")

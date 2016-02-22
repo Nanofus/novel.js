@@ -79,10 +79,16 @@ class GameManager
     else if data.game.settings.saveMode == "text"
       ui.showSaveNotification(save)
 
-  # Add values to game.json that are not defined but are required for Vue.js view updating
+  # Add values to game.json that are not defined but are required for Vue.js view updating and other functions
   prepareData: (json) ->
     json.currentScene=""
     json.parsedChoices=""
+    if json.inventory == undefined
+      json.inventory = []
+    if json.stats == undefined
+      json.stats = []
+    if json.scenes == undefined
+      json.scenes = []
     for i in json.inventory
       if i.displayName == undefined
         i.displayName = i.name

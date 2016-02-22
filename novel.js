@@ -103,6 +103,15 @@ GameManager = (function() {
     var c, i, k, l, len, len1, len2, m, ref, ref1, ref2, s;
     json.currentScene = "";
     json.parsedChoices = "";
+    if (json.inventory === void 0) {
+      json.inventory = [];
+    }
+    if (json.stats === void 0) {
+      json.stats = [];
+    }
+    if (json.scenes === void 0) {
+      json.scenes = [];
+    }
     ref = json.inventory;
     for (k = 0, len = ref.length; k < len; k++) {
       i = ref[k];
