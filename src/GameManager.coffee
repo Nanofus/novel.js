@@ -1,7 +1,7 @@
 
 ### SAVING AND LOADING ###
 
-GameManager = {
+class GameManager
 
   # Load a browser cookie
   loadCookie: (cname) ->
@@ -47,7 +47,7 @@ GameManager = {
       console.warn "WARNING! Game version mismatch"
     data.game = loadedData
     data.debugMode = data.game.debugMode
-    Scene.updateScene(data.game.currentScene,true)
+    scene.updateScene(data.game.currentScene,true)
 
   # Start the game by loading the default game.json
   startGame: ->
@@ -56,9 +56,9 @@ GameManager = {
     request.onload = ->
       if request.status >= 200 and request.status < 400
         json = JSON.parse(request.responseText)
-        json = GameManager.prepareData(json)
+        json = gameManager.prepareData(json)
         data.game = json
-        data.game.currentScene = Scene.changeScene(data.game.scenes[0].name)
+        data.game.currentScene = scene.changeScene(data.game.scenes[0].name)
         data.debugMode = data.game.debugMode
     request.onerror = ->
       return
@@ -77,7 +77,7 @@ GameManager = {
     if data.game.settings.saveMode == "cookie"
       @saveCookie("gameData",save,365)
     else if data.game.settings.saveMode == "text"
-      UI.showSaveNotification(save)
+      ui.showSaveNotification(save)
 
   # Add values to game.json that are not defined but are required for Vue.js view updating
   prepareData: (json) ->
@@ -96,5 +96,3 @@ GameManager = {
         if c.alwaysShow == undefined
           c.alwaysShow = false
     return json
-
-}

@@ -1,11 +1,11 @@
 
 ### SCENE MANIPULATION ###
 
-Scene = {
+class Scene
 
   # Try to select "Continue"
   tryContinue: ->
-    if printCompleted && tickSpeedMultiplier == 1
+    if textPrinter.printCompleted && textPrinter.tickSpeedMultiplier == 1
       @selectChoiceByName("Continue")
 
   # Select a choice
@@ -39,7 +39,7 @@ Scene = {
 
   # Called when exiting a scene
   exitScene: (scene) ->
-    UI.updateInputs(false)
+    ui.updateInputs(false)
 
   # Called when changing a scene
   changeScene: (sceneNames) ->
@@ -56,23 +56,23 @@ Scene = {
     @readExecutes(data.game.currentScene)
     @readCheckpoints(data.game.currentScene)
     @readMisc(data.game.currentScene)
-    TextPrinter.printText(scene.parsedText,false)
+    textPrinter.printText(scene.parsedText,false)
 
   # If not changing scenes but update needed, this is called
   updateScene: (scene, onlyUpdating) ->
-    Scene.combineSceneTexts(scene)
-    scene.parsedText = Parser.parseText scene.combinedText
+    @combineSceneTexts(scene)
+    scene.parsedText = parser.parseText scene.combinedText
     data.game.currentScene = scene
     if !onlyUpdating
       data.game.parsedChoices = null
     else
-      TextPrinter.printText(scene.parsedText,true)
-      TextPrinter.complete()
+      textPrinter.printText(scene.parsedText,true)
+      textPrinter.complete()
 
   # Update choice texts when they are changed - Vue.js doesn't detect them without this.
   updateChoices: ->
     gameArea.$set 'game.parsedChoices', data.game.currentScene.choices.map((choice) ->
-      choice.parsedText = Parser.parseText(choice.text)
+      choice.parsedText = parser.parseText(choice.text)
       if gameArea.game.settings.alwaysShowDisabledChoices
         choice.alwaysShow = true
       choice
@@ -122,49 +122,49 @@ Scene = {
     console.error "ERROR: Scene by name '"+name+"' not found!"
 
   # Combine the multiple scene text rows
-  combineSceneTexts: (scene) ->
-    if Object.prototype.toString.call(scene.text) == "[object Array]"
-      for i in scene.text
-        scene.combinedText = scene.combinedText + "<p>" + i + "</p>"
+  combineSceneTexts: (s) ->
+    if Object.prototype.toString.call(s.text) == "[object Array]"
+      for i in s.text
+        s.combinedText = s.combinedText + "<p>" + i + "</p>"
     else
-      scene.combinedText = scene.text
+      s.combinedText = s.text
 
   # Read item, stat and val edit commands from scene or choice
   readItemAndStatsEdits: (source) ->
     if source.removeItem != undefined
-      Inventory.editItemsOrStats(Parser.parseItemOrStats(source.removeItem),"remove",true)
+      inventory.editItemsOrStats(parser.parseItemsOrStats(source.removeItem),"remove",true)
     if source.addItem != undefined
-      Inventory.editItemsOrStats(Parser.parseItemOrStats(source.addItem),"add",true)
+      inventory.editItemsOrStats(parser.parseItemsOrStats(source.addItem),"add",true)
     if source.setItem != undefined
-      Inventory.editItemsOrStats(Parser.parseItemOrStats(source.setItem),"set",true)
+      inventory.editItemsOrStats(parser.parseItemsOrStats(source.setItem),"set",true)
     if source.removeStats != undefined
-      Inventory.editItemsOrStats(Parser.parseItemOrStats(source.removeStats),"remove",false)
+      inventory.editItemsOrStats(parser.parseItemsOrStats(source.removeStats),"remove",false)
     if source.addStats != undefined
-      Inventory.editItemsOrStats(Parser.parseItemOrStats(source.addStats),"add",false)
+      inventory.editItemsOrStats(parser.parseItemsOrStats(source.addStats),"add",false)
     if source.setStats != undefined
-      Inventory.editItemsOrStats(Parser.parseItemOrStats(source.setStats),"set",false)
+      inventory.editItemsOrStats(parser.parseItemsOrStats(source.setStats),"set",false)
     if source.setValue != undefined
       for val in source.setValue
-        Inventory.setValue(val.path,Parser.parseStatement(val.value.toString()))
+        inventory.setValue(val.path,parser.parseStatement(val.value.toString()))
     if source.increaseValue != undefined
       for val in source.increaseValue
-        Inventory.increaseValue(val.path,Parser.parseStatement(val.value.toString()))
+        inventory.increaseValue(val.path,parser.parseStatement(val.value.toString()))
     if source.decreaseValue != undefined
       for val in source.decreaseValue
-        Inventory.decreaseValue(val.path,Parser.parseStatement(val.value.toString()))
+        inventory.decreaseValue(val.path,parser.parseStatement(val.value.toString()))
 
   # Read sound commands from scene or choice
   readSounds: (source,clicked) ->
     played = false
     if source.playSound != undefined
-      Sound.playSound(source.playSound,false)
+      sound.playSound(source.playSound,false)
       played = true
     if clicked && !played
-      Sound.playDefaultClickSound()
+      sound.playDefaultClickSound()
     if source.startMusic != undefined
-      Sound.startMusic(source.startMusic)
+      sound.startMusic(source.startMusic)
     if source.stopMusic != undefined
-      Sound.stopMusic(source.stopMusic)
+      sound.stopMusic(source.stopMusic)
     if source.scrollSound != undefined
       data.game.currentScene.scrollSound = source.scrollSound
     else
@@ -192,9 +192,9 @@ Scene = {
   # Read save and load commands from scene or choice
   readSaving: (source) ->
     if source.saveGame != undefined
-      GameManager.saveGame()
+      gameManager.saveGame()
     if source.loadGame != undefined
-      UI.showLoadNotification()
+      ui.showLoadNotification()
 
   # Read checkpoint commands
   readCheckpoints: (source) ->
@@ -224,17 +224,15 @@ Scene = {
   requirementsFilled: (choice) ->
     reqs = []
     if choice.itemRequirement != undefined
-      requirements = Parser.parseItemOrStats choice.itemRequirement
-      reqs.push Inventory.checkRequirements(requirements, true)
+      requirements = parser.parseItemsOrStats choice.itemRequirement
+      reqs.push inventory.checkRequirements(requirements, true)
     if choice.statsRequirement != undefined
-      requirements = Parser.parseItemOrStats choice.statsRequirement
-      reqs.push Inventory.checkRequirements(requirements, false)
+      requirements = parser.parseItemsOrStats choice.statsRequirement
+      reqs.push inventory.checkRequirements(requirements, false)
     if choice.requirement != undefined
-      reqs.push Inventory.parseIfStatement choice.requirement
+      reqs.push inventory.parseIfStatement choice.requirement
     success = true
     for r in reqs
       if r == false
         success = false
     return success
-
-}

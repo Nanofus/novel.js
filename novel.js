@@ -1,10 +1,12 @@
 
 /* SAVING AND LOADING */
-var GameManager, InputManager, Inventory, Parser, Scene, Sound, TextPrinter, UI, Util, buffersExecuted, copyButton, currentOffset, data, defaultInterval, executeBuffer, fullText, gameArea, gamePath, interval, musicBuffer, parsedJavascriptCommands, pause, presses, printCompleted, scrollSound, soundBuffer, speedMod, stopMusicBuffer, tickCounter, tickSoundFrequency, tickSpeedMultiplier,
+var GameManager, InputManager, Inventory, Parser, Scene, Sound, TextPrinter, UI, Util, copyButton, data, gameArea, gameManager, gamePath, inputManager, inventory, parser, scene, sound, textPrinter, ui, util,
   indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
-GameManager = {
-  loadCookie: function(cname) {
+GameManager = (function() {
+  function GameManager() {}
+
+  GameManager.prototype.loadCookie = function(cname) {
     var c, ca, i, name;
     name = cname + '=';
     ca = document.cookie.split(';');
@@ -20,15 +22,17 @@ GameManager = {
       i++;
     }
     return '';
-  },
-  saveCookie: function(cname, cvalue, exdays) {
+  };
+
+  GameManager.prototype.saveCookie = function(cname, cvalue, exdays) {
     var d, expires;
     d = new Date;
     d.setTime(d.getTime() + exdays * 24 * 60 * 60 * 1000);
     expires = 'expires=' + d.toUTCString();
     return document.cookie = cname + '=' + cvalue + '; ' + expires + '; path=/';
-  },
-  loadGame: function(game) {
+  };
+
+  GameManager.prototype.loadGame = function(game) {
     var cookie, loadedData;
     if (game === void 0) {
       if (this.loadCookie("gameData") !== '') {
@@ -43,8 +47,9 @@ GameManager = {
       loadedData = JSON.parse(atob(game));
       return this.prepareLoadedGame(loadedData);
     }
-  },
-  prepareLoadedGame: function(loadedData) {
+  };
+
+  GameManager.prototype.prepareLoadedGame = function(loadedData) {
     if (data.game.gameName !== loadedData.gameName) {
       console.error("ERROR! Game name mismatch");
       return;
@@ -54,9 +59,10 @@ GameManager = {
     }
     data.game = loadedData;
     data.debugMode = data.game.debugMode;
-    return Scene.updateScene(data.game.currentScene, true);
-  },
-  startGame: function() {
+    return scene.updateScene(data.game.currentScene, true);
+  };
+
+  GameManager.prototype.startGame = function() {
     var request;
     request = new XMLHttpRequest;
     request.open('GET', gamePath + '/game.json', true);
@@ -64,9 +70,9 @@ GameManager = {
       var json;
       if (request.status >= 200 && request.status < 400) {
         json = JSON.parse(request.responseText);
-        json = GameManager.prepareData(json);
+        json = gameManager.prepareData(json);
         data.game = json;
-        data.game.currentScene = Scene.changeScene(data.game.scenes[0].name);
+        data.game.currentScene = scene.changeScene(data.game.scenes[0].name);
         return data.debugMode = data.game.debugMode;
       }
     };
@@ -75,22 +81,25 @@ GameManager = {
     if (document.querySelector("#continue-button") !== null) {
       return document.querySelector("#continue-button").style.display = 'none';
     }
-  },
-  saveGameAsJson: function() {
+  };
+
+  GameManager.prototype.saveGameAsJson = function() {
     var save;
     save = btoa(JSON.stringify(data.game));
     return save;
-  },
-  saveGame: function() {
+  };
+
+  GameManager.prototype.saveGame = function() {
     var save;
     save = this.saveGameAsJson();
     if (data.game.settings.saveMode === "cookie") {
       return this.saveCookie("gameData", save, 365);
     } else if (data.game.settings.saveMode === "text") {
-      return UI.showSaveNotification(save);
+      return ui.showSaveNotification(save);
     }
-  },
-  prepareData: function(json) {
+  };
+
+  GameManager.prototype.prepareData = function(json) {
     var c, i, k, l, len, len1, len2, m, ref, ref1, ref2, s;
     json.currentScene = "";
     json.parsedChoices = "";
@@ -119,310 +128,99 @@ GameManager = {
       }
     }
     return json;
-  }
-};
+  };
+
+  return GameManager;
+
+})();
 
 
 /* HANDLES KEYBOARD INPUT */
 
-presses = 0;
+InputManager = (function() {
+  function InputManager() {}
 
-InputManager = {
-  keyDown: function(charCode) {
+  InputManager.prototype.presses = 0;
+
+  InputManager.prototype.keyDown = function(charCode) {
     if (charCode === 13 || charCode === 32) {
       if (data.game.settings.scrollSettings.continueWithKeyboard) {
-        Scene.tryContinue();
+        scene.tryContinue();
       }
       if (data.game.settings.scrollSettings.skipWithKeyboard) {
-        TextPrinter.trySkip();
+        textPrinter.trySkip();
       }
-      return TextPrinter.unpause();
+      return textPrinter.unpause();
     }
-  },
-  keyPressed: function(charCode) {
-    presses++;
+  };
+
+  InputManager.prototype.keyPressed = function(charCode) {
+    this.presses++;
     if (charCode === 13 || charCode === 32) {
-      if (presses > 2) {
+      if (this.presses > 2) {
         if (data.game.settings.scrollSettings.fastScrollWithKeyboard) {
-          return TextPrinter.fastScroll();
+          return textPrinter.fastScroll();
         }
       }
     }
-  },
-  keyUp: function(charCode) {
-    presses = 0;
+  };
+
+  InputManager.prototype.keyUp = function(charCode) {
+    this.presses = 0;
     if (charCode === 13 || charCode === 32) {
-      return TextPrinter.stopFastScroll();
+      return textPrinter.stopFastScroll();
     }
-  }
-};
+  };
+
+  return InputManager;
+
+})();
 
 document.onkeydown = function(evt) {
   var charCode;
   evt = evt || window.event;
   charCode = evt.keyCode || evt.which;
-  return InputManager.keyDown(charCode);
+  return inputManager.keyDown(charCode);
 };
 
 document.onkeypress = function(evt) {
   var charCode;
   evt = evt || window.event;
   charCode = evt.keyCode || evt.which;
-  return InputManager.keyPressed(charCode);
+  return inputManager.keyPressed(charCode);
 };
 
 document.onkeyup = function(evt) {
   var charCode;
   evt = evt || window.event;
   charCode = evt.keyCode || evt.which;
-  return InputManager.keyUp(charCode);
+  return inputManager.keyUp(charCode);
 };
-
-
-/* INVENTORY, STAT & VALUE OPERATIONS */
-
-Inventory = {
-  checkRequirements: function(requirements, isItem) {
-    var i, j, k, l, len, len1, len2, len3, m, o, ref, ref1, reqsFilled;
-    reqsFilled = 0;
-    if (isItem) {
-      ref = data.game.inventory;
-      for (k = 0, len = ref.length; k < len; k++) {
-        i = ref[k];
-        for (l = 0, len1 = requirements.length; l < len1; l++) {
-          j = requirements[l];
-          if (j[0] === i.name) {
-            if (j[1] <= i.count) {
-              reqsFilled = reqsFilled + 1;
-            }
-          }
-        }
-      }
-    } else {
-      ref1 = data.game.stats;
-      for (m = 0, len2 = ref1.length; m < len2; m++) {
-        i = ref1[m];
-        for (o = 0, len3 = requirements.length; o < len3; o++) {
-          j = requirements[o];
-          if (j[0] === i.name) {
-            if (j[1] <= i.value) {
-              reqsFilled = reqsFilled + 1;
-            }
-          }
-        }
-      }
-    }
-    if (reqsFilled === requirements.length) {
-      return true;
-    } else {
-      return false;
-    }
-  },
-  setValue: function(parsed, newValue) {
-    var getValueArrayLast, value;
-    getValueArrayLast = this.getValueArrayLast(parsed);
-    value = Parser.findValue(parsed, false);
-    return value[getValueArrayLast] = newValue;
-  },
-  increaseValue: function(parsed, change) {
-    var getValueArrayLast, value;
-    getValueArrayLast = this.getValueArrayLast(parsed);
-    value = Parser.findValue(parsed, false);
-    value[getValueArrayLast] = value[getValueArrayLast] + change;
-    if (!isNaN(parseFloat(value[getValueArrayLast]))) {
-      return value[getValueArrayLast] = parseFloat(value[getValueArrayLast].toFixed(data.game.settings.floatPrecision));
-    }
-  },
-  decreaseValue: function(parsed, change) {
-    var getValueArrayLast, value;
-    getValueArrayLast = this.getValueArrayLast(parsed);
-    value = Parser.findValue(parsed, false);
-    value[getValueArrayLast] = value[getValueArrayLast] - change;
-    if (!isNaN(parseFloat(value[getValueArrayLast]))) {
-      return value[getValueArrayLast] = parseFloat(value[getValueArrayLast].toFixed(data.game.settings.floatPrecision));
-    }
-  },
-  getValueArrayLast: function(parsed) {
-    var getValueArrayLast;
-    getValueArrayLast = parsed.split(",");
-    getValueArrayLast = getValueArrayLast[getValueArrayLast.length - 1].split(".");
-    getValueArrayLast = getValueArrayLast[getValueArrayLast.length - 1];
-    return getValueArrayLast;
-  },
-  editItemsOrStats: function(items, mode, isItem) {
-    var count, displayName, i, inventory, isInv, itemAdded, j, k, l, len, len1, p, probability, value;
-    if (isItem) {
-      inventory = data.game.inventory;
-      isInv = true;
-    } else {
-      inventory = data.game.stats;
-      isInv = false;
-    }
-    for (k = 0, len = items.length; k < len; k++) {
-      j = items[k];
-      itemAdded = false;
-      for (l = 0, len1 = inventory.length; l < len1; l++) {
-        i = inventory[l];
-        if (i.name === j[0]) {
-          p = j[1].split(",");
-          probability = 1;
-          if (p.length > 1) {
-            displayName = p[1];
-            count = parseInt(Parser.parseStatement(p[0]));
-            if (!isNaN(displayName)) {
-              probability = p[1];
-              displayName = j.name;
-            }
-            if (p.length > 2) {
-              probability = parseFloat(p[1]);
-              displayName = p[2];
-            }
-          } else {
-            displayName = j[0];
-            count = parseInt(Parser.parseStatement(j[1]));
-          }
-          value = Math.random();
-          if (value < probability) {
-            if (mode === "set") {
-              if (isInv) {
-                i.count = parseInt(j[1]);
-              } else {
-                i.value = parseInt(j[1]);
-              }
-            } else if (mode === "add") {
-              if (isInv) {
-                i.count = parseInt(i.count) + count;
-              } else {
-                if (isNaN(parseInt(i.value))) {
-                  i.value = 0;
-                }
-                i.value = parseInt(i.value) + count;
-              }
-            } else if (mode === "remove") {
-              if (isInv) {
-                i.count = parseInt(i.count) - count;
-                if (i.count < 0) {
-                  i.count = 0;
-                }
-              } else {
-                i.value = parseInt(i.value) - count;
-                if (i.value < 0) {
-                  i.value = 0;
-                }
-              }
-            }
-          }
-          itemAdded = true;
-        }
-      }
-      if (!itemAdded && mode !== "remove") {
-        p = j[1].split(",");
-        probability = 1;
-        if (p.length > 1) {
-          displayName = p[1];
-          count = parseInt(Parser.parseStatement(p[0]));
-          if (!isNaN(displayName)) {
-            probability = p[1];
-            displayName = j.name;
-          }
-          if (p.length > 2) {
-            probability = parseFloat(p[1]);
-            displayName = p[2];
-          }
-        } else {
-          displayName = j[0];
-          count = parseInt(Parser.parseStatement(j[1]));
-        }
-        value = Math.random();
-        if (value < probability) {
-          inventory.push({
-            "name": j[0],
-            "count": count,
-            "displayName": displayName
-          });
-        }
-      }
-    }
-    if (isItem) {
-      return data.game.inventory = inventory;
-    } else {
-      return data.game.stats = inventory;
-    }
-  }
-};
-
-data = {
-  game: null,
-  choices: null,
-  debugMode: false,
-  printedText: "",
-  parsedJavascriptCommands: [],
-  music: []
-};
-
-gamePath = './game';
-
-gameArea = new Vue({
-  el: '#game-area',
-  data: data,
-  methods: {
-    requirementsFilled: function(choice) {
-      return Scene.requirementsFilled(choice);
-    },
-    paused: function() {
-      if (pause > 0 || pause === "input") {
-        console.log("paused");
-        return true;
-      }
-      console.log("not paused");
-      return false;
-    },
-    textSkipEnabled: function(choice) {
-      return data.game.currentScene.skipEnabled && data.game.settings.skipButtonShown;
-    },
-    itemsOverZero: function(item) {
-      var i, k, len, ref;
-      ref = this.game.inventory;
-      for (k = 0, len = ref.length; k < len; k++) {
-        i = ref[k];
-        if (i.name === item.name) {
-          if (i.count > 0) {
-            return true;
-          }
-        }
-      }
-      return false;
-    },
-    selectChoice: function(choice) {
-      return Scene.selectChoice(choice);
-    }
-  }
-});
-
-
-/* And finally, start the game... */
-
-GameManager.startGame();
-
-parsedJavascriptCommands = [];
 
 
 /* PARSERS */
 
-Parser = {
-  parseItemOrStats: function(items) {
+Parser = (function() {
+  function Parser() {}
+
+  Parser.prototype.parseItemsOrStats = function(items) {
     var i, k, len, parsed, separate;
+    if (items === "") {
+      return void 0;
+    }
     separate = items.split("|");
     parsed = [];
     for (k = 0, len = separate.length; k < len; k++) {
       i = separate[k];
       i = i.substring(0, i.length - 1);
       i = i.split("[");
+      i[1] = parseInt(i[1]);
       parsed.push(i);
     }
     return parsed;
-  },
-  parseText: function(text) {
+  };
+
+  Parser.prototype.parseText = function(text) {
     var asToBeClosed, i, index, k, l, len, len1, len2, len3, m, nameText, o, p, parsed, q, ref, ref1, ref2, ref3, ref4, s, spansToBeClosed, splitText, t, tagName, value;
     if (text !== void 0) {
       ref = data.game.tagPresets;
@@ -541,10 +339,11 @@ Parser = {
       text = splitText.join("");
       return text;
     }
-  },
-  parseStatement: function(s) {
+  };
+
+  Parser.prototype.parseStatement = function(s) {
     var found, i, k, l, len, len1, len2, m, o, parsedString, parsedValues, ref, ref1, ref2, type, val;
-    if (!Util.validateParentheses(s)) {
+    if (!util.validateParentheses(s)) {
       console.error("ERROR: Invalid parentheses in statement");
     }
     s = s.replace(/\s+/g, '');
@@ -610,8 +409,9 @@ Parser = {
       }
     }
     return eval(s);
-  },
-  getStatementType: function(val) {
+  };
+
+  Parser.prototype.getStatementType = function(val) {
     var type;
     type = null;
     if (val.substring(0, 5) === "stat.") {
@@ -628,8 +428,9 @@ Parser = {
       type = "string";
     }
     return type;
-  },
-  findValue: function(parsed, toPrint) {
+  };
+
+  Parser.prototype.findValue = function(parsed, toPrint) {
     var i, k, ref, splitted, variable;
     splitted = parsed.split(",");
     if (!toPrint) {
@@ -642,7 +443,7 @@ Parser = {
       variable = this.findValueByName(data.game, splitted[0])[0];
     }
     for (i = k = 0, ref = splitted.length - 1; 0 <= ref ? k <= ref : k >= ref; i = 0 <= ref ? ++k : --k) {
-      if (Util.isOdd(i)) {
+      if (util.isOdd(i)) {
         variable = variable[parseInt(splitted[i])];
       } else if (i !== 0) {
         if (!toPrint) {
@@ -650,15 +451,16 @@ Parser = {
         } else {
           if (splitted[i] === "parsedText" || splitted[i] === "text") {
             splitted[i] = "parsedText";
-            variable.parsedText = Parser.parseText(variable.text);
+            variable.parsedText = this.parseText(variable.text);
           }
           variable = this.findValueByName(variable, splitted[i])[0];
         }
       }
     }
     return variable;
-  },
-  findValueByName: function(obj, string) {
+  };
+
+  Parser.prototype.findValueByName = function(obj, string) {
     var newObj, newString, parts, r;
     parts = string.split('.');
     newObj = obj[parts[0]];
@@ -671,19 +473,208 @@ Parser = {
     r[0] = newObj;
     r[1] = obj;
     return r;
-  }
-};
+  };
+
+  return Parser;
+
+})();
+
+
+/* INVENTORY, STAT & VALUE OPERATIONS */
+
+Inventory = (function() {
+  function Inventory() {}
+
+  Inventory.prototype.checkRequirements = function(requirements, isItem) {
+    var i, j, k, l, len, len1, len2, len3, m, o, ref, ref1, reqsFilled;
+    reqsFilled = 0;
+    if (isItem) {
+      ref = data.game.inventory;
+      for (k = 0, len = ref.length; k < len; k++) {
+        i = ref[k];
+        for (l = 0, len1 = requirements.length; l < len1; l++) {
+          j = requirements[l];
+          if (j[0] === i.name) {
+            if (j[1] <= i.count) {
+              reqsFilled = reqsFilled + 1;
+            }
+          }
+        }
+      }
+    } else {
+      ref1 = data.game.stats;
+      for (m = 0, len2 = ref1.length; m < len2; m++) {
+        i = ref1[m];
+        for (o = 0, len3 = requirements.length; o < len3; o++) {
+          j = requirements[o];
+          if (j[0] === i.name) {
+            if (j[1] <= i.value) {
+              reqsFilled = reqsFilled + 1;
+            }
+          }
+        }
+      }
+    }
+    if (reqsFilled === requirements.length) {
+      return true;
+    } else {
+      return false;
+    }
+  };
+
+  Inventory.prototype.setValue = function(parsed, newValue) {
+    var getValueArrayLast, value;
+    getValueArrayLast = this.getValueArrayLast(parsed);
+    value = parser.findValue(parsed, false);
+    return value[getValueArrayLast] = newValue;
+  };
+
+  Inventory.prototype.increaseValue = function(parsed, change) {
+    var getValueArrayLast, value;
+    getValueArrayLast = this.getValueArrayLast(parsed);
+    value = parser.findValue(parsed, false);
+    value[getValueArrayLast] = value[getValueArrayLast] + change;
+    if (!isNaN(parseFloat(value[getValueArrayLast]))) {
+      return value[getValueArrayLast] = parseFloat(value[getValueArrayLast].toFixed(data.game.settings.floatPrecision));
+    }
+  };
+
+  Inventory.prototype.decreaseValue = function(parsed, change) {
+    var getValueArrayLast, value;
+    getValueArrayLast = this.getValueArrayLast(parsed);
+    value = parser.findValue(parsed, false);
+    value[getValueArrayLast] = value[getValueArrayLast] - change;
+    if (!isNaN(parseFloat(value[getValueArrayLast]))) {
+      return value[getValueArrayLast] = parseFloat(value[getValueArrayLast].toFixed(data.game.settings.floatPrecision));
+    }
+  };
+
+  Inventory.prototype.getValueArrayLast = function(parsed) {
+    var getValueArrayLast;
+    getValueArrayLast = parsed.split(",");
+    getValueArrayLast = getValueArrayLast[getValueArrayLast.length - 1].split(".");
+    getValueArrayLast = getValueArrayLast[getValueArrayLast.length - 1];
+    return getValueArrayLast;
+  };
+
+  Inventory.prototype.editItemsOrStats = function(items, mode, isItem) {
+    var count, displayName, i, inventory, isInv, itemAdded, j, k, l, len, len1, p, probability, value;
+    if (isItem) {
+      inventory = data.game.inventory;
+      isInv = true;
+    } else {
+      inventory = data.game.stats;
+      isInv = false;
+    }
+    for (k = 0, len = items.length; k < len; k++) {
+      j = items[k];
+      itemAdded = false;
+      for (l = 0, len1 = inventory.length; l < len1; l++) {
+        i = inventory[l];
+        if (i.name === j[0]) {
+          p = j[1].split(",");
+          probability = 1;
+          if (p.length > 1) {
+            displayName = p[1];
+            count = parseInt(parser.parseStatement(p[0]));
+            if (!isNaN(displayName)) {
+              probability = p[1];
+              displayName = j.name;
+            }
+            if (p.length > 2) {
+              probability = parseFloat(p[1]);
+              displayName = p[2];
+            }
+          } else {
+            displayName = j[0];
+            count = parseInt(parser.parseStatement(j[1]));
+          }
+          value = Math.random();
+          if (value < probability) {
+            if (mode === "set") {
+              if (isInv) {
+                i.count = parseInt(j[1]);
+              } else {
+                i.value = parseInt(j[1]);
+              }
+            } else if (mode === "add") {
+              if (isInv) {
+                i.count = parseInt(i.count) + count;
+              } else {
+                if (isNaN(parseInt(i.value))) {
+                  i.value = 0;
+                }
+                i.value = parseInt(i.value) + count;
+              }
+            } else if (mode === "remove") {
+              if (isInv) {
+                i.count = parseInt(i.count) - count;
+                if (i.count < 0) {
+                  i.count = 0;
+                }
+              } else {
+                i.value = parseInt(i.value) - count;
+                if (i.value < 0) {
+                  i.value = 0;
+                }
+              }
+            }
+          }
+          itemAdded = true;
+        }
+      }
+      if (!itemAdded && mode !== "remove") {
+        p = j[1].split(",");
+        probability = 1;
+        if (p.length > 1) {
+          displayName = p[1];
+          count = parseInt(parser.parseStatement(p[0]));
+          if (!isNaN(displayName)) {
+            probability = p[1];
+            displayName = j.name;
+          }
+          if (p.length > 2) {
+            probability = parseFloat(p[1]);
+            displayName = p[2];
+          }
+        } else {
+          displayName = j[0];
+          count = parseInt(parser.parseStatement(j[1]));
+        }
+        value = Math.random();
+        if (value < probability) {
+          inventory.push({
+            "name": j[0],
+            "count": count,
+            "displayName": displayName
+          });
+        }
+      }
+    }
+    if (isItem) {
+      return data.game.inventory = inventory;
+    } else {
+      return data.game.stats = inventory;
+    }
+  };
+
+  return Inventory;
+
+})();
 
 
 /* SCENE MANIPULATION */
 
-Scene = {
-  tryContinue: function() {
-    if (printCompleted && tickSpeedMultiplier === 1) {
+Scene = (function() {
+  function Scene() {}
+
+  Scene.prototype.tryContinue = function() {
+    if (textPrinter.printCompleted && textPrinter.tickSpeedMultiplier === 1) {
       return this.selectChoiceByName("Continue");
     }
-  },
-  selectChoice: function(choice) {
+  };
+
+  Scene.prototype.selectChoice = function(choice) {
     this.exitScene(data.game.currentScene);
     this.readItemAndStatsEdits(choice);
     this.readSounds(choice, true);
@@ -699,13 +690,15 @@ Scene = {
         return this.updateScene(data.game.currentScene, true);
       }
     }
-  },
-  selectChoiceByNameByClicking: function(event, name) {
+  };
+
+  Scene.prototype.selectChoiceByNameByClicking = function(event, name) {
     event.stopPropagation();
     event.preventDefault();
     return this.selectChoiceByName(name);
-  },
-  selectChoiceByName: function(name) {
+  };
+
+  Scene.prototype.selectChoiceByName = function(name) {
     var i, k, len, ref, results;
     ref = data.game.currentScene.choices;
     results = [];
@@ -719,17 +712,20 @@ Scene = {
       }
     }
     return results;
-  },
-  exitScene: function(scene) {
-    return UI.updateInputs(false);
-  },
-  changeScene: function(sceneNames) {
+  };
+
+  Scene.prototype.exitScene = function(scene) {
+    return ui.updateInputs(false);
+  };
+
+  Scene.prototype.changeScene = function(sceneNames) {
     var scene;
     scene = this.findSceneByName(this.selectRandomOption(sceneNames));
     this.setupScene(scene);
     return scene;
-  },
-  setupScene: function(scene) {
+  };
+
+  Scene.prototype.setupScene = function(scene) {
     this.updateScene(scene, false);
     this.readItemAndStatsEdits(data.game.currentScene);
     this.readSounds(data.game.currentScene, false);
@@ -737,29 +733,32 @@ Scene = {
     this.readExecutes(data.game.currentScene);
     this.readCheckpoints(data.game.currentScene);
     this.readMisc(data.game.currentScene);
-    return TextPrinter.printText(scene.parsedText, false);
-  },
-  updateScene: function(scene, onlyUpdating) {
-    Scene.combineSceneTexts(scene);
-    scene.parsedText = Parser.parseText(scene.combinedText);
+    return textPrinter.printText(scene.parsedText, false);
+  };
+
+  Scene.prototype.updateScene = function(scene, onlyUpdating) {
+    this.combineSceneTexts(scene);
+    scene.parsedText = parser.parseText(scene.combinedText);
     data.game.currentScene = scene;
     if (!onlyUpdating) {
       return data.game.parsedChoices = null;
     } else {
-      TextPrinter.printText(scene.parsedText, true);
-      return TextPrinter.complete();
+      textPrinter.printText(scene.parsedText, true);
+      return textPrinter.complete();
     }
-  },
-  updateChoices: function() {
+  };
+
+  Scene.prototype.updateChoices = function() {
     return gameArea.$set('game.parsedChoices', data.game.currentScene.choices.map(function(choice) {
-      choice.parsedText = Parser.parseText(choice.text);
+      choice.parsedText = parser.parseText(choice.text);
       if (gameArea.game.settings.alwaysShowDisabledChoices) {
         choice.alwaysShow = true;
       }
       return choice;
     }));
-  },
-  selectRandomOption: function(name) {
+  };
+
+  Scene.prototype.selectRandomOption = function(name) {
     var i, k, len, parsed, separate;
     separate = name.split("|");
     if (separate.length === 1) {
@@ -774,8 +773,9 @@ Scene = {
     }
     parsed = this.chooseRandomly(parsed);
     return parsed;
-  },
-  chooseRandomly: function(options) {
+  };
+
+  Scene.prototype.chooseRandomly = function(options) {
     var chances, i, k, l, len, len1, len2, m, nameIndex, names, previous, rawChances, totalChance, value;
     names = [];
     chances = [];
@@ -805,8 +805,9 @@ Scene = {
       }
       nameIndex++;
     }
-  },
-  findSceneByName: function(name) {
+  };
+
+  Scene.prototype.findSceneByName = function(name) {
     var i, k, len, ref;
     ref = data.game.scenes;
     for (k = 0, len = ref.length; k < len; k++) {
@@ -816,53 +817,55 @@ Scene = {
       }
     }
     return console.error("ERROR: Scene by name '" + name + "' not found!");
-  },
-  combineSceneTexts: function(scene) {
+  };
+
+  Scene.prototype.combineSceneTexts = function(s) {
     var i, k, len, ref, results;
-    if (Object.prototype.toString.call(scene.text) === "[object Array]") {
-      ref = scene.text;
+    if (Object.prototype.toString.call(s.text) === "[object Array]") {
+      ref = s.text;
       results = [];
       for (k = 0, len = ref.length; k < len; k++) {
         i = ref[k];
-        results.push(scene.combinedText = scene.combinedText + "<p>" + i + "</p>");
+        results.push(s.combinedText = s.combinedText + "<p>" + i + "</p>");
       }
       return results;
     } else {
-      return scene.combinedText = scene.text;
+      return s.combinedText = s.text;
     }
-  },
-  readItemAndStatsEdits: function(source) {
+  };
+
+  Scene.prototype.readItemAndStatsEdits = function(source) {
     var k, l, len, len1, len2, m, ref, ref1, ref2, results, val;
     if (source.removeItem !== void 0) {
-      Inventory.editItemsOrStats(Parser.parseItemOrStats(source.removeItem), "remove", true);
+      inventory.editItemsOrStats(parser.parseItemsOrStats(source.removeItem), "remove", true);
     }
     if (source.addItem !== void 0) {
-      Inventory.editItemsOrStats(Parser.parseItemOrStats(source.addItem), "add", true);
+      inventory.editItemsOrStats(parser.parseItemsOrStats(source.addItem), "add", true);
     }
     if (source.setItem !== void 0) {
-      Inventory.editItemsOrStats(Parser.parseItemOrStats(source.setItem), "set", true);
+      inventory.editItemsOrStats(parser.parseItemsOrStats(source.setItem), "set", true);
     }
     if (source.removeStats !== void 0) {
-      Inventory.editItemsOrStats(Parser.parseItemOrStats(source.removeStats), "remove", false);
+      inventory.editItemsOrStats(parser.parseItemsOrStats(source.removeStats), "remove", false);
     }
     if (source.addStats !== void 0) {
-      Inventory.editItemsOrStats(Parser.parseItemOrStats(source.addStats), "add", false);
+      inventory.editItemsOrStats(parser.parseItemsOrStats(source.addStats), "add", false);
     }
     if (source.setStats !== void 0) {
-      Inventory.editItemsOrStats(Parser.parseItemOrStats(source.setStats), "set", false);
+      inventory.editItemsOrStats(parser.parseItemsOrStats(source.setStats), "set", false);
     }
     if (source.setValue !== void 0) {
       ref = source.setValue;
       for (k = 0, len = ref.length; k < len; k++) {
         val = ref[k];
-        Inventory.setValue(val.path, Parser.parseStatement(val.value.toString()));
+        inventory.setValue(val.path, parser.parseStatement(val.value.toString()));
       }
     }
     if (source.increaseValue !== void 0) {
       ref1 = source.increaseValue;
       for (l = 0, len1 = ref1.length; l < len1; l++) {
         val = ref1[l];
-        Inventory.increaseValue(val.path, Parser.parseStatement(val.value.toString()));
+        inventory.increaseValue(val.path, parser.parseStatement(val.value.toString()));
       }
     }
     if (source.decreaseValue !== void 0) {
@@ -870,26 +873,27 @@ Scene = {
       results = [];
       for (m = 0, len2 = ref2.length; m < len2; m++) {
         val = ref2[m];
-        results.push(Inventory.decreaseValue(val.path, Parser.parseStatement(val.value.toString())));
+        results.push(inventory.decreaseValue(val.path, parser.parseStatement(val.value.toString())));
       }
       return results;
     }
-  },
-  readSounds: function(source, clicked) {
+  };
+
+  Scene.prototype.readSounds = function(source, clicked) {
     var played;
     played = false;
     if (source.playSound !== void 0) {
-      Sound.playSound(source.playSound, false);
+      sound.playSound(source.playSound, false);
       played = true;
     }
     if (clicked && !played) {
-      Sound.playDefaultClickSound();
+      sound.playDefaultClickSound();
     }
     if (source.startMusic !== void 0) {
-      Sound.startMusic(source.startMusic);
+      sound.startMusic(source.startMusic);
     }
     if (source.stopMusic !== void 0) {
-      Sound.stopMusic(source.stopMusic);
+      sound.stopMusic(source.stopMusic);
     }
     if (source.scrollSound !== void 0) {
       return data.game.currentScene.scrollSound = source.scrollSound;
@@ -900,13 +904,15 @@ Scene = {
         return data.game.currentScene.scrollSound = void 0;
       }
     }
-  },
-  readExecutes: function(source) {
+  };
+
+  Scene.prototype.readExecutes = function(source) {
     if (source.executeJs !== void 0) {
       return eval(source.executeJs);
     }
-  },
-  readMisc: function(source) {
+  };
+
+  Scene.prototype.readMisc = function(source) {
     if (source.skipEnabled !== void 0) {
       data.game.currentScene.skipEnabled = source.skipEnabled;
     } else {
@@ -917,16 +923,18 @@ Scene = {
     } else {
       return data.game.currentScene.scrollSpeed = data.game.settings.scrollSettings.defaultScrollSpeed;
     }
-  },
-  readSaving: function(source) {
+  };
+
+  Scene.prototype.readSaving = function(source) {
     if (source.saveGame !== void 0) {
-      GameManager.saveGame();
+      gameManager.saveGame();
     }
     if (source.loadGame !== void 0) {
-      return UI.showLoadNotification();
+      return ui.showLoadNotification();
     }
-  },
-  readCheckpoints: function(source) {
+  };
+
+  Scene.prototype.readCheckpoints = function(source) {
     var checkpoint, dataChanged, i, k, l, len, len1, ref, ref1, results;
     if (source.saveCheckpoint !== void 0) {
       if (data.game.checkpoints === void 0) {
@@ -965,20 +973,21 @@ Scene = {
       }
       return results;
     }
-  },
-  requirementsFilled: function(choice) {
+  };
+
+  Scene.prototype.requirementsFilled = function(choice) {
     var k, len, r, reqs, requirements, success;
     reqs = [];
     if (choice.itemRequirement !== void 0) {
-      requirements = Parser.parseItemOrStats(choice.itemRequirement);
-      reqs.push(Inventory.checkRequirements(requirements, true));
+      requirements = parser.parseItemsOrStats(choice.itemRequirement);
+      reqs.push(inventory.checkRequirements(requirements, true));
     }
     if (choice.statsRequirement !== void 0) {
-      requirements = Parser.parseItemOrStats(choice.statsRequirement);
-      reqs.push(Inventory.checkRequirements(requirements, false));
+      requirements = parser.parseItemsOrStats(choice.statsRequirement);
+      reqs.push(inventory.checkRequirements(requirements, false));
     }
     if (choice.requirement !== void 0) {
-      reqs.push(Inventory.parseIfStatement(choice.requirement));
+      reqs.push(inventory.parseIfStatement(choice.requirement));
     }
     success = true;
     for (k = 0, len = reqs.length; k < len; k++) {
@@ -988,17 +997,23 @@ Scene = {
       }
     }
     return success;
-  }
-};
+  };
+
+  return Scene;
+
+})();
 
 
 /* SOUNDS */
 
-Sound = {
-  playDefaultClickSound: function(name, clicked) {
+Sound = (function() {
+  function Sound() {}
+
+  Sound.prototype.playDefaultClickSound = function(name, clicked) {
     return this.playSound(data.game.settings.soundSettings.defaultClickSound, false);
-  },
-  playSound: function(name, isMusic) {
+  };
+
+  Sound.prototype.playSound = function(name, isMusic) {
     var k, len, ref, s, sound;
     ref = data.game.sounds;
     for (k = 0, len = ref.length; k < len; k++) {
@@ -1014,8 +1029,9 @@ Sound = {
         return sound;
       }
     }
-  },
-  isPlaying: function(name) {
+  };
+
+  Sound.prototype.isPlaying = function(name) {
     var i, k, len, ref;
     ref = data.music;
     for (k = 0, len = ref.length; k < len; k++) {
@@ -1026,8 +1042,9 @@ Sound = {
         return true;
       }
     }
-  },
-  startMusic: function(name) {
+  };
+
+  Sound.prototype.startMusic = function(name) {
     var music;
     music = this.playSound(name, true);
     music.addEventListener('ended', (function() {
@@ -1038,8 +1055,9 @@ Sound = {
       "name": name,
       "music": music
     });
-  },
-  stopMusic: function(name) {
+  };
+
+  Sound.prototype.stopMusic = function(name) {
     var i, index, k, len, ref, results;
     ref = data.music;
     results = [];
@@ -1054,82 +1072,89 @@ Sound = {
       }
     }
     return results;
-  }
-};
+  };
+
+  return Sound;
+
+})();
 
 
 /* TEXT PRINTING (letter by letter etc.) */
 
-fullText = "";
+TextPrinter = (function() {
+  function TextPrinter() {}
 
-currentOffset = 0;
+  TextPrinter.prototype.fullText = "";
 
-defaultInterval = 0;
+  TextPrinter.prototype.currentOffset = 0;
 
-soundBuffer = [];
+  TextPrinter.prototype.defaultInterval = 0;
 
-musicBuffer = [];
+  TextPrinter.prototype.soundBuffer = [];
 
-stopMusicBuffer = [];
+  TextPrinter.prototype.musicBuffer = [];
 
-executeBuffer = [];
+  TextPrinter.prototype.stopMusicBuffer = [];
 
-buffersExecuted = false;
+  TextPrinter.prototype.executeBuffer = [];
 
-scrollSound = null;
+  TextPrinter.prototype.buffersExecuted = false;
 
-tickSoundFrequency = 1;
+  TextPrinter.prototype.scrollSound = null;
 
-tickCounter = 0;
+  TextPrinter.prototype.tickSoundFrequency = 1;
 
-tickSpeedMultiplier = 1;
+  TextPrinter.prototype.tickCounter = 0;
 
-speedMod = false;
+  TextPrinter.prototype.tickSpeedMultiplier = 1;
 
-pause = 0;
+  TextPrinter.prototype.speedMod = false;
 
-interval = 0;
+  TextPrinter.prototype.pause = 0;
 
-printCompleted = false;
+  TextPrinter.prototype.interval = 0;
 
-TextPrinter = {
-  printText: function(text, noBuffers) {
-    printCompleted = false;
+  TextPrinter.prototype.printCompleted = false;
+
+  TextPrinter.prototype.printText = function(text, noBuffers) {
+    this.printCompleted = false;
     data.printedText = "";
     if (document.querySelector("#skip-button") !== null) {
       document.querySelector("#skip-button").disabled = false;
     }
-    fullText = text;
-    currentOffset = -1;
-    soundBuffer = [];
-    musicBuffer = [];
-    stopMusicBuffer = [];
-    executeBuffer = [];
-    buffersExecuted = false;
+    this.fullText = text;
+    this.currentOffset = -1;
+    this.soundBuffer = [];
+    this.musicBuffer = [];
+    this.stopMusicBuffer = [];
+    this.executeBuffer = [];
+    this.buffersExecuted = false;
     if (noBuffers) {
-      buffersExecuted = true;
+      this.buffersExecuted = true;
     }
-    defaultInterval = data.game.currentScene.scrollSpeed;
-    this.setTickSoundFrequency(defaultInterval);
-    return setTimeout(this.onTick(), defaultInterval);
-  },
-  trySkip: function() {
+    this.defaultInterval = data.game.currentScene.scrollSpeed;
+    this.setTickSoundFrequency(this.defaultInterval);
+    return setTimeout(this.onTick(), this.defaultInterval);
+  };
+
+  TextPrinter.prototype.trySkip = function() {
     if (data.game.currentScene.skipEnabled) {
       return this.complete();
     }
-  },
-  complete: function() {
+  };
+
+  TextPrinter.prototype.complete = function() {
     var first, i, k, l, len, len1, len2, len3, m, o, q, ref, ref1, ref2, ref3, ref4, ref5, ref6, ref7, s, ss, t, u, v;
-    printCompleted = true;
-    currentOffset = 0;
+    this.printCompleted = true;
+    this.currentOffset = 0;
     if (document.querySelector("#skip-button") !== null) {
       document.querySelector("#skip-button").disabled = true;
     }
-    if (!buffersExecuted) {
+    if (!this.buffersExecuted) {
       ss = [];
       first = true;
-      if (fullText.indexOf("play-sound") > -1) {
-        s = fullText.split("play-sound ");
+      if (this.fullText.indexOf("play-sound") > -1) {
+        s = this.fullText.split("play-sound ");
         for (k = 0, len = s.length; k < len; k++) {
           i = s[k];
           if (!first) {
@@ -1140,15 +1165,15 @@ TextPrinter = {
       }
       if (ss.length > 0) {
         for (i = l = 0, ref = ss.length; 0 <= ref ? l <= ref : l >= ref; i = 0 <= ref ? ++l : --l) {
-          if (!(ref1 = ss[i], indexOf.call(soundBuffer, ref1) >= 0)) {
-            Sound.playSound(ss[i]);
+          if (!(ref1 = ss[i], indexOf.call(this.soundBuffer, ref1) >= 0)) {
+            sound.playSound(ss[i]);
           }
         }
       }
       ss = [];
       first = true;
-      if (fullText.indexOf("play-music") > -1) {
-        s = fullText.split("play-music ");
+      if (this.fullText.indexOf("play-music") > -1) {
+        s = this.fullText.split("play-music ");
         for (m = 0, len1 = s.length; m < len1; m++) {
           i = s[m];
           if (!first) {
@@ -1159,15 +1184,15 @@ TextPrinter = {
       }
       if (ss.length > 0) {
         for (i = o = 0, ref2 = ss.length; 0 <= ref2 ? o <= ref2 : o >= ref2; i = 0 <= ref2 ? ++o : --o) {
-          if (!(ref3 = ss[i], indexOf.call(musicBuffer, ref3) >= 0)) {
-            Sound.startMusic(ss[i]);
+          if (!(ref3 = ss[i], indexOf.call(this.musicBuffer, ref3) >= 0)) {
+            sound.startMusic(ss[i]);
           }
         }
       }
       ss = [];
       first = true;
-      if (fullText.indexOf("stop-music") > -1) {
-        s = fullText.split("stop-music ");
+      if (this.fullText.indexOf("stop-music") > -1) {
+        s = this.fullText.split("stop-music ");
         for (q = 0, len2 = s.length; q < len2; q++) {
           i = s[q];
           if (!first) {
@@ -1178,15 +1203,15 @@ TextPrinter = {
       }
       if (ss.length > 0) {
         for (i = t = 0, ref4 = ss.length; 0 <= ref4 ? t <= ref4 : t >= ref4; i = 0 <= ref4 ? ++t : --t) {
-          if (!(ref5 = ss[i], indexOf.call(stopMusicBuffer, ref5) >= 0)) {
-            Sound.stopMusic(ss[i]);
+          if (!(ref5 = ss[i], indexOf.call(this.stopMusicBuffer, ref5) >= 0)) {
+            sound.stopMusic(ss[i]);
           }
         }
       }
       ss = [];
       first = true;
-      if (fullText.indexOf("execute-command") > -1) {
-        s = fullText.split("execute-command ");
+      if (this.fullText.indexOf("execute-command") > -1) {
+        s = this.fullText.split("execute-command ");
         for (u = 0, len3 = s.length; u < len3; u++) {
           i = s[u];
           if (!first) {
@@ -1197,102 +1222,108 @@ TextPrinter = {
       }
       if (ss.length > 0) {
         for (i = v = 0, ref6 = ss.length; 0 <= ref6 ? v <= ref6 : v >= ref6; i = 0 <= ref6 ? ++v : --v) {
-          if (!(ref7 = ss[i], indexOf.call(executeBuffer, ref7) >= 0) && ss[i] !== void 0) {
+          if (!(ref7 = ss[i], indexOf.call(this.executeBuffer, ref7) >= 0) && ss[i] !== void 0) {
             eval(data.parsedJavascriptCommands[parseInt(s.substring(4, s.length))]);
           }
         }
       }
-      buffersExecuted = true;
+      this.buffersExecuted = true;
     }
-    data.printedText = fullText;
-    return Scene.updateChoices();
-  },
-  unpause: function() {
+    data.printedText = this.fullText;
+    return scene.updateChoices();
+  };
+
+  TextPrinter.prototype.unpause = function() {
     if (document.querySelector("#continue-button") !== null) {
       document.querySelector("#continue-button").style.display = 'none';
     }
-    if (pause === "input") {
-      return pause = 0;
+    if (this.pause === "input") {
+      return this.pause = 0;
     }
-  },
-  fastScroll: function() {
+  };
+
+  TextPrinter.prototype.fastScroll = function() {
     if (data.game.currentScene.skipEnabled) {
-      return tickSpeedMultiplier = data.game.settings.scrollSettings.fastScrollSpeedMultiplier;
+      return this.tickSpeedMultiplier = data.game.settings.scrollSettings.fastScrollSpeedMultiplier;
     }
-  },
-  stopFastScroll: function() {
-    return tickSpeedMultiplier = 1;
-  },
-  setTickSoundFrequency: function(freq) {
+  };
+
+  TextPrinter.prototype.stopFastScroll = function() {
+    return this.tickSpeedMultiplier = 1;
+  };
+
+  TextPrinter.prototype.setTickSoundFrequency = function(freq) {
     var threshold;
     threshold = data.game.settings.scrollSettings.tickFreqThreshold;
-    tickSoundFrequency = 1;
+    this.tickSoundFrequency = 1;
     if (freq <= (threshold * 2)) {
-      tickSoundFrequency = 2;
+      this.tickSoundFrequency = 2;
     }
     if (freq <= threshold) {
-      return tickSoundFrequency = 3;
+      return this.tickSoundFrequency = 3;
     }
-  },
-  onTick: function() {
+  };
+
+  TextPrinter.prototype.onTick = function() {
     var offsetChanged;
-    if (pause !== "input" && pause > 0) {
-      pause--;
+    if (this.pause !== "input" && this.pause > 0) {
+      this.pause--;
     }
-    if (pause === 0) {
-      if (!speedMod) {
-        interval = defaultInterval;
+    if (this.pause === 0) {
+      if (!this.speedMod) {
+        this.interval = this.defaultInterval;
       }
-      if (defaultInterval === 0) {
-        TextPrinter.complete();
+      if (this.defaultInterval === 0) {
+        this.complete();
         return;
       }
-      if (data.printedText === fullText) {
+      if (data.printedText === this.fullText) {
         return;
       }
       offsetChanged = false;
-      while (fullText[currentOffset] === ' ' || fullText[currentOffset] === '<' || fullText[currentOffset] === '>') {
-        TextPrinter.readTags();
+      while (this.fullText[this.currentOffset] === ' ' || this.fullText[this.currentOffset] === '<' || this.fullText[this.currentOffset] === '>') {
+        this.readTags();
       }
-      data.printedText = fullText.substring(0, currentOffset);
+      data.printedText = this.fullText.substring(0, this.currentOffset);
       if (!offsetChanged) {
-        currentOffset++;
+        this.currentOffset++;
       }
-      if (currentOffset >= fullText.length) {
-        TextPrinter.complete();
+      if (this.currentOffset >= this.fullText.length) {
+        this.complete();
         return;
       }
-      tickCounter++;
-      if (tickCounter >= tickSoundFrequency) {
-        if (scrollSound !== "none" && interval !== 0) {
-          if (scrollSound !== null) {
-            Sound.playSound(scrollSound);
+      this.tickCounter++;
+      if (this.tickCounter >= this.tickSoundFrequency) {
+        if (this.scrollSound !== "none" && this.interval !== 0) {
+          if (this.scrollSound !== null) {
+            sound.playSound(this.scrollSound);
           } else if (data.game.currentScene.scrollSound !== void 0) {
-            Sound.playSound(data.game.currentScene.scrollSound);
+            sound.playSound(data.game.currentScene.scrollSound);
           }
-          tickCounter = 0;
+          this.tickCounter = 0;
         }
       }
     }
-    this.setTickSoundFrequency(interval / tickSpeedMultiplier);
+    this.setTickSoundFrequency(this.interval / this.tickSpeedMultiplier);
     return setTimeout((function() {
-      TextPrinter.onTick();
-    }), interval / tickSpeedMultiplier);
-  },
-  readTags: function() {
-    var disp, i, offsetChanged, s, spans, str;
-    if (fullText[currentOffset] === ' ') {
-      currentOffset++;
+      textPrinter.onTick();
+    }), this.interval / this.tickSpeedMultiplier);
+  };
+
+  TextPrinter.prototype.readTags = function() {
+    var disp, i, s, spans, str;
+    if (this.fullText[this.currentOffset] === ' ') {
+      this.currentOffset++;
     }
-    if (fullText[currentOffset] === '>') {
-      currentOffset++;
+    if (this.fullText[this.currentOffset] === '>') {
+      this.currentOffset++;
     }
-    if (fullText[currentOffset] === '<') {
-      i = currentOffset;
+    if (this.fullText[this.currentOffset] === '<') {
+      i = this.currentOffset;
       str = "";
       i++;
-      while (fullText[i - 1] !== '>' && fullText[i] !== '<') {
-        str = str + fullText[i];
+      while (this.fullText[i - 1] !== '>' && this.fullText[i] !== '<') {
+        str = str + this.fullText[i];
         i++;
       }
       str = str.substring(1, str.length);
@@ -1301,7 +1332,7 @@ TextPrinter = {
         spans = 1;
         while (true) {
           i++;
-          disp = disp + fullText[i];
+          disp = disp + this.fullText[i];
           if (disp.indexOf("/span") !== -1) {
             spans--;
             disp = "";
@@ -1318,46 +1349,46 @@ TextPrinter = {
       if (str.indexOf("play-sound") > -1 && str.indexOf("display:none;") > -1) {
         s = str.split("play-sound ");
         s = s[1].split(/\s|\"/)[0];
-        soundBuffer.push(s);
+        this.soundBuffer.push(s);
       }
       if (str.indexOf("play-music") > -1 && str.indexOf("display:none;") > -1) {
         s = str.split("play-music ");
         s = s[1].split(/\s|\"/)[0];
-        musicBuffer.push(s);
+        this.musicBuffer.push(s);
       }
       if (str.indexOf("stop-music") > -1 && str.indexOf("display:none;") > -1) {
         s = str.split("stop-music ");
         s = s[1].split(/\s|\"/)[0];
-        stopMusicBuffer.push(s);
+        this.stopMusicBuffer.push(s);
       }
       if (str.indexOf("execute-command") > -1 && str.indexOf("display:none;") > -1) {
         s = str.split("execute-command ");
         s = s[1].split(/\s|\"/)[0];
-        executeBuffer.push(s);
+        this.executeBuffer.push(s);
       }
       if (str.indexOf("display:none;") === -1) {
         if (str.indexOf("play-sound") > -1) {
           s = str.split("play-sound ");
           s = s[1].split(/\s|\"/)[0];
-          soundBuffer.push(s);
-          Sound.playSound(s);
+          this.soundBuffer.push(s);
+          sound.playSound(s);
         }
         if (str.indexOf("play-music") > -1) {
           s = str.split("play-music ");
           s = s[1].split(/\s|\"/)[0];
-          musicBuffer.push(s);
-          Sound.startMusic(s);
+          this.musicBuffer.push(s);
+          sound.startMusic(s);
         }
         if (str.indexOf("stop-music") > -1) {
           s = str.split("stop-music ");
           s = s[1].split(/\s|\"/)[0];
-          stopMusicBuffer.push(s);
-          Sound.stopMusic(s);
+          this.stopMusicBuffer.push(s);
+          sound.stopMusic(s);
         }
         if (str.indexOf("pause") > -1) {
           s = str.split("pause ");
           s = s[1].split(/\s|\"/)[0];
-          pause = s;
+          this.pause = s;
           if (document.querySelector("#continue-button") !== null) {
             document.querySelector("#continue-button").style.display = 'inline';
           }
@@ -1365,7 +1396,7 @@ TextPrinter = {
         if (str.indexOf("execute-command") > -1) {
           s = str.split("execute-command ");
           s = s[1].split(/\s|\"/)[0];
-          executeBuffer.push(s);
+          this.executeBuffer.push(s);
           if (s !== void 0) {
             eval(data.parsedJavascriptCommands[parseInt(s.substring(4, s.length))]);
           }
@@ -1373,64 +1404,73 @@ TextPrinter = {
         if (str.indexOf("set-speed") > -1) {
           s = str.split("set-speed ");
           s = s[1].split(/\s|\"/)[0];
-          interval = Parser.parseStatement(s);
-          speedMod = true;
+          this.interval = parser.parseStatement(s);
+          this.speedMod = true;
         }
         if (str.indexOf("default-speed") > -1) {
-          interval = defaultInterval;
-          speedMod = false;
+          this.interval = this.defaultInterval;
+          this.speedMod = false;
         }
         if (str.indexOf("set-scroll-sound") > -1) {
           s = str.split("set-scroll-sound ");
           s = s[1].split(/\s|\"/)[0];
-          scrollSound = s;
+          this.scrollSound = s;
         }
         if (str.indexOf("default-scroll-sound") > -1) {
-          scrollSound = null;
+          this.scrollSound = null;
         }
       }
-      currentOffset = i;
-      return offsetChanged = true;
+      this.currentOffset = i;
+      return this.offsetChanged = true;
     }
-  }
-};
+  };
+
+  return TextPrinter;
+
+})();
 
 
 /* UI SCRIPTS */
 
-UI = {
-  showSaveNotification: function(text) {
+UI = (function() {
+  function UI() {}
+
+  UI.prototype.showSaveNotification = function(text) {
     var e, textArea;
     e = document.getElementById("save-notification");
     textArea = e.querySelectorAll("textarea");
     textArea[0].value = text;
     return e.style.display = 'block';
-  },
-  closeSaveNotification: function() {
+  };
+
+  UI.prototype.closeSaveNotification = function() {
     var e;
     e = document.getElementById("save-notification");
     return e.style.display = 'none';
-  },
-  showLoadNotification: function() {
+  };
+
+  UI.prototype.showLoadNotification = function() {
     var e;
     if (gameArea.game.settings.saveMode === "text") {
       e = document.getElementById("load-notification");
       return e.style.display = 'block';
     } else {
-      return GameManager.loadGame();
+      return gameManager.loadGame();
     }
-  },
-  closeLoadNotification: function(load) {
+  };
+
+  UI.prototype.closeLoadNotification = function(load) {
     var e, textArea;
     e = document.getElementById("load-notification");
     if (load) {
       textArea = e.querySelectorAll("textarea");
-      GameManager.loadGame(textArea[0].value);
+      gameManager.loadGame(textArea[0].value);
       textArea[0].value = "";
     }
     return e.style.display = 'none';
-  },
-  updateInputs: function(needForUpdate) {
+  };
+
+  UI.prototype.updateInputs = function(needForUpdate) {
     var a, i, inputs, k, len, results;
     inputs = document.getElementById("game-area").querySelectorAll("input");
     results = [];
@@ -1443,9 +1483,9 @@ UI = {
         for (l = 0, len1 = ref.length; l < len1; l++) {
           a = ref[l];
           if (a.name === i.className.substring(6, i.className.length)) {
-            a.value = Util.stripHTML(i.value);
+            a.value = util.stripHTML(i.value);
             if (needForUpdate) {
-              results1.push(Scene.updateScene(data.game.currentScene, true));
+              results1.push(scene.updateScene(data.game.currentScene, true));
             } else {
               results1.push(void 0);
             }
@@ -1457,39 +1497,49 @@ UI = {
       })());
     }
     return results;
-  }
-};
+  };
+
+  return UI;
+
+})();
 
 copyButton = document.querySelector('#copy-button');
 
-copyButton.addEventListener('click', function(event) {
-  var copyTextarea, err, error, successful;
-  copyTextarea = document.getElementById("save-notification").querySelector("textarea");
-  copyTextarea.select();
-  try {
-    successful = document.execCommand('copy');
-  } catch (error) {
-    err = error;
-    console.error("Copying to clipboard failed: " + err);
-  }
-});
+if (copyButton !== null) {
+  copyButton.addEventListener('click', function(event) {
+    var copyTextarea, err, error, successful;
+    copyTextarea = document.getElementById("save-notification").querySelector("textarea");
+    copyTextarea.select();
+    try {
+      successful = document.execCommand('copy');
+    } catch (error) {
+      err = error;
+      console.error("Copying to clipboard failed: " + err);
+    }
+  });
+}
 
 
 /* UTILITY SCRIPTS */
 
-Util = {
-  isEven: function(n) {
+Util = (function() {
+  function Util() {}
+
+  Util.prototype.isEven = function(n) {
     return n % 2 === 0;
-  },
-  isOdd: function(n) {
+  };
+
+  Util.prototype.isOdd = function(n) {
     return Math.abs(n % 2) === 1;
-  },
-  stripHTML: function(text) {
+  };
+
+  Util.prototype.stripHTML = function(text) {
     var regex;
     regex = /(<([^>]+)>)/ig;
     return text.replace(regex, '');
-  },
-  validateParentheses: function(s) {
+  };
+
+  Util.prototype.validateParentheses = function(s) {
     var i, k, len, open;
     open = 0;
     for (k = 0, len = s.length; k < len; k++) {
@@ -1510,5 +1560,71 @@ Util = {
     } else {
       return false;
     }
-  }
+  };
+
+  return Util;
+
+})();
+
+data = {
+  game: null,
+  choices: null,
+  debugMode: false,
+  printedText: "",
+  parsedJavascriptCommands: [],
+  music: []
 };
+
+gamePath = './game';
+
+gameManager = new GameManager;
+
+inputManager = new InputManager;
+
+inventory = new Inventory;
+
+parser = new Parser;
+
+scene = new Scene;
+
+sound = new Sound;
+
+textPrinter = new TextPrinter;
+
+ui = new UI;
+
+util = new Util;
+
+gameArea = new Vue({
+  el: '#game-area',
+  data: data,
+  methods: {
+    requirementsFilled: function(choice) {
+      return scene.requirementsFilled(choice);
+    },
+    textSkipEnabled: function(choice) {
+      return data.game.currentScene.skipEnabled && data.game.settings.skipButtonShown;
+    },
+    itemsOverZero: function(item) {
+      var i, k, len, ref;
+      ref = this.game.inventory;
+      for (k = 0, len = ref.length; k < len; k++) {
+        i = ref[k];
+        if (i.name === item.name) {
+          if (i.count > 0) {
+            return true;
+          }
+        }
+      }
+      return false;
+    },
+    selectChoice: function(choice) {
+      return scene.selectChoice(choice);
+    }
+  }
+});
+
+
+/* And finally, start the game... */
+
+gameManager.startGame();

@@ -1,44 +1,41 @@
 
 ### HANDLES KEYBOARD INPUT ###
 
-presses = 0
-
-InputManager = {
+class InputManager
+  presses: 0
 
   # Gets keypresses and handles their functions
   keyDown: (charCode) ->
     if (charCode == 13 || charCode == 32)
       if data.game.settings.scrollSettings.continueWithKeyboard
-        Scene.tryContinue()
+        scene.tryContinue()
       if data.game.settings.scrollSettings.skipWithKeyboard
-        TextPrinter.trySkip()
-      TextPrinter.unpause()
+        textPrinter.trySkip()
+      textPrinter.unpause()
 
   keyPressed: (charCode) ->
-    presses++
+    @presses++
     if (charCode == 13 || charCode == 32)
-      if presses > 2
+      if @presses > 2
         if data.game.settings.scrollSettings.fastScrollWithKeyboard
-          TextPrinter.fastScroll()
+          textPrinter.fastScroll()
 
   keyUp: (charCode) ->
-    presses = 0
+    @presses = 0
     if (charCode == 13 || charCode == 32)
-      TextPrinter.stopFastScroll()
-
-}
+      textPrinter.stopFastScroll()
 
 document.onkeydown = (evt) ->
   evt = evt or window.event
   charCode = evt.keyCode or evt.which
-  InputManager.keyDown(charCode)
+  inputManager.keyDown(charCode)
 
 document.onkeypress = (evt) ->
   evt = evt or window.event
   charCode = evt.keyCode or evt.which
-  InputManager.keyPressed(charCode)
+  inputManager.keyPressed(charCode)
 
 document.onkeyup = (evt) ->
   evt = evt or window.event
   charCode = evt.keyCode or evt.which
-  InputManager.keyUp(charCode)
+  inputManager.keyUp(charCode)

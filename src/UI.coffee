@@ -1,7 +1,7 @@
 
 ### UI SCRIPTS ###
 
-UI = {
+class UI
 
   # Show the save notification window, and update its text
   showSaveNotification: (text) ->
@@ -21,14 +21,14 @@ UI = {
       e = document.getElementById("load-notification")
       e.style.display = 'block';
     else
-      GameManager.loadGame()
+      gameManager.loadGame()
 
   # Close the load notification - if load, then load a save.
   closeLoadNotification: (load) ->
     e = document.getElementById("load-notification")
     if load
       textArea = e.querySelectorAll("textarea")
-      GameManager.loadGame(textArea[0].value)
+      gameManager.loadGame(textArea[0].value)
       textArea[0].value = ""
     e.style.display = 'none'
 
@@ -38,19 +38,19 @@ UI = {
     for i in inputs
       for a in data.game.stats
         if a.name == i.className.substring(6,i.className.length)
-          a.value = Util.stripHTML(i.value)
+          a.value = util.stripHTML(i.value)
           if needForUpdate
-            Scene.updateScene(data.game.currentScene,true)
+            scene.updateScene(data.game.currentScene,true)
 
-}
 
 # The button that can be used to copy the text from the save window.
 copyButton = document.querySelector('#copy-button')
-copyButton.addEventListener 'click', (event) ->
-  copyTextarea = document.getElementById("save-notification").querySelector("textarea")
-  copyTextarea.select()
-  try
-    successful = document.execCommand('copy')
-  catch err
-    console.error "Copying to clipboard failed: "+err
-  return
+if copyButton != null
+  copyButton.addEventListener 'click', (event) ->
+    copyTextarea = document.getElementById("save-notification").querySelector("textarea")
+    copyTextarea.select()
+    try
+      successful = document.execCommand('copy')
+    catch err
+      console.error "Copying to clipboard failed: "+err
+    return

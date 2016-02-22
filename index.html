@@ -14,20 +14,20 @@
             <div id="save-notification" class="notification">
               <p>Copy and save this text:</p>
               <p><textarea name="save-text" readonly></textarea></p>
-              <p><button type="button" onclick="UI.closeSaveNotification()">Close</button><button type="button" id="copy-button">Copy</button></p>
+              <p><button type="button" onclick="ui.closeSaveNotification()">Close</button><button type="button" id="copy-button">Copy</button></p>
             </div>
             <div id="load-notification" class="notification">
               <p>Paste your saved game here:</p>
               <p><textarea name="load-text"></textarea></p>
-              <p><button type="button" onclick="UI.closeLoadNotification(false)">Close</button><button type="button" onclick="UI.closeLoadNotification(true)">Load</button></p>
+              <p><button type="button" onclick="ui.closeLoadNotification(false)">Close</button><button type="button" onclick="ui.closeLoadNotification(true)">Load</button></p>
             </div>
           </div>
           <div class="text-and-choices-area">
             <div class="text-area">
               {{{ printedText }}}
             </div>
-            <button v-if="textSkipEnabled()" type="button" id="skip-button" onclick="TextPrinter.complete()">Skip</button>
-            <button v-if="paused()" type="button" id="continue-button" onclick="TextPrinter.unpause()">Continue</button>
+            <button v-if="textSkipEnabled()" type="button" id="skip-button" onclick="textPrinter.complete()">Skip</button>
+            <button v-if="paused()" type="button" id="continue-button" onclick="textPrinter.unpause()">Continue</button>
             <div class="choices">
               <ul class="choice-list">
                 <div v-for="choice in game.parsedChoices">
@@ -60,8 +60,8 @@
             </ul>
           </div>
           <div v-if="game.settings.showSaveButtons" class="save-buttons">
-            <button type="button" id="save-button" onclick="GameManager.saveGame()">Save</button>
-            <button type="button" id="load-button" onclick="UI.showLoadNotification()">Load</button>
+            <button type="button" id="save-button" onclick="gameManager.saveGame()">Save</button>
+            <button type="button" id="load-button" onclick="ui.showLoadNotification()">Load</button>
           </div>
           <div class="footer-text">Created using <a href="https://github.com/Nanofus/novel.js" target="_blank">Novel.js</a>.</div>
         </div>

@@ -1,7 +1,7 @@
 
 ### INVENTORY, STAT & VALUE OPERATIONS ###
 
-Inventory = {
+class Inventory
 
   # Check if item or stat requirements have been filled
   checkRequirements: (requirements, isItem) ->
@@ -26,13 +26,13 @@ Inventory = {
   # Set a value in JSON
   setValue: (parsed, newValue) ->
     getValueArrayLast = @getValueArrayLast(parsed)
-    value = Parser.findValue(parsed,false)
+    value = parser.findValue(parsed,false)
     value[getValueArrayLast] = newValue
 
   # Increase a value in JSON
   increaseValue: (parsed, change) ->
     getValueArrayLast = @getValueArrayLast(parsed)
-    value = Parser.findValue(parsed,false)
+    value = parser.findValue(parsed,false)
     value[getValueArrayLast] = value[getValueArrayLast] + change
     if !isNaN(parseFloat(value[getValueArrayLast]))
       value[getValueArrayLast] = parseFloat(value[getValueArrayLast].toFixed(data.game.settings.floatPrecision));
@@ -40,7 +40,7 @@ Inventory = {
   # Decrease a value in JSON
   decreaseValue: (parsed, change) ->
     getValueArrayLast = @getValueArrayLast(parsed)
-    value = Parser.findValue(parsed,false)
+    value = parser.findValue(parsed,false)
     value[getValueArrayLast] = value[getValueArrayLast] - change
     if !isNaN(parseFloat(value[getValueArrayLast]))
       value[getValueArrayLast] = parseFloat(value[getValueArrayLast].toFixed(data.game.settings.floatPrecision));
@@ -68,7 +68,7 @@ Inventory = {
           probability = 1
           if p.length > 1
             displayName = p[1]
-            count = parseInt(Parser.parseStatement(p[0]))
+            count = parseInt(parser.parseStatement(p[0]))
             #console.log count
             if !isNaN(displayName)
               probability = p[1]
@@ -78,7 +78,7 @@ Inventory = {
               displayName = p[2]
           else
             displayName = j[0]
-            count = parseInt(Parser.parseStatement(j[1]))
+            count = parseInt(parser.parseStatement(j[1]))
             #console.log count
           value = Math.random()
           if value < probability
@@ -110,7 +110,7 @@ Inventory = {
         if p.length > 1
           displayName = p[1]
           #console.log "p0: " + Parser.parseStatement(p[0])
-          count = parseInt(Parser.parseStatement(p[0]))
+          count = parseInt(parser.parseStatement(p[0]))
           #console.log count
           if !isNaN(displayName)
             probability = p[1]
@@ -120,7 +120,7 @@ Inventory = {
             displayName = p[2]
         else
           displayName = j[0]
-          count = parseInt(Parser.parseStatement(j[1]))
+          count = parseInt(parser.parseStatement(j[1]))
           #console.log count
         value = Math.random()
         if value < probability
@@ -129,5 +129,3 @@ Inventory = {
       data.game.inventory = inventory
     else
       data.game.stats = inventory
-
-}

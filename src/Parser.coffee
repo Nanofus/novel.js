@@ -1,16 +1,18 @@
-parsedJavascriptCommands = []
 
 ### PARSERS ###
 
-Parser = {
+class Parser
 
   # Parse a string of items and output an array
-  parseItemOrStats: (items) ->
+  parseItemsOrStats: (items) ->
+    if items == ""
+      return undefined
     separate = items.split("|")
     parsed = []
     for i in separate
       i = i.substring(0, i.length - 1)
       i = i.split("[")
+      i[1] = parseInt(i[1])
       parsed.push(i)
     return parsed
 
@@ -132,7 +134,7 @@ Parser = {
   # Parse a statement that returns true or false or calculate a value
   parseStatement: (s) ->
     # Check for valid parentheses
-    if !Util.validateParentheses(s)
+    if !util.validateParentheses(s)
       console.error "ERROR: Invalid parentheses in statement"
     # Clean spaces
     s = s.replace(/\s+/g, '');
@@ -212,7 +214,7 @@ Parser = {
       variable = @findValueByName(data.game,splitted[0])[0]
     # Follow the path
     for i in [0 .. splitted.length - 1]
-      if Util.isOdd(i)
+      if util.isOdd(i)
         variable = variable[parseInt(splitted[i])]
       else if i != 0
         if !toPrint
@@ -220,7 +222,7 @@ Parser = {
         else
           if splitted[i] == "parsedText" || splitted[i] == "text"
             splitted[i] = "parsedText"
-            variable.parsedText = Parser.parseText(variable.text)
+            variable.parsedText = @parseText(variable.text)
           variable = @findValueByName(variable,splitted[i])[0]
     return variable
 
@@ -236,5 +238,3 @@ Parser = {
     r[0] = newObj
     r[1] = obj
     return r
-
-}

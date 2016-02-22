@@ -9,6 +9,16 @@ data = {
 
 gamePath = './game'
 
+gameManager = new GameManager
+inputManager = new InputManager
+inventory = new Inventory
+parser = new Parser
+scene = new Scene
+sound = new Sound
+textPrinter = new TextPrinter
+ui = new UI
+util = new Util
+
 # Game area
 gameArea = new Vue(
   el: '#game-area'
@@ -16,15 +26,7 @@ gameArea = new Vue(
   methods:
     # Return whether the requirements of a choice have been filled
     requirementsFilled: (choice) ->
-      return Scene.requirementsFilled(choice)
-
-    # Return whether the game is paused or not
-    paused: ->
-      if pause > 0 || pause == "input"
-        console.log "paused"
-        return true
-      console.log "not paused"
-      return false
+      return scene.requirementsFilled(choice)
 
     # Return whether the text can be skipped
     textSkipEnabled: (choice) ->
@@ -40,9 +42,9 @@ gameArea = new Vue(
 
     # Select a choice
     selectChoice: (choice) ->
-      Scene.selectChoice(choice)
+      scene.selectChoice(choice)
 
 )
 
 ### And finally, start the game... ###
-GameManager.startGame()
+gameManager.startGame()

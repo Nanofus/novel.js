@@ -2,7 +2,7 @@
 ### SOUNDS ###
 
 # A class for sound functions
-Sound = {
+class Sound
 
   # Play the default sound for clicking an item
   playDefaultClickSound: (name,clicked) ->
@@ -45,5 +45,3 @@ Sound = {
         i.music.pause()
         index = data.music.indexOf(i)
         data.music.splice(index,1)
-
-}
