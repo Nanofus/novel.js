@@ -16,10 +16,10 @@ describe 'Tests', ->
 
     gameManager = new GameManager
     inputManager = new InputManager
-    inventory = new Inventory
+    inventoryManager = new InventoryManager
     parser = new Parser
-    scene = new Scene
-    sound = new Sound
+    sceneManager = new SceneManager
+    soundManager = new SoundManager
     textPrinter = new TextPrinter
     ui = new UI
     util = new Util
@@ -30,7 +30,7 @@ describe 'Tests', ->
       methods:
         # Return whether the requirements of a choice have been filled
         requirementsFilled: (choice) ->
-          return scene.requirementsFilled(choice)
+          return sceneManager.requirementsFilled(choice)
 
         # Return whether the text can be skipped
         textSkipEnabled: (choice) ->
@@ -46,5 +46,5 @@ describe 'Tests', ->
 
         # Select a choice
         selectChoice: (choice) ->
-          scene.selectChoice(choice)
+          sceneManager.selectChoice(choice)
     )

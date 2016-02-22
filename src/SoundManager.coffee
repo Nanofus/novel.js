@@ -2,7 +2,7 @@
 ### SOUNDS ###
 
 # A class for sound functions
-class Sound
+class SoundManager
 
   # Play the default sound for clicking an item
   playDefaultClickSound: (name,clicked) ->

@@ -18,5 +18,5 @@
         expect(parser.parseStatement("20/4-(5+2)*2")).to.equal(-9)
       it 'should use items correctly', ->
         data.game = {inventory:[],stats:[],scenes:[]}
-        inventory.editItemsOrStats(parser.parseItemsOrStats("sword[1]"),"add",true)
+        inventoryManager.editItemsOrStats(parser.parseItemsOrStats("sword[1]"),"add",true)
         expect(parser.parseStatement("inv.sword+1")).to.equal(2)

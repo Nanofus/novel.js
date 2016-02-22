@@ -7,7 +7,7 @@ gameArea = new Vue(
   methods:
     # Return whether the requirements of a choice have been filled
     requirementsFilled: (choice) ->
-      return scene.requirementsFilled(choice)
+      return sceneManager.requirementsFilled(choice)
 
     # Return whether the text can be skipped
     textSkipEnabled: (choice) ->
@@ -23,5 +23,5 @@ gameArea = new Vue(
 
     # Select a choice
     selectChoice: (choice) ->
-      scene.selectChoice(choice)
+      sceneManager.selectChoice(choice)
 )

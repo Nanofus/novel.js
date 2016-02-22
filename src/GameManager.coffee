@@ -47,7 +47,7 @@ class GameManager
       console.warn "WARNING! Game version mismatch"
     data.game = loadedData
     data.debugMode = data.game.debugMode
-    scene.updateScene(data.game.currentScene,true)
+    sceneManager.updateScene(data.game.currentScene,true)
 
   # Start the game by loading the default game.json
   startGame: ->
@@ -58,7 +58,7 @@ class GameManager
         json = JSON.parse(request.responseText)
         json = gameManager.prepareData(json)
         data.game = json
-        data.game.currentScene = scene.changeScene(data.game.scenes[0].name)
+        data.game.currentScene = sceneManager.changeScene(data.game.scenes[0].name)
         data.debugMode = data.game.debugMode
     request.onerror = ->
       return

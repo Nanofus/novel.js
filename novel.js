@@ -1,6 +1,6 @@
 
 /* SAVING AND LOADING */
-var GameManager, InputManager, Inventory, Parser, Scene, Sound, TextPrinter, UI, Util, copyButton, data, gameArea, gameManager, gamePath, inputManager, inventory, parser, scene, sound, textPrinter, ui, util,
+var GameManager, InputManager, InventoryManager, Parser, SceneManager, SoundManager, TextPrinter, UI, Util, copyButton, data, gameArea, gameManager, gamePath, inputManager, inventoryManager, parser, sceneManager, soundManager, textPrinter, ui, util,
   indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
 GameManager = (function() {
@@ -59,7 +59,7 @@ GameManager = (function() {
     }
     data.game = loadedData;
     data.debugMode = data.game.debugMode;
-    return scene.updateScene(data.game.currentScene, true);
+    return sceneManager.updateScene(data.game.currentScene, true);
   };
 
   GameManager.prototype.startGame = function() {
@@ -72,7 +72,7 @@ GameManager = (function() {
         json = JSON.parse(request.responseText);
         json = gameManager.prepareData(json);
         data.game = json;
-        data.game.currentScene = scene.changeScene(data.game.scenes[0].name);
+        data.game.currentScene = sceneManager.changeScene(data.game.scenes[0].name);
         return data.debugMode = data.game.debugMode;
       }
     };
@@ -154,7 +154,7 @@ InputManager = (function() {
   InputManager.prototype.keyDown = function(charCode) {
     if (charCode === 13 || charCode === 32) {
       if (data.game.settings.scrollSettings.continueWithKeyboard) {
-        scene.tryContinue();
+        sceneManager.tryContinue();
       }
       if (data.game.settings.scrollSettings.skipWithKeyboard) {
         textPrinter.trySkip();
@@ -330,10 +330,10 @@ Parser = (function() {
               nameText = i.value;
             }
           }
-          splitText[index] = "<input type=\"text\" value=\"" + nameText + "\" name=\"input\" class=\"input-" + parsed[1] + "\" onblur=\"UI.updateInputs(true)\">";
+          splitText[index] = "<input type=\"text\" value=\"" + nameText + "\" name=\"input\" class=\"input-" + parsed[1] + "\" onblur=\"ui.updateInputs(true)\">";
         } else if (s.substring(0, 6) === "choice") {
           parsed = s.split("choice ");
-          splitText[index] = "<a href=\"#\" onclick=\"Scene.selectChoiceByNameByClicking(event,'" + parsed[1] + "')\">";
+          splitText[index] = "<a href=\"#\" onclick=\"sceneManager.selectChoiceByNameByClicking(event,'" + parsed[1] + "')\">";
           asToBeClosed++;
         } else if (s.substring(0, 7) === "/choice") {
           if (asToBeClosed > 0) {
@@ -491,10 +491,10 @@ Parser = (function() {
 
 /* INVENTORY, STAT & VALUE OPERATIONS */
 
-Inventory = (function() {
-  function Inventory() {}
+InventoryManager = (function() {
+  function InventoryManager() {}
 
-  Inventory.prototype.checkRequirements = function(requirements, isItem) {
+  InventoryManager.prototype.checkRequirements = function(requirements, isItem) {
     var i, j, k, l, len, len1, len2, len3, m, o, ref, ref1, reqsFilled;
     reqsFilled = 0;
     if (isItem) {
@@ -531,14 +531,14 @@ Inventory = (function() {
     }
   };
 
-  Inventory.prototype.setValue = function(parsed, newValue) {
+  InventoryManager.prototype.setValue = function(parsed, newValue) {
     var getValueArrayLast, value;
     getValueArrayLast = this.getValueArrayLast(parsed);
     value = parser.findValue(parsed, false);
     return value[getValueArrayLast] = newValue;
   };
 
-  Inventory.prototype.increaseValue = function(parsed, change) {
+  InventoryManager.prototype.increaseValue = function(parsed, change) {
     var getValueArrayLast, value;
     getValueArrayLast = this.getValueArrayLast(parsed);
     value = parser.findValue(parsed, false);
@@ -548,7 +548,7 @@ Inventory = (function() {
     }
   };
 
-  Inventory.prototype.decreaseValue = function(parsed, change) {
+  InventoryManager.prototype.decreaseValue = function(parsed, change) {
     var getValueArrayLast, value;
     getValueArrayLast = this.getValueArrayLast(parsed);
     value = parser.findValue(parsed, false);
@@ -558,7 +558,7 @@ Inventory = (function() {
     }
   };
 
-  Inventory.prototype.getValueArrayLast = function(parsed) {
+  InventoryManager.prototype.getValueArrayLast = function(parsed) {
     var getValueArrayLast;
     getValueArrayLast = parsed.split(",");
     getValueArrayLast = getValueArrayLast[getValueArrayLast.length - 1].split(".");
@@ -566,26 +566,24 @@ Inventory = (function() {
     return getValueArrayLast;
   };
 
-  Inventory.prototype.editItemsOrStats = function(items, mode, isItem) {
-    var count, displayName, i, inventory, isInv, itemAdded, j, k, l, len, len1, p, probability, value;
-    if (isItem) {
-      inventory = data.game.inventory;
-      isInv = true;
+  InventoryManager.prototype.editItemsOrStats = function(items, mode, isInv) {
+    var count, displayName, i, inv, itemAdded, j, k, l, len, len1, p, probability, value;
+    if (isInv) {
+      inv = data.game.inventory;
     } else {
-      inventory = data.game.stats;
-      isInv = false;
+      inv = data.game.stats;
     }
     for (k = 0, len = items.length; k < len; k++) {
       j = items[k];
       itemAdded = false;
-      for (l = 0, len1 = inventory.length; l < len1; l++) {
-        i = inventory[l];
+      for (l = 0, len1 = inv.length; l < len1; l++) {
+        i = inv[l];
         if (i.name === j[0]) {
-          p = j[1].split(",");
+          p = j[1].toString().split(",");
           probability = 1;
           if (p.length > 1) {
             displayName = p[1];
-            count = parseInt(parser.parseStatement(p[0]));
+            count = parseInt(parser.parseStatement(p[0].toString()));
             if (!isNaN(displayName)) {
               probability = p[1];
               displayName = j.name;
@@ -596,7 +594,7 @@ Inventory = (function() {
             }
           } else {
             displayName = j[0];
-            count = parseInt(parser.parseStatement(j[1]));
+            count = parseInt(parser.parseStatement(j[1].toString()));
           }
           value = Math.random();
           if (value < probability) {
@@ -633,11 +631,11 @@ Inventory = (function() {
         }
       }
       if (!itemAdded && mode !== "remove") {
-        p = j[1].split(",");
+        p = j[1].toString().split(",");
         probability = 1;
         if (p.length > 1) {
           displayName = p[1];
-          count = parseInt(parser.parseStatement(p[0]));
+          count = parseInt(parser.parseStatement(p[0].toString()));
           if (!isNaN(displayName)) {
             probability = p[1];
             displayName = j.name;
@@ -648,11 +646,11 @@ Inventory = (function() {
           }
         } else {
           displayName = j[0];
-          count = parseInt(parser.parseStatement(j[1]));
+          count = parseInt(parser.parseStatement(j[1].toString()));
         }
         value = Math.random();
         if (value < probability) {
-          inventory.push({
+          inv.push({
             "name": j[0],
             "count": count,
             "displayName": displayName
@@ -660,30 +658,30 @@ Inventory = (function() {
         }
       }
     }
-    if (isItem) {
-      return data.game.inventory = inventory;
+    if (isInv) {
+      return data.game.inventory = inv;
     } else {
-      return data.game.stats = inventory;
+      return data.game.stats = inv;
     }
   };
 
-  return Inventory;
+  return InventoryManager;
 
 })();
 
 
 /* SCENE MANIPULATION */
 
-Scene = (function() {
-  function Scene() {}
+SceneManager = (function() {
+  function SceneManager() {}
 
-  Scene.prototype.tryContinue = function() {
+  SceneManager.prototype.tryContinue = function() {
     if (textPrinter.printCompleted && textPrinter.tickSpeedMultiplier === 1) {
       return this.selectChoiceByName("Continue");
     }
   };
 
-  Scene.prototype.selectChoice = function(choice) {
+  SceneManager.prototype.selectChoice = function(choice) {
     this.exitScene(data.game.currentScene);
     this.readItemAndStatsEdits(choice);
     this.readSounds(choice, true);
@@ -701,13 +699,13 @@ Scene = (function() {
     }
   };
 
-  Scene.prototype.selectChoiceByNameByClicking = function(event, name) {
+  SceneManager.prototype.selectChoiceByNameByClicking = function(event, name) {
     event.stopPropagation();
     event.preventDefault();
     return this.selectChoiceByName(name);
   };
 
-  Scene.prototype.selectChoiceByName = function(name) {
+  SceneManager.prototype.selectChoiceByName = function(name) {
     var i, k, len, ref, results;
     ref = data.game.currentScene.choices;
     results = [];
@@ -723,18 +721,18 @@ Scene = (function() {
     return results;
   };
 
-  Scene.prototype.exitScene = function(scene) {
+  SceneManager.prototype.exitScene = function(scene) {
     return ui.updateInputs(false);
   };
 
-  Scene.prototype.changeScene = function(sceneNames) {
+  SceneManager.prototype.changeScene = function(sceneNames) {
     var scene;
     scene = this.findSceneByName(this.selectRandomOption(sceneNames));
     this.setupScene(scene);
     return scene;
   };
 
-  Scene.prototype.setupScene = function(scene) {
+  SceneManager.prototype.setupScene = function(scene) {
     this.updateScene(scene, false);
     this.readItemAndStatsEdits(data.game.currentScene);
     this.readSounds(data.game.currentScene, false);
@@ -745,7 +743,7 @@ Scene = (function() {
     return textPrinter.printText(scene.parsedText, false);
   };
 
-  Scene.prototype.updateScene = function(scene, onlyUpdating) {
+  SceneManager.prototype.updateScene = function(scene, onlyUpdating) {
     this.combineSceneTexts(scene);
     scene.parsedText = parser.parseText(scene.combinedText);
     data.game.currentScene = scene;
@@ -757,7 +755,7 @@ Scene = (function() {
     }
   };
 
-  Scene.prototype.updateChoices = function() {
+  SceneManager.prototype.updateChoices = function() {
     return gameArea.$set('game.parsedChoices', data.game.currentScene.choices.map(function(choice) {
       choice.parsedText = parser.parseText(choice.text);
       if (gameArea.game.settings.alwaysShowDisabledChoices) {
@@ -767,7 +765,7 @@ Scene = (function() {
     }));
   };
 
-  Scene.prototype.selectRandomOption = function(name) {
+  SceneManager.prototype.selectRandomOption = function(name) {
     var i, k, len, parsed, separate;
     separate = name.split("|");
     if (separate.length === 1) {
@@ -784,7 +782,7 @@ Scene = (function() {
     return parsed;
   };
 
-  Scene.prototype.chooseRandomly = function(options) {
+  SceneManager.prototype.chooseRandomly = function(options) {
     var chances, i, k, l, len, len1, len2, m, nameIndex, names, previous, rawChances, totalChance, value;
     names = [];
     chances = [];
@@ -816,7 +814,7 @@ Scene = (function() {
     }
   };
 
-  Scene.prototype.findSceneByName = function(name) {
+  SceneManager.prototype.findSceneByName = function(name) {
     var i, k, len, ref;
     ref = data.game.scenes;
     for (k = 0, len = ref.length; k < len; k++) {
@@ -828,8 +826,9 @@ Scene = (function() {
     return console.error("ERROR: Scene by name '" + name + "' not found!");
   };
 
-  Scene.prototype.combineSceneTexts = function(s) {
+  SceneManager.prototype.combineSceneTexts = function(s) {
     var i, k, len, ref, results;
+    s.combinedText = "";
     if (Object.prototype.toString.call(s.text) === "[object Array]") {
       ref = s.text;
       results = [];
@@ -843,38 +842,38 @@ Scene = (function() {
     }
   };
 
-  Scene.prototype.readItemAndStatsEdits = function(source) {
+  SceneManager.prototype.readItemAndStatsEdits = function(source) {
     var k, l, len, len1, len2, m, ref, ref1, ref2, results, val;
     if (source.removeItem !== void 0) {
-      inventory.editItemsOrStats(parser.parseItemsOrStats(source.removeItem), "remove", true);
+      inventoryManager.editItemsOrStats(parser.parseItemsOrStats(source.removeItem), "remove", true);
     }
     if (source.addItem !== void 0) {
-      inventory.editItemsOrStats(parser.parseItemsOrStats(source.addItem), "add", true);
+      inventoryManager.editItemsOrStats(parser.parseItemsOrStats(source.addItem), "add", true);
     }
     if (source.setItem !== void 0) {
-      inventory.editItemsOrStats(parser.parseItemsOrStats(source.setItem), "set", true);
+      inventoryManager.editItemsOrStats(parser.parseItemsOrStats(source.setItem), "set", true);
     }
     if (source.removeStats !== void 0) {
-      inventory.editItemsOrStats(parser.parseItemsOrStats(source.removeStats), "remove", false);
+      inventoryManager.editItemsOrStats(parser.parseItemsOrStats(source.removeStats), "remove", false);
     }
     if (source.addStats !== void 0) {
-      inventory.editItemsOrStats(parser.parseItemsOrStats(source.addStats), "add", false);
+      inventoryManager.editItemsOrStats(parser.parseItemsOrStats(source.addStats), "add", false);
     }
     if (source.setStats !== void 0) {
-      inventory.editItemsOrStats(parser.parseItemsOrStats(source.setStats), "set", false);
+      inventoryManager.editItemsOrStats(parser.parseItemsOrStats(source.setStats), "set", false);
     }
     if (source.setValue !== void 0) {
       ref = source.setValue;
       for (k = 0, len = ref.length; k < len; k++) {
         val = ref[k];
-        inventory.setValue(val.path, parser.parseStatement(val.value.toString()));
+        inventoryManager.setValue(val.path, parser.parseStatement(val.value.toString()));
       }
     }
     if (source.increaseValue !== void 0) {
       ref1 = source.increaseValue;
       for (l = 0, len1 = ref1.length; l < len1; l++) {
         val = ref1[l];
-        inventory.increaseValue(val.path, parser.parseStatement(val.value.toString()));
+        inventoryManager.increaseValue(val.path, parser.parseStatement(val.value.toString()));
       }
     }
     if (source.decreaseValue !== void 0) {
@@ -882,27 +881,27 @@ Scene = (function() {
       results = [];
       for (m = 0, len2 = ref2.length; m < len2; m++) {
         val = ref2[m];
-        results.push(inventory.decreaseValue(val.path, parser.parseStatement(val.value.toString())));
+        results.push(inventoryManager.decreaseValue(val.path, parser.parseStatement(val.value.toString())));
       }
       return results;
     }
   };
 
-  Scene.prototype.readSounds = function(source, clicked) {
+  SceneManager.prototype.readSounds = function(source, clicked) {
     var played;
     played = false;
     if (source.playSound !== void 0) {
-      sound.playSound(source.playSound, false);
+      soundManager.playSound(source.playSound, false);
       played = true;
     }
     if (clicked && !played) {
-      sound.playDefaultClickSound();
+      soundManager.playDefaultClickSound();
     }
     if (source.startMusic !== void 0) {
-      sound.startMusic(source.startMusic);
+      soundManager.startMusic(source.startMusic);
     }
     if (source.stopMusic !== void 0) {
-      sound.stopMusic(source.stopMusic);
+      soundManager.stopMusic(source.stopMusic);
     }
     if (source.scrollSound !== void 0) {
       return data.game.currentScene.scrollSound = source.scrollSound;
@@ -915,13 +914,13 @@ Scene = (function() {
     }
   };
 
-  Scene.prototype.readExecutes = function(source) {
+  SceneManager.prototype.readExecutes = function(source) {
     if (source.executeJs !== void 0) {
       return eval(source.executeJs);
     }
   };
 
-  Scene.prototype.readMisc = function(source) {
+  SceneManager.prototype.readMisc = function(source) {
     if (source.skipEnabled !== void 0) {
       data.game.currentScene.skipEnabled = source.skipEnabled;
     } else {
@@ -934,7 +933,7 @@ Scene = (function() {
     }
   };
 
-  Scene.prototype.readSaving = function(source) {
+  SceneManager.prototype.readSaving = function(source) {
     if (source.saveGame !== void 0) {
       gameManager.saveGame();
     }
@@ -943,7 +942,7 @@ Scene = (function() {
     }
   };
 
-  Scene.prototype.readCheckpoints = function(source) {
+  SceneManager.prototype.readCheckpoints = function(source) {
     var checkpoint, dataChanged, i, k, l, len, len1, ref, ref1, results;
     if (source.saveCheckpoint !== void 0) {
       if (data.game.checkpoints === void 0) {
@@ -984,19 +983,19 @@ Scene = (function() {
     }
   };
 
-  Scene.prototype.requirementsFilled = function(choice) {
+  SceneManager.prototype.requirementsFilled = function(choice) {
     var k, len, r, reqs, requirements, success;
     reqs = [];
     if (choice.itemRequirement !== void 0) {
       requirements = parser.parseItemsOrStats(choice.itemRequirement);
-      reqs.push(inventory.checkRequirements(requirements, true));
+      reqs.push(inventoryManager.checkRequirements(requirements, true));
     }
     if (choice.statsRequirement !== void 0) {
       requirements = parser.parseItemsOrStats(choice.statsRequirement);
-      reqs.push(inventory.checkRequirements(requirements, false));
+      reqs.push(inventoryManager.checkRequirements(requirements, false));
     }
     if (choice.requirement !== void 0) {
-      reqs.push(inventory.parseIfStatement(choice.requirement));
+      reqs.push(inventoryManager.parseIfStatement(choice.requirement));
     }
     success = true;
     for (k = 0, len = reqs.length; k < len; k++) {
@@ -1008,21 +1007,21 @@ Scene = (function() {
     return success;
   };
 
-  return Scene;
+  return SceneManager;
 
 })();
 
 
 /* SOUNDS */
 
-Sound = (function() {
-  function Sound() {}
+SoundManager = (function() {
+  function SoundManager() {}
 
-  Sound.prototype.playDefaultClickSound = function(name, clicked) {
+  SoundManager.prototype.playDefaultClickSound = function(name, clicked) {
     return this.playSound(data.game.settings.soundSettings.defaultClickSound, false);
   };
 
-  Sound.prototype.playSound = function(name, isMusic) {
+  SoundManager.prototype.playSound = function(name, isMusic) {
     var k, len, ref, s, sound;
     ref = data.game.sounds;
     for (k = 0, len = ref.length; k < len; k++) {
@@ -1040,7 +1039,7 @@ Sound = (function() {
     }
   };
 
-  Sound.prototype.isPlaying = function(name) {
+  SoundManager.prototype.isPlaying = function(name) {
     var i, k, len, ref;
     ref = data.music;
     for (k = 0, len = ref.length; k < len; k++) {
@@ -1053,7 +1052,7 @@ Sound = (function() {
     }
   };
 
-  Sound.prototype.startMusic = function(name) {
+  SoundManager.prototype.startMusic = function(name) {
     var music;
     music = this.playSound(name, true);
     music.addEventListener('ended', (function() {
@@ -1066,7 +1065,7 @@ Sound = (function() {
     });
   };
 
-  Sound.prototype.stopMusic = function(name) {
+  SoundManager.prototype.stopMusic = function(name) {
     var i, index, k, len, ref, results;
     ref = data.music;
     results = [];
@@ -1083,7 +1082,7 @@ Sound = (function() {
     return results;
   };
 
-  return Sound;
+  return SoundManager;
 
 })();
 
@@ -1175,7 +1174,7 @@ TextPrinter = (function() {
       if (ss.length > 0) {
         for (i = l = 0, ref = ss.length; 0 <= ref ? l <= ref : l >= ref; i = 0 <= ref ? ++l : --l) {
           if (!(ref1 = ss[i], indexOf.call(this.soundBuffer, ref1) >= 0)) {
-            sound.playSound(ss[i]);
+            soundManager.playSound(ss[i]);
           }
         }
       }
@@ -1194,7 +1193,7 @@ TextPrinter = (function() {
       if (ss.length > 0) {
         for (i = o = 0, ref2 = ss.length; 0 <= ref2 ? o <= ref2 : o >= ref2; i = 0 <= ref2 ? ++o : --o) {
           if (!(ref3 = ss[i], indexOf.call(this.musicBuffer, ref3) >= 0)) {
-            sound.startMusic(ss[i]);
+            soundManager.startMusic(ss[i]);
           }
         }
       }
@@ -1213,7 +1212,7 @@ TextPrinter = (function() {
       if (ss.length > 0) {
         for (i = t = 0, ref4 = ss.length; 0 <= ref4 ? t <= ref4 : t >= ref4; i = 0 <= ref4 ? ++t : --t) {
           if (!(ref5 = ss[i], indexOf.call(this.stopMusicBuffer, ref5) >= 0)) {
-            sound.stopMusic(ss[i]);
+            soundManager.stopMusic(ss[i]);
           }
         }
       }
@@ -1239,7 +1238,7 @@ TextPrinter = (function() {
       this.buffersExecuted = true;
     }
     data.printedText = this.fullText;
-    return scene.updateChoices();
+    return sceneManager.updateChoices();
   };
 
   TextPrinter.prototype.unpause = function() {
@@ -1305,9 +1304,9 @@ TextPrinter = (function() {
       if (this.tickCounter >= this.tickSoundFrequency) {
         if (this.scrollSound !== "none" && this.interval !== 0) {
           if (this.scrollSound !== null) {
-            sound.playSound(this.scrollSound);
+            soundManager.playSound(this.scrollSound);
           } else if (data.game.currentScene.scrollSound !== void 0) {
-            sound.playSound(data.game.currentScene.scrollSound);
+            soundManager.playSound(data.game.currentScene.scrollSound);
           }
           this.tickCounter = 0;
         }
@@ -1380,19 +1379,19 @@ TextPrinter = (function() {
           s = str.split("play-sound ");
           s = s[1].split(/\s|\"/)[0];
           this.soundBuffer.push(s);
-          sound.playSound(s);
+          soundManager.playSound(s);
         }
         if (str.indexOf("play-music") > -1) {
           s = str.split("play-music ");
           s = s[1].split(/\s|\"/)[0];
           this.musicBuffer.push(s);
-          sound.startMusic(s);
+          soundManager.startMusic(s);
         }
         if (str.indexOf("stop-music") > -1) {
           s = str.split("stop-music ");
           s = s[1].split(/\s|\"/)[0];
           this.stopMusicBuffer.push(s);
-          sound.stopMusic(s);
+          soundManager.stopMusic(s);
         }
         if (str.indexOf("pause") > -1) {
           s = str.split("pause ");
@@ -1494,7 +1493,7 @@ UI = (function() {
           if (a.name === i.className.substring(6, i.className.length)) {
             a.value = util.stripHTML(i.value);
             if (needForUpdate) {
-              results1.push(scene.updateScene(data.game.currentScene, true));
+              results1.push(sceneManager.updateScene(data.game.currentScene, true));
             } else {
               results1.push(void 0);
             }
@@ -1590,13 +1589,13 @@ gameManager = new GameManager;
 
 inputManager = new InputManager;
 
-inventory = new Inventory;
+inventoryManager = new InventoryManager;
 
 parser = new Parser;
 
-scene = new Scene;
+sceneManager = new SceneManager;
 
-sound = new Sound;
+soundManager = new SoundManager;
 
 textPrinter = new TextPrinter;
 
@@ -1612,7 +1611,7 @@ gameArea = new Vue({
   data: data,
   methods: {
     requirementsFilled: function(choice) {
-      return scene.requirementsFilled(choice);
+      return sceneManager.requirementsFilled(choice);
     },
     textSkipEnabled: function(choice) {
       return data.game.currentScene.skipEnabled && data.game.settings.skipButtonShown;
@@ -1631,7 +1630,7 @@ gameArea = new Vue({
       return false;
     },
     selectChoice: function(choice) {
-      return scene.selectChoice(choice);
+      return sceneManager.selectChoice(choice);
     }
   }
 });

@@ -113,11 +113,11 @@ class Parser
           for i in data.game.stats
             if i.name == parsed[1]
               nameText = i.value
-          splitText[index] = "<input type=\"text\" value=\"" + nameText + "\" name=\"input\" class=\"input-" + parsed[1] +  "\" onblur=\"UI.updateInputs(true)\">"
+          splitText[index] = "<input type=\"text\" value=\"" + nameText + "\" name=\"input\" class=\"input-" + parsed[1] +  "\" onblur=\"ui.updateInputs(true)\">"
         # Embedded choice
         else if s.substring(0,6) == "choice"
           parsed = s.split("choice ")
-          splitText[index] = "<a href=\"#\" onclick=\"Scene.selectChoiceByNameByClicking(event,'"+parsed[1]+"')\">"
+          splitText[index] = "<a href=\"#\" onclick=\"sceneManager.selectChoiceByNameByClicking(event,'"+parsed[1]+"')\">"
           asToBeClosed++
         else if s.substring(0,7) == "/choice"
           if asToBeClosed > 0

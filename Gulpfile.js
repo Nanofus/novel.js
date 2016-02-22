@@ -12,11 +12,11 @@ gulp.task('watch', function() {
   gulp.start('sass')
   gulp.watch('./scss/**/*.scss', ['sass']);
   gulp.watch('./src/*.coffee', ['coffee']);
-  gulp.watch('./test/src/*.coffee', ['testCoffee']);
+  gulp.watch('./test/src/*.coffee', ['test-coffee']);
 });
 
 gulp.task('default', function() {
-  gulp.start('sass', 'coffee', 'testCoffee', 'compress', 'test');
+  gulp.start('sass', 'coffee', 'test-coffee', 'compress', 'test');
 });
 
 gulp.task('sass', function () {
@@ -26,12 +26,12 @@ gulp.task('sass', function () {
 });
 
 gulp.task('concat', function() {
-  return gulp.src(['./src/GameManager.coffee','./src/InputManager.coffee','./src/Parser.coffee','./src/Inventory.coffee','./src/Scene.coffee','./src/Sound.coffee','./src/TextPrinter.coffee','./src/UI.coffee','./src/Util.coffee','./src/Init.coffee','./src/GameArea.coffee','./src/Start.coffee'])
+  return gulp.src(['./src/GameManager.coffee','./src/InputManager.coffee','./src/Parser.coffee','./src/InventoryManager.coffee','./src/SceneManager.coffee','./src/SoundManager.coffee','./src/TextPrinter.coffee','./src/UI.coffee','./src/Util.coffee','./src/Init.coffee','./src/GameArea.coffee','./src/Start.coffee'])
     .pipe(concat('novel.coffee'))
     .pipe(gulp.dest('./'));
 });
 
-gulp.task('testConcat', function() {
+gulp.task('test-concat', function() {
   return gulp.src(['./test/src/Init.coffee','./test/src/Parser-test.coffee'])
     .pipe(concat('test.coffee'))
     .pipe(gulp.dest('./test'));
@@ -43,7 +43,7 @@ gulp.task('coffee', ['concat'], function() {
     .pipe(gulp.dest('./'));
 });
 
-gulp.task('testCoffee', ['testConcat'], function() {
+gulp.task('test-coffee', ['test-concat'], function() {
   return gulp.src('./test/test.coffee')
     .pipe(coffee({bare: true}).on('error', gutil.log))
     .pipe(gulp.dest('./test'));
@@ -55,7 +55,7 @@ gulp.task('compress', ['coffee'], function() {
     .pipe(gulp.dest('dist'));
 });
 
-gulp.task('test', ['coffee','testCoffee'], function () {
+gulp.task('test', ['coffee','test-coffee'], function () {
   return gulp.src('test/index.html')
     .pipe(mochaPhantomJS());
 });

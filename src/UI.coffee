@@ -40,7 +40,7 @@ class UI
         if a.name == i.className.substring(6,i.className.length)
           a.value = util.stripHTML(i.value)
           if needForUpdate
-            scene.updateScene(data.game.currentScene,true)
+            sceneManager.updateScene(data.game.currentScene,true)
 
 
 # The button that can be used to copy the text from the save window.

@@ -65,7 +65,7 @@ class TextPrinter
       if ss.length > 0
         for i in [0 .. ss.length]
           if !(ss[i] in @soundBuffer)
-            sound.playSound(ss[i])
+            soundManager.playSound(ss[i])
       ss = []
       first = true
       if @fullText.indexOf("play-music") > -1
@@ -77,7 +77,7 @@ class TextPrinter
       if ss.length > 0
         for i in [0 .. ss.length]
           if !(ss[i] in @musicBuffer)
-            sound.startMusic(ss[i])
+            soundManager.startMusic(ss[i])
       ss = []
       first = true
       if @fullText.indexOf("stop-music") > -1
@@ -89,7 +89,7 @@ class TextPrinter
       if ss.length > 0
         for i in [0 .. ss.length]
           if !(ss[i] in @stopMusicBuffer)
-            sound.stopMusic(ss[i])
+            soundManager.stopMusic(ss[i])
       ss = []
       first = true
       if @fullText.indexOf("execute-command") > -1
@@ -105,7 +105,7 @@ class TextPrinter
       @buffersExecuted = true
     # Set printed text and update choices
     data.printedText = @fullText
-    scene.updateChoices()
+    sceneManager.updateChoices()
 
   # Stop pause
   unpause: () ->
@@ -162,9 +162,9 @@ class TextPrinter
         #console.log "RESET"
         if @scrollSound != "none" && @interval != 0
           if @scrollSound != null
-            sound.playSound(@scrollSound)
+            soundManager.playSound(@scrollSound)
           else if (data.game.currentScene.scrollSound != undefined)
-            sound.playSound(data.game.currentScene.scrollSound)
+            soundManager.playSound(data.game.currentScene.scrollSound)
           @tickCounter = 0
     @setTickSoundFrequency(@interval / @tickSpeedMultiplier)
     setTimeout (->
@@ -227,17 +227,17 @@ class TextPrinter
           s = str.split("play-sound ")
           s = s[1].split(/\s|\"/)[0]
           @soundBuffer.push(s)
-          sound.playSound(s)
+          soundManager.playSound(s)
         if str.indexOf("play-music") > -1
           s = str.split("play-music ")
           s = s[1].split(/\s|\"/)[0]
           @musicBuffer.push(s)
-          sound.startMusic(s)
+          soundManager.startMusic(s)
         if str.indexOf("stop-music") > -1
           s = str.split("stop-music ")
           s = s[1].split(/\s|\"/)[0]
           @stopMusicBuffer.push(s)
-          sound.stopMusic(s)
+          soundManager.stopMusic(s)
         if str.indexOf("pause") > -1
           s = str.split("pause ")
           s = s[1].split(/\s|\"/)[0]

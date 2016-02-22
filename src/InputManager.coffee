@@ -8,7 +8,7 @@ class InputManager
   keyDown: (charCode) ->
     if (charCode == 13 || charCode == 32)
       if data.game.settings.scrollSettings.continueWithKeyboard
-        scene.tryContinue()
+        sceneManager.tryContinue()
       if data.game.settings.scrollSettings.skipWithKeyboard
         textPrinter.trySkip()
       textPrinter.unpause()

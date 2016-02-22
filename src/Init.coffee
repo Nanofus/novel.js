@@ -11,10 +11,10 @@ gamePath = './game'
 
 gameManager = new GameManager
 inputManager = new InputManager
-inventory = new Inventory
+inventoryManager = new InventoryManager
 parser = new Parser
-scene = new Scene
-sound = new Sound
+sceneManager = new SceneManager
+soundManager = new SoundManager
 textPrinter = new TextPrinter
 ui = new UI
 util = new Util

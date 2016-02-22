@@ -1,7 +1,7 @@
 
 ### SCENE MANIPULATION ###
 
-class Scene
+class SceneManager
 
   # Try to select "Continue"
   tryContinue: ->
@@ -72,7 +72,7 @@ class Scene
   # Update choice texts when they are changed - Vue.js doesn't detect them without this.
   updateChoices: ->
     gameArea.$set 'game.parsedChoices', data.game.currentScene.choices.map((choice) ->
-      choice.parsedText = parser.parseText(choice.text)
+      choice.parsedText = parser.parseText choice.text
       if gameArea.game.settings.alwaysShowDisabledChoices
         choice.alwaysShow = true
       choice
@@ -123,6 +123,7 @@ class Scene
 
   # Combine the multiple scene text rows
   combineSceneTexts: (s) ->
+    s.combinedText = ""
     if Object.prototype.toString.call(s.text) == "[object Array]"
       for i in s.text
         s.combinedText = s.combinedText + "<p>" + i + "</p>"
@@ -132,39 +133,39 @@ class Scene
   # Read item, stat and val edit commands from scene or choice
   readItemAndStatsEdits: (source) ->
     if source.removeItem != undefined
-      inventory.editItemsOrStats(parser.parseItemsOrStats(source.removeItem),"remove",true)
+      inventoryManager.editItemsOrStats(parser.parseItemsOrStats(source.removeItem),"remove",true)
     if source.addItem != undefined
-      inventory.editItemsOrStats(parser.parseItemsOrStats(source.addItem),"add",true)
+      inventoryManager.editItemsOrStats(parser.parseItemsOrStats(source.addItem),"add",true)
     if source.setItem != undefined
-      inventory.editItemsOrStats(parser.parseItemsOrStats(source.setItem),"set",true)
+      inventoryManager.editItemsOrStats(parser.parseItemsOrStats(source.setItem),"set",true)
     if source.removeStats != undefined
-      inventory.editItemsOrStats(parser.parseItemsOrStats(source.removeStats),"remove",false)
+      inventoryManager.editItemsOrStats(parser.parseItemsOrStats(source.removeStats),"remove",false)
     if source.addStats != undefined
-      inventory.editItemsOrStats(parser.parseItemsOrStats(source.addStats),"add",false)
+      inventoryManager.editItemsOrStats(parser.parseItemsOrStats(source.addStats),"add",false)
     if source.setStats != undefined
-      inventory.editItemsOrStats(parser.parseItemsOrStats(source.setStats),"set",false)
+      inventoryManager.editItemsOrStats(parser.parseItemsOrStats(source.setStats),"set",false)
     if source.setValue != undefined
       for val in source.setValue
-        inventory.setValue(val.path,parser.parseStatement(val.value.toString()))
+        inventoryManager.setValue(val.path,parser.parseStatement(val.value.toString()))
     if source.increaseValue != undefined
       for val in source.increaseValue
-        inventory.increaseValue(val.path,parser.parseStatement(val.value.toString()))
+        inventoryManager.increaseValue(val.path,parser.parseStatement(val.value.toString()))
     if source.decreaseValue != undefined
       for val in source.decreaseValue
-        inventory.decreaseValue(val.path,parser.parseStatement(val.value.toString()))
+        inventoryManager.decreaseValue(val.path,parser.parseStatement(val.value.toString()))
 
   # Read sound commands from scene or choice
   readSounds: (source,clicked) ->
     played = false
     if source.playSound != undefined
-      sound.playSound(source.playSound,false)
+      soundManager.playSound(source.playSound,false)
       played = true
     if clicked && !played
-      sound.playDefaultClickSound()
+      soundManager.playDefaultClickSound()
     if source.startMusic != undefined
-      sound.startMusic(source.startMusic)
+      soundManager.startMusic(source.startMusic)
     if source.stopMusic != undefined
-      sound.stopMusic(source.stopMusic)
+      soundManager.stopMusic(source.stopMusic)
     if source.scrollSound != undefined
       data.game.currentScene.scrollSound = source.scrollSound
     else
@@ -225,12 +226,12 @@ class Scene
     reqs = []
     if choice.itemRequirement != undefined
       requirements = parser.parseItemsOrStats choice.itemRequirement
-      reqs.push inventory.checkRequirements(requirements, true)
+      reqs.push inventoryManager.checkRequirements(requirements, true)
     if choice.statsRequirement != undefined
       requirements = parser.parseItemsOrStats choice.statsRequirement
-      reqs.push inventory.checkRequirements(requirements, false)
+      reqs.push inventoryManager.checkRequirements(requirements, false)
     if choice.requirement != undefined
-      reqs.push inventory.parseIfStatement choice.requirement
+      reqs.push inventoryManager.parseIfStatement choice.requirement
     success = true
     for r in reqs
       if r == false
