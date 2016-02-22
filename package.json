@@ -5,7 +5,6 @@
   "author": "Ville Talonpoika",
   "license": "GPL-2.0",
   "scripts": {
-    "server": "http-server"
   },
   "repository": {
     "type": "git",
