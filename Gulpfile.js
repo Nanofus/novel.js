@@ -26,7 +26,7 @@ gulp.task('sass', function () {
 });
 
 gulp.task('concat', function() {
-  return gulp.src(['./src/GameManager.coffee','./src/InputManager.coffee','./src/Parser.coffee','./src/Inventory.coffee','./src/Scene.coffee','./src/Sound.coffee','./src/TextPrinter.coffee','./src/UI.coffee','./src/Util.coffee','./src/Main.coffee'])
+  return gulp.src(['./src/GameManager.coffee','./src/InputManager.coffee','./src/Parser.coffee','./src/Inventory.coffee','./src/Scene.coffee','./src/Sound.coffee','./src/TextPrinter.coffee','./src/UI.coffee','./src/Util.coffee','./src/Init.coffee','./src/GameArea.coffee','./src/Start.coffee'])
     .pipe(concat('novel.coffee'))
     .pipe(gulp.dest('./'));
 });
@@ -55,7 +55,7 @@ gulp.task('compress', ['coffee'], function() {
     .pipe(gulp.dest('dist'));
 });
 
-gulp.task('test', function () {
+gulp.task('test', ['coffee','testCoffee'], function () {
   return gulp.src('test/index.html')
     .pipe(mochaPhantomJS());
 });

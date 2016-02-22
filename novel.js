@@ -1595,6 +1595,9 @@ ui = new UI;
 
 util = new Util;
 
+
+/* GAME AREA */
+
 gameArea = new Vue({
   el: '#game-area',
   data: data,

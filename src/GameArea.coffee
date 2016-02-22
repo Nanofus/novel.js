@@ -1,25 +1,6 @@
-data = {
-  game: null,
-  choices: null,
-  debugMode: false,
-  printedText: "",
-  parsedJavascriptCommands: [],
-  music: []
-}
 
-gamePath = './game'
+### GAME AREA ###
 
-gameManager = new GameManager
-inputManager = new InputManager
-inventory = new Inventory
-parser = new Parser
-scene = new Scene
-sound = new Sound
-textPrinter = new TextPrinter
-ui = new UI
-util = new Util
-
-# Game area
 gameArea = new Vue(
   el: '#game-area'
   data: data
@@ -43,8 +24,4 @@ gameArea = new Vue(
     # Select a choice
     selectChoice: (choice) ->
       scene.selectChoice(choice)
-
 )
-
-### And finally, start the game... ###
-gameManager.startGame()
