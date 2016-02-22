@@ -1,5 +1,6 @@
+
   describe 'Parser', ->
-    describe 'parseItemsOrStats()', ->
+    describe 'parseItemsOrStats', ->
       it 'should return correct items', ->
         items = parser.parseItemsOrStats("sword[1]|shield[2]")
         expect(items[0][0]).to.equal('sword')
