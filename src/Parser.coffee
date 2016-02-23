@@ -52,6 +52,7 @@ class Parser
         # Printed inventory counts
         else if s.substring(0,4) == "inv."
           value = s.substring(4,s.length)
+          splitText[index] = 0
           for i in data.game.inventories[data.game.currentInventory]
             if i.name == value
               splitText[index] = i.value

@@ -165,6 +165,7 @@ A scene object can contain the following variables and parameters:
 - `text` - Required (not enforced). The scene's text. Can be formatted using html and Novel.js's own tags. The text can be a simple string, or an array of strings. If it is an array, each of the array items gets surrounded by paragraph tags (`<p></p>`). This makes formatting long text easier.
 - `style` - The scene's style. Adds a html class that can be styled in `skin.css` to give different looks to different scenes.
 - `inventoryHidden` - If defined and set to true, the inventory is not shown in this scene.
+- `changeInventory` - Change the current inventory. Takes an index. The default inventory is `0`. This is parsed before any other item-related commands, so they affect the new inventory.
 - `addItem` - Add items to the player's inventory upon entering the scene.
 - `removeItem` - Remove items from the player's inventory upon entering the scene.
 - `setItem` - Sets the specified items' counts in the player's inventory upon entering the scene. If the item does not exist in the inventory, it is added.
@@ -191,6 +192,7 @@ Choices are the options the player can choose in a scene. An example is provided
 - `itemRequirement` - Items that the player has to have in their inventory to be able to select this choice. An unselectable choice is hidden by default, unless `alwaysShow` is true.
 - `requirement` - An advanced way to define a choice's requirements. Takes a conditional statement. An unselectable choice is hidden by default, unless `alwaysShow` is true.
 - `alwaysShow` - Show the choice even though its requirements have not been met. The choice will be grayed out, and can not be selected. Can also be set globally in the settings.
+- `changeInventory` - Change the current inventory. Takes an index. The default inventory is `0`. This is parsed before any other item-related commands, so they affect the new inventory.
 - `addItem` - Add items to the player's inventory upon selecting this choice.
 - `removeItem` - Remove items from the player's inventory upon selecting this choice.
 - `setItem` - Sets the specified items' value in the player's inventory selecting this choice. If the item does not exist in the inventory, it is added.

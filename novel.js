@@ -271,6 +271,7 @@ Parser = (function() {
           }
         } else if (s.substring(0, 4) === "inv.") {
           value = s.substring(4, s.length);
+          splitText[index] = 0;
           ref2 = data.game.inventories[data.game.currentInventory];
           for (o = 0, len1 = ref2.length; o < len1; o++) {
             i = ref2[o];

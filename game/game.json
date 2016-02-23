@@ -99,6 +99,10 @@
           ]
         },
         {
+          "text": "Change inventory to 5",
+          "changeInventory": 5
+        },
+        {
           "text": "Add double the current sound volume to volume",
           "increaseValue": [
             {"path": "settings.soundSettings.soundVolume", "value": "var.settings.soundSettings.soundVolume*2"}
