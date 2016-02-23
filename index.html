@@ -2,8 +2,9 @@
   <head>
     <meta charset="UTF-8">
     <title>Novel.js</title>
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="../css/style.css">
     <link rel="stylesheet" href="game/skin.css">
+    <link href='https://fonts.googleapis.com/css?family=Cinzel+Decorative|Lora' rel='stylesheet' type='text/css'>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
   </head>
   <body>
@@ -26,8 +27,8 @@
             <div class="text-area">
               {{{ printedText }}}
             </div>
-            <button v-if="textSkipEnabled()" type="button" id="skip-button" onclick="textPrinter.complete()">Skip</button>
-            <button v-if="paused()" type="button" id="continue-button" onclick="textPrinter.unpause()">Continue</button>
+            <button v-show="textSkipEnabled()" type="button" id="skip-button" onclick="textPrinter.complete()">Skip</button>
+            <button type="button" id="continue-button" onclick="textPrinter.unpause()">Continue</button>
             <div class="choices">
               <ul class="choice-list">
                 <div v-for="choice in game.parsedChoices">
@@ -43,19 +44,19 @@
               </ul>
             </div>
           </div>
-          <div v-if:"!inventoryHidden" class="inventory">
+          <div v-if="!inventoryHidden" class="inventory">
             <h5>Inventory:</h5>
             <ul class="item-list">
-              <li v-for="item in game.inventory" class="inventory-item" v-if="itemsOverZero(item)">
-                {{{ item.displayName }}} - {{{ item.count }}}
+              <li v-for="item in game.inventory" class="inventory-item" v-if="itemsOverZeroAndNotHidden(item)">
+                {{{ item.displayName }}} - {{{ item.value }}}
               </li>
             </ul>
           </div>
           <div v-if="game.settings.debugMode" class="stats">
             <h5>Stats:</h5>
-            <ul class="stats-list">
-              <li v-for="stats in game.stats" class="stats-item">
-                {{{ stats.name }}} - {{{ stats.value }}}
+            <ul class="item-list">
+              <li v-for="item in game.inventory" class="inventory-item" v-if="itemsOverZeroAndAreHidden(item)">
+                {{{ item.displayName }}} - {{{ item.value }}}
               </li>
             </ul>
           </div>
@@ -63,13 +64,11 @@
             <button type="button" id="save-button" onclick="gameManager.saveGame()">Save</button>
             <button type="button" id="load-button" onclick="ui.showLoadNotification()">Load</button>
           </div>
-          <div class="footer-text">Created using <a href="https://github.com/Nanofus/novel.js" target="_blank">Novel.js</a>.</div>
         </div>
       </div>
     </main>
 
-    <script src="node_modules/vue/dist/vue.min.js"></script>
-    <script src="novel.js"></script>
-    <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/vue/1.0.16/vue.min.js"></script>-->
+    <script src="../node_modules/vue/dist/vue.min.js"></script>
+    <script src="../novel.js"></script>
   </body>
 </html>

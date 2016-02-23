@@ -4,20 +4,13 @@
 class InventoryManager
 
   # Check if item or stat requirements have been filled
-  checkRequirements: (requirements, isItem) ->
+  checkRequirements: (requirements) ->
     reqsFilled = 0
-    if isItem
-      for i in data.game.inventory
-        for j in requirements
-          if j[0] == i.name
-            if j[1] <= i.count
-              reqsFilled = reqsFilled + 1
-    else
-      for i in data.game.stats
-        for j in requirements
-          if j[0] == i.name
-            if j[1] <= i.value
-              reqsFilled = reqsFilled + 1
+    for i in data.game.inventory
+      for j in requirements
+        if j[0] == i.name
+          if j[1] <= i.value
+            reqsFilled = reqsFilled + 1
     if reqsFilled == requirements.length
       return true
     else
@@ -53,20 +46,19 @@ class InventoryManager
     return getValueArrayLast
 
   # Edit the player's items or stats
-  editItemsOrStats: (items, mode, isInv) ->
-    if isInv
-      inv = data.game.inventory
-    else
-      inv = data.game.stats
+  editItems: (items, mode) ->
     for j in items
+      hidden = false
+      if j[0].substring(0,1) == "!"
+        hidden = true
+        j[0] = j[0].substring(1,j[0].length)
       itemAdded = false
-      for i in inv
+      for i in data.game.inventory
         if i.name == j[0]
           probability = 1
           if j.length > 2
             displayName = j[2]
-            count = parseInt(parser.parseStatement(j[1]))
-            #console.log count
+            value = parseInt(parser.parseStatement(j[1]))
             if !isNaN(displayName)
               probability = j[2]
               displayName = j.name
@@ -75,41 +67,31 @@ class InventoryManager
               displayName = j[3]
           else
             displayName = j[0]
-            count = parseInt(parser.parseStatement(j[1]))
-            #console.log count
-          value = Math.random()
-          if value < probability
+            value = parseInt(parser.parseStatement(j[1]))
+          random = Math.random()
+          if random < probability
             if (mode == "set")
-              if isInv
-                i.count = parseInt(j[1])
+              if isNaN parseInt(j[1])
+                i.value = j[1]
               else
-                if isNaN parseInt(j[1])
-                  i.value = j[1]
-                else
-                  i.value = parseInt(j[1])
+                i.value = parseInt(j[1])
             else if (mode == "add")
-              if isInv
-                i.count = parseInt(i.count) + count
-              else
-                if isNaN parseInt(i.value)
-                  i.value = 0
-                i.value = parseInt(i.value) + count
+              if isNaN parseInt(i.value)
+                i.value = 0
+              i.value = parseInt(i.value) + value
             else if (mode == "remove")
-              if isInv
-                i.count = parseInt(i.count) - count
-                if i.count < 0
-                  i.count = 0
+              if !isNaN parseInt(i.value)
+                i.value = parseInt(i.value) - value
+                if i.value < 0
+                  i.value = 0
               else
-                if !isNaN parseInt(i.value)
-                  i.value = parseInt(i.value) - count
-                  if i.value < 0
-                    i.value = 0
+                i.value = 0
           itemAdded = true
       if !itemAdded && mode != "remove"
         probability = 1
-        count = parseInt(parser.parseStatement(j[1]))
-        if isNaN count
-          count = parser.parseStatement(j[1])
+        value = parseInt(parser.parseStatement(j[1]))
+        if isNaN value
+          value = parser.parseStatement(j[1])
         if j.length > 2
           displayName = j[2]
           if !isNaN(displayName)
@@ -120,14 +102,6 @@ class InventoryManager
             displayName = j[3]
         else
           displayName = j[0]
-          #console.log count
-        value = Math.random()
-        if value < probability
-          if isInv
-            inv.push({"name": j[0], "count": count, "displayName": displayName})
-          else
-            inv.push({"name": j[0], "value": count, "displayName": displayName})
-    if isInv
-      data.game.inventory = inv
-    else
-      data.game.stats = inv
+        random = Math.random()
+        if random < probability
+          data.game.inventory.push({"name": j[0], "value": value, "displayName": displayName, "hidden": hidden})

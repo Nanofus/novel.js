@@ -4,7 +4,7 @@
 class Parser
 
   # Parse a string of items and output an array
-  parseItemsOrStats: (items) ->
+  parseItems: (items) ->
     if items == ""
       return undefined
     separate = items.split("|")
@@ -49,18 +49,12 @@ class Parser
             spansToBeClosed--
           else
             splitText[index] = ""
-        # Printed stat values
-        else if s.substring(0,5) == "stat."
-          value = s.substring(5,s.length)
-          for i in data.game.stats
-            if i.name == value
-              splitText[index] = i.value
         # Printed inventory counts
         else if s.substring(0,4) == "inv."
           value = s.substring(4,s.length)
           for i in data.game.inventory
             if i.name == value
-              splitText[index] = i.count
+              splitText[index] = i.value
         # Generic print command
         else if s.substring(0,5) == "print"
           parsed = s.split("print ")
@@ -108,7 +102,7 @@ class Parser
         else if s.substring(0,5) == "input"
           parsed = s.split("input ")
           nameText = ""
-          for i in data.game.stats
+          for i in data.game.inventory
             if i.name == parsed[1]
               nameText = i.value
           splitText[index] = "<input type=\"text\" value=\"" + nameText + "\" name=\"input\" class=\"input-" + parsed[1] +  "\" onblur=\"ui.updateInputs(true)\">"
@@ -130,6 +124,7 @@ class Parser
 
   # Parse a statement that returns true or false or calculate a value
   parseStatement: (s) ->
+    s = s.toString()
     # Check for valid parentheses
     if !util.validateParentheses(s)
       console.error "ERROR: Invalid parentheses in statement"
@@ -146,14 +141,6 @@ class Parser
           found = false
           for i in data.game.inventory
             if i.name == val.substring(4,val.length)
-              parsedValues.push i.count
-              found = true
-          if !found
-            parsedValues.push 0
-        when "stats"
-          found = false
-          for i in data.game.stats
-            if i.name == val.substring(5,val.length)
               parsedValues.push i.value
               found = true
           if !found
@@ -183,9 +170,7 @@ class Parser
   # Read a string's beginning to detect its type
   getStatementType: (val) ->
     type = null
-    if val.substring(0,5) == "stat."
-      type = "stats"
-    else if val.substring(0,4) == "inv."
+    if val.substring(0,4) == "inv."
       type = "item"
     else if val.substring(0,4) == "var."
       type = "var"

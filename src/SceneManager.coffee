@@ -11,7 +11,7 @@ class SceneManager
   # Select a choice
   selectChoice: (choice) ->
     @exitScene(data.game.currentScene)
-    @readItemAndStatsEdits(choice)
+    @readItemEdits(choice)
     @readSounds(choice,true)
     @readSaving(choice)
     @readExecutes(choice)
@@ -50,7 +50,7 @@ class SceneManager
   # Setup a scene changed to
   setupScene: (scene) ->
     @updateScene(scene, false)
-    @readItemAndStatsEdits(data.game.currentScene)
+    @readItemEdits(data.game.currentScene)
     @readSounds(data.game.currentScene,false)
     @readSaving(data.game.currentScene)
     @readExecutes(data.game.currentScene)
@@ -129,20 +129,14 @@ class SceneManager
     else
       s.combinedText = s.text
 
-  # Read item, stat and val edit commands from scene or choice
-  readItemAndStatsEdits: (source) ->
+  # Read item and val edit commands from scene or choice
+  readItemEdits: (source) ->
     if source.removeItem != undefined
-      inventoryManager.editItemsOrStats(parser.parseItemsOrStats(source.removeItem),"remove",true)
+      inventoryManager.editItems(parser.parseItems(source.removeItem),"remove")
     if source.addItem != undefined
-      inventoryManager.editItemsOrStats(parser.parseItemsOrStats(source.addItem),"add",true)
+      inventoryManager.editItems(parser.parseItems(source.addItem),"add")
     if source.setItem != undefined
-      inventoryManager.editItemsOrStats(parser.parseItemsOrStats(source.setItem),"set",true)
-    if source.removeStats != undefined
-      inventoryManager.editItemsOrStats(parser.parseItemsOrStats(source.removeStats),"remove",false)
-    if source.addStats != undefined
-      inventoryManager.editItemsOrStats(parser.parseItemsOrStats(source.addStats),"add",false)
-    if source.setStats != undefined
-      inventoryManager.editItemsOrStats(parser.parseItemsOrStats(source.setStats),"set",false)
+      inventoryManager.editItems(parser.parseItems(source.setItem),"set")
     if source.setValue != undefined
       for val in source.setValue
         inventoryManager.setValue(val.path,parser.parseStatement(val.value.toString()))
@@ -228,11 +222,8 @@ class SceneManager
   requirementsFilled: (choice) ->
     reqs = []
     if choice.itemRequirement != undefined
-      requirements = parser.parseItemsOrStats choice.itemRequirement
-      reqs.push inventoryManager.checkRequirements(requirements, true)
-    if choice.statsRequirement != undefined
-      requirements = parser.parseItemsOrStats choice.statsRequirement
-      reqs.push inventoryManager.checkRequirements(requirements, false)
+      requirements = parser.parseItems choice.itemRequirement
+      reqs.push inventoryManager.checkRequirements(requirements)
     if choice.requirement != undefined
       reqs.push inventoryManager.parseIfStatement choice.requirement
     success = true

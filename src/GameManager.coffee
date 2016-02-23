@@ -85,8 +85,6 @@ class GameManager
     json.parsedChoices=""
     if json.inventory == undefined
       json.inventory = []
-    if json.stats == undefined
-      json.stats = []
     if json.scenes == undefined
       json.scenes = []
     for i in json.inventory

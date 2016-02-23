@@ -106,9 +106,6 @@ GameManager = (function() {
     if (json.inventory === void 0) {
       json.inventory = [];
     }
-    if (json.stats === void 0) {
-      json.stats = [];
-    }
     if (json.scenes === void 0) {
       json.scenes = [];
     }
@@ -212,7 +209,7 @@ document.onkeyup = function(evt) {
 Parser = (function() {
   function Parser() {}
 
-  Parser.prototype.parseItemsOrStats = function(items) {
+  Parser.prototype.parseItems = function(items) {
     var i, k, len, parsed, separate;
     if (items === "") {
       return void 0;
@@ -228,7 +225,7 @@ Parser = (function() {
   };
 
   Parser.prototype.parseText = function(text) {
-    var asToBeClosed, i, index, k, l, len, len1, len2, len3, m, nameText, o, p, parsed, q, ref, ref1, ref2, ref3, ref4, s, spansToBeClosed, splitText, t, tagName, value;
+    var asToBeClosed, i, index, k, l, len, len1, len2, m, nameText, o, p, parsed, q, ref, ref1, ref2, ref3, s, spansToBeClosed, splitText, tagName, value;
     if (text !== void 0) {
       ref = data.game.tagPresets;
       for (k = 0, len = ref.length; k < len; k++) {
@@ -266,22 +263,13 @@ Parser = (function() {
           } else {
             splitText[index] = "";
           }
-        } else if (s.substring(0, 5) === "stat.") {
-          value = s.substring(5, s.length);
-          ref2 = data.game.stats;
+        } else if (s.substring(0, 4) === "inv.") {
+          value = s.substring(4, s.length);
+          ref2 = data.game.inventory;
           for (o = 0, len1 = ref2.length; o < len1; o++) {
             i = ref2[o];
             if (i.name === value) {
               splitText[index] = i.value;
-            }
-          }
-        } else if (s.substring(0, 4) === "inv.") {
-          value = s.substring(4, s.length);
-          ref3 = data.game.inventory;
-          for (q = 0, len2 = ref3.length; q < len2; q++) {
-            i = ref3[q];
-            if (i.name === value) {
-              splitText[index] = i.count;
             }
           }
         } else if (s.substring(0, 5) === "print") {
@@ -321,9 +309,9 @@ Parser = (function() {
         } else if (s.substring(0, 5) === "input") {
           parsed = s.split("input ");
           nameText = "";
-          ref4 = data.game.stats;
-          for (t = 0, len3 = ref4.length; t < len3; t++) {
-            i = ref4[t];
+          ref3 = data.game.inventory;
+          for (q = 0, len2 = ref3.length; q < len2; q++) {
+            i = ref3[q];
             if (i.name === parsed[1]) {
               nameText = i.value;
             }
@@ -349,7 +337,8 @@ Parser = (function() {
   };
 
   Parser.prototype.parseStatement = function(s) {
-    var found, i, k, l, len, len1, len2, m, o, parsedString, parsedValues, ref, ref1, ref2, type, val;
+    var found, i, k, l, len, len1, m, parsedString, parsedValues, ref, ref1, type, val;
+    s = s.toString();
     if (!util.validateParentheses(s)) {
       console.error("ERROR: Invalid parentheses in statement");
     }
@@ -366,20 +355,6 @@ Parser = (function() {
           for (l = 0, len1 = ref.length; l < len1; l++) {
             i = ref[l];
             if (i.name === val.substring(4, val.length)) {
-              parsedValues.push(i.count);
-              found = true;
-            }
-          }
-          if (!found) {
-            parsedValues.push(0);
-          }
-          break;
-        case "stats":
-          found = false;
-          ref1 = data.game.stats;
-          for (m = 0, len2 = ref1.length; m < len2; m++) {
-            i = ref1[m];
-            if (i.name === val.substring(5, val.length)) {
               parsedValues.push(i.value);
               found = true;
             }
@@ -410,7 +385,7 @@ Parser = (function() {
           }
       }
     }
-    for (i = o = 0, ref2 = parsedString.length - 1; 0 <= ref2 ? o <= ref2 : o >= ref2; i = 0 <= ref2 ? ++o : --o) {
+    for (i = m = 0, ref1 = parsedString.length - 1; 0 <= ref1 ? m <= ref1 : m >= ref1; i = 0 <= ref1 ? ++m : --m) {
       if (parsedString[i] !== "" && parsedValues[i] !== "") {
         s = s.replace(new RegExp(parsedString[i], 'g'), parsedValues[i]);
       }
@@ -421,9 +396,7 @@ Parser = (function() {
   Parser.prototype.getStatementType = function(val) {
     var type;
     type = null;
-    if (val.substring(0, 5) === "stat.") {
-      type = "stats";
-    } else if (val.substring(0, 4) === "inv.") {
+    if (val.substring(0, 4) === "inv.") {
       type = "item";
     } else if (val.substring(0, 4) === "var.") {
       type = "var";
@@ -492,32 +465,17 @@ Parser = (function() {
 InventoryManager = (function() {
   function InventoryManager() {}
 
-  InventoryManager.prototype.checkRequirements = function(requirements, isItem) {
-    var i, j, k, l, len, len1, len2, len3, m, o, ref, ref1, reqsFilled;
+  InventoryManager.prototype.checkRequirements = function(requirements) {
+    var i, j, k, l, len, len1, ref, reqsFilled;
     reqsFilled = 0;
-    if (isItem) {
-      ref = data.game.inventory;
-      for (k = 0, len = ref.length; k < len; k++) {
-        i = ref[k];
-        for (l = 0, len1 = requirements.length; l < len1; l++) {
-          j = requirements[l];
-          if (j[0] === i.name) {
-            if (j[1] <= i.count) {
-              reqsFilled = reqsFilled + 1;
-            }
-          }
-        }
-      }
-    } else {
-      ref1 = data.game.stats;
-      for (m = 0, len2 = ref1.length; m < len2; m++) {
-        i = ref1[m];
-        for (o = 0, len3 = requirements.length; o < len3; o++) {
-          j = requirements[o];
-          if (j[0] === i.name) {
-            if (j[1] <= i.value) {
-              reqsFilled = reqsFilled + 1;
-            }
+    ref = data.game.inventory;
+    for (k = 0, len = ref.length; k < len; k++) {
+      i = ref[k];
+      for (l = 0, len1 = requirements.length; l < len1; l++) {
+        j = requirements[l];
+        if (j[0] === i.name) {
+          if (j[1] <= i.value) {
+            reqsFilled = reqsFilled + 1;
           }
         }
       }
@@ -564,23 +522,25 @@ InventoryManager = (function() {
     return getValueArrayLast;
   };
 
-  InventoryManager.prototype.editItemsOrStats = function(items, mode, isInv) {
-    var count, displayName, i, inv, itemAdded, j, k, l, len, len1, probability, value;
-    if (isInv) {
-      inv = data.game.inventory;
-    } else {
-      inv = data.game.stats;
-    }
+  InventoryManager.prototype.editItems = function(items, mode) {
+    var displayName, hidden, i, itemAdded, j, k, l, len, len1, probability, random, ref, results, value;
+    results = [];
     for (k = 0, len = items.length; k < len; k++) {
       j = items[k];
+      hidden = false;
+      if (j[0].substring(0, 1) === "!") {
+        hidden = true;
+        j[0] = j[0].substring(1, j[0].length);
+      }
       itemAdded = false;
-      for (l = 0, len1 = inv.length; l < len1; l++) {
-        i = inv[l];
+      ref = data.game.inventory;
+      for (l = 0, len1 = ref.length; l < len1; l++) {
+        i = ref[l];
         if (i.name === j[0]) {
           probability = 1;
           if (j.length > 2) {
             displayName = j[2];
-            count = parseInt(parser.parseStatement(j[1]));
+            value = parseInt(parser.parseStatement(j[1]));
             if (!isNaN(displayName)) {
               probability = j[2];
               displayName = j.name;
@@ -591,42 +551,29 @@ InventoryManager = (function() {
             }
           } else {
             displayName = j[0];
-            count = parseInt(parser.parseStatement(j[1]));
+            value = parseInt(parser.parseStatement(j[1]));
           }
-          value = Math.random();
-          if (value < probability) {
+          random = Math.random();
+          if (random < probability) {
             if (mode === "set") {
-              if (isInv) {
-                i.count = parseInt(j[1]);
+              if (isNaN(parseInt(j[1]))) {
+                i.value = j[1];
               } else {
-                if (isNaN(parseInt(j[1]))) {
-                  i.value = j[1];
-                } else {
-                  i.value = parseInt(j[1]);
-                }
+                i.value = parseInt(j[1]);
               }
             } else if (mode === "add") {
-              if (isInv) {
-                i.count = parseInt(i.count) + count;
-              } else {
-                if (isNaN(parseInt(i.value))) {
+              if (isNaN(parseInt(i.value))) {
+                i.value = 0;
+              }
+              i.value = parseInt(i.value) + value;
+            } else if (mode === "remove") {
+              if (!isNaN(parseInt(i.value))) {
+                i.value = parseInt(i.value) - value;
+                if (i.value < 0) {
                   i.value = 0;
                 }
-                i.value = parseInt(i.value) + count;
-              }
-            } else if (mode === "remove") {
-              if (isInv) {
-                i.count = parseInt(i.count) - count;
-                if (i.count < 0) {
-                  i.count = 0;
-                }
               } else {
-                if (!isNaN(parseInt(i.value))) {
-                  i.value = parseInt(i.value) - count;
-                  if (i.value < 0) {
-                    i.value = 0;
-                  }
-                }
+                i.value = 0;
               }
             }
           }
@@ -635,9 +582,9 @@ InventoryManager = (function() {
       }
       if (!itemAdded && mode !== "remove") {
         probability = 1;
-        count = parseInt(parser.parseStatement(j[1]));
-        if (isNaN(count)) {
-          count = parser.parseStatement(j[1]);
+        value = parseInt(parser.parseStatement(j[1]));
+        if (isNaN(value)) {
+          value = parser.parseStatement(j[1]);
         }
         if (j.length > 2) {
           displayName = j[2];
@@ -652,29 +599,22 @@ InventoryManager = (function() {
         } else {
           displayName = j[0];
         }
-        value = Math.random();
-        if (value < probability) {
-          if (isInv) {
-            inv.push({
-              "name": j[0],
-              "count": count,
-              "displayName": displayName
-            });
-          } else {
-            inv.push({
-              "name": j[0],
-              "value": count,
-              "displayName": displayName
-            });
-          }
+        random = Math.random();
+        if (random < probability) {
+          results.push(data.game.inventory.push({
+            "name": j[0],
+            "value": value,
+            "displayName": displayName,
+            "hidden": hidden
+          }));
+        } else {
+          results.push(void 0);
         }
+      } else {
+        results.push(void 0);
       }
     }
-    if (isInv) {
-      return data.game.inventory = inv;
-    } else {
-      return data.game.stats = inv;
-    }
+    return results;
   };
 
   return InventoryManager;
@@ -695,7 +635,7 @@ SceneManager = (function() {
 
   SceneManager.prototype.selectChoice = function(choice) {
     this.exitScene(data.game.currentScene);
-    this.readItemAndStatsEdits(choice);
+    this.readItemEdits(choice);
     this.readSounds(choice, true);
     this.readSaving(choice);
     this.readExecutes(choice);
@@ -746,7 +686,7 @@ SceneManager = (function() {
 
   SceneManager.prototype.setupScene = function(scene) {
     this.updateScene(scene, false);
-    this.readItemAndStatsEdits(data.game.currentScene);
+    this.readItemEdits(data.game.currentScene);
     this.readSounds(data.game.currentScene, false);
     this.readSaving(data.game.currentScene);
     this.readExecutes(data.game.currentScene);
@@ -853,25 +793,16 @@ SceneManager = (function() {
     }
   };
 
-  SceneManager.prototype.readItemAndStatsEdits = function(source) {
+  SceneManager.prototype.readItemEdits = function(source) {
     var k, l, len, len1, len2, m, ref, ref1, ref2, results, val;
     if (source.removeItem !== void 0) {
-      inventoryManager.editItemsOrStats(parser.parseItemsOrStats(source.removeItem), "remove", true);
+      inventoryManager.editItems(parser.parseItems(source.removeItem), "remove");
     }
     if (source.addItem !== void 0) {
-      inventoryManager.editItemsOrStats(parser.parseItemsOrStats(source.addItem), "add", true);
+      inventoryManager.editItems(parser.parseItems(source.addItem), "add");
     }
     if (source.setItem !== void 0) {
-      inventoryManager.editItemsOrStats(parser.parseItemsOrStats(source.setItem), "set", true);
-    }
-    if (source.removeStats !== void 0) {
-      inventoryManager.editItemsOrStats(parser.parseItemsOrStats(source.removeStats), "remove", false);
-    }
-    if (source.addStats !== void 0) {
-      inventoryManager.editItemsOrStats(parser.parseItemsOrStats(source.addStats), "add", false);
-    }
-    if (source.setStats !== void 0) {
-      inventoryManager.editItemsOrStats(parser.parseItemsOrStats(source.setStats), "set", false);
+      inventoryManager.editItems(parser.parseItems(source.setItem), "set");
     }
     if (source.setValue !== void 0) {
       ref = source.setValue;
@@ -1003,12 +934,8 @@ SceneManager = (function() {
     var k, len, r, reqs, requirements, success;
     reqs = [];
     if (choice.itemRequirement !== void 0) {
-      requirements = parser.parseItemsOrStats(choice.itemRequirement);
-      reqs.push(inventoryManager.checkRequirements(requirements, true));
-    }
-    if (choice.statsRequirement !== void 0) {
-      requirements = parser.parseItemsOrStats(choice.statsRequirement);
-      reqs.push(inventoryManager.checkRequirements(requirements, false));
+      requirements = parser.parseItems(choice.itemRequirement);
+      reqs.push(inventoryManager.checkRequirements(requirements));
     }
     if (choice.requirement !== void 0) {
       reqs.push(inventoryManager.parseIfStatement(choice.requirement));
@@ -1502,7 +1429,7 @@ UI = (function() {
       i = inputs[k];
       results.push((function() {
         var l, len1, ref, results1;
-        ref = data.game.stats;
+        ref = data.game.inventory;
         results1 = [];
         for (l = 0, len1 = ref.length; l < len1; l++) {
           a = ref[l];
@@ -1633,18 +1560,40 @@ gameArea = new Vue({
     textSkipEnabled: function(choice) {
       return data.game.currentScene.skipEnabled && data.game.settings.skipButtonShown;
     },
-    itemsOverZero: function(item) {
+    itemsOverZeroAndAreHidden: function(item) {
       var i, k, len, ref;
-      ref = this.game.inventory;
+      ref = data.game.inventory;
       for (k = 0, len = ref.length; k < len; k++) {
         i = ref[k];
-        if (i.name === item.name) {
-          if (i.count > 0) {
+        if (i.name === item.name && (i.hidden && i.hidden !== void 0)) {
+          if (i.value > 0) {
+            return true;
+          }
+          if (isNaN(i.value)) {
             return true;
           }
         }
       }
       return false;
+    },
+    itemsOverZeroAndNotHidden: function(item) {
+      var i, k, len, ref;
+      ref = data.game.inventory;
+      for (k = 0, len = ref.length; k < len; k++) {
+        i = ref[k];
+        if (i.name === item.name && (!i.hidden || i.hidden === void 0)) {
+          if (i.value > 0) {
+            return true;
+          }
+          if (isNaN(i.value)) {
+            return true;
+          }
+        }
+      }
+      return false;
+    },
+    itemsOverZeroAndHidden: function(item) {
+      return inventoryManager.itemsOverZero(item) && inventoryManager.itemHidden(item);
     },
     selectChoice: function(choice) {
       return sceneManager.selectChoice(choice);

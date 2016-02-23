@@ -2,7 +2,7 @@ expect = chai.expect
 should = chai.should()
 
 data = {
-  game: {gameName:"testGame",inventory:[],stats:[],scenes:[],tagPresets:[],sounds:[]},
+  game: {gameName:"testGame",inventory:[],scenes:[],tagPresets:[],sounds:[]},
   choices: null,
   debugMode: false,
   printedText: "",
@@ -34,13 +34,13 @@ gameArea = new Vue(
     textSkipEnabled: (choice) ->
       return data.game.currentScene.skipEnabled && data.game.settings.skipButtonShown
 
-    # Check if specific item's count is over 0; if it isn't, it's not shown.
-    itemsOverZero: (item) ->
-      for i in @game.inventory
-        if i.name == item.name
-          if i.count > 0
-            return true
-      return false
+    # Check if specific item's count is over 0; if it isn't, it's not shown. Also should not be hidden.
+    itemsOverZeroAndNotHidden: (item) ->
+      return inventoryManager.itemsOverZero(item) && !inventoryManager.itemHidden(item)
+
+    # Check if specific item's count is over 0; if it isn't, it's not shown. Also should be hidden.
+    itemsOverZeroAndHidden: (item) ->
+      return inventoryManager.itemsOverZero(item) && inventoryManager.itemHidden(item)
 
     # Select a choice
     selectChoice: (choice) ->
