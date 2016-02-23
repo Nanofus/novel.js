@@ -103,5 +103,7 @@ class InventoryManager
         else
           displayName = j[0]
         random = Math.random()
+        if displayName == undefined
+          displayName = j[0]
         if random < probability
           data.game.inventories[data.game.currentInventory].push({"name": j[0], "value": value, "displayName": displayName, "hidden": hidden})

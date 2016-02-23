@@ -125,6 +125,8 @@ class Parser
 
   # Parse a statement that returns true or false or calculate a value
   parseStatement: (s) ->
+    if s == undefined
+      return undefined
     s = s.toString()
     # Check for valid parentheses
     if !util.validateParentheses(s)

@@ -132,11 +132,7 @@ class SceneManager
   # Read item and val edit commands from scene or choice
   readItemEdits: (source) ->
     if source.changeInventory != undefined
-      if data.game.inventories.length < source.changeInventory
-        for i in [0 .. source.changeInventory]
-          if data.game.inventories[i] == undefined
-            data.game.inventories[i] = []
-      data.game.currentInventory = source.changeInventory
+      data.game.currentInventory = parser.parseStatement(source.changeInventory)
     if source.removeItem != undefined
       inventoryManager.editItems(parser.parseItems(source.removeItem),"remove")
     if source.addItem != undefined
@@ -157,16 +153,16 @@ class SceneManager
   readSounds: (source,clicked) ->
     played = false
     if source.playSound != undefined
-      soundManager.playSound(source.playSound,false)
+      soundManager.playSound(parser.parseStatement(source.playSound),false)
       played = true
     if clicked && !played
       soundManager.playDefaultClickSound()
     if source.startMusic != undefined
-      soundManager.startMusic(source.startMusic)
+      soundManager.startMusic(parser.parseStatement(source.startMusic))
     if source.stopMusic != undefined
-      soundManager.stopMusic(source.stopMusic)
+      soundManager.stopMusic(parser.parseStatement(source.stopMusic))
     if source.scrollSound != undefined
-      data.game.currentScene.scrollSound = source.scrollSound
+      data.game.currentScene.scrollSound = parser.parseStatement(source.scrollSound)
     else
       if data.game.settings.soundSettings.defaultScrollSound
         data.game.currentScene.scrollSound = data.game.settings.soundSettings.defaultScrollSound
@@ -207,12 +203,12 @@ class SceneManager
         data.game.checkpoints = []
       dataChanged = false
       for i in data.game.checkpoints
-        if i.name == source.saveCheckpoint
+        if i.name == parser.parseStatement(source.saveCheckpoint)
           i.scene = data.game.currentScene.name
           dataChanged = true
           #console.log "Updated checkpoint!"
       if !dataChanged
-        checkpoint = {name:source.saveCheckpoint,scene:data.game.currentScene.name}
+        checkpoint = {name:parser.parseStatement(source.saveCheckpoint),scene:data.game.currentScene.name}
         data.game.checkpoints.push(checkpoint)
       #console.log "Checkpoint saved!"
       #console.log checkpoint
@@ -220,7 +216,7 @@ class SceneManager
       if data.game.checkpoints == undefined
         data.game.checkpoints = []
       for i in data.game.checkpoints
-        if i.name == source.loadCheckpoint
+        if i.name == parser.parseStatement(source.loadCheckpoint)
           #console.log "Checkpoint found!"
           @changeScene(i.scene)
 

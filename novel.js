@@ -366,6 +366,9 @@ Parser = (function() {
 
   Parser.prototype.parseStatement = function(s) {
     var found, i, k, l, len, len1, m, parsedString, parsedValues, ref, ref1, type, val;
+    if (s === void 0) {
+      return void 0;
+    }
     s = s.toString();
     if (!util.validateParentheses(s)) {
       console.error("ERROR: Invalid parentheses in statement");
@@ -628,6 +631,9 @@ InventoryManager = (function() {
           displayName = j[0];
         }
         random = Math.random();
+        if (displayName === void 0) {
+          displayName = j[0];
+        }
         if (random < probability) {
           results.push(data.game.inventories[data.game.currentInventory].push({
             "name": j[0],
@@ -825,13 +831,13 @@ SceneManager = (function() {
     var i, k, l, len, len1, len2, m, o, ref, ref1, ref2, ref3, results, val;
     if (source.changeInventory !== void 0) {
       if (data.game.inventories.length < source.changeInventory) {
-        for (i = k = 0, ref = source.changeInventory; 0 <= ref ? k <= ref : k >= ref; i = 0 <= ref ? ++k : --k) {
+        for (i = k = 0, ref = source.changeInventory + 1; 0 <= ref ? k <= ref : k >= ref; i = 0 <= ref ? ++k : --k) {
           if (data.game.inventories[i] === void 0) {
             data.game.inventories[i] = [];
           }
         }
       }
-      data.game.currentInventory = source.changeInventory;
+      data.game.currentInventory = parser.parseStatement(source.changeInventory);
     }
     if (source.removeItem !== void 0) {
       inventoryManager.editItems(parser.parseItems(source.removeItem), "remove");
@@ -871,20 +877,20 @@ SceneManager = (function() {
     var played;
     played = false;
     if (source.playSound !== void 0) {
-      soundManager.playSound(source.playSound, false);
+      soundManager.playSound(parser.parseStatement(source.playSound), false);
       played = true;
     }
     if (clicked && !played) {
       soundManager.playDefaultClickSound();
     }
     if (source.startMusic !== void 0) {
-      soundManager.startMusic(source.startMusic);
+      soundManager.startMusic(parser.parseStatement(source.startMusic));
     }
     if (source.stopMusic !== void 0) {
-      soundManager.stopMusic(source.stopMusic);
+      soundManager.stopMusic(parser.parseStatement(source.stopMusic));
     }
     if (source.scrollSound !== void 0) {
-      return data.game.currentScene.scrollSound = source.scrollSound;
+      return data.game.currentScene.scrollSound = parser.parseStatement(source.scrollSound);
     } else {
       if (data.game.settings.soundSettings.defaultScrollSound) {
         return data.game.currentScene.scrollSound = data.game.settings.soundSettings.defaultScrollSound;
@@ -937,14 +943,14 @@ SceneManager = (function() {
       ref = data.game.checkpoints;
       for (k = 0, len = ref.length; k < len; k++) {
         i = ref[k];
-        if (i.name === source.saveCheckpoint) {
+        if (i.name === parser.parseStatement(source.saveCheckpoint)) {
           i.scene = data.game.currentScene.name;
           dataChanged = true;
         }
       }
       if (!dataChanged) {
         checkpoint = {
-          name: source.saveCheckpoint,
+          name: parser.parseStatement(source.saveCheckpoint),
           scene: data.game.currentScene.name
         };
         data.game.checkpoints.push(checkpoint);
@@ -958,7 +964,7 @@ SceneManager = (function() {
       results = [];
       for (l = 0, len1 = ref1.length; l < len1; l++) {
         i = ref1[l];
-        if (i.name === source.loadCheckpoint) {
+        if (i.name === parser.parseStatement(source.loadCheckpoint)) {
           results.push(this.changeScene(i.scene));
         } else {
           results.push(void 0);
@@ -1155,7 +1161,7 @@ TextPrinter = (function() {
       if (ss.length > 0) {
         for (i = l = 0, ref = ss.length; 0 <= ref ? l <= ref : l >= ref; i = 0 <= ref ? ++l : --l) {
           if (!(ref1 = ss[i], indexOf.call(this.soundBuffer, ref1) >= 0)) {
-            soundManager.playSound(ss[i]);
+            soundManager.playSound(parser.parseStatement(ss[i]));
           }
         }
       }
@@ -1174,7 +1180,7 @@ TextPrinter = (function() {
       if (ss.length > 0) {
         for (i = o = 0, ref2 = ss.length; 0 <= ref2 ? o <= ref2 : o >= ref2; i = 0 <= ref2 ? ++o : --o) {
           if (!(ref3 = ss[i], indexOf.call(this.musicBuffer, ref3) >= 0)) {
-            soundManager.startMusic(ss[i]);
+            soundManager.startMusic(parser.parseStatement(ss[i]));
           }
         }
       }
@@ -1193,7 +1199,7 @@ TextPrinter = (function() {
       if (ss.length > 0) {
         for (i = t = 0, ref4 = ss.length; 0 <= ref4 ? t <= ref4 : t >= ref4; i = 0 <= ref4 ? ++t : --t) {
           if (!(ref5 = ss[i], indexOf.call(this.stopMusicBuffer, ref5) >= 0)) {
-            soundManager.stopMusic(ss[i]);
+            soundManager.stopMusic(parser.parseStatement(ss[i]));
           }
         }
       }
@@ -1338,41 +1344,41 @@ TextPrinter = (function() {
       if (str.indexOf("play-sound") > -1 && str.indexOf("display:none;") > -1) {
         s = str.split("play-sound ");
         s = s[1].split(/\s|\"/)[0];
-        this.soundBuffer.push(s);
+        this.soundBuffer.push(parser.parseStatement(s));
       }
       if (str.indexOf("play-music") > -1 && str.indexOf("display:none;") > -1) {
         s = str.split("play-music ");
         s = s[1].split(/\s|\"/)[0];
-        this.musicBuffer.push(s);
+        this.musicBuffer.push(parser.parseStatement(s));
       }
       if (str.indexOf("stop-music") > -1 && str.indexOf("display:none;") > -1) {
         s = str.split("stop-music ");
         s = s[1].split(/\s|\"/)[0];
-        this.stopMusicBuffer.push(s);
+        this.stopMusicBuffer.push(parser.parseStatement(s));
       }
       if (str.indexOf("execute-command") > -1 && str.indexOf("display:none;") > -1) {
         s = str.split("execute-command ");
         s = s[1].split(/\s|\"/)[0];
-        this.executeBuffer.push(s);
+        this.executeBuffer.push(parser.parseStatement(s));
       }
       if (str.indexOf("display:none;") === -1) {
         if (str.indexOf("play-sound") > -1) {
           s = str.split("play-sound ");
           s = s[1].split(/\s|\"/)[0];
-          this.soundBuffer.push(s);
-          soundManager.playSound(s);
+          this.soundBuffer.push(parser.parseStatement(s));
+          soundManager.playSound(parser.parseStatement(s));
         }
         if (str.indexOf("play-music") > -1) {
           s = str.split("play-music ");
           s = s[1].split(/\s|\"/)[0];
-          this.musicBuffer.push(s);
-          soundManager.startMusic(s);
+          this.musicBuffer.push(parser.parseStatement(s));
+          soundManager.startMusic(parser.parseStatement(s));
         }
         if (str.indexOf("stop-music") > -1) {
           s = str.split("stop-music ");
           s = s[1].split(/\s|\"/)[0];
-          this.stopMusicBuffer.push(s);
-          soundManager.stopMusic(s);
+          this.stopMusicBuffer.push(parser.parseStatement(s));
+          soundManager.stopMusic(parser.parseStatement(s));
         }
         if (str.indexOf("pause") > -1) {
           s = str.split("pause ");
@@ -1403,7 +1409,7 @@ TextPrinter = (function() {
         if (str.indexOf("set-scroll-sound") > -1) {
           s = str.split("set-scroll-sound ");
           s = s[1].split(/\s|\"/)[0];
-          this.scrollSound = s;
+          this.scrollSound = parser.parseStatement(s);
         }
         if (str.indexOf("default-scroll-sound") > -1) {
           this.scrollSound = null;

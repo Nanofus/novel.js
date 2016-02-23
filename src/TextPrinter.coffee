@@ -65,7 +65,7 @@ class TextPrinter
       if ss.length > 0
         for i in [0 .. ss.length]
           if !(ss[i] in @soundBuffer)
-            soundManager.playSound(ss[i])
+            soundManager.playSound(parser.parseStatement(ss[i]))
       ss = []
       first = true
       if @fullText.indexOf("play-music") > -1
@@ -77,7 +77,7 @@ class TextPrinter
       if ss.length > 0
         for i in [0 .. ss.length]
           if !(ss[i] in @musicBuffer)
-            soundManager.startMusic(ss[i])
+            soundManager.startMusic(parser.parseStatement(ss[i]))
       ss = []
       first = true
       if @fullText.indexOf("stop-music") > -1
@@ -89,7 +89,7 @@ class TextPrinter
       if ss.length > 0
         for i in [0 .. ss.length]
           if !(ss[i] in @stopMusicBuffer)
-            soundManager.stopMusic(ss[i])
+            soundManager.stopMusic(parser.parseStatement(ss[i]))
       ss = []
       first = true
       if @fullText.indexOf("execute-command") > -1
@@ -209,35 +209,35 @@ class TextPrinter
       if str.indexOf("play-sound") > -1 && str.indexOf("display:none;") > -1
         s = str.split("play-sound ")
         s = s[1].split(/\s|\"/)[0]
-        @soundBuffer.push(s)
+        @soundBuffer.push(parser.parseStatement(s))
       if str.indexOf("play-music") > -1 && str.indexOf("display:none;") > -1
         s = str.split("play-music ")
         s = s[1].split(/\s|\"/)[0]
-        @musicBuffer.push(s)
+        @musicBuffer.push(parser.parseStatement(s))
       if str.indexOf("stop-music") > -1 && str.indexOf("display:none;") > -1
         s = str.split("stop-music ")
         s = s[1].split(/\s|\"/)[0]
-        @stopMusicBuffer.push(s)
+        @stopMusicBuffer.push(parser.parseStatement(s))
       if str.indexOf("execute-command") > -1 && str.indexOf("display:none;") > -1
         s = str.split("execute-command ")
         s = s[1].split(/\s|\"/)[0]
-        @executeBuffer.push(s)
+        @executeBuffer.push(parser.parseStatement(s))
       if str.indexOf("display:none;") == -1
         if str.indexOf("play-sound") > -1
           s = str.split("play-sound ")
           s = s[1].split(/\s|\"/)[0]
-          @soundBuffer.push(s)
-          soundManager.playSound(s)
+          @soundBuffer.push(parser.parseStatement(s))
+          soundManager.playSound(parser.parseStatement(s))
         if str.indexOf("play-music") > -1
           s = str.split("play-music ")
           s = s[1].split(/\s|\"/)[0]
-          @musicBuffer.push(s)
-          soundManager.startMusic(s)
+          @musicBuffer.push(parser.parseStatement(s))
+          soundManager.startMusic(parser.parseStatement(s))
         if str.indexOf("stop-music") > -1
           s = str.split("stop-music ")
           s = s[1].split(/\s|\"/)[0]
-          @stopMusicBuffer.push(s)
-          soundManager.stopMusic(s)
+          @stopMusicBuffer.push(parser.parseStatement(s))
+          soundManager.stopMusic(parser.parseStatement(s))
         if str.indexOf("pause") > -1
           s = str.split("pause ")
           s = s[1].split(/\s|\"/)[0]
@@ -261,7 +261,7 @@ class TextPrinter
         if str.indexOf("set-scroll-sound") > -1
           s = str.split("set-scroll-sound ")
           s = s[1].split(/\s|\"/)[0]
-          @scrollSound = s
+          @scrollSound = parser.parseStatement(s)
         if str.indexOf("default-scroll-sound") > -1
           @scrollSound = null
       @currentOffset = i

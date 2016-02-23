@@ -113,9 +113,11 @@ Now lets take a closer look on the lists:
 
 #### Inventories
 
-`game.json` contains a list of inventories which are lists of items. The player can use only one inventory at once, and it might not even be necessary to ever use more than one inventory. The default inventory's index is `0`.
+`game.json` contains a list of inventories which are lists of items. The lists initially defined in the file are the player's starting items. The player can use only one inventory at once, and it might not even be necessary to ever use more than one inventory. The default inventory's index is `0`.
 
-The player's inventory contains all the items they carry, and is visible to the player. The items do not have to be pre-defined; you can add items by any name from anywhere. The inventories defined in `game.json` describe the player's starting items. A single example inventory:
+The player's inventory contains all the items they carry, and is visible to the player. The items do not have to be pre-defined; you can add items by any name from anywhere. However, you should predefine all the inventories your game uses in your `game.json`, otherwise Vue does not recognize them and the inventory view does not work. If some of the inventories should be empty at the beginning, you can simply define them as empty arrays (`[]`).
+
+A single example inventory:
 
 ```json
 "inventories": [
