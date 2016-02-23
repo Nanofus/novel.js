@@ -42,7 +42,6 @@ class UI
           if needForUpdate
             sceneManager.updateScene(data.game.currentScene,true)
 
-
 # The button that can be used to copy the text from the save window.
 copyButton = document.querySelector('#copy-button')
 if copyButton != null

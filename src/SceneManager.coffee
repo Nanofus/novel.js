@@ -181,13 +181,17 @@ class SceneManager
   # Read miscellaneous scene values
   readMisc: (source) ->
     if source.skipEnabled != undefined
-      data.game.currentScene.skipEnabled = source.skipEnabled
+      data.game.currentScene.skipEnabled = parser.parseStatement(source.skipEnabled)
     else
       data.game.currentScene.skipEnabled = data.game.settings.scrollSettings.textSkipEnabled
     if source.scrollSpeed != undefined
       data.game.currentScene.scrollSpeed = source.scrollSpeed
     else
       data.game.currentScene.scrollSpeed = data.game.settings.scrollSettings.defaultScrollSpeed
+    if source.inventoryHidden != undefined
+      data.inventoryHidden = parser.parseStatement(source.inventoryHidden)
+    else
+      data.inventoryHidden = false
 
   # Read save and load commands from scene or choice
   readSaving: (source) ->

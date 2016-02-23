@@ -789,7 +789,6 @@ SceneManager = (function() {
       i = i.split(",");
       parsed.push(i);
     }
-    console.log(parsed);
     parsed = this.chooseRandomly(parsed);
     return parsed;
   };
@@ -934,14 +933,19 @@ SceneManager = (function() {
 
   SceneManager.prototype.readMisc = function(source) {
     if (source.skipEnabled !== void 0) {
-      data.game.currentScene.skipEnabled = source.skipEnabled;
+      data.game.currentScene.skipEnabled = parser.parseStatement(source.skipEnabled);
     } else {
       data.game.currentScene.skipEnabled = data.game.settings.scrollSettings.textSkipEnabled;
     }
     if (source.scrollSpeed !== void 0) {
-      return data.game.currentScene.scrollSpeed = source.scrollSpeed;
+      data.game.currentScene.scrollSpeed = source.scrollSpeed;
     } else {
-      return data.game.currentScene.scrollSpeed = data.game.settings.scrollSettings.defaultScrollSpeed;
+      data.game.currentScene.scrollSpeed = data.game.settings.scrollSettings.defaultScrollSpeed;
+    }
+    if (source.inventoryHidden !== void 0) {
+      return data.inventoryHidden = parser.parseStatement(source.inventoryHidden);
+    } else {
+      return data.inventoryHidden = false;
     }
   };
 
@@ -1590,6 +1594,7 @@ data = {
   game: null,
   choices: null,
   debugMode: false,
+  inventoryHidden: false,
   printedText: "",
   parsedJavascriptCommands: [],
   music: []

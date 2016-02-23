@@ -2,6 +2,7 @@ data = {
   game: null,
   choices: null,
   debugMode: false,
+  inventoryHidden: false,
   printedText: "",
   parsedJavascriptCommands: [],
   music: []

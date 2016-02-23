@@ -163,6 +163,7 @@ A scene object can contain the following variables and parameters:
 - `name` - Required. The scene's name. Not visible to the user, used internally to navigate between scenes.
 - `text` - Required (not enforced). The scene's text. Can be formatted using html and Novel.js's own tags. The text can be a simple string, or an array of strings. If it is an array, each of the array items gets surrounded by paragraph tags (`<p></p>`). This makes formatting long text easier.
 - `style` - The scene's style. Adds a html class that can be styled in `skin.css` to give different looks to different scenes.
+- `inventoryHidden` - If defined and set to true, the inventory is not shown in this scene.
 - `addItem` - Add items to the player's inventory upon entering the scene.
 - `removeItem` - Remove items from the player's inventory upon entering the scene.
 - `setItem` - Sets the specified items' counts in the player's inventory upon entering the scene. If the item does not exist in the inventory, it is added.
