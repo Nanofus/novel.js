@@ -6,7 +6,7 @@ class InventoryManager
   # Check if item or stat requirements have been filled
   checkRequirements: (requirements) ->
     reqsFilled = 0
-    for i in data.game.inventory
+    for i in data.game.inventories[data.game.currentInventory]
       for j in requirements
         if j[0] == i.name
           if j[1] <= i.value
@@ -53,7 +53,7 @@ class InventoryManager
         hidden = true
         j[0] = j[0].substring(1,j[0].length)
       itemAdded = false
-      for i in data.game.inventory
+      for i in data.game.inventories[data.game.currentInventory]
         if i.name == j[0]
           probability = 1
           if j.length > 2
@@ -104,4 +104,4 @@ class InventoryManager
           displayName = j[0]
         random = Math.random()
         if random < probability
-          data.game.inventory.push({"name": j[0], "value": value, "displayName": displayName, "hidden": hidden})
+          data.game.inventories[data.game.currentInventory].push({"name": j[0], "value": value, "displayName": displayName, "hidden": hidden})

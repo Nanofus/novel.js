@@ -20,7 +20,7 @@ Contributions are welcome!
 - [Getting Started](#getting-started)
 - [Documentation](#documentation)
 	- [`game.json` structure](#gamejson-structure)
-		- [Inventory](#inventory)
+		- [Inventories](#inventories)
 		- [Scenes](#scenes)
 		- [Choices](#choices)
 		- [Settings](#settings)
@@ -61,7 +61,7 @@ Contributions are welcome!
 - Conditional statements to hide or show text and choices based on different conditions, such as the items the player is carrying, allowing for complex logic.
 - Print values such as item counts or even text from other scenes.
 - Scrolling text! Many ways to customize it and execute logic during scrolling to allow for voice acting, mood setting, character specific styles etc.
-- An inventory system!
+- An inventory system, with support for hidden items and multiple inventories!
 - Choices can have several different outcomes with different probabilities, loads of different customization options and can be chained to prevent repetition.
 - Play sound effects and looping music/ambient sound effects!
 - Shorthand tags for general styling of names etc. and presets to help with recurring styles.
@@ -103,7 +103,7 @@ Novel.js comes with a simple example game that demostrates all available feature
 `game.json` is a JavaScript Object Notation file - a neat way to work with structured information. The top level of the structure contains the following variables:
 - `gameName` - Use this to set your game's name.
 - `version` - The game's version number.
-- `inventory` - A list of the player's items and other variables.
+- `inventories` - A list of lists of the player's items and other variables.
 - `scenes` - A list of the game's scenes, i.e. views, areas, different texts the player can see.
 - `presets` - Pre-defined strings that can contain tags and be embedded in scenes and choices. See [definition](#tag-and-string-presets)
 - `settings` - Settings to edit, some of which can also be made visible to the player.
@@ -111,16 +111,20 @@ Novel.js comes with a simple example game that demostrates all available feature
 
 Now lets take a closer look on the lists:
 
-#### Inventory
+#### Inventories
 
-The player's inventory contains all the items they carry, and is visible to the player. The items do not have to be pre-defined; you can add items by any name from anywhere. The inventory in `game.json` describes the player's starting items. An example inventory:
+`game.json` contains a list of inventories which are lists of items. The player can use only one inventory at once, and it might not even be necessary to ever use more than one inventory. The default inventory's index is `0`.
+
+The player's inventory contains all the items they carry, and is visible to the player. The items do not have to be pre-defined; you can add items by any name from anywhere. The inventories defined in `game.json` describe the player's starting items. A single example inventory:
 
 ```json
-"inventory": [
+"inventories": [
+	[
   {"name": "sword", "value": 1},
   {"name": "sandwich", "value": 5},
 	{"name": "playerName", "value": "Bob", "hidden": true},
 	{"name": "dragonsSlain", "value": 5, "hidden": true}
+	]
 ]
 ```
 

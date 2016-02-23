@@ -100,30 +100,36 @@ GameManager = (function() {
   };
 
   GameManager.prototype.prepareData = function(json) {
-    var c, i, k, l, len, len1, len2, m, ref, ref1, ref2, s;
+    var c, i, j, k, l, len, len1, len2, len3, m, o, ref, ref1, ref2, s;
     json.currentScene = "";
     json.parsedChoices = "";
-    if (json.inventory === void 0) {
-      json.inventory = [];
+    if (json.currentInventory === void 0) {
+      json.currentInventory = 0;
+    }
+    if (json.inventories === void 0) {
+      json.inventories = [];
     }
     if (json.scenes === void 0) {
       json.scenes = [];
     }
-    ref = json.inventory;
+    ref = json.inventories;
     for (k = 0, len = ref.length; k < len; k++) {
       i = ref[k];
-      if (i.displayName === void 0) {
-        i.displayName = i.name;
+      for (l = 0, len1 = i.length; l < len1; l++) {
+        j = i[l];
+        if (j.displayName === void 0) {
+          j.displayName = j.name;
+        }
       }
     }
     ref1 = json.scenes;
-    for (l = 0, len1 = ref1.length; l < len1; l++) {
-      s = ref1[l];
+    for (m = 0, len2 = ref1.length; m < len2; m++) {
+      s = ref1[m];
       s.combinedText = "";
       s.parsedText = "";
       ref2 = s.choices;
-      for (m = 0, len2 = ref2.length; m < len2; m++) {
-        c = ref2[m];
+      for (o = 0, len3 = ref2.length; o < len3; o++) {
+        c = ref2[o];
         c.parsedText = "";
         if (c.nextScene === void 0) {
           c.nextScene = "";
@@ -265,7 +271,7 @@ Parser = (function() {
           }
         } else if (s.substring(0, 4) === "inv.") {
           value = s.substring(4, s.length);
-          ref2 = data.game.inventory;
+          ref2 = data.game.inventories[data.game.currentInventory];
           for (o = 0, len1 = ref2.length; o < len1; o++) {
             i = ref2[o];
             if (i.name === value) {
@@ -309,7 +315,7 @@ Parser = (function() {
         } else if (s.substring(0, 5) === "input") {
           parsed = s.split("input ");
           nameText = "";
-          ref3 = data.game.inventory;
+          ref3 = data.game.inventories[data.game.currentInventory];
           for (q = 0, len2 = ref3.length; q < len2; q++) {
             i = ref3[q];
             if (i.name === parsed[1]) {
@@ -351,7 +357,7 @@ Parser = (function() {
       switch (type) {
         case "item":
           found = false;
-          ref = data.game.inventory;
+          ref = data.game.inventories[data.game.currentInventory];
           for (l = 0, len1 = ref.length; l < len1; l++) {
             i = ref[l];
             if (i.name === val.substring(4, val.length)) {
@@ -468,7 +474,7 @@ InventoryManager = (function() {
   InventoryManager.prototype.checkRequirements = function(requirements) {
     var i, j, k, l, len, len1, ref, reqsFilled;
     reqsFilled = 0;
-    ref = data.game.inventory;
+    ref = data.game.inventories[data.game.currentInventory];
     for (k = 0, len = ref.length; k < len; k++) {
       i = ref[k];
       for (l = 0, len1 = requirements.length; l < len1; l++) {
@@ -533,7 +539,7 @@ InventoryManager = (function() {
         j[0] = j[0].substring(1, j[0].length);
       }
       itemAdded = false;
-      ref = data.game.inventory;
+      ref = data.game.inventories[data.game.currentInventory];
       for (l = 0, len1 = ref.length; l < len1; l++) {
         i = ref[l];
         if (i.name === j[0]) {
@@ -601,7 +607,7 @@ InventoryManager = (function() {
         }
         random = Math.random();
         if (random < probability) {
-          results.push(data.game.inventory.push({
+          results.push(data.game.inventories[data.game.currentInventory].push({
             "name": j[0],
             "value": value,
             "displayName": displayName,
@@ -795,6 +801,9 @@ SceneManager = (function() {
 
   SceneManager.prototype.readItemEdits = function(source) {
     var k, l, len, len1, len2, m, ref, ref1, ref2, results, val;
+    if (source.changeInventory !== void 0) {
+      data.game.currentInventory = source.changeInventory;
+    }
     if (source.removeItem !== void 0) {
       inventoryManager.editItems(parser.parseItems(source.removeItem), "remove");
     }
@@ -1429,7 +1438,7 @@ UI = (function() {
       i = inputs[k];
       results.push((function() {
         var l, len1, ref, results1;
-        ref = data.game.inventory;
+        ref = data.game.inventories[data.game.currentInventory];
         results1 = [];
         for (l = 0, len1 = ref.length; l < len1; l++) {
           a = ref[l];
@@ -1562,7 +1571,7 @@ gameArea = new Vue({
     },
     itemsOverZeroAndAreHidden: function(item) {
       var i, k, len, ref;
-      ref = data.game.inventory;
+      ref = data.game.inventories[data.game.currentInventory];
       for (k = 0, len = ref.length; k < len; k++) {
         i = ref[k];
         if (i.name === item.name && (i.hidden && i.hidden !== void 0)) {
@@ -1578,7 +1587,7 @@ gameArea = new Vue({
     },
     itemsOverZeroAndNotHidden: function(item) {
       var i, k, len, ref;
-      ref = data.game.inventory;
+      ref = data.game.inventories[data.game.currentInventory];
       for (k = 0, len = ref.length; k < len; k++) {
         i = ref[k];
         if (i.name === item.name && (!i.hidden || i.hidden === void 0)) {

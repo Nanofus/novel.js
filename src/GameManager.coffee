@@ -83,13 +83,16 @@ class GameManager
   prepareData: (json) ->
     json.currentScene=""
     json.parsedChoices=""
-    if json.inventory == undefined
-      json.inventory = []
+    if json.currentInventory == undefined
+      json.currentInventory = 0
+    if json.inventories == undefined
+      json.inventories = []
     if json.scenes == undefined
       json.scenes = []
-    for i in json.inventory
-      if i.displayName == undefined
-        i.displayName = i.name
+    for i in json.inventories
+      for j in i
+        if j.displayName == undefined
+          j.displayName = j.name
     for s in json.scenes
       s.combinedText = ""
       s.parsedText = ""

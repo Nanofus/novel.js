@@ -47,7 +47,7 @@
           <div v-if="!inventoryHidden" class="inventory">
             <h5>Inventory:</h5>
             <ul class="item-list">
-              <li v-for="item in game.inventory" class="inventory-item" v-if="itemsOverZeroAndNotHidden(item)">
+              <li v-for="item in game.inventories[game.currentInventory]" class="inventory-item" v-if="itemsOverZeroAndNotHidden(item)">
                 {{{ item.displayName }}} - {{{ item.value }}}
               </li>
             </ul>
@@ -55,7 +55,7 @@
           <div v-if="game.settings.debugMode" class="stats">
             <h5>Stats:</h5>
             <ul class="item-list">
-              <li v-for="item in game.inventory" class="inventory-item" v-if="itemsOverZeroAndAreHidden(item)">
+              <li v-for="item in game.inventories[game.currentInventory]" class="inventory-item" v-if="itemsOverZeroAndAreHidden(item)">
                 {{{ item.displayName }}} - {{{ item.value }}}
               </li>
             </ul>

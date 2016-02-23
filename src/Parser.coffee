@@ -52,7 +52,7 @@ class Parser
         # Printed inventory counts
         else if s.substring(0,4) == "inv."
           value = s.substring(4,s.length)
-          for i in data.game.inventory
+          for i in data.game.inventories[data.game.currentInventory]
             if i.name == value
               splitText[index] = i.value
         # Generic print command
@@ -102,7 +102,7 @@ class Parser
         else if s.substring(0,5) == "input"
           parsed = s.split("input ")
           nameText = ""
-          for i in data.game.inventory
+          for i in data.game.inventories[data.game.currentInventory]
             if i.name == parsed[1]
               nameText = i.value
           splitText[index] = "<input type=\"text\" value=\"" + nameText + "\" name=\"input\" class=\"input-" + parsed[1] +  "\" onblur=\"ui.updateInputs(true)\">"
@@ -139,7 +139,7 @@ class Parser
       switch type
         when "item"
           found = false
-          for i in data.game.inventory
+          for i in data.game.inventories[data.game.currentInventory]
             if i.name == val.substring(4,val.length)
               parsedValues.push i.value
               found = true

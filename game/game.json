@@ -1,20 +1,26 @@
 {
   "gameName": "testGame",
   "version": "0.2.0",
-  "inventory": [
-    {"name": "sword", "value": 1, "hidden": false},
-    {"name": "sandwich", "value": 5, "hidden": false},
-    {"name": "magicalshield", "displayName": "Magical Shield", "value": 1, "hidden": false},
-    {"name": "villagesSaved", "value": 0, "hidden": true},
-    {"name": "dragonsKilled", "value": 1, "hidden": true},
-    {"name": "playerName", "value": "Default Name", "hidden": true},
-    {"name": "introductionSeen", "value": 0, "hidden": true}
+  "inventories": [
+    [
+      {"name": "sword", "value": 1, "hidden": false},
+      {"name": "sandwich", "value": 5, "hidden": false},
+      {"name": "magicalshield", "displayName": "Magical Shield", "value": 1, "hidden": false},
+      {"name": "villagesSaved", "value": 0, "hidden": true},
+      {"name": "dragonsKilled", "value": 1, "hidden": true},
+      {"name": "playerName", "value": "Default Name", "hidden": true},
+      {"name": "introductionSeen", "value": 0, "hidden": true}
+    ],
+    [
+      {"name": "sword", "value": 5, "hidden": false}
+    ]
   ],
   "scenes": [
     {
       "name": "start",
       "text": "SUPER AMAZING MEDIEVAL ADVENTURE!",
       "style": "main-menu",
+      "changeInventory": 1,
       "choices": [
         {
           "text": "Start",
@@ -37,6 +43,7 @@
         {
           "text": "Keep walking. [if var.settings.soundSettings.soundVolume>0.7]jajaja[/if][if var.gameName==kakkonen] this game has a weird [if inv.sword<3]and boearkoraeroak[/if] name[/if]",
           "name": "Continue",
+          "changeInventory": 0,
           "setItem": "!introductionSeen,1",
           "nextScene": "road"
         },

@@ -36,7 +36,7 @@ class UI
   updateInputs: (needForUpdate) ->
     inputs = document.getElementById("game-area").querySelectorAll("input")
     for i in inputs
-      for a in data.game.inventory
+      for a in data.game.inventories[data.game.currentInventory]
         if a.name == i.className.substring(6,i.className.length)
           a.value = util.stripHTML(i.value)
           if needForUpdate
