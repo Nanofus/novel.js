@@ -6,6 +6,8 @@ class InputManager
 
   # Gets keypresses and handles their functions
   keyDown: (charCode) ->
+    if @formsSelected()
+      return
     if (charCode == 13 || charCode == 32)
       if data.game.settings.scrollSettings.continueWithKeyboard
         sceneManager.tryContinue()
@@ -14,6 +16,8 @@ class InputManager
       textPrinter.unpause()
 
   keyPressed: (charCode) ->
+    if @formsSelected()
+      return
     @presses++
     if (charCode == 13 || charCode == 32)
       if @presses > 2
@@ -21,9 +25,18 @@ class InputManager
           textPrinter.fastScroll()
 
   keyUp: (charCode) ->
+    if @formsSelected()
+      return
     @presses = 0
     if (charCode == 13 || charCode == 32)
       textPrinter.stopFastScroll()
+
+  formsSelected: ->
+    inputs = document.getElementById("game-area").querySelectorAll("input")
+    for i in inputs
+      if i == document.activeElement
+        return true
+    return false
 
 document.onkeydown = (evt) ->
   evt = evt or window.event

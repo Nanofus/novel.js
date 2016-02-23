@@ -12,7 +12,8 @@
       {"name": "introductionSeen", "value": 0, "hidden": true}
     ],
     [
-      {"name": "sword", "value": 5, "hidden": false}
+      {"name": "sword", "value": 5, "hidden": false},
+      {"name": "playerName", "value": "Blorgg the Conqueror", "hidden": true}
     ]
   ],
   "scenes": [

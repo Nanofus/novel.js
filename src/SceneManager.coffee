@@ -132,6 +132,10 @@ class SceneManager
   # Read item and val edit commands from scene or choice
   readItemEdits: (source) ->
     if source.changeInventory != undefined
+      if data.game.inventories.length < source.changeInventory
+        for i in [0 .. source.changeInventory]
+          if data.game.inventories[i] == undefined
+            data.game.inventories[i] = []
       data.game.currentInventory = source.changeInventory
     if source.removeItem != undefined
       inventoryManager.editItems(parser.parseItems(source.removeItem),"remove")

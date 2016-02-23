@@ -155,6 +155,9 @@ InputManager = (function() {
   InputManager.prototype.presses = 0;
 
   InputManager.prototype.keyDown = function(charCode) {
+    if (this.formsSelected()) {
+      return;
+    }
     if (charCode === 13 || charCode === 32) {
       if (data.game.settings.scrollSettings.continueWithKeyboard) {
         sceneManager.tryContinue();
@@ -167,6 +170,9 @@ InputManager = (function() {
   };
 
   InputManager.prototype.keyPressed = function(charCode) {
+    if (this.formsSelected()) {
+      return;
+    }
     this.presses++;
     if (charCode === 13 || charCode === 32) {
       if (this.presses > 2) {
@@ -178,10 +184,25 @@ InputManager = (function() {
   };
 
   InputManager.prototype.keyUp = function(charCode) {
+    if (this.formsSelected()) {
+      return;
+    }
     this.presses = 0;
     if (charCode === 13 || charCode === 32) {
       return textPrinter.stopFastScroll();
     }
+  };
+
+  InputManager.prototype.formsSelected = function() {
+    var i, inputs, k, len;
+    inputs = document.getElementById("game-area").querySelectorAll("input");
+    for (k = 0, len = inputs.length; k < len; k++) {
+      i = inputs[k];
+      if (i === document.activeElement) {
+        return true;
+      }
+    }
+    return false;
   };
 
   return InputManager;
@@ -801,8 +822,15 @@ SceneManager = (function() {
   };
 
   SceneManager.prototype.readItemEdits = function(source) {
-    var k, l, len, len1, len2, m, ref, ref1, ref2, results, val;
+    var i, k, l, len, len1, len2, m, o, ref, ref1, ref2, ref3, results, val;
     if (source.changeInventory !== void 0) {
+      if (data.game.inventories.length < source.changeInventory) {
+        for (i = k = 0, ref = source.changeInventory; 0 <= ref ? k <= ref : k >= ref; i = 0 <= ref ? ++k : --k) {
+          if (data.game.inventories[i] === void 0) {
+            data.game.inventories[i] = [];
+          }
+        }
+      }
       data.game.currentInventory = source.changeInventory;
     }
     if (source.removeItem !== void 0) {
@@ -815,24 +843,24 @@ SceneManager = (function() {
       inventoryManager.editItems(parser.parseItems(source.setItem), "set");
     }
     if (source.setValue !== void 0) {
-      ref = source.setValue;
-      for (k = 0, len = ref.length; k < len; k++) {
-        val = ref[k];
+      ref1 = source.setValue;
+      for (l = 0, len = ref1.length; l < len; l++) {
+        val = ref1[l];
         inventoryManager.setValue(val.path, parser.parseStatement(val.value.toString()));
       }
     }
     if (source.increaseValue !== void 0) {
-      ref1 = source.increaseValue;
-      for (l = 0, len1 = ref1.length; l < len1; l++) {
-        val = ref1[l];
+      ref2 = source.increaseValue;
+      for (m = 0, len1 = ref2.length; m < len1; m++) {
+        val = ref2[m];
         inventoryManager.increaseValue(val.path, parser.parseStatement(val.value.toString()));
       }
     }
     if (source.decreaseValue !== void 0) {
-      ref2 = source.decreaseValue;
+      ref3 = source.decreaseValue;
       results = [];
-      for (m = 0, len2 = ref2.length; m < len2; m++) {
-        val = ref2[m];
+      for (o = 0, len2 = ref3.length; o < len2; o++) {
+        val = ref3[o];
         results.push(inventoryManager.decreaseValue(val.path, parser.parseStatement(val.value.toString())));
       }
       return results;
