@@ -221,9 +221,7 @@ Parser = (function() {
     parsed = [];
     for (k = 0, len = separate.length; k < len; k++) {
       i = separate[k];
-      i = i.substring(0, i.length - 1);
-      i = i.split("[");
-      i[1] = parseInt(i[1]);
+      i = i.split(",");
       parsed.push(i);
     }
     return parsed;
@@ -567,7 +565,7 @@ InventoryManager = (function() {
   };
 
   InventoryManager.prototype.editItemsOrStats = function(items, mode, isInv) {
-    var count, displayName, i, inv, itemAdded, j, k, l, len, len1, p, probability, value;
+    var count, displayName, i, inv, itemAdded, j, k, l, len, len1, probability, value;
     if (isInv) {
       inv = data.game.inventory;
     } else {
@@ -579,22 +577,21 @@ InventoryManager = (function() {
       for (l = 0, len1 = inv.length; l < len1; l++) {
         i = inv[l];
         if (i.name === j[0]) {
-          p = j[1].toString().split(",");
           probability = 1;
-          if (p.length > 1) {
-            displayName = p[1];
-            count = parseInt(parser.parseStatement(p[0].toString()));
+          if (j.length > 2) {
+            displayName = j[2];
+            count = parseInt(parser.parseStatement(j[1]));
             if (!isNaN(displayName)) {
-              probability = p[1];
+              probability = j[2];
               displayName = j.name;
             }
-            if (p.length > 2) {
-              probability = parseFloat(p[1]);
-              displayName = p[2];
+            if (j.length > 3) {
+              probability = parseFloat(j[2]);
+              displayName = j[3];
             }
           } else {
             displayName = j[0];
-            count = parseInt(parser.parseStatement(j[1].toString()));
+            count = parseInt(parser.parseStatement(j[1]));
           }
           value = Math.random();
           if (value < probability) {
@@ -602,7 +599,11 @@ InventoryManager = (function() {
               if (isInv) {
                 i.count = parseInt(j[1]);
               } else {
-                i.value = parseInt(j[1]);
+                if (isNaN(parseInt(j[1]))) {
+                  i.value = j[1];
+                } else {
+                  i.value = parseInt(j[1]);
+                }
               }
             } else if (mode === "add") {
               if (isInv) {
@@ -620,9 +621,11 @@ InventoryManager = (function() {
                   i.count = 0;
                 }
               } else {
-                i.value = parseInt(i.value) - count;
-                if (i.value < 0) {
-                  i.value = 0;
+                if (!isNaN(parseInt(i.value))) {
+                  i.value = parseInt(i.value) - count;
+                  if (i.value < 0) {
+                    i.value = 0;
+                  }
                 }
               }
             }
@@ -631,30 +634,39 @@ InventoryManager = (function() {
         }
       }
       if (!itemAdded && mode !== "remove") {
-        p = j[1].toString().split(",");
         probability = 1;
-        if (p.length > 1) {
-          displayName = p[1];
-          count = parseInt(parser.parseStatement(p[0].toString()));
+        count = parseInt(parser.parseStatement(j[1]));
+        if (isNaN(count)) {
+          count = parser.parseStatement(j[1]);
+        }
+        if (j.length > 2) {
+          displayName = j[2];
           if (!isNaN(displayName)) {
-            probability = p[1];
+            probability = j[2];
             displayName = j.name;
           }
-          if (p.length > 2) {
-            probability = parseFloat(p[1]);
-            displayName = p[2];
+          if (j.length > 3) {
+            probability = parseFloat(j[2]);
+            displayName = j[3];
           }
         } else {
           displayName = j[0];
-          count = parseInt(parser.parseStatement(j[1].toString()));
         }
         value = Math.random();
         if (value < probability) {
-          inv.push({
-            "name": j[0],
-            "count": count,
-            "displayName": displayName
-          });
+          if (isInv) {
+            inv.push({
+              "name": j[0],
+              "count": count,
+              "displayName": displayName
+            });
+          } else {
+            inv.push({
+              "name": j[0],
+              "value": count,
+              "displayName": displayName
+            });
+          }
         }
       }
     }
@@ -774,10 +786,10 @@ SceneManager = (function() {
     parsed = [];
     for (k = 0, len = separate.length; k < len; k++) {
       i = separate[k];
-      i = i.substring(0, i.length - 1);
-      i = i.split("[");
+      i = i.split(",");
       parsed.push(i);
     }
+    console.log(parsed);
     parsed = this.chooseRandomly(parsed);
     return parsed;
   };

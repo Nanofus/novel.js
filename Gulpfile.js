@@ -32,7 +32,7 @@ gulp.task('concat', function() {
 });
 
 gulp.task('test-concat', function() {
-  return gulp.src(['./test/src/Init.coffee','./test/src/Parser-test.coffee'])
+  return gulp.src(['./test/src/Init.coffee','./test/src/Parser-test.coffee','./test/src/InventoryManager-test.coffee'])
     .pipe(concat('test.coffee'))
     .pipe(gulp.dest('./test'));
 });

@@ -10,9 +10,7 @@ class Parser
     separate = items.split("|")
     parsed = []
     for i in separate
-      i = i.substring(0, i.length - 1)
-      i = i.split("[")
-      i[1] = parseInt(i[1])
+      i = i.split(",")
       parsed.push(i)
     return parsed
 

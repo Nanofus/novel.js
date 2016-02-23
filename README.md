@@ -148,8 +148,8 @@ An example scene:
   "choices": [
     {
       "text": "Fight it! (or, randomly, run away!!)",
-      "itemRequirement": "sword[1]",
-      "nextScene": "hitDragon[0.5]|missDragon[0.3]|road[0.2]"
+      "itemRequirement": "sword,1",
+      "nextScene": "hitDragon,0.5|missDragon,0.3|road,0.2"
     },
     {
       "text": "Run away!",
@@ -370,11 +370,11 @@ You can also define an optional `probability`, a float between 0 and 1 that defi
 
 The format:
 ```
-itemOne[count,probability,displayName]|itemTwo[count,probability,displayName]|itemThree[count,probability,displayName]
+itemOne,count,probability,displayName|itemTwo,count,probability,displayName|itemThree,count,probability,displayName
 ```
 An example:
 ```
-"addItem": "sword[1]|shield[1,Magical Shield]|stone[inv.stone,0.5]|largestone[1,0.2,Large Stone]"
+"addItem": "sword,1|shield,1,Magical Shield|stone,inv.stone,0.5|largestone,1,0.2,Large Stone"
 ```
 This adds one sword and one shield named "Magical Shield" to the player's inventory. With a 50% chance, the player also doubles their supply of stones, and with a 20% probability they gain a large stone. The item counts support mathematical operations and reading item, stat and value counts when prefixed with `inv.`, `stat.` and `var.` respectively.
 
@@ -382,11 +382,11 @@ This adds one sword and one shield named "Magical Shield" to the player's invent
 
 Some commands allow you to define probabilities for different outcomes. Takes the following format:
 ```
-option[probability]|option[probability]|option[probability]
+option,probability|option,probability|option,probability
 ```
 You can list any amount of options by separating them with `|`. All of the probabilities have to add up to exactly `1`. An example for a choice's `nextScene`:
 ```
-hitEnemySuccess[0.5]|hitEnemyFail[0.5]
+hitEnemySuccess,0.5|hitEnemyFail,0.5
 ```
 In this example, the player has a 50% chance to hit (go to hit scene) and a 50% chance to miss the enemy (go to miss scene).
 
@@ -440,7 +440,7 @@ Music works a bit differently in Novel.js than sound effects do; music is starte
   "choices": [
     {
       "text": "Fight it!",
-      "itemRequirement": "sword[1]",
+      "itemRequirement": "sword,1",
       "nextScene": "hitDragon"
     },
     {

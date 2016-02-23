@@ -85,8 +85,7 @@ class SceneManager
       return separate[0]
     parsed = []
     for i in separate
-      i = i.substring(0, i.length - 1)
-      i = i.split("[")
+      i = i.split(",")
       parsed.push(i)
     parsed = @chooseRandomly(parsed)
     return parsed

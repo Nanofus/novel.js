@@ -62,21 +62,20 @@ class InventoryManager
       itemAdded = false
       for i in inv
         if i.name == j[0]
-          p = j[1].toString().split(",")
           probability = 1
-          if p.length > 1
-            displayName = p[1]
-            count = parseInt(parser.parseStatement(p[0].toString()))
+          if j.length > 2
+            displayName = j[2]
+            count = parseInt(parser.parseStatement(j[1]))
             #console.log count
             if !isNaN(displayName)
-              probability = p[1]
+              probability = j[2]
               displayName = j.name
-            if p.length > 2
-              probability = parseFloat(p[1])
-              displayName = p[2]
+            if j.length > 3
+              probability = parseFloat(j[2])
+              displayName = j[3]
           else
             displayName = j[0]
-            count = parseInt(parser.parseStatement(j[1].toString()))
+            count = parseInt(parser.parseStatement(j[1]))
             #console.log count
           value = Math.random()
           if value < probability
@@ -84,7 +83,10 @@ class InventoryManager
               if isInv
                 i.count = parseInt(j[1])
               else
-                i.value = parseInt(j[1])
+                if isNaN parseInt(j[1])
+                  i.value = j[1]
+                else
+                  i.value = parseInt(j[1])
             else if (mode == "add")
               if isInv
                 i.count = parseInt(i.count) + count
@@ -98,29 +100,33 @@ class InventoryManager
                 if i.count < 0
                   i.count = 0
               else
-                i.value = parseInt(i.value) - count
-                if i.value < 0
-                  i.value = 0
+                if !isNaN parseInt(i.value)
+                  i.value = parseInt(i.value) - count
+                  if i.value < 0
+                    i.value = 0
           itemAdded = true
       if !itemAdded && mode != "remove"
-        p = j[1].toString().split(",")
         probability = 1
-        if p.length > 1
-          displayName = p[1]
-          count = parseInt(parser.parseStatement(p[0].toString()))
+        count = parseInt(parser.parseStatement(j[1]))
+        if isNaN count
+          count = parser.parseStatement(j[1])
+        if j.length > 2
+          displayName = j[2]
           if !isNaN(displayName)
-            probability = p[1]
+            probability = j[2]
             displayName = j.name
-          if p.length > 2
-            probability = parseFloat(p[1])
-            displayName = p[2]
+          if j.length > 3
+            probability = parseFloat(j[2])
+            displayName = j[3]
         else
           displayName = j[0]
-          count = parseInt(parser.parseStatement(j[1].toString()))
           #console.log count
         value = Math.random()
         if value < probability
-          inv.push({"name": j[0], "count": count, "displayName": displayName})
+          if isInv
+            inv.push({"name": j[0], "count": count, "displayName": displayName})
+          else
+            inv.push({"name": j[0], "value": count, "displayName": displayName})
     if isInv
       data.game.inventory = inv
     else
