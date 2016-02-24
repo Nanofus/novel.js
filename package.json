@@ -2,8 +2,9 @@
   "name": "Novel.js",
   "version": "0.1.0",
   "description": "",
-  "author": "Ville Talonpoika",
+  "author": "Ville Talonpoika <ville@talonpoika.net> (http://nanof.us)",
   "license": "GPL-2.0",
+  "main": "novel.js",
   "scripts": {
     "server": "http-server"
   },
@@ -14,7 +15,7 @@
   "bugs": {
     "url": "https://github.com/Nanofus/novel.js/issues"
   },
-  "homepage": "https://github.com/Nanofus/novel.js#readme",
+  "homepage": "https://github.com/Nanofus/novel.js",
   "devDependencies": {
     "gulp": "^3.9.0",
     "gulp-coffee": "^2.3.1",

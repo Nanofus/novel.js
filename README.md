@@ -14,6 +14,7 @@ Novel.js is written in CoffeeScript, HTML and SASS and depends only on Vue.js.
 - [Installation](#installation)
 - [Getting Started](#getting-started)
 - [Documentation](#documentation)
+  - [HTML structure](#html-structure)
 	- [`game.json` structure](#gamejson-structure)
 		- [Inventory](#inventory)
 		- [Stats](#stats)
@@ -83,6 +84,69 @@ Novel.js is written in CoffeeScript, HTML and SASS and depends only on Vue.js.
 Novel.js comes with a simple example game that demostrates all available features. Located in the `game` folder, `game.json` is easily readable and editable in your favourite text editor, so you can start working on your masterpiece right away! For a complete explanation of all the different stuff you can find in that file, please see the documentation!
 
 ## Documentation
+
+### HTML structure
+
+The page you display the game on should contain the following HTML (or some variant of it) to display the game.
+
+```html
+<div id="game-area">
+	<div class="style-area {{ game.currentScene.style }}">
+		<div id="notification-wrapper">
+			<div id="save-notification" class="notification">
+				<p>Copy and save this text:</p>
+				<p><textarea name="save-text" readonly></textarea></p>
+				<p><button type="button" onclick="UI.closeSaveNotification()">Close</button><button type="button" id="copy-button">Copy</button></p>
+			</div>
+			<div id="load-notification" class="notification">
+				<p>Paste your saved game here:</p>
+				<p><textarea name="load-text"></textarea></p>
+				<p><button type="button" onclick="UI.closeLoadNotification(false)">Close</button><button type="button" onclick="UI.closeLoadNotification(true)">Load</button></p>
+			</div>
+		</div>
+		<div class="text-and-choices-area">
+			<div class="text-area">
+				{{{ printedText }}}
+			</div>
+			<button v-if="textSkipEnabled()" type="button" id="skip-button" onclick="TextPrinter.complete()">Skip</button>
+			<div class="choices">
+				<ul class="choice-list">
+					<div v-for="choice in game.parsedChoices">
+						<li v-if="requirementsFilled(choice)" class="choice">
+							<a href="#" v-on:click="selectChoice(choice)">{{{ choice.parsedText }}}</a>
+						</li>
+						<div v-if="choice.alwaysShow">
+							<li v-if="!requirementsFilled(choice)">
+								{{{ choice.parsedText }}}
+							</li>
+						</div>
+					</div>
+				</ul>
+			</div>
+		</div>
+		<div class="inventory">
+			<h5>Inventory:</h5>
+			<ul class="item-list">
+				<li v-for="item in game.inventory" class="inventory-item">
+					{{{ item.displayName }}} - {{{ item.count }}}
+				</li>
+			</ul>
+		</div>
+		<div v-if="game.settings.debugMode" class="stats">
+			<h5>Stats:</h5>
+			<ul class="stats-list">
+				<li v-for="stats in game.stats" class="stats-item">
+					{{{ stats.name }}} - {{{ stats.value }}}
+				</li>
+			</ul>
+		</div>
+		<div v-if="game.settings.showSaveButtons" class="save-buttons">
+			<button type="button" id="save-button" onclick="GameManager.saveGame()">Save</button>
+			<button type="button" id="load-button" onclick="UI.showLoadNotification()">Load</button>
+		</div>
+	</div>
+</div>
+```
 
 ### `game.json` structure
 
