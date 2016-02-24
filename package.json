@@ -1,9 +1,9 @@
 {
-  "name": "novel",
-  "version": "0.3.2",
+  "name": "novel-js",
+  "version": "0.3.3",
   "description": "A lightweight JavaScript text game engine",
   "author": "Ville Talonpoika <ville@talonpoika.net> (http://nanof.us)",
-  "license": "GPL-2.0",
+  "license": "MIT",
   "main": "novel.js",
   "scripts": {
     "server": "http-server"
