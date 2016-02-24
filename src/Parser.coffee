@@ -148,6 +148,28 @@ class Parser
               found = true
           if !found
             parsedValues.push 0
+        when "rand"
+          val = val.split(".")
+          vals = val[1].split(",")
+          plus = true
+          if vals[0].substring(0,5) == "minus"
+            vals[0] = vals[0].substring(5,vals[0].length)
+            plus = false
+          if vals[1].substring(0,5) == "minus"
+            vals[1] = vals[1].substring(5,vals[1].length)
+            plus = false
+          if plus
+            result = Math.random()*vals[1] + vals[0]
+          else
+            result = Math.random()*vals[1] - vals[0]
+          console.log result
+          if vals[2] == undefined
+            vals[2] = 0
+          if vals[2] == 0
+            result = Math.round(result)
+          else
+            result = parseFloat(result).toFixed(vals[2])
+          parsedValues.push result
         when "var"
           val = @findValue(val.substring(4,val.length),true)
           if !isNaN(parseFloat(val))
@@ -166,6 +188,8 @@ class Parser
     # Replace all variables with their correct values
     for i in [0 .. parsedString.length-1]
       if parsedString[i] != "" && parsedValues[i] != ""
+        parsedString[i] = parsedString[i].replace("{","\{")
+        parsedString[i] = parsedString[i].replace("}","\}")
         s = s.replace(new RegExp(parsedString[i],'g'),parsedValues[i])
     # Solve or calculate the statement
     return eval(s)
@@ -177,6 +201,8 @@ class Parser
       type = "item"
     else if val.substring(0,4) == "var."
       type = "var"
+    else if val.substring(0,5) == "rand."
+      type = "rand"
     else if !isNaN(parseFloat(val)) && val.toString().indexOf(".") == -1
       type = "int"
     else if !isNaN(parseFloat(val)) && val.toString().indexOf(".") != -1

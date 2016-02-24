@@ -400,6 +400,8 @@ Conditional statements and calculations allow for all kinds of complex logic, an
 
 The above example shows how the statements can be used; Item values must be prefixed with `inv.`. `var.` is also available for `game.json` variables. The supported operators are `==`, `!=`, `<`, `<=`, `>` and `>=`. You may also use math operators `+`, `-`, `/` and `*`. Operators `||` (OR) and `&&` (AND) and parentheses `()` can also be used.
 
+You can use random values by using the prefix `rand.`, followed by the starting value (inclusive), the end value (exclusive) and the number of decimals. For example, `rand.0,20,5` returns a random value between 0 and 20 with 5 decimals. Leaving out the decimal number or setting it as `0` produces a rounded integer. Because of how the strings are parsed, negative values should not be prefixed with `-`, `minus` should be used instead. The following produces an integer between -5 and 5: `rand.minus5,5`
+
 If you do string comparation, you can use `==` and `!=` to compare them. To use a string as the equation's other side, it doesn't need any special notation, because everything that cannot be parsed as anything else is assumed to be a string. Simply write `var.gameName!=testGame`, for example.
 
 #### Format for value statements and commands

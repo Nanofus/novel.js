@@ -18,7 +18,7 @@
     [],
     [],
     [],
-    [],
+    []
   ],
   "scenes": [
     {
@@ -37,7 +37,7 @@
     {
       "name": "road",
       "text": ["[if (inv.villagesSaved==10||(inv.dragonsKilled>0&&(inv.sword<=5||inv.magicalshield>=5)&&(inv.smallstone>5&&inv.smallstone<10)))][sound click]You are a [s1]knight[/s].[/if]",
-      "You have saved [inv.villagesSaved] village[if (inv.villagesSaved!=1)]s[/if]. You have [inv.sword] [scrollSound none]sword[if (inv.sword!=1)]s[/if]. [if inv.sword>0]You have a [s2]sword[/s]. [/if][if inv.sword<1]You don't have a [s2]sword[/s]. [/if][/scrollSound]You walk on a road towards a [s1]town[/s].",
+      "You (random number [print rand.minus20,20,5]) have saved [inv.villagesSaved] village[if (inv.villagesSaved!=1)]s[/if]. You have [inv.sword] [scrollSound none]sword[if (inv.sword!=1)]s[/if]. [if inv.sword>0]You have a [s2]sword[/s]. [/if][if inv.sword<1]You don't have a [s2]sword[/s]. [/if][/scrollSound]You walk on a road towards a [s1]town[/s].",
       "[print var.scenes,1,choices,0,text] [speed 100][exec console.log(\"Hello world! The game's name is \" + data.game.gameName)]What do you do? There is also a [choice pickastick]stick[/choice] on the ground. You faintly hear a [choice dragon]dragon[/choice].",
       "[speed 500*2][sound scream]Sound [speed 0]volume is [print var.settings.soundSettings.soundVolume].[/speed] <a href=\"http://google.com\">This links to Google</a>. Divided by two times swords that is [print var.settings.soundSettings.soundVolume/2*inv.sword]. That you have slain a dragon is obviously [print inv.dragonsKilled>0]. Or what do you do not do?[/speed]",
       "[scrollSound scream]Your name is [input playerName].[/scrollSound] Nice to meet you, [inv.playerName]!"],

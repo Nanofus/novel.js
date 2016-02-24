@@ -365,7 +365,7 @@ Parser = (function() {
   };
 
   Parser.prototype.parseStatement = function(s) {
-    var found, i, k, l, len, len1, m, parsedString, parsedValues, ref, ref1, type, val;
+    var found, i, k, l, len, len1, m, parsedString, parsedValues, plus, ref, ref1, result, type, val, vals;
     if (s === void 0) {
       return void 0;
     }
@@ -394,6 +394,34 @@ Parser = (function() {
             parsedValues.push(0);
           }
           break;
+        case "rand":
+          val = val.split(".");
+          vals = val[1].split(",");
+          plus = true;
+          if (vals[0].substring(0, 5) === "minus") {
+            vals[0] = vals[0].substring(5, vals[0].length);
+            plus = false;
+          }
+          if (vals[1].substring(0, 5) === "minus") {
+            vals[1] = vals[1].substring(5, vals[1].length);
+            plus = false;
+          }
+          if (plus) {
+            result = Math.random() * vals[1] + vals[0];
+          } else {
+            result = Math.random() * vals[1] - vals[0];
+          }
+          console.log(result);
+          if (vals[2] === void 0) {
+            vals[2] = 0;
+          }
+          if (vals[2] === 0) {
+            result = Math.round(result);
+          } else {
+            result = parseFloat(result).toFixed(vals[2]);
+          }
+          parsedValues.push(result);
+          break;
         case "var":
           val = this.findValue(val.substring(4, val.length), true);
           if (!isNaN(parseFloat(val))) {
@@ -418,6 +446,8 @@ Parser = (function() {
     }
     for (i = m = 0, ref1 = parsedString.length - 1; 0 <= ref1 ? m <= ref1 : m >= ref1; i = 0 <= ref1 ? ++m : --m) {
       if (parsedString[i] !== "" && parsedValues[i] !== "") {
+        parsedString[i] = parsedString[i].replace("{", "\{");
+        parsedString[i] = parsedString[i].replace("}", "\}");
         s = s.replace(new RegExp(parsedString[i], 'g'), parsedValues[i]);
       }
     }
@@ -431,6 +461,8 @@ Parser = (function() {
       type = "item";
     } else if (val.substring(0, 4) === "var.") {
       type = "var";
+    } else if (val.substring(0, 5) === "rand.") {
+      type = "rand";
     } else if (!isNaN(parseFloat(val)) && val.toString().indexOf(".") === -1) {
       type = "int";
     } else if (!isNaN(parseFloat(val)) && val.toString().indexOf(".") !== -1) {
@@ -828,15 +860,8 @@ SceneManager = (function() {
   };
 
   SceneManager.prototype.readItemEdits = function(source) {
-    var i, k, l, len, len1, len2, m, o, ref, ref1, ref2, ref3, results, val;
+    var k, l, len, len1, len2, m, ref, ref1, ref2, results, val;
     if (source.changeInventory !== void 0) {
-      if (data.game.inventories.length < source.changeInventory) {
-        for (i = k = 0, ref = source.changeInventory + 1; 0 <= ref ? k <= ref : k >= ref; i = 0 <= ref ? ++k : --k) {
-          if (data.game.inventories[i] === void 0) {
-            data.game.inventories[i] = [];
-          }
-        }
-      }
       data.game.currentInventory = parser.parseStatement(source.changeInventory);
     }
     if (source.removeItem !== void 0) {
@@ -849,24 +874,24 @@ SceneManager = (function() {
       inventoryManager.editItems(parser.parseItems(source.setItem), "set");
     }
     if (source.setValue !== void 0) {
-      ref1 = source.setValue;
-      for (l = 0, len = ref1.length; l < len; l++) {
-        val = ref1[l];
+      ref = source.setValue;
+      for (k = 0, len = ref.length; k < len; k++) {
+        val = ref[k];
         inventoryManager.setValue(val.path, parser.parseStatement(val.value.toString()));
       }
     }
     if (source.increaseValue !== void 0) {
-      ref2 = source.increaseValue;
-      for (m = 0, len1 = ref2.length; m < len1; m++) {
-        val = ref2[m];
+      ref1 = source.increaseValue;
+      for (l = 0, len1 = ref1.length; l < len1; l++) {
+        val = ref1[l];
         inventoryManager.increaseValue(val.path, parser.parseStatement(val.value.toString()));
       }
     }
     if (source.decreaseValue !== void 0) {
-      ref3 = source.decreaseValue;
+      ref2 = source.decreaseValue;
       results = [];
-      for (o = 0, len2 = ref3.length; o < len2; o++) {
-        val = ref3[o];
+      for (m = 0, len2 = ref2.length; m < len2; m++) {
+        val = ref2[m];
         results.push(inventoryManager.decreaseValue(val.path, parser.parseStatement(val.value.toString())));
       }
       return results;
