@@ -7,6 +7,7 @@ var gutil = require('gulp-util');
 var concat = require('gulp-concat');
 var uglify = require('gulp-uglify');
 var mochaPhantomJS = require('gulp-mocha-phantomjs');
+var rename = require("gulp-rename");
 
 gulp.task('watch', function() {
   gulp.start('sass')
@@ -52,7 +53,8 @@ gulp.task('test-coffee', ['test-concat'], function() {
 gulp.task('compress', ['coffee'], function() {
   return gulp.src('./novel.js')
     .pipe(uglify({"mangle":true}))
-    .pipe(gulp.dest('dist'));
+    .pipe(rename('novel.min.js'))
+    .pipe(gulp.dest('./'));
 });
 
 gulp.task('test', ['coffee','test-coffee'], function () {
