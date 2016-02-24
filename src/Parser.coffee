@@ -5,6 +5,7 @@ class Parser
 
   # Parse a string of items and output an array
   parseItems: (items) ->
+    util.checkFormat(items,'string')
     if items == ""
       return undefined
     separate = items.split("|")
@@ -17,6 +18,7 @@ class Parser
   # Parse a text for Novel.js tags, and replace them with the correct HTML tags.
   parseText: (text) ->
     if text != undefined
+      util.checkFormat(text,'string')
       # [p] tags
       for i in data.game.tagPresets
         tagName = "[p " + i.name + "]"
@@ -128,6 +130,7 @@ class Parser
     if s == undefined
       return undefined
     s = s.toString()
+    util.checkFormat(s,'string')
     # Check for valid parentheses
     if !util.validateParentheses(s)
       console.error "ERROR: Invalid parentheses in statement"
@@ -162,7 +165,6 @@ class Parser
             result = Math.random()*vals[1] + vals[0]
           else
             result = Math.random()*vals[1] - vals[0]
-          console.log result
           if vals[2] == undefined
             vals[2] = 0
           if vals[2] == 0
@@ -239,6 +241,7 @@ class Parser
 
   # Find an object from the object hierarchy by string name
   findValueByName: (obj, string) ->
+    util.checkFormat(string,'string')
     parts = string.split('.')
     newObj = obj[parts[0]]
     if parts[1]

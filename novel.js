@@ -238,6 +238,7 @@ Parser = (function() {
 
   Parser.prototype.parseItems = function(items) {
     var i, k, len, parsed, separate;
+    util.checkFormat(items, 'string');
     if (items === "") {
       return void 0;
     }
@@ -254,6 +255,7 @@ Parser = (function() {
   Parser.prototype.parseText = function(text) {
     var asToBeClosed, i, index, k, l, len, len1, len2, m, nameText, o, p, parsed, q, ref, ref1, ref2, ref3, s, spansToBeClosed, splitText, tagName, value;
     if (text !== void 0) {
+      util.checkFormat(text, 'string');
       ref = data.game.tagPresets;
       for (k = 0, len = ref.length; k < len; k++) {
         i = ref[k];
@@ -370,6 +372,7 @@ Parser = (function() {
       return void 0;
     }
     s = s.toString();
+    util.checkFormat(s, 'string');
     if (!util.validateParentheses(s)) {
       console.error("ERROR: Invalid parentheses in statement");
     }
@@ -411,7 +414,6 @@ Parser = (function() {
           } else {
             result = Math.random() * vals[1] - vals[0];
           }
-          console.log(result);
           if (vals[2] === void 0) {
             vals[2] = 0;
           }
@@ -505,6 +507,7 @@ Parser = (function() {
 
   Parser.prototype.findValueByName = function(obj, string) {
     var newObj, newString, parts, r;
+    util.checkFormat(string, 'string');
     parts = string.split('.');
     newObj = obj[parts[0]];
     if (parts[1]) {
@@ -530,6 +533,7 @@ InventoryManager = (function() {
 
   InventoryManager.prototype.checkRequirements = function(requirements) {
     var i, j, k, l, len, len1, ref, reqsFilled;
+    util.checkFormat(requirements, 'array');
     reqsFilled = 0;
     ref = data.game.inventories[data.game.currentInventory];
     for (k = 0, len = ref.length; k < len; k++) {
@@ -552,6 +556,7 @@ InventoryManager = (function() {
 
   InventoryManager.prototype.setValue = function(parsed, newValue) {
     var getValueArrayLast, value;
+    util.checkFormat(parsed, 'string');
     getValueArrayLast = this.getValueArrayLast(parsed);
     value = parser.findValue(parsed, false);
     return value[getValueArrayLast] = newValue;
@@ -559,6 +564,7 @@ InventoryManager = (function() {
 
   InventoryManager.prototype.increaseValue = function(parsed, change) {
     var getValueArrayLast, value;
+    util.checkFormat(parsed, 'string');
     getValueArrayLast = this.getValueArrayLast(parsed);
     value = parser.findValue(parsed, false);
     value[getValueArrayLast] = value[getValueArrayLast] + change;
@@ -569,6 +575,7 @@ InventoryManager = (function() {
 
   InventoryManager.prototype.decreaseValue = function(parsed, change) {
     var getValueArrayLast, value;
+    util.checkFormat(parsed, 'string');
     getValueArrayLast = this.getValueArrayLast(parsed);
     value = parser.findValue(parsed, false);
     value[getValueArrayLast] = value[getValueArrayLast] - change;
@@ -587,6 +594,7 @@ InventoryManager = (function() {
 
   InventoryManager.prototype.editItems = function(items, mode) {
     var displayName, hidden, i, itemAdded, j, k, l, len, len1, probability, random, ref, results, value;
+    util.checkFormat(items, 'array');
     results = [];
     for (k = 0, len = items.length; k < len; k++) {
       j = items[k];
@@ -745,6 +753,7 @@ SceneManager = (function() {
 
   SceneManager.prototype.changeScene = function(sceneNames) {
     var scene;
+    util.checkFormat(sceneNames, 'string');
     scene = this.findSceneByName(this.selectRandomOption(sceneNames));
     this.setupScene(scene);
     return scene;
@@ -785,6 +794,7 @@ SceneManager = (function() {
 
   SceneManager.prototype.selectRandomOption = function(name) {
     var i, k, len, parsed, separate;
+    util.checkFormat(name, 'string');
     separate = name.split("|");
     if (separate.length === 1) {
       return separate[0];
@@ -833,6 +843,7 @@ SceneManager = (function() {
 
   SceneManager.prototype.findSceneByName = function(name) {
     var i, k, len, ref;
+    util.checkFormat(name, 'string');
     ref = data.game.scenes;
     for (k = 0, len = ref.length; k < len; k++) {
       i = ref[k];
@@ -845,6 +856,8 @@ SceneManager = (function() {
 
   SceneManager.prototype.combineSceneTexts = function(s) {
     var i, k, len, ref, results;
+    util.checkFormat(s, 'object');
+    util.checkFormat(s.text, 'arrayOrString');
     s.combinedText = "";
     if (Object.prototype.toString.call(s.text) === "[object Array]") {
       ref = s.text;
@@ -1557,6 +1570,31 @@ Util = (function() {
     var regex;
     regex = /(<([^>]+)>)/ig;
     return text.replace(regex, '');
+  };
+
+  Util.prototype.checkFormat = function(s, format) {
+    if (format === 'array') {
+      if (Object.prototype.toString.call(s) === '[object Array]') {
+        return true;
+      } else {
+        console.error("ERROR: Invalid input format (should be " + format + ")");
+        return false;
+      }
+    } else if (format === 'arrayOrString') {
+      if (Object.prototype.toString.call(s) === '[object Array]' || typeof s === 'string') {
+        return true;
+      } else {
+        console.error("ERROR: Invalid input format in (should be " + format + ")");
+        return false;
+      }
+    } else {
+      if (typeof s === format) {
+        return true;
+      } else {
+        console.error("ERROR: Invalid input format in (should be " + format + ")");
+        return false;
+      }
+    }
   };
 
   Util.prototype.validateParentheses = function(s) {

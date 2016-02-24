@@ -43,6 +43,7 @@ class SceneManager
 
   # Called when changing a scene
   changeScene: (sceneNames) ->
+    util.checkFormat(sceneNames,'string')
     scene = @findSceneByName(@selectRandomOption sceneNames)
     @setupScene(scene)
     return scene
@@ -80,6 +81,7 @@ class SceneManager
 
   # Select a random scene or choice from a list separated by |, takes string
   selectRandomOption: (name) ->
+    util.checkFormat(name,'string')
     separate = name.split("|")
     if separate.length == 1
       return separate[0]
@@ -115,6 +117,7 @@ class SceneManager
 
   # Return a scene by its name; throw an error if not found.
   findSceneByName: (name) ->
+    util.checkFormat(name,'string')
     for i in data.game.scenes
       if i.name == name
         return i
@@ -122,6 +125,8 @@ class SceneManager
 
   # Combine the multiple scene text rows
   combineSceneTexts: (s) ->
+    util.checkFormat(s,'object')
+    util.checkFormat(s.text,'arrayOrString')
     s.combinedText = ""
     if Object.prototype.toString.call(s.text) == "[object Array]"
       for i in s.text

@@ -5,6 +5,7 @@ class InventoryManager
 
   # Check if item or stat requirements have been filled
   checkRequirements: (requirements) ->
+    util.checkFormat(requirements,'array')
     reqsFilled = 0
     for i in data.game.inventories[data.game.currentInventory]
       for j in requirements
@@ -18,12 +19,14 @@ class InventoryManager
 
   # Set a value in JSON
   setValue: (parsed, newValue) ->
+    util.checkFormat(parsed,'string')
     getValueArrayLast = @getValueArrayLast(parsed)
     value = parser.findValue(parsed,false)
     value[getValueArrayLast] = newValue
 
   # Increase a value in JSON
   increaseValue: (parsed, change) ->
+    util.checkFormat(parsed,'string')
     getValueArrayLast = @getValueArrayLast(parsed)
     value = parser.findValue(parsed,false)
     value[getValueArrayLast] = value[getValueArrayLast] + change
@@ -32,6 +35,7 @@ class InventoryManager
 
   # Decrease a value in JSON
   decreaseValue: (parsed, change) ->
+    util.checkFormat(parsed,'string')
     getValueArrayLast = @getValueArrayLast(parsed)
     value = parser.findValue(parsed,false)
     value[getValueArrayLast] = value[getValueArrayLast] - change
@@ -47,6 +51,7 @@ class InventoryManager
 
   # Edit the player's items or stats
   editItems: (items, mode) ->
+    util.checkFormat(items,'array')
     for j in items
       hidden = false
       if j[0].substring(0,1) == "!"
