@@ -17,6 +17,8 @@ Contributions are welcome!
 - [Features](#features)
 - [Upcoming features](#upcoming-features)
 - [Installation](#installation)
+	- [Non-techy installation](#non-techy-installation)
+	- [Techy installation](#techy-installation)
 - [Getting Started](#getting-started)
 - [Documentation](#documentation)
 	- [HTML structure](#html-structure)
@@ -81,17 +83,21 @@ These features are planned or currently in development.
 
 ## Installation
 
-1. Download the repository as a .zip and extract it
-2. If you have npm installed (i.e. you are a technical person)
-  1. Run `npm install` in the extracted folder
-  2. And then `gulp`
-  3. Install a lightweight server with `npm install -g http-server`
-  4. Run the server with `http-server`
-  5. Open `http://localhost:8080/` and start working!
-3. If you don't have npm (i.e. you have no idea what npm is)
-  1. Uncomment the commented `<script>` tags in `index.html`
-  2. Comment the `<script>` tags with `src="node_modules ...`
-  3. Put the folder in Dropbox or similar so you can open `index.html` on a server - opening `index.html` directly does not work, as JavaScript is not allowed to load `.json` files locally in most browsers.
+### Non-techy installation
+
+1. Download the [latest release .zip](https://github.com/Nanofus/novel.js/releases/latest) and extract it.
+2. Uncomment the commented `<script>` tags in `index.html`.
+3. Upload the folder to a web server, such as Dropbox. (Opening `index.html` locally does not work, as the browser cannot load `json` files locally!)
+4. Open the location in web browser. Check dev tools (usually F12) for logs.
+5. Start working on `game/game.json`!
+
+### Techy installation
+
+1. `npm install novel-js`.
+2. Create an `index.html` file and include the [HTML](#html-structure) in it. Include Novel.js (`node_modules/noveljs/novel.min.js`) and Vue.js scripts.
+3. Create the folder `game` and a `game.json` inside it.
+4. Use a web server of your choice or use `npm install http-server` -> `http-server` -> open `http://localhost:8080/`
+5. Start working on `game.json`!
 
 ## Getting Started
 
