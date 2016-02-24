@@ -317,6 +317,8 @@ A single sound has the following attributes:
 
 Novel.js has its own set of tags that can be used to show text conditionally or style text with predefined styles. They are distinguished from normal html tags by the `[]` brackets. The tags can be used in both scene texts and choices' texts.
 
+If you want to use `[]` in your text without them getting parsed, prefix them with `/`: `/[` and `/]`.
+
 You can also use html tags to structure and style your texts.
 
 #### Conditional statements

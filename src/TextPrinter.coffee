@@ -9,6 +9,9 @@ class TextPrinter
   musicBuffer: []
   stopMusicBuffer: []
   executeBuffer: []
+  addItemBuffer: []
+  setItemBuffer: []
+  removeItemBuffer: []
   buffersExecuted: false
   scrollSound: null
   tickSoundFrequency: 1
@@ -33,6 +36,9 @@ class TextPrinter
     @musicBuffer = []
     @stopMusicBuffer = []
     @executeBuffer = []
+    @addItemBuffer = []
+    @setItemBuffer = []
+    @removeItemBuffer = []
     @buffersExecuted = false
     if noBuffers
       @buffersExecuted = true

@@ -31,10 +31,17 @@ class Parser
       for i in [0 .. 99]
         text = text.split("[s" + i + "]").join("<span class=\"highlight-" + i + "\">")
       text = text.split("[/s]").join("</span>")
-      # Other tags
+      # Ignore /[ and /]
+      text = text.replace(/\/\[/g, "OPEN_BRACKET_REPLACEMENT").replace(/\/\]/g, "CLOSE_BRACKET_REPLACEMENT")
       splitText = text.split(/\[|\]/)
+      index = 0
+      for s in splitText
+        splitText[index] = s.replace(/OPEN_BRACKET_REPLACEMENT/g,"[").replace(/CLOSE_BRACKET_REPLACEMENT/g,"]")
+        index++
+      # Other tags
       spansToBeClosed = 0
       asToBeClosed = 0
+      index = 0
       for index in [0 .. splitText.length-1]
         s = splitText[index]
         # [if] statements

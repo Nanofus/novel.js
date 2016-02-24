@@ -253,7 +253,7 @@ Parser = (function() {
   };
 
   Parser.prototype.parseText = function(text) {
-    var asToBeClosed, i, index, k, l, len, len1, len2, m, nameText, o, p, parsed, q, ref, ref1, ref2, ref3, s, spansToBeClosed, splitText, tagName, value;
+    var asToBeClosed, i, index, k, l, len, len1, len2, len3, m, nameText, o, p, parsed, q, ref, ref1, ref2, ref3, s, spansToBeClosed, splitText, t, tagName, value;
     if (text !== void 0) {
       util.checkFormat(text, 'string');
       ref = data.game.tagPresets;
@@ -272,10 +272,18 @@ Parser = (function() {
         text = text.split("[s" + i + "]").join("<span class=\"highlight-" + i + "\">");
       }
       text = text.split("[/s]").join("</span>");
+      text = text.replace(/\/\[/g, "OPEN_BRACKET_REPLACEMENT").replace(/\/\]/g, "CLOSE_BRACKET_REPLACEMENT");
       splitText = text.split(/\[|\]/);
+      index = 0;
+      for (m = 0, len1 = splitText.length; m < len1; m++) {
+        s = splitText[m];
+        splitText[index] = s.replace(/OPEN_BRACKET_REPLACEMENT/g, "[").replace(/CLOSE_BRACKET_REPLACEMENT/g, "]");
+        index++;
+      }
       spansToBeClosed = 0;
       asToBeClosed = 0;
-      for (index = m = 0, ref1 = splitText.length - 1; 0 <= ref1 ? m <= ref1 : m >= ref1; index = 0 <= ref1 ? ++m : --m) {
+      index = 0;
+      for (index = o = 0, ref1 = splitText.length - 1; 0 <= ref1 ? o <= ref1 : o >= ref1; index = 0 <= ref1 ? ++o : --o) {
         s = splitText[index];
         if (s.substring(0, 2) === "if") {
           parsed = s.split("if ");
@@ -296,8 +304,8 @@ Parser = (function() {
           value = s.substring(4, s.length);
           splitText[index] = 0;
           ref2 = data.game.inventories[data.game.currentInventory];
-          for (o = 0, len1 = ref2.length; o < len1; o++) {
-            i = ref2[o];
+          for (q = 0, len2 = ref2.length; q < len2; q++) {
+            i = ref2[q];
             if (i.name === value) {
               splitText[index] = i.value;
             }
@@ -340,8 +348,8 @@ Parser = (function() {
           parsed = s.split("input ");
           nameText = "";
           ref3 = data.game.inventories[data.game.currentInventory];
-          for (q = 0, len2 = ref3.length; q < len2; q++) {
-            i = ref3[q];
+          for (t = 0, len3 = ref3.length; t < len3; t++) {
+            i = ref3[t];
             if (i.name === parsed[1]) {
               nameText = i.value;
             }
@@ -1131,6 +1139,12 @@ TextPrinter = (function() {
 
   TextPrinter.prototype.executeBuffer = [];
 
+  TextPrinter.prototype.addItemBuffer = [];
+
+  TextPrinter.prototype.setItemBuffer = [];
+
+  TextPrinter.prototype.removeItemBuffer = [];
+
   TextPrinter.prototype.buffersExecuted = false;
 
   TextPrinter.prototype.scrollSound = null;
@@ -1161,6 +1175,9 @@ TextPrinter = (function() {
     this.musicBuffer = [];
     this.stopMusicBuffer = [];
     this.executeBuffer = [];
+    this.addItemBuffer = [];
+    this.setItemBuffer = [];
+    this.removeItemBuffer = [];
     this.buffersExecuted = false;
     if (noBuffers) {
       this.buffersExecuted = true;
