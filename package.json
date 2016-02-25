@@ -16,6 +16,7 @@
     "url": "https://github.com/Nanofus/novel.js/issues"
   },
   "homepage": "https://github.com/Nanofus/novel.js",
+  "keywords": ["novel-js","noveljs","novel.js","novel","text adventure","game engine","choose your own adventure","visual novel","text game","game","adventure","fiction","prose","interactive fiction","interactive"],
   "devDependencies": {
     "chai": "^3.5.0",
     "gulp": "^3.9.0",
