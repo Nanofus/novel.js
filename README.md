@@ -12,6 +12,8 @@ Novel.js is written in CoffeeScript, HTML and SASS and depends only on Vue.js. I
 
 Contributions are welcome!
 
+You can use [electron-noveljs-boilerplate](https://github.com/Nanofus/electron-noveljs-boilerplate) with Novel.js to create standalone desktop games. It requires a bit more technical knowledge than Novel.js itself.
+
 **Table of Contents**
 
 - [Features](#features)
