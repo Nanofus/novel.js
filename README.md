@@ -55,7 +55,7 @@ These features are planned or currently in development.
 1. Download the [latest release .zip](https://github.com/Nanofus/novel.js/releases/latest) and extract it.
 2. Uncomment the commented `<script>` tags in `index.html`.
 3. Upload the folder to a web server, such as Dropbox. (Opening `index.html` locally does not work, as the browser cannot load `json` files locally!)
-4. Open the location in web browser. Check dev tools (usually F12) for logs.
+4. Open the location in a web browser. Check the dev tools (usually F12) for logs.
 5. Start working on `game/game.json`!
 
 ### Techy installation
