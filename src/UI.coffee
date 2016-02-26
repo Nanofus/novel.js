@@ -21,26 +21,26 @@ class UI
       e = document.getElementById("load-notification")
       e.style.display = 'block';
     else
-      gameManager.loadGame()
+      novelManager.loadGame()
 
   # Close the load notification - if load, then load a save.
   closeLoadNotification: (load) ->
     e = document.getElementById("load-notification")
     if load
       textArea = e.querySelectorAll("textarea")
-      gameManager.loadGame(textArea[0].value)
+      novelManager.loadGame(textArea[0].value)
       textArea[0].value = ""
     e.style.display = 'none'
 
   # Update the values of the input fields
   updateInputs: (needForUpdate) ->
-    inputs = document.getElementById("game-area").querySelectorAll("input")
+    inputs = document.getElementById("novel-area").querySelectorAll("input")
     for i in inputs
-      for a in data.game.inventories[data.game.currentInventory]
+      for a in novelData.novel.inventories[novelData.novel.currentInventory]
         if a.name == i.className.substring(6,i.className.length)
           a.value = util.stripHTML(i.value)
           if needForUpdate
-            sceneManager.updateScene(data.game.currentScene,true)
+            sceneManager.updateScene(novelData.novel.currentScene,true)
 
 # The button that can be used to copy the text from the save window.
 copyButton = document.querySelector('#copy-button')

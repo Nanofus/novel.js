@@ -1,4 +1,4 @@
 
 ### And finally, start the game... ###
 
-gameManager.startGame()
+novelManager.start()

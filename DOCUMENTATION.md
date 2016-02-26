@@ -3,7 +3,7 @@
 **Table of Contents**
 
 - [HTML structure](#html-structure)
-- [`game.json` structure](#gamejson-structure)
+- [`novel.json` structure](#noveljson-structure)
 	- [Inventories](#inventories)
 	- [Scenes](#scenes)
 	- [Choices](#choices)
@@ -42,8 +42,8 @@
 
 Novel.js needs some HTML on the webpage to run properly. You can use this code or some variant of it:
 ```html
-<div id="game-area">
-	<div class="style-area {{ game.currentScene.style }}">
+<div id="novel-area">
+	<div class="style-area {{ novel.currentScene.style }}">
 		<div id="notification-wrapper">
 			<div id="save-notification" class="notification">
 				<p>Copy and save this text:</p>
@@ -51,7 +51,7 @@ Novel.js needs some HTML on the webpage to run properly. You can use this code o
 				<p><button type="button" onclick="ui.closeSaveNotification()">Close</button><button type="button" id="copy-button">Copy</button></p>
 			</div>
 			<div id="load-notification" class="notification">
-				<p>Paste your saved game here:</p>
+				<p>Paste your saved data here:</p>
 				<p><textarea name="load-text"></textarea></p>
 				<p><button type="button" onclick="ui.closeLoadNotification(false)">Close</button><button type="button" onclick="ui.closeLoadNotification(true)">Load</button></p>
 			</div>
@@ -64,7 +64,7 @@ Novel.js needs some HTML on the webpage to run properly. You can use this code o
 			<button type="button" id="continue-button" onclick="textPrinter.unpause()">Continue</button>
 			<div class="choices">
 				<ul class="choice-list">
-					<div v-for="choice in game.parsedChoices">
+					<div v-for="choice in novel.parsedChoices">
 						<li v-if="requirementsFilled(choice)" class="choice">
 							<a href="#" v-on:click="selectChoice(choice)">{{{ choice.parsedText }}}</a>
 						</li>
@@ -80,45 +80,45 @@ Novel.js needs some HTML on the webpage to run properly. You can use this code o
 		<div v-if="!inventoryHidden" class="inventory">
 			<h5>Inventory:</h5>
 			<ul class="item-list">
-				<li v-for="item in game.inventories[game.currentInventory]" class="inventory-item" v-if="itemsOverZeroAndNotHidden(item)">
+				<li v-for="item in novel.inventories[novel.currentInventory]" class="inventory-item" v-if="itemsOverZeroAndNotHidden(item)">
 					{{{ item.displayName }}} - {{{ item.value }}}
 				</li>
 			</ul>
 		</div>
-		<div v-if="game.settings.debugMode" class="stats">
+		<div v-if="novel.settings.debugMode" class="stats">
 			<h5>Stats:</h5>
 			<ul class="item-list">
-				<li v-for="item in game.inventories[game.currentInventory]" class="inventory-item" v-if="itemsOverZeroAndAreHidden(item)">
+				<li v-for="item in novel.inventories[novel.currentInventory]" class="inventory-item" v-if="itemsOverZeroAndAreHidden(item)">
 					{{{ item.displayName }}} - {{{ item.value }}}
 				</li>
 			</ul>
 		</div>
-		<div v-if="game.settings.showSaveButtons" class="save-buttons">
-			<button type="button" id="save-button" onclick="gameManager.saveGame()">Save</button>
+		<div v-if="novel.settings.showSaveButtons" class="save-buttons">
+			<button type="button" id="save-button" onclick="novelManager.savenovel()">Save</button>
 			<button type="button" id="load-button" onclick="ui.showLoadNotification()">Load</button>
 		</div>
 	</div>
 </div>
 ```
 
-## `game.json` structure
+## `novel.json` structure
 
-`game.json` is a JavaScript Object Notation file - a neat way to work with structured information. The top level of the structure contains the following variables:
-- `gameName` - Use this to set your game's name.
-- `version` - The game's version number.
+`novel.json` is a JavaScript Object Notation file - a neat way to work with structured information. The top level of the structure contains the following variables:
+- `name` - Use this to set your novel's name.
+- `version` - The version number.
 - `inventories` - A list of lists of the player's items and other variables.
-- `scenes` - A list of the game's scenes, i.e. views, areas, different texts the player can see.
+- `scenes` - A list of the scenes, i.e. views, areas, different texts the player can see.
 - `presets` - Pre-defined strings that can contain tags and be embedded in scenes and choices. See [definition](#tag-and-string-presets)
 - `settings` - Settings to edit, some of which can also be made visible to the player.
-- `sounds` - A list of the game's sound effects.
+- `sounds` - A list of all the sound effects.
 
 Now lets take a closer look on the lists:
 
 ### Inventories
 
-`game.json` contains a list of inventories which are lists of items. The lists initially defined in the file are the player's starting items. The player can use only one inventory at once, and it might not even be necessary to ever use more than one inventory. The default inventory's index is `0`.
+`novel.json` contains a list of inventories which are lists of items. The lists initially defined in the file are the player's starting items. The player can use only one inventory at once, and it might not even be necessary to ever use more than one inventory. The default inventory's index is `0`.
 
-The player's inventory contains all the items they carry, and is visible to the player. The items do not have to be pre-defined; you can add items by any name from anywhere. However, you should predefine all the inventories your game uses in your `game.json`, otherwise Vue does not recognize them and the inventory view does not work. If some of the inventories should be empty at the beginning, you can simply define them as empty arrays (`[]`).
+The player's inventory contains all the items they carry, and is visible to the player. The items do not have to be pre-defined; you can add items by any name from anywhere. However, you should predefine all the inventories your game uses in your `novel.json`, otherwise Vue does not recognize them and the inventory view does not work. If some of the inventories should be empty at the beginning, you can simply define them as empty arrays (`[]`).
 
 A single example inventory:
 
@@ -141,7 +141,7 @@ This inventory contains six items of two kinds. A single item has the following 
 
 ### Scenes
 
-Scenes are the most important of the things defined in `game.json`, as the entire game itself consists of a group of scenes with choices connecting them.
+Scenes are the most important of the things defined in `novel.json`, as the entire game itself consists of a group of scenes with choices connecting them.
 
 The scene the game loads upon startup is the first defined scene.
 
@@ -182,9 +182,9 @@ A scene object can contain the following variables and parameters:
 - `playSound` - Play a sound with the chosen name upon entering the scene.
 - `startMusic` - Start a music loop with the chosen name.
 - `endMusic` - End a music loop with the chosen name.
-- `executeJs` - JavaScript to be executed when the scene is loaded. You can access the game data through the `data.game` object.
-- `saveGame` - Saves the game in the way defined in `settings.saveMode` upon entering the scene. Value can be anything, works as long as it is defined.
-- `loadGame` - Loads the game in the way defined in `settings.saveMode` upon entering the scene. Value can be anything, works as long as it is defined.
+- `executeJs` - JavaScript to be executed when the scene is loaded. You can access the application data through the `novelData.novel` object.
+- `save` - Saves the state in the way defined in `settings.saveMode` upon entering the scene. Value can be anything, works as long as it is defined.
+- `load` - Loads the state in the way defined in `settings.saveMode` upon entering the scene. Value can be anything, works as long as it is defined.
 - `saveCheckpoint` - Save this scene as a checkpoint with the chosen name. See [Checkpoints](#checkpoints).
 - `loadCheckpoint` - Load a checkpoint with the chosen name. See [Checkpoints](#checkpoints).
 - `choices` - Required (not enforced). A list of choices available in the scene.
@@ -207,9 +207,9 @@ Choices are the options the player can choose in a scene. An example is provided
 - `playSound` - Play a sound with the chosen name upon selecting the choice. Overrides the default click sound.
 - `startMusic` - Start a music loop with the chosen name.
 - `endMusic` - End a music loop with the chosen name.
-- `executeJs` - JavaScript to be executed when the choice is selected. You can access the game data through the `data.game` object.
-- `saveGame` - Saves the game in the way defined in `settings.saveMode` upon selecting the choice. Value can be anything, works as long as it is defined.
-- `loadGame` - Loads the game in the way defined in `settings.saveMode` upon selecting the choice. Value can be anything, works as long as it is defined.
+- `executeJs` - JavaScript to be executed when the choice is selected. You can access the application data through the `data.novel` object.
+- `save` - Saves the game state in the way defined in `settings.saveMode` upon selecting the choice. Value can be anything, works as long as it is defined.
+- `load` - Loads the game state in the way defined in `settings.saveMode` upon selecting the choice. Value can be anything, works as long as it is defined.
 - `saveCheckpoint` - Save this scene as a checkpoint with the chosen name. See [Checkpoints](#checkpoints).
 - `loadCheckpoint` - Load a checkpoint with the chosen name. See [Checkpoints](#checkpoints).
 - `nextChoice` - Redirect to another choice after handling this choice. Cannot be used in the same choice with `nextScene`. Supports multiple outcomes, as different probabilities can be set for different choices. See the format for [probabilities](#format-for-probabilities).
@@ -217,7 +217,7 @@ Choices are the options the player can choose in a scene. An example is provided
 
 ### Settings
 
-The settings object contains settings for the game. All of the settings values should always be defined, unless otherwise stated; see the example game for default values.
+The settings object contains settings for the application. All of the settings values should always be defined, unless otherwise stated; see the example application for default values.
 
 - `debugMode` - True or false. If true, the hidden items list is shown to the player the same way as the regular inventory.
 - `alwaysShowDisabledChoices` - True or false. If true, choices with unmet requirements are always shown.
@@ -241,7 +241,7 @@ The settings object contains settings for the game. All of the settings values s
 
 ### Sounds
 
-The sounds object contains sounds used by the game. The sounds must be placed in the `sounds` folder inside the `game` folder. An example sound array:
+The sounds object contains sounds used by the novel. The sounds must be placed in the `sounds` folder inside the `novel` folder. An example sound array:
 ```json
 "sounds": [
   {"name": "click", "file": "click.wav"},
@@ -297,7 +297,7 @@ You have [inv.sword] sword[if (inv.sword!=1)]s[/if].
 
 ### Displaying values
 
-In addition to the simple item value tag, you can display any value in `game.json` or any result of an expression or the truth value of an equation or an inequation by using a `[print]` tag. Prefix any `.json` values with `var.` and inventory items with `inv.`.  If you display another scene's text or choices, those texts will have their tags parsed immediately. Be careful not to display a text within itself. An example that prints another scene's choice's text:
+In addition to the simple item value tag, you can display any value in `novel.json` or any result of an expression or the truth value of an equation or an inequation by using a `[print]` tag. Prefix any `.json` values with `var.` and inventory items with `inv.`.  If you display another scene's text or choices, those texts will have their tags parsed immediately. Be careful not to display a text within itself. An example that prints another scene's choice's text:
 ```
 [print var.scenes,1,choices,2,parsedText]
 ```
@@ -313,7 +313,7 @@ See [Formats for statements and commands](#formats-for-statements-and-commands) 
 
 ### Executing JavaScript while text scrolls
 
-You can run JavaScript while the text scrolls by using the `[exec x]` tag, where x is JavaScript code, such as a function call. For example, `[exec console.log(\"Hello world! The game's name is \" + data.game.gameName)]`. The code is executed with JavaScript's `eval()` function. You can access the game's data through the `data.game` object. If the tag is inside an if-statement that returns false, so that it is not shown, the tag is ignored. If the text scrolling is skipped, these are buffered and will be executed at the end.
+You can run JavaScript while the text scrolls by using the `[exec x]` tag, where x is JavaScript code, such as a function call. For example, `[exec console.log(\"Hello world! The novel's name is \" + data.novel.name)]`. The code is executed with JavaScript's `eval()` function. You can access the application's data through the `data.novel` object. If the tag is inside an if-statement that returns false, so that it is not shown, the tag is ignored. If the text scrolling is skipped, these are buffered and will be executed at the end.
 
 ### Setting text scrolling speed
 
@@ -321,7 +321,7 @@ You can override the text's default scrolling speed by using the tag `[speed x]`
 
 ### Pausing text scrolling
 
-You can pause the scrolling text by using the `[pause]` tag. It can take two different parameters; if you use `[pause input]`, the game waits until the player has pressed the skip button or the appearing continue symbol. If you use `[pause x]` where x is a number, such as `[pause 50]`, the game waits for that amount of "ticks". One tick is equal to the interval between letters, so the length of a tick varies based on the text scrolling speed. This way the pauses are also affected by fast scrolling.
+You can pause the scrolling text by using the `[pause]` tag. It can take two different parameters; if you use `[pause input]`, the application waits until the player has pressed the skip button or the appearing continue symbol. If you use `[pause x]` where x is a number, such as `[pause 50]`, the application waits for that amount of "ticks". One tick is equal to the interval between letters, so the length of a tick varies based on the text scrolling speed. This way the pauses are also affected by fast scrolling.
 
 ### Setting text scrolling sound
 
@@ -403,15 +403,15 @@ Conditional statements and calculations allow for all kinds of complex logic, an
 [if ((inv.sword>=5||inv.earnedTheTrustOfPeople>0)&&inv.swords!=500)]This text is shown only if you have more than five swords in your inventory or you have earned the people's trust and you must not have exactly 500 swords![/if]
 ```
 
-The above example shows how the statements can be used; Item values must be prefixed with `inv.`. `var.` is also available for `game.json` variables. The supported operators are `==`, `!=`, `<`, `<=`, `>` and `>=`. You may also use math operators `+`, `-`, `/` and `*`. Operators `||` (OR) and `&&` (AND) and parentheses `()` can also be used.
+The above example shows how the statements can be used; Item values must be prefixed with `inv.`. `var.` is also available for `novel.json` variables. The supported operators are `==`, `!=`, `<`, `<=`, `>` and `>=`. You may also use math operators `+`, `-`, `/` and `*`. Operators `||` (OR) and `&&` (AND) and parentheses `()` can also be used.
 
 You can use random values by using the prefix `rand.`, followed by the starting value (inclusive), the end value (exclusive) and the number of decimals. For example, `rand.0,20,5` returns a random value between 0 and 20 with 5 decimals. Leaving out the decimal number or setting it as `0` produces a rounded integer. Because of how the strings are parsed, negative values should not be prefixed with `-`, `minus` should be used instead. The following produces an integer between -5 and 5: `rand.minus5,5`
 
-If you do string comparation, you can use `==` and `!=` to compare them. To use a string as the equation's other side, it doesn't need any special notation, because everything that cannot be parsed as anything else is assumed to be a string. Simply write `var.gameName!=testGame`, for example.
+If you do string comparation, you can use `==` and `!=` to compare them. To use a string as the equation's other side, it doesn't need any special notation, because everything that cannot be parsed as anything else is assumed to be a string. Simply write `var.name!=testNovel`, for example.
 
 ### Format for value statements and commands
 
-Commands `setValue`, `increaseValue` and `decreaseValue` allow you to edit any value that is defined in `game.json`. Keep in mind that this is extremely error-prone and the changes cannot be undone without resetting the game.
+Commands `setValue`, `increaseValue` and `decreaseValue` allow you to edit any value that is defined in `novel.json`. Keep in mind that this is extremely error-prone and the changes cannot be undone without resetting the application.
 
 The format:
 ```
@@ -425,7 +425,7 @@ scenes,1,choices,2,parsedText
 
 ## Audio
 
-Sounds and music the game uses are located in the `game/sounds` folder, and they have to be defined in `game.json`. More information [here](#sounds).
+Sounds and music the novel uses are located in the `novel/sounds` folder, and they have to be defined in `novel.json`. More information [here](#sounds).
 
 All music's and sounds' volume is dependent on the `musicVolume` and `soundVolume` attributes of `settings.soundSettings`.
 
@@ -469,20 +469,20 @@ The `css` folder contains a file named `skin.css`. Styles in `skin.css` override
 
 ## Checkpoints
 
-By using the `saveCheckpoint` and `loadCheckpoint` commands in scenes or choices it is possible to "tag" scenes so that they can easily be returned to later. This is useful when, for example, creating a menu with a "continue game" button. Both commands take a name for the checkpoint as a parameter. The checkpoint objects are saved to `data.game.checkpoints`, so they are saved when the game is saved. The objects have two values: `name`, which is the checkpoint's name used in the commands, and `scene`, the name of the scene it refers to.
+By using the `saveCheckpoint` and `loadCheckpoint` commands in scenes or choices it is possible to "tag" scenes so that they can easily be returned to later. This is useful when, for example, creating a menu with a "continue novel" button. Both commands take a name for the checkpoint as a parameter. The checkpoint objects are saved to `data.novel.checkpoints`, so they are saved when the novel is saved. The objects have two values: `name`, which is the checkpoint's name used in the commands, and `scene`, the name of the scene it refers to.
 
 Checkpoints do not affect the player's items or other values. Use saving and loading to return those to a previous state.
 
 ## Saving
 
-Novel.js has currently two ways to allow the player to save and load their game. This is controlled by the `settings.saveMode` value, which can be either `cookie` or `text`. Saving is done by clicking the "Save" and "Load" buttons in the game window, or by using the `saveGame` and `loadGame` commands. The buttons can be hidden by setting `settings.showSaveButtons` to false.
+Novel.js has currently two ways to allow the player to save and load their novel. This is controlled by the `settings.saveMode` value, which can be either `cookie` or `text`. Saving is done by clicking the "Save" and "Load" buttons in the novel window, or by using the `savenovel` and `loadnovel` commands. The buttons can be hidden by setting `settings.showSaveButtons` to false.
 
-If the game's name does not match the loaded data's game name, an error is thrown and loading is cancelled. If the save version does not match the game's version, a warning is thrown.
+If the novel's name does not match the loaded data's novel name, an error is thrown and loading is cancelled. If the save version does not match the novel's version, a warning is thrown.
 
 ### Cookie
 
-The first way to save a game is to use the browser's cookies. If you use this option, make sure you have the required legal notifications in your game. The game is saved as a cookie named `gameData`, and contains the `game.json` file Base64 encoded. The cookie has an expiration time of 365 days by default. There can currently be only a single saved game. Note that cookies might not work when testing the game on `localhost` in some browsers.
+The first way to save a novel is to use the browser's cookies. If you use this option, make sure you have the required legal notifications in your novel. The novel is saved as a cookie named `novelData`, and contains the `novel.json` file Base64 encoded. The cookie has an expiration time of 365 days by default. There can currently be only a single saved novel. Note that cookies might not work when testing the novel on `localhost` in some browsers.
 
 ### Text
 
-The second way is to save the `game.json` file as a Base64 encoded string, that is then shown to the player and prompted to be copied. The "Load" button then shows a text field that allows the player to paste in their saved game data.
+The second way is to save the `novel.json` file as a Base64 encoded string, that is then shown to the player and prompted to be copied. The "Load" button then shows a text field that allows the player to paste in their saved novel data.

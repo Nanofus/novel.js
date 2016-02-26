@@ -20,7 +20,7 @@ class Parser
     if text != undefined
       util.checkFormat(text,'string')
       # [p] tags
-      for i in data.game.tagPresets
+      for i in novelData.novel.tagPresets
         tagName = "[p " + i.name + "]"
         if text.indexOf(tagName) > -1
           text = text.split(tagName).join(i.start)
@@ -62,7 +62,7 @@ class Parser
         else if s.substring(0,4) == "inv."
           value = s.substring(4,s.length)
           splitText[index] = 0
-          for i in data.game.inventories[data.game.currentInventory]
+          for i in novelData.novel.inventories[novelData.novel.currentInventory]
             if i.name == value
               splitText[index] = i.value
         # Generic print command
@@ -70,12 +70,12 @@ class Parser
           parsed = s.split("print ")
           parsed = @parseStatement(parsed[1])
           if !isNaN(parseFloat(parsed))
-            parsed = parseFloat(parsed.toFixed(data.game.settings.floatPrecision))
+            parsed = parseFloat(parsed.toFixed(novelData.novel.settings.floatPrecision))
           splitText[index] = parsed
         # Execute JavaScript
         else if s.substring(0,4) == "exec"
           parsed = s.substring(5,s.length)
-          p = data.parsedJavascriptCommands.push(parsed)
+          p = novelData.parsedJavascriptCommands.push(parsed)
           p--
           splitText[index] = "<span class=\"execute-command com-" + p + "\"></span>"
         # Pause
@@ -112,7 +112,7 @@ class Parser
         else if s.substring(0,5) == "input"
           parsed = s.split("input ")
           nameText = ""
-          for i in data.game.inventories[data.game.currentInventory]
+          for i in novelData.novel.inventories[novelData.novel.currentInventory]
             if i.name == parsed[1]
               nameText = i.value
           splitText[index] = "<input type=\"text\" value=\"" + nameText + "\" name=\"input\" class=\"input-" + parsed[1] +  "\" onblur=\"ui.updateInputs(true)\">"
@@ -152,7 +152,7 @@ class Parser
       switch type
         when "item"
           found = false
-          for i in data.game.inventories[data.game.currentInventory]
+          for i in novelData.novel.inventories[novelData.novel.currentInventory]
             if i.name == val.substring(4,val.length)
               parsedValues.push i.value
               found = true
@@ -182,11 +182,11 @@ class Parser
         when "var"
           val = @findValue(val.substring(4,val.length),true)
           if !isNaN(parseFloat(val))
-            parsedValues.push parseFloat(val).toFixed(data.game.settings.floatPrecision)
+            parsedValues.push parseFloat(val).toFixed(novelData.novel.settings.floatPrecision)
           else
             parsedValues.push "'" + val + "'"
         when "float"
-          parsedValues.push parseFloat(val).toFixed(data.game.settings.floatPrecision)
+          parsedValues.push parseFloat(val).toFixed(novelData.novel.settings.floatPrecision)
         when "int"
           parsedValues.push parseInt(val)
         when "string"
@@ -220,18 +220,18 @@ class Parser
       type = "string"
     return type
 
-  # Find a value from the game data json
+  # Find a value from the game novelData json
   # toPrint == true returns the value, toPrint == false returns the object
   findValue: (parsed, toPrint) ->
     splitted = parsed.split(",")
     # Find the first object in hierarchy
     if !toPrint
       if splitted.length > 1
-        variable = @findValueByName(data.game,splitted[0])[0]
+        variable = @findValueByName(novelData.novel,splitted[0])[0]
       else
-        variable = @findValueByName(data.game,splitted[0])[1]
+        variable = @findValueByName(novelData.novel,splitted[0])[1]
     else
-      variable = @findValueByName(data.game,splitted[0])[0]
+      variable = @findValueByName(novelData.novel,splitted[0])[0]
     # Follow the path
     for i in [0 .. splitted.length - 1]
       if util.isOdd(i)

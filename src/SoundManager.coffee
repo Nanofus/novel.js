@@ -6,23 +6,23 @@ class SoundManager
 
   # Play the default sound for clicking an item
   playDefaultClickSound: (name,clicked) ->
-    @playSound(data.game.settings.soundSettings.defaultClickSound,false)
+    @playSound(novelData.novel.settings.soundSettings.defaultClickSound,false)
 
   # Play a sound by name
   playSound: (name, isMusic) ->
-    for s in data.game.sounds
+    for s in novelData.novel.sounds
       if s.name == name
-        sound = new Audio(gamePath+'/sounds/'+s.file)
+        sound = new Audio(novelPath+'/sounds/'+s.file)
         if isMusic
-          sound.volume = data.game.settings.soundSettings.musicVolume
+          sound.volume = novelData.novel.settings.soundSettings.musicVolume
         else
-          sound.volume = data.game.settings.soundSettings.soundVolume
+          sound.volume = novelData.novel.settings.soundSettings.soundVolume
         sound.play()
         return sound
 
   # Is music playing?
   isPlaying: (name) ->
-    for i in data.music
+    for i in novelData.music
       if i.paused
         return false
       else
@@ -36,12 +36,12 @@ class SoundManager
       @play()
       return
     ), false
-    data.music.push {"name":name,"music":music}
+    novelData.music.push {"name":name,"music":music}
 
   # Stop a music that was started previously
   stopMusic: (name) ->
-    for i in data.music
+    for i in novelData.music
       if name == i.name
         i.music.pause()
-        index = data.music.indexOf(i)
-        data.music.splice(index,1)
+        index = novelData.music.indexOf(i)
+        novelData.music.splice(index,1)

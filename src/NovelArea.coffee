@@ -1,9 +1,9 @@
 
 ### GAME AREA ###
 
-gameArea = new Vue(
-  el: '#game-area'
-  data: data
+novelArea = new Vue(
+  el: '#novel-area'
+  data: novelData
   methods:
     # Return whether the requirements of a choice have been filled
     requirementsFilled: (choice) ->
@@ -11,11 +11,11 @@ gameArea = new Vue(
 
     # Return whether the text can be skipped
     textSkipEnabled: (choice) ->
-      return data.game.currentScene.skipEnabled && data.game.settings.skipButtonShown
+      return novelData.novel.currentScene.skipEnabled && novelData.novel.settings.skipButtonShown
 
     # Check if specific item's count is over 0; if it isn't, it's not shown. Also it should be hidden.
     itemsOverZeroAndAreHidden: (item) ->
-      for i in data.game.inventories[data.game.currentInventory]
+      for i in novelData.novel.inventories[novelData.novel.currentInventory]
         if i.name == item.name && (i.hidden && i.hidden != undefined)
           if i.value > 0
             return true
@@ -25,7 +25,7 @@ gameArea = new Vue(
 
     # Check if specific item's count is over 0; if it isn't, it's not shown. Also should not be hidden.
     itemsOverZeroAndNotHidden: (item) ->
-      for i in data.game.inventories[data.game.currentInventory]
+      for i in novelData.novel.inventories[novelData.novel.currentInventory]
         if i.name == item.name && (!i.hidden || i.hidden == undefined)
           if i.value > 0
             return true

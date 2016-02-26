@@ -25,7 +25,7 @@ class TextPrinter
   # Print a scene's text - noBuffers prevents buffers from replaying when scene is not changed
   printText: (text, noBuffers) ->
     @printCompleted = false
-    data.printedText = ""
+    novelData.printedText = ""
     # Disable the skip button
     if document.querySelector("#skip-button") != null
       document.querySelector("#skip-button").disabled = false;
@@ -42,13 +42,13 @@ class TextPrinter
     @buffersExecuted = false
     if noBuffers
       @buffersExecuted = true
-    @defaultInterval = data.game.currentScene.scrollSpeed
+    @defaultInterval = novelData.novel.currentScene.scrollSpeed
     @setTickSoundFrequency(@defaultInterval)
     setTimeout(@onTick(),@defaultInterval)
 
   # Try to skip text, if allowed
   trySkip: ->
-    if data.game.currentScene.skipEnabled
+    if novelData.novel.currentScene.skipEnabled
       @complete()
 
   # Instantly show all text
@@ -107,10 +107,10 @@ class TextPrinter
       if ss.length > 0
         for i in [0 .. ss.length]
           if !(ss[i] in @executeBuffer) && ss[i] != undefined
-            eval(data.parsedJavascriptCommands[parseInt(s.substring(4,s.length))])
+            eval(novelData.parsedJavascriptCommands[parseInt(s.substring(4,s.length))])
       @buffersExecuted = true
     # Set printed text and update choices
-    data.printedText = @fullText
+    novelData.printedText = @fullText
     sceneManager.updateChoices()
 
   # Stop pause
@@ -122,8 +122,8 @@ class TextPrinter
 
   # Fast text scrolling
   fastScroll: () ->
-    if data.game.currentScene.skipEnabled
-      @tickSpeedMultiplier = data.game.settings.scrollSettings.fastScrollSpeedMultiplier
+    if novelData.novel.currentScene.skipEnabled
+      @tickSpeedMultiplier = novelData.novel.settings.scrollSettings.fastScrollSpeedMultiplier
 
   # Stop fast text scrolling
   stopFastScroll: () ->
@@ -131,7 +131,7 @@ class TextPrinter
 
   # Set how frequently the scrolling sound is played
   setTickSoundFrequency: (freq) ->
-    threshold = data.game.settings.scrollSettings.tickFreqThreshold
+    threshold = novelData.novel.settings.scrollSettings.tickFreqThreshold
     @tickSoundFrequency = 1
     if freq <= (threshold * 2)
       @tickSoundFrequency = 2
@@ -148,7 +148,7 @@ class TextPrinter
       if @defaultInterval == 0
         @complete()
         return
-      if data.printedText == @fullText
+      if novelData.printedText == @fullText
         return
       #console.log currentOffset + ": " + fullText[currentOffset]
       #console.log fullText[currentOffset]
@@ -156,7 +156,7 @@ class TextPrinter
       while (@fullText[@currentOffset] == ' ' || @fullText[@currentOffset] == '<' || @fullText[@currentOffset] == '>')
         @readTags()
       #console.log fullText[currentOffset-3] + fullText[currentOffset-2] + fullText[currentOffset-1] + " - " + fullText[currentOffset] + " - " + fullText[currentOffset+1]+fullText[currentOffset+2]+fullText[currentOffset+3]
-      data.printedText = @fullText.substring(0, @currentOffset)
+      novelData.printedText = @fullText.substring(0, @currentOffset)
       if !offsetChanged
         @currentOffset++
       if @currentOffset >= @fullText.length
@@ -169,8 +169,8 @@ class TextPrinter
         if @scrollSound != "none" && @interval != 0
           if @scrollSound != null
             soundManager.playSound(@scrollSound)
-          else if (data.game.currentScene.scrollSound != undefined)
-            soundManager.playSound(data.game.currentScene.scrollSound)
+          else if (novelData.novel.currentScene.scrollSound != undefined)
+            soundManager.playSound(novelData.novel.currentScene.scrollSound)
           @tickCounter = 0
     @setTickSoundFrequency(@interval / @tickSpeedMultiplier)
     setTimeout (->
@@ -255,7 +255,7 @@ class TextPrinter
           s = s[1].split(/\s|\"/)[0]
           @executeBuffer.push(s)
           if s != undefined
-            eval(data.parsedJavascriptCommands[parseInt(s.substring(4,s.length))])
+            eval(novelData.parsedJavascriptCommands[parseInt(s.substring(4,s.length))])
         if str.indexOf("set-speed") > -1
           s = str.split("set-speed ")
           s = s[1].split(/\s|\"/)[0]

@@ -1,5 +1,8 @@
-data = {
-  game: null,
+
+### GLOBAL GAME novelData ###
+
+novelData = {
+  novel: null,
   choices: null,
   debugMode: false,
   inventoryHidden: false,
@@ -8,9 +11,9 @@ data = {
   music: []
 }
 
-gamePath = './game'
+novelPath = './novel'
 
-gameManager = new GameManager
+novelManager = new NovelManager
 inputManager = new InputManager
 inventoryManager = new InventoryManager
 parser = new Parser

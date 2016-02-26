@@ -6,13 +6,13 @@
 
 Novel.js is a versatile, lightweight JavaScript text game engine that works directly in the browser.
 
-It is suitable for interactive fiction such as "choose your own adventure" games and other kinds of text-based entertainment. It also works well as a base for straightforward prose frosted with images and sounds. It requires only a `game.json` file containing all the text, choices, items and so on, an `html` file to display the game and optionally a stylesheet (`skin.css`), images and sounds.
+It is suitable for interactive fiction such as "choose your own adventure" games and other kinds of text-based entertainment. It also works well as a base for straightforward prose frosted with images and sounds. It requires only a `novel.json` file containing all the text, choices, items and so on, an `html` file to display the novel/game and optionally a stylesheet (`skin.css`), images and sounds.
 
 Novel.js is written in CoffeeScript, HTML and SASS and depends only on Vue.js. It was born out of a need for a lightweight, easy-to-use but fully-featured text adventure system that could easily be embedded on a webpage. It is open source (MIT License) and free to use both commercially and non-commercially.
 
 Contributions are welcome!
 
-You can use [electron-noveljs-boilerplate](https://github.com/Nanofus/electron-noveljs-boilerplate) with Novel.js to create standalone desktop games. It requires a bit more technical knowledge than Novel.js itself.
+You can use [electron-noveljs-boilerplate](https://github.com/Nanofus/electron-noveljs-boilerplate) with Novel.js to create standalone desktop applications. It requires a bit more technical knowledge than Novel.js itself.
 
 **Table of Contents**
 
@@ -36,7 +36,7 @@ You can use [electron-noveljs-boilerplate](https://github.com/Nanofus/electron-n
 - Play sound effects and looping music/ambient sound effects!
 - Shorthand tags for general styling of names etc. and presets to help with recurring styles.
 - Checkpoints to easily jump back and forth between scenes.
-- Saving the game as a cookie or an encoded string that is given to the player.
+- Saving the game state as a cookie or an encoded string that is given to the player.
 - Support for CSS styling, custom JavaScript and HTML tags in text.
 - ... And much more ~!
 
@@ -56,19 +56,19 @@ These features are planned or currently in development.
 2. Uncomment the commented `<script>` tags in `index.html`.
 3. Upload the folder to a web server, such as Dropbox. (Opening `index.html` locally does not work, as the browser cannot load `json` files locally!)
 4. Open the location in web browser. Check dev tools (usually F12) for logs.
-5. Start working on `game/game.json`!
+5. Start working on `novel/novel.json`!
 
 ### Techy installation
 
 1. `npm install novel-js`.
 2. Create an `index.html` file and include the [HTML](#html-structure) in it. Include Novel.js (`node_modules/novel-js/novel.min.js`) and Vue.js scripts.
-3. Create the folder `game` and a `game.json` inside it.
+3. Create the folder `novel` and a `novel.json` inside it.
 4. Use a web server of your choice or use `npm install http-server` -> `http-server` -> open `http://localhost:8080/`
-5. Start working on `game.json`!
+5. Start working on `novel.json`!
 
 ## Getting Started
 
-Novel.js comes with a simple example game that demostrates all available features. Located in the `game` folder, `game.json` is easily readable and editable in your favourite text editor, so you can start working on your masterpiece right away! For a complete explanation of all the different stuff you can find in that file, please see the documentation!
+Novel.js comes with a simple example app that demostrates all available features. Located in the `novel` folder, `novel.json` is easily readable and editable in your favourite text editor, so you can start working on your masterpiece right away! For a complete explanation of all the different stuff you can find in that file, please see the documentation!
 
 ## Documentation
 

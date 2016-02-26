@@ -10,7 +10,7 @@ class SceneManager
 
   # Select a choice
   selectChoice: (choice) ->
-    @exitScene(data.game.currentScene)
+    @exitScene(novelData.novel.currentScene)
     @readItemEdits(choice)
     @readSounds(choice,true)
     @readSaving(choice)
@@ -22,7 +22,7 @@ class SceneManager
       if choice.nextChoice != undefined
         @selectChoiceByName(@selectRandomOption(choice.nextChoice))
       else
-        @updateScene(data.game.currentScene,true)
+        @updateScene(novelData.novel.currentScene,true)
 
   # Select a choice by clicking a link embedded in text
   selectChoiceByNameByClicking: (event, name) ->
@@ -32,9 +32,9 @@ class SceneManager
 
   # Select a choice by name
   selectChoiceByName: (name) ->
-    for i in data.game.currentScene.choices
+    for i in novelData.novel.currentScene.choices
       if i.name == name
-        gameArea.selectChoice(i)
+        novelArea.selectChoice(i)
         break
 
   # Called when exiting a scene
@@ -51,30 +51,30 @@ class SceneManager
   # Setup a scene changed to
   setupScene: (scene) ->
     @updateScene(scene, false)
-    @readItemEdits(data.game.currentScene)
-    @readSounds(data.game.currentScene,false)
-    @readSaving(data.game.currentScene)
-    @readExecutes(data.game.currentScene)
-    @readCheckpoints(data.game.currentScene)
-    @readMisc(data.game.currentScene)
+    @readItemEdits(novelData.novel.currentScene)
+    @readSounds(novelData.novel.currentScene,false)
+    @readSaving(novelData.novel.currentScene)
+    @readExecutes(novelData.novel.currentScene)
+    @readCheckpoints(novelData.novel.currentScene)
+    @readMisc(novelData.novel.currentScene)
     textPrinter.printText(scene.parsedText,false)
 
   # If not changing scenes but update needed, this is called
   updateScene: (scene, onlyUpdating) ->
     @combineSceneTexts(scene)
     scene.parsedText = parser.parseText scene.combinedText
-    data.game.currentScene = scene
+    novelData.novel.currentScene = scene
     if !onlyUpdating
-      data.game.parsedChoices = null
+      novelData.novel.parsedChoices = null
     else
       textPrinter.printText(scene.parsedText,true)
       textPrinter.complete()
 
   # Update choice texts when they are changed - Vue.js doesn't detect them without this.
   updateChoices: ->
-    gameArea.$set 'game.parsedChoices', data.game.currentScene.choices.map((choice) ->
+    novelArea.$set 'novel.parsedChoices', novelData.novel.currentScene.choices.map((choice) ->
       choice.parsedText = parser.parseText choice.text
-      if gameArea.game.settings.alwaysShowDisabledChoices
+      if novelArea.novel.settings.alwaysShowDisabledChoices
         choice.alwaysShow = true
       choice
     )
@@ -118,7 +118,7 @@ class SceneManager
   # Return a scene by its name; throw an error if not found.
   findSceneByName: (name) ->
     util.checkFormat(name,'string')
-    for i in data.game.scenes
+    for i in novelData.novel.scenes
       if i.name == name
         return i
     console.error "ERROR: Scene by name '"+name+"' not found!"
@@ -137,7 +137,7 @@ class SceneManager
   # Read item and val edit commands from scene or choice
   readItemEdits: (source) ->
     if source.changeInventory != undefined
-      data.game.currentInventory = parser.parseStatement(source.changeInventory)
+      novelData.novel.currentInventory = parser.parseStatement(source.changeInventory)
     if source.removeItem != undefined
       inventoryManager.editItems(parser.parseItems(source.removeItem),"remove")
     if source.addItem != undefined
@@ -167,12 +167,12 @@ class SceneManager
     if source.stopMusic != undefined
       soundManager.stopMusic(parser.parseStatement(source.stopMusic))
     if source.scrollSound != undefined
-      data.game.currentScene.scrollSound = parser.parseStatement(source.scrollSound)
+      novelData.novel.currentScene.scrollSound = parser.parseStatement(source.scrollSound)
     else
-      if data.game.settings.soundSettings.defaultScrollSound
-        data.game.currentScene.scrollSound = data.game.settings.soundSettings.defaultScrollSound
+      if novelData.novel.settings.soundSettings.defaultScrollSound
+        novelData.novel.currentScene.scrollSound = novelData.novel.settings.soundSettings.defaultScrollSound
       else
-        data.game.currentScene.scrollSound = undefined
+        novelData.novel.currentScene.scrollSound = undefined
 
   # Read JS commands
   readExecutes: (source) ->
@@ -182,45 +182,45 @@ class SceneManager
   # Read miscellaneous scene values
   readMisc: (source) ->
     if source.skipEnabled != undefined
-      data.game.currentScene.skipEnabled = parser.parseStatement(source.skipEnabled)
+      novelData.novel.currentScene.skipEnabled = parser.parseStatement(source.skipEnabled)
     else
-      data.game.currentScene.skipEnabled = data.game.settings.scrollSettings.textSkipEnabled
+      novelData.novel.currentScene.skipEnabled = novelData.novel.settings.scrollSettings.textSkipEnabled
     if source.scrollSpeed != undefined
-      data.game.currentScene.scrollSpeed = source.scrollSpeed
+      novelData.novel.currentScene.scrollSpeed = source.scrollSpeed
     else
-      data.game.currentScene.scrollSpeed = data.game.settings.scrollSettings.defaultScrollSpeed
+      novelData.novel.currentScene.scrollSpeed = novelData.novel.settings.scrollSettings.defaultScrollSpeed
     if source.inventoryHidden != undefined
-      data.inventoryHidden = parser.parseStatement(source.inventoryHidden)
+      novelData.inventoryHidden = parser.parseStatement(source.inventoryHidden)
     else
-      data.inventoryHidden = false
+      novelData.inventoryHidden = false
 
   # Read save and load commands from scene or choice
   readSaving: (source) ->
-    if source.saveGame != undefined
-      gameManager.saveGame()
-    if source.loadGame != undefined
+    if source.save != undefined
+      novelManager.saveNovel()
+    if source.load != undefined
       ui.showLoadNotification()
 
   # Read checkpoint commands
   readCheckpoints: (source) ->
     if source.saveCheckpoint != undefined
-      if data.game.checkpoints == undefined
-        data.game.checkpoints = []
+      if novelData.novel.checkpoints == undefined
+        novelData.novel.checkpoints = []
       dataChanged = false
-      for i in data.game.checkpoints
+      for i in novelData.novel.checkpoints
         if i.name == parser.parseStatement(source.saveCheckpoint)
-          i.scene = data.game.currentScene.name
+          i.scene = novelData.novel.currentScene.name
           dataChanged = true
           #console.log "Updated checkpoint!"
       if !dataChanged
-        checkpoint = {name:parser.parseStatement(source.saveCheckpoint),scene:data.game.currentScene.name}
-        data.game.checkpoints.push(checkpoint)
+        checkpoint = {name:parser.parseStatement(source.saveCheckpoint),scene:novelData.novel.currentScene.name}
+        novelData.novel.checkpoints.push(checkpoint)
       #console.log "Checkpoint saved!"
       #console.log checkpoint
     if source.loadCheckpoint != undefined
-      if data.game.checkpoints == undefined
-        data.game.checkpoints = []
-      for i in data.game.checkpoints
+      if novelData.novel.checkpoints == undefined
+        novelData.novel.checkpoints = []
+      for i in novelData.novel.checkpoints
         if i.name == parser.parseStatement(source.loadCheckpoint)
           #console.log "Checkpoint found!"
           @changeScene(i.scene)

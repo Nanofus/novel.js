@@ -1,12 +1,12 @@
 
 /* SAVING AND LOADING */
-var GameManager, InputManager, InventoryManager, Parser, SceneManager, SoundManager, TextPrinter, UI, Util, copyButton, data, gameArea, gameManager, gamePath, inputManager, inventoryManager, parser, sceneManager, soundManager, textPrinter, ui, util,
+var InputManager, InventoryManager, NovelManager, Parser, SceneManager, SoundManager, TextPrinter, UI, Util, copyButton, inputManager, inventoryManager, novelArea, novelData, novelManager, novelPath, parser, sceneManager, soundManager, textPrinter, ui, util,
   indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
-GameManager = (function() {
-  function GameManager() {}
+NovelManager = (function() {
+  function NovelManager() {}
 
-  GameManager.prototype.loadCookie = function(cname) {
+  NovelManager.prototype.loadCookie = function(cname) {
     var c, ca, i, name;
     name = cname + '=';
     ca = document.cookie.split(';');
@@ -24,7 +24,7 @@ GameManager = (function() {
     return '';
   };
 
-  GameManager.prototype.saveCookie = function(cname, cvalue, exdays) {
+  NovelManager.prototype.saveCookie = function(cname, cvalue, exdays) {
     var d, expires;
     d = new Date;
     d.setTime(d.getTime() + exdays * 24 * 60 * 60 * 1000);
@@ -32,48 +32,48 @@ GameManager = (function() {
     return document.cookie = cname + '=' + cvalue + '; ' + expires + '; path=/';
   };
 
-  GameManager.prototype.loadGame = function(game) {
+  NovelManager.prototype.loadData = function(novel) {
     var cookie, loadedData;
-    if (game === void 0) {
+    if (novel === void 0) {
       if (this.loadCookie("gameData") !== '') {
         console.log("Cookie found!");
         cookie = this.loadCookie("gameData");
         console.log("Cookie loaded");
         console.log(cookie);
         loadedData = JSON.parse(atob(this.loadCookie("gameData")));
-        return this.prepareLoadedGame(loadedData);
+        return this.prepareLoadedData(loadedData);
       }
-    } else if (game !== void 0) {
-      loadedData = JSON.parse(atob(game));
-      return this.prepareLoadedGame(loadedData);
+    } else if (novel !== void 0) {
+      loadedData = JSON.parse(atob(novel));
+      return this.prepareLoadedData(loadedData);
     }
   };
 
-  GameManager.prototype.prepareLoadedGame = function(loadedData) {
-    if (data.game.gameName !== loadedData.gameName) {
-      console.error("ERROR! Game name mismatch");
+  NovelManager.prototype.prepareLoadedData = function(loadedData) {
+    if (novelData.novel.name !== loadedData.name) {
+      console.error("ERROR! novel name mismatch");
       return;
     }
-    if (data.game.version !== loadedData.version) {
-      console.warn("WARNING! Game version mismatch");
+    if (novelData.novel.version !== loadedData.version) {
+      console.warn("WARNING! novel version mismatch");
     }
-    data.game = loadedData;
-    data.debugMode = data.game.debugMode;
-    return sceneManager.updateScene(data.game.currentScene, true);
+    novelData.novel = loadedData;
+    novelData.debugMode = novelData.novel.debugMode;
+    return sceneManager.updateScene(novelData.novel.currentScene, true);
   };
 
-  GameManager.prototype.startGame = function() {
+  NovelManager.prototype.start = function() {
     var request;
     request = new XMLHttpRequest;
-    request.open('GET', gamePath + '/game.json', true);
+    request.open('GET', novelPath + '/novel.json', true);
     request.onload = function() {
       var json;
       if (request.status >= 200 && request.status < 400) {
         json = JSON.parse(request.responseText);
-        json = gameManager.prepareData(json);
-        data.game = json;
-        data.game.currentScene = sceneManager.changeScene(data.game.scenes[0].name);
-        return data.debugMode = data.game.debugMode;
+        json = novelManager.prepareData(json);
+        novelData.novel = json;
+        novelData.novel.currentScene = sceneManager.changeScene(novelData.novel.scenes[0].name);
+        return novelData.debugMode = novelData.novel.debugMode;
       }
     };
     request.onerror = function() {};
@@ -83,23 +83,23 @@ GameManager = (function() {
     }
   };
 
-  GameManager.prototype.saveGameAsJson = function() {
+  NovelManager.prototype.saveDataAsJson = function() {
     var save;
-    save = btoa(JSON.stringify(data.game));
+    save = btoa(JSON.stringify(novelData.novel));
     return save;
   };
 
-  GameManager.prototype.saveGame = function() {
+  NovelManager.prototype.saveData = function() {
     var save;
-    save = this.saveGameAsJson();
-    if (data.game.settings.saveMode === "cookie") {
-      return this.saveCookie("gameData", save, 365);
-    } else if (data.game.settings.saveMode === "text") {
+    save = this.saveDataAsJson();
+    if (novelData.novel.settings.saveMode === "cookie") {
+      return this.saveCookie("novelData", save, 365);
+    } else if (novelData.novel.settings.saveMode === "text") {
       return ui.showSaveNotification(save);
     }
   };
 
-  GameManager.prototype.prepareData = function(json) {
+  NovelManager.prototype.prepareData = function(json) {
     var c, i, j, k, l, len, len1, len2, len3, m, o, ref, ref1, ref2, s;
     json.currentScene = "";
     json.parsedChoices = "";
@@ -142,7 +142,7 @@ GameManager = (function() {
     return json;
   };
 
-  return GameManager;
+  return NovelManager;
 
 })();
 
@@ -159,10 +159,10 @@ InputManager = (function() {
       return;
     }
     if (charCode === 13 || charCode === 32) {
-      if (data.game.settings.scrollSettings.continueWithKeyboard) {
+      if (novelData.novel.settings.scrollSettings.continueWithKeyboard) {
         sceneManager.tryContinue();
       }
-      if (data.game.settings.scrollSettings.skipWithKeyboard) {
+      if (novelData.novel.settings.scrollSettings.skipWithKeyboard) {
         textPrinter.trySkip();
       }
       return textPrinter.unpause();
@@ -176,7 +176,7 @@ InputManager = (function() {
     this.presses++;
     if (charCode === 13 || charCode === 32) {
       if (this.presses > 2) {
-        if (data.game.settings.scrollSettings.fastScrollWithKeyboard) {
+        if (novelData.novel.settings.scrollSettings.fastScrollWithKeyboard) {
           return textPrinter.fastScroll();
         }
       }
@@ -195,7 +195,7 @@ InputManager = (function() {
 
   InputManager.prototype.formsSelected = function() {
     var i, inputs, k, len;
-    inputs = document.getElementById("game-area").querySelectorAll("input");
+    inputs = document.getElementById("novel-area").querySelectorAll("input");
     for (k = 0, len = inputs.length; k < len; k++) {
       i = inputs[k];
       if (i === document.activeElement) {
@@ -256,7 +256,7 @@ Parser = (function() {
     var asToBeClosed, i, index, k, l, len, len1, len2, len3, m, nameText, o, p, parsed, q, ref, ref1, ref2, ref3, s, spansToBeClosed, splitText, t, tagName, value;
     if (text !== void 0) {
       util.checkFormat(text, 'string');
-      ref = data.game.tagPresets;
+      ref = novelData.novel.tagPresets;
       for (k = 0, len = ref.length; k < len; k++) {
         i = ref[k];
         tagName = "[p " + i.name + "]";
@@ -303,7 +303,7 @@ Parser = (function() {
         } else if (s.substring(0, 4) === "inv.") {
           value = s.substring(4, s.length);
           splitText[index] = 0;
-          ref2 = data.game.inventories[data.game.currentInventory];
+          ref2 = novelData.novel.inventories[novelData.novel.currentInventory];
           for (q = 0, len2 = ref2.length; q < len2; q++) {
             i = ref2[q];
             if (i.name === value) {
@@ -314,12 +314,12 @@ Parser = (function() {
           parsed = s.split("print ");
           parsed = this.parseStatement(parsed[1]);
           if (!isNaN(parseFloat(parsed))) {
-            parsed = parseFloat(parsed.toFixed(data.game.settings.floatPrecision));
+            parsed = parseFloat(parsed.toFixed(novelData.novel.settings.floatPrecision));
           }
           splitText[index] = parsed;
         } else if (s.substring(0, 4) === "exec") {
           parsed = s.substring(5, s.length);
-          p = data.parsedJavascriptCommands.push(parsed);
+          p = novelData.parsedJavascriptCommands.push(parsed);
           p--;
           splitText[index] = "<span class=\"execute-command com-" + p + "\"></span>";
         } else if (s.substring(0, 5) === "pause") {
@@ -347,7 +347,7 @@ Parser = (function() {
         } else if (s.substring(0, 5) === "input") {
           parsed = s.split("input ");
           nameText = "";
-          ref3 = data.game.inventories[data.game.currentInventory];
+          ref3 = novelData.novel.inventories[novelData.novel.currentInventory];
           for (t = 0, len3 = ref3.length; t < len3; t++) {
             i = ref3[t];
             if (i.name === parsed[1]) {
@@ -393,7 +393,7 @@ Parser = (function() {
       switch (type) {
         case "item":
           found = false;
-          ref = data.game.inventories[data.game.currentInventory];
+          ref = novelData.novel.inventories[novelData.novel.currentInventory];
           for (l = 0, len1 = ref.length; l < len1; l++) {
             i = ref[l];
             if (i.name === val.substring(4, val.length)) {
@@ -435,13 +435,13 @@ Parser = (function() {
         case "var":
           val = this.findValue(val.substring(4, val.length), true);
           if (!isNaN(parseFloat(val))) {
-            parsedValues.push(parseFloat(val).toFixed(data.game.settings.floatPrecision));
+            parsedValues.push(parseFloat(val).toFixed(novelData.novel.settings.floatPrecision));
           } else {
             parsedValues.push("'" + val + "'");
           }
           break;
         case "float":
-          parsedValues.push(parseFloat(val).toFixed(data.game.settings.floatPrecision));
+          parsedValues.push(parseFloat(val).toFixed(novelData.novel.settings.floatPrecision));
           break;
         case "int":
           parsedValues.push(parseInt(val));
@@ -488,12 +488,12 @@ Parser = (function() {
     splitted = parsed.split(",");
     if (!toPrint) {
       if (splitted.length > 1) {
-        variable = this.findValueByName(data.game, splitted[0])[0];
+        variable = this.findValueByName(novelData.novel, splitted[0])[0];
       } else {
-        variable = this.findValueByName(data.game, splitted[0])[1];
+        variable = this.findValueByName(novelData.novel, splitted[0])[1];
       }
     } else {
-      variable = this.findValueByName(data.game, splitted[0])[0];
+      variable = this.findValueByName(novelData.novel, splitted[0])[0];
     }
     for (i = k = 0, ref = splitted.length - 1; 0 <= ref ? k <= ref : k >= ref; i = 0 <= ref ? ++k : --k) {
       if (util.isOdd(i)) {
@@ -543,7 +543,7 @@ InventoryManager = (function() {
     var i, j, k, l, len, len1, ref, reqsFilled;
     util.checkFormat(requirements, 'array');
     reqsFilled = 0;
-    ref = data.game.inventories[data.game.currentInventory];
+    ref = novelData.novel.inventories[novelData.novel.currentInventory];
     for (k = 0, len = ref.length; k < len; k++) {
       i = ref[k];
       for (l = 0, len1 = requirements.length; l < len1; l++) {
@@ -577,7 +577,7 @@ InventoryManager = (function() {
     value = parser.findValue(parsed, false);
     value[getValueArrayLast] = value[getValueArrayLast] + change;
     if (!isNaN(parseFloat(value[getValueArrayLast]))) {
-      return value[getValueArrayLast] = parseFloat(value[getValueArrayLast].toFixed(data.game.settings.floatPrecision));
+      return value[getValueArrayLast] = parseFloat(value[getValueArrayLast].toFixed(novelData.novel.settings.floatPrecision));
     }
   };
 
@@ -588,7 +588,7 @@ InventoryManager = (function() {
     value = parser.findValue(parsed, false);
     value[getValueArrayLast] = value[getValueArrayLast] - change;
     if (!isNaN(parseFloat(value[getValueArrayLast]))) {
-      return value[getValueArrayLast] = parseFloat(value[getValueArrayLast].toFixed(data.game.settings.floatPrecision));
+      return value[getValueArrayLast] = parseFloat(value[getValueArrayLast].toFixed(novelData.novel.settings.floatPrecision));
     }
   };
 
@@ -612,7 +612,7 @@ InventoryManager = (function() {
         j[0] = j[0].substring(1, j[0].length);
       }
       itemAdded = false;
-      ref = data.game.inventories[data.game.currentInventory];
+      ref = novelData.novel.inventories[novelData.novel.currentInventory];
       for (l = 0, len1 = ref.length; l < len1; l++) {
         i = ref[l];
         if (i.name === j[0]) {
@@ -683,7 +683,7 @@ InventoryManager = (function() {
           displayName = j[0];
         }
         if (random < probability) {
-          results.push(data.game.inventories[data.game.currentInventory].push({
+          results.push(novelData.novel.inventories[novelData.novel.currentInventory].push({
             "name": j[0],
             "value": value,
             "displayName": displayName,
@@ -716,7 +716,7 @@ SceneManager = (function() {
   };
 
   SceneManager.prototype.selectChoice = function(choice) {
-    this.exitScene(data.game.currentScene);
+    this.exitScene(novelData.novel.currentScene);
     this.readItemEdits(choice);
     this.readSounds(choice, true);
     this.readSaving(choice);
@@ -728,7 +728,7 @@ SceneManager = (function() {
       if (choice.nextChoice !== void 0) {
         return this.selectChoiceByName(this.selectRandomOption(choice.nextChoice));
       } else {
-        return this.updateScene(data.game.currentScene, true);
+        return this.updateScene(novelData.novel.currentScene, true);
       }
     }
   };
@@ -741,12 +741,12 @@ SceneManager = (function() {
 
   SceneManager.prototype.selectChoiceByName = function(name) {
     var i, k, len, ref, results;
-    ref = data.game.currentScene.choices;
+    ref = novelData.novel.currentScene.choices;
     results = [];
     for (k = 0, len = ref.length; k < len; k++) {
       i = ref[k];
       if (i.name === name) {
-        gameArea.selectChoice(i);
+        novelArea.selectChoice(i);
         break;
       } else {
         results.push(void 0);
@@ -769,21 +769,21 @@ SceneManager = (function() {
 
   SceneManager.prototype.setupScene = function(scene) {
     this.updateScene(scene, false);
-    this.readItemEdits(data.game.currentScene);
-    this.readSounds(data.game.currentScene, false);
-    this.readSaving(data.game.currentScene);
-    this.readExecutes(data.game.currentScene);
-    this.readCheckpoints(data.game.currentScene);
-    this.readMisc(data.game.currentScene);
+    this.readItemEdits(novelData.novel.currentScene);
+    this.readSounds(novelData.novel.currentScene, false);
+    this.readSaving(novelData.novel.currentScene);
+    this.readExecutes(novelData.novel.currentScene);
+    this.readCheckpoints(novelData.novel.currentScene);
+    this.readMisc(novelData.novel.currentScene);
     return textPrinter.printText(scene.parsedText, false);
   };
 
   SceneManager.prototype.updateScene = function(scene, onlyUpdating) {
     this.combineSceneTexts(scene);
     scene.parsedText = parser.parseText(scene.combinedText);
-    data.game.currentScene = scene;
+    novelData.novel.currentScene = scene;
     if (!onlyUpdating) {
-      return data.game.parsedChoices = null;
+      return novelData.novel.parsedChoices = null;
     } else {
       textPrinter.printText(scene.parsedText, true);
       return textPrinter.complete();
@@ -791,9 +791,9 @@ SceneManager = (function() {
   };
 
   SceneManager.prototype.updateChoices = function() {
-    return gameArea.$set('game.parsedChoices', data.game.currentScene.choices.map(function(choice) {
+    return novelArea.$set('novel.parsedChoices', novelData.novel.currentScene.choices.map(function(choice) {
       choice.parsedText = parser.parseText(choice.text);
-      if (gameArea.game.settings.alwaysShowDisabledChoices) {
+      if (novelArea.novel.settings.alwaysShowDisabledChoices) {
         choice.alwaysShow = true;
       }
       return choice;
@@ -852,7 +852,7 @@ SceneManager = (function() {
   SceneManager.prototype.findSceneByName = function(name) {
     var i, k, len, ref;
     util.checkFormat(name, 'string');
-    ref = data.game.scenes;
+    ref = novelData.novel.scenes;
     for (k = 0, len = ref.length; k < len; k++) {
       i = ref[k];
       if (i.name === name) {
@@ -883,7 +883,7 @@ SceneManager = (function() {
   SceneManager.prototype.readItemEdits = function(source) {
     var k, l, len, len1, len2, m, ref, ref1, ref2, results, val;
     if (source.changeInventory !== void 0) {
-      data.game.currentInventory = parser.parseStatement(source.changeInventory);
+      novelData.novel.currentInventory = parser.parseStatement(source.changeInventory);
     }
     if (source.removeItem !== void 0) {
       inventoryManager.editItems(parser.parseItems(source.removeItem), "remove");
@@ -936,12 +936,12 @@ SceneManager = (function() {
       soundManager.stopMusic(parser.parseStatement(source.stopMusic));
     }
     if (source.scrollSound !== void 0) {
-      return data.game.currentScene.scrollSound = parser.parseStatement(source.scrollSound);
+      return novelData.novel.currentScene.scrollSound = parser.parseStatement(source.scrollSound);
     } else {
-      if (data.game.settings.soundSettings.defaultScrollSound) {
-        return data.game.currentScene.scrollSound = data.game.settings.soundSettings.defaultScrollSound;
+      if (novelData.novel.settings.soundSettings.defaultScrollSound) {
+        return novelData.novel.currentScene.scrollSound = novelData.novel.settings.soundSettings.defaultScrollSound;
       } else {
-        return data.game.currentScene.scrollSound = void 0;
+        return novelData.novel.currentScene.scrollSound = void 0;
       }
     }
   };
@@ -954,27 +954,27 @@ SceneManager = (function() {
 
   SceneManager.prototype.readMisc = function(source) {
     if (source.skipEnabled !== void 0) {
-      data.game.currentScene.skipEnabled = parser.parseStatement(source.skipEnabled);
+      novelData.novel.currentScene.skipEnabled = parser.parseStatement(source.skipEnabled);
     } else {
-      data.game.currentScene.skipEnabled = data.game.settings.scrollSettings.textSkipEnabled;
+      novelData.novel.currentScene.skipEnabled = novelData.novel.settings.scrollSettings.textSkipEnabled;
     }
     if (source.scrollSpeed !== void 0) {
-      data.game.currentScene.scrollSpeed = source.scrollSpeed;
+      novelData.novel.currentScene.scrollSpeed = source.scrollSpeed;
     } else {
-      data.game.currentScene.scrollSpeed = data.game.settings.scrollSettings.defaultScrollSpeed;
+      novelData.novel.currentScene.scrollSpeed = novelData.novel.settings.scrollSettings.defaultScrollSpeed;
     }
     if (source.inventoryHidden !== void 0) {
-      return data.inventoryHidden = parser.parseStatement(source.inventoryHidden);
+      return novelData.inventoryHidden = parser.parseStatement(source.inventoryHidden);
     } else {
-      return data.inventoryHidden = false;
+      return novelData.inventoryHidden = false;
     }
   };
 
   SceneManager.prototype.readSaving = function(source) {
-    if (source.saveGame !== void 0) {
-      gameManager.saveGame();
+    if (source.saveNovel !== void 0) {
+      novelManager.saveNovel();
     }
-    if (source.loadGame !== void 0) {
+    if (source.loadNovel !== void 0) {
       return ui.showLoadNotification();
     }
   };
@@ -982,31 +982,31 @@ SceneManager = (function() {
   SceneManager.prototype.readCheckpoints = function(source) {
     var checkpoint, dataChanged, i, k, l, len, len1, ref, ref1, results;
     if (source.saveCheckpoint !== void 0) {
-      if (data.game.checkpoints === void 0) {
-        data.game.checkpoints = [];
+      if (novelData.novel.checkpoints === void 0) {
+        novelData.novel.checkpoints = [];
       }
       dataChanged = false;
-      ref = data.game.checkpoints;
+      ref = novelData.novel.checkpoints;
       for (k = 0, len = ref.length; k < len; k++) {
         i = ref[k];
         if (i.name === parser.parseStatement(source.saveCheckpoint)) {
-          i.scene = data.game.currentScene.name;
+          i.scene = novelData.novel.currentScene.name;
           dataChanged = true;
         }
       }
       if (!dataChanged) {
         checkpoint = {
           name: parser.parseStatement(source.saveCheckpoint),
-          scene: data.game.currentScene.name
+          scene: novelData.novel.currentScene.name
         };
-        data.game.checkpoints.push(checkpoint);
+        novelData.novel.checkpoints.push(checkpoint);
       }
     }
     if (source.loadCheckpoint !== void 0) {
-      if (data.game.checkpoints === void 0) {
-        data.game.checkpoints = [];
+      if (novelData.novel.checkpoints === void 0) {
+        novelData.novel.checkpoints = [];
       }
-      ref1 = data.game.checkpoints;
+      ref1 = novelData.novel.checkpoints;
       results = [];
       for (l = 0, len1 = ref1.length; l < len1; l++) {
         i = ref1[l];
@@ -1051,20 +1051,20 @@ SoundManager = (function() {
   function SoundManager() {}
 
   SoundManager.prototype.playDefaultClickSound = function(name, clicked) {
-    return this.playSound(data.game.settings.soundSettings.defaultClickSound, false);
+    return this.playSound(novelData.novel.settings.soundSettings.defaultClickSound, false);
   };
 
   SoundManager.prototype.playSound = function(name, isMusic) {
     var k, len, ref, s, sound;
-    ref = data.game.sounds;
+    ref = novelData.novel.sounds;
     for (k = 0, len = ref.length; k < len; k++) {
       s = ref[k];
       if (s.name === name) {
-        sound = new Audio(gamePath + '/sounds/' + s.file);
+        sound = new Audio(novelPath + '/sounds/' + s.file);
         if (isMusic) {
-          sound.volume = data.game.settings.soundSettings.musicVolume;
+          sound.volume = novelData.novel.settings.soundSettings.musicVolume;
         } else {
-          sound.volume = data.game.settings.soundSettings.soundVolume;
+          sound.volume = novelData.novel.settings.soundSettings.soundVolume;
         }
         sound.play();
         return sound;
@@ -1074,7 +1074,7 @@ SoundManager = (function() {
 
   SoundManager.prototype.isPlaying = function(name) {
     var i, k, len, ref;
-    ref = data.music;
+    ref = novelData.music;
     for (k = 0, len = ref.length; k < len; k++) {
       i = ref[k];
       if (i.paused) {
@@ -1092,7 +1092,7 @@ SoundManager = (function() {
       this.currentTime = 0;
       this.play();
     }), false);
-    return data.music.push({
+    return novelData.music.push({
       "name": name,
       "music": music
     });
@@ -1100,14 +1100,14 @@ SoundManager = (function() {
 
   SoundManager.prototype.stopMusic = function(name) {
     var i, index, k, len, ref, results;
-    ref = data.music;
+    ref = novelData.music;
     results = [];
     for (k = 0, len = ref.length; k < len; k++) {
       i = ref[k];
       if (name === i.name) {
         i.music.pause();
-        index = data.music.indexOf(i);
-        results.push(data.music.splice(index, 1));
+        index = novelData.music.indexOf(i);
+        results.push(novelData.music.splice(index, 1));
       } else {
         results.push(void 0);
       }
@@ -1165,7 +1165,7 @@ TextPrinter = (function() {
 
   TextPrinter.prototype.printText = function(text, noBuffers) {
     this.printCompleted = false;
-    data.printedText = "";
+    novelData.printedText = "";
     if (document.querySelector("#skip-button") !== null) {
       document.querySelector("#skip-button").disabled = false;
     }
@@ -1182,13 +1182,13 @@ TextPrinter = (function() {
     if (noBuffers) {
       this.buffersExecuted = true;
     }
-    this.defaultInterval = data.game.currentScene.scrollSpeed;
+    this.defaultInterval = novelData.novel.currentScene.scrollSpeed;
     this.setTickSoundFrequency(this.defaultInterval);
     return setTimeout(this.onTick(), this.defaultInterval);
   };
 
   TextPrinter.prototype.trySkip = function() {
-    if (data.game.currentScene.skipEnabled) {
+    if (novelData.novel.currentScene.skipEnabled) {
       return this.complete();
     }
   };
@@ -1273,13 +1273,13 @@ TextPrinter = (function() {
       if (ss.length > 0) {
         for (i = v = 0, ref6 = ss.length; 0 <= ref6 ? v <= ref6 : v >= ref6; i = 0 <= ref6 ? ++v : --v) {
           if (!(ref7 = ss[i], indexOf.call(this.executeBuffer, ref7) >= 0) && ss[i] !== void 0) {
-            eval(data.parsedJavascriptCommands[parseInt(s.substring(4, s.length))]);
+            eval(novelData.parsedJavascriptCommands[parseInt(s.substring(4, s.length))]);
           }
         }
       }
       this.buffersExecuted = true;
     }
-    data.printedText = this.fullText;
+    novelData.printedText = this.fullText;
     return sceneManager.updateChoices();
   };
 
@@ -1293,8 +1293,8 @@ TextPrinter = (function() {
   };
 
   TextPrinter.prototype.fastScroll = function() {
-    if (data.game.currentScene.skipEnabled) {
-      return this.tickSpeedMultiplier = data.game.settings.scrollSettings.fastScrollSpeedMultiplier;
+    if (novelData.novel.currentScene.skipEnabled) {
+      return this.tickSpeedMultiplier = novelData.novel.settings.scrollSettings.fastScrollSpeedMultiplier;
     }
   };
 
@@ -1304,7 +1304,7 @@ TextPrinter = (function() {
 
   TextPrinter.prototype.setTickSoundFrequency = function(freq) {
     var threshold;
-    threshold = data.game.settings.scrollSettings.tickFreqThreshold;
+    threshold = novelData.novel.settings.scrollSettings.tickFreqThreshold;
     this.tickSoundFrequency = 1;
     if (freq <= (threshold * 2)) {
       this.tickSoundFrequency = 2;
@@ -1327,14 +1327,14 @@ TextPrinter = (function() {
         this.complete();
         return;
       }
-      if (data.printedText === this.fullText) {
+      if (novelData.printedText === this.fullText) {
         return;
       }
       offsetChanged = false;
       while (this.fullText[this.currentOffset] === ' ' || this.fullText[this.currentOffset] === '<' || this.fullText[this.currentOffset] === '>') {
         this.readTags();
       }
-      data.printedText = this.fullText.substring(0, this.currentOffset);
+      novelData.printedText = this.fullText.substring(0, this.currentOffset);
       if (!offsetChanged) {
         this.currentOffset++;
       }
@@ -1347,8 +1347,8 @@ TextPrinter = (function() {
         if (this.scrollSound !== "none" && this.interval !== 0) {
           if (this.scrollSound !== null) {
             soundManager.playSound(this.scrollSound);
-          } else if (data.game.currentScene.scrollSound !== void 0) {
-            soundManager.playSound(data.game.currentScene.scrollSound);
+          } else if (novelData.novel.currentScene.scrollSound !== void 0) {
+            soundManager.playSound(novelData.novel.currentScene.scrollSound);
           }
           this.tickCounter = 0;
         }
@@ -1448,7 +1448,7 @@ TextPrinter = (function() {
           s = s[1].split(/\s|\"/)[0];
           this.executeBuffer.push(s);
           if (s !== void 0) {
-            eval(data.parsedJavascriptCommands[parseInt(s.substring(4, s.length))]);
+            eval(novelData.parsedJavascriptCommands[parseInt(s.substring(4, s.length))]);
           }
         }
         if (str.indexOf("set-speed") > -1) {
@@ -1505,7 +1505,7 @@ UI = (function() {
       e = document.getElementById("load-notification");
       return e.style.display = 'block';
     } else {
-      return gameManager.loadGame();
+      return novelManager.loadGame();
     }
   };
 
@@ -1514,7 +1514,7 @@ UI = (function() {
     e = document.getElementById("load-notification");
     if (load) {
       textArea = e.querySelectorAll("textarea");
-      gameManager.loadGame(textArea[0].value);
+      novelManager.loadGame(textArea[0].value);
       textArea[0].value = "";
     }
     return e.style.display = 'none';
@@ -1522,20 +1522,20 @@ UI = (function() {
 
   UI.prototype.updateInputs = function(needForUpdate) {
     var a, i, inputs, k, len, results;
-    inputs = document.getElementById("game-area").querySelectorAll("input");
+    inputs = document.getElementById("novel-area").querySelectorAll("input");
     results = [];
     for (k = 0, len = inputs.length; k < len; k++) {
       i = inputs[k];
       results.push((function() {
         var l, len1, ref, results1;
-        ref = data.game.inventories[data.game.currentInventory];
+        ref = novelData.novel.inventories[novelData.novel.currentInventory];
         results1 = [];
         for (l = 0, len1 = ref.length; l < len1; l++) {
           a = ref[l];
           if (a.name === i.className.substring(6, i.className.length)) {
             a.value = util.stripHTML(i.value);
             if (needForUpdate) {
-              results1.push(sceneManager.updateScene(data.game.currentScene, true));
+              results1.push(sceneManager.updateScene(novelData.novel.currentScene, true));
             } else {
               results1.push(void 0);
             }
@@ -1641,8 +1641,11 @@ Util = (function() {
 
 })();
 
-data = {
-  game: null,
+
+/* GLOBAL GAME novelData */
+
+novelData = {
+  novel: null,
   choices: null,
   debugMode: false,
   inventoryHidden: false,
@@ -1651,9 +1654,9 @@ data = {
   music: []
 };
 
-gamePath = './game';
+novelPath = './novel';
 
-gameManager = new GameManager;
+novelManager = new NovelManager;
 
 inputManager = new InputManager;
 
@@ -1674,19 +1677,19 @@ util = new Util;
 
 /* GAME AREA */
 
-gameArea = new Vue({
-  el: '#game-area',
-  data: data,
+novelArea = new Vue({
+  el: '#novel-area',
+  data: novelData,
   methods: {
     requirementsFilled: function(choice) {
       return sceneManager.requirementsFilled(choice);
     },
     textSkipEnabled: function(choice) {
-      return data.game.currentScene.skipEnabled && data.game.settings.skipButtonShown;
+      return novelData.novel.currentScene.skipEnabled && novelData.novel.settings.skipButtonShown;
     },
     itemsOverZeroAndAreHidden: function(item) {
       var i, k, len, ref;
-      ref = data.game.inventories[data.game.currentInventory];
+      ref = novelData.novel.inventories[novelData.novel.currentInventory];
       for (k = 0, len = ref.length; k < len; k++) {
         i = ref[k];
         if (i.name === item.name && (i.hidden && i.hidden !== void 0)) {
@@ -1702,7 +1705,7 @@ gameArea = new Vue({
     },
     itemsOverZeroAndNotHidden: function(item) {
       var i, k, len, ref;
-      ref = data.game.inventories[data.game.currentInventory];
+      ref = novelData.novel.inventories[novelData.novel.currentInventory];
       for (k = 0, len = ref.length; k < len; k++) {
         i = ref[k];
         if (i.name === item.name && (!i.hidden || i.hidden === void 0)) {
@@ -1728,4 +1731,4 @@ gameArea = new Vue({
 
 /* And finally, start the game... */
 
-gameManager.startGame();
+novelManager.start();

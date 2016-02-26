@@ -17,9 +17,9 @@ describe 'Parser', ->
     it 'should make correct calculations', ->
       expect(parser.parseStatement("20/4-(5+2)*2")).to.equal(-9)
     it 'should use items correctly', ->
-      data.game.inventories[data.game.currentInventory] = []
+      novelData.novel.inventories[novelData.novel.currentInventory] = []
       inventoryManager.editItems(parser.parseItems("sword,4"),"add")
       expect(parser.parseStatement("20*inv.sword")).to.equal(80)
-      data.game.stats = []
+      novelData.novel.stats = []
       inventoryManager.editItems(parser.parseItems("villagesSaved,4|truthValue,true"),"add")
       expect(parser.parseStatement("(20*inv.villagesSaved==80)==inv.truthValue")).to.equal(true)

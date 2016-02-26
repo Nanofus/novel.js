@@ -7,7 +7,7 @@ class InventoryManager
   checkRequirements: (requirements) ->
     util.checkFormat(requirements,'array')
     reqsFilled = 0
-    for i in data.game.inventories[data.game.currentInventory]
+    for i in novelData.novel.inventories[novelData.novel.currentInventory]
       for j in requirements
         if j[0] == i.name
           if j[1] <= i.value
@@ -31,7 +31,7 @@ class InventoryManager
     value = parser.findValue(parsed,false)
     value[getValueArrayLast] = value[getValueArrayLast] + change
     if !isNaN(parseFloat(value[getValueArrayLast]))
-      value[getValueArrayLast] = parseFloat(value[getValueArrayLast].toFixed(data.game.settings.floatPrecision));
+      value[getValueArrayLast] = parseFloat(value[getValueArrayLast].toFixed(novelData.novel.settings.floatPrecision));
 
   # Decrease a value in JSON
   decreaseValue: (parsed, change) ->
@@ -40,7 +40,7 @@ class InventoryManager
     value = parser.findValue(parsed,false)
     value[getValueArrayLast] = value[getValueArrayLast] - change
     if !isNaN(parseFloat(value[getValueArrayLast]))
-      value[getValueArrayLast] = parseFloat(value[getValueArrayLast].toFixed(data.game.settings.floatPrecision));
+      value[getValueArrayLast] = parseFloat(value[getValueArrayLast].toFixed(novelData.novel.settings.floatPrecision));
 
   # Get the last item in a value array
   getValueArrayLast: (parsed) ->
@@ -58,7 +58,7 @@ class InventoryManager
         hidden = true
         j[0] = j[0].substring(1,j[0].length)
       itemAdded = false
-      for i in data.game.inventories[data.game.currentInventory]
+      for i in novelData.novel.inventories[novelData.novel.currentInventory]
         if i.name == j[0]
           probability = 1
           if j.length > 2
@@ -111,4 +111,4 @@ class InventoryManager
         if displayName == undefined
           displayName = j[0]
         if random < probability
-          data.game.inventories[data.game.currentInventory].push({"name": j[0], "value": value, "displayName": displayName, "hidden": hidden})
+          novelData.novel.inventories[novelData.novel.currentInventory].push({"name": j[0], "value": value, "displayName": displayName, "hidden": hidden})

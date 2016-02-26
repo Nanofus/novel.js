@@ -6,6 +6,7 @@
   "license": "MIT",
   "main": "novel.js",
   "scripts": {
+    "test": "gulp test",
     "server": "http-server"
   },
   "repository": {
@@ -16,7 +17,25 @@
     "url": "https://github.com/Nanofus/novel.js/issues"
   },
   "homepage": "https://github.com/Nanofus/novel.js",
-  "keywords": ["novel-js","noveljs","novel.js","novel","text adventure","game engine","choose your own adventure","visual novel","text game","game","adventure","fiction","prose","interactive fiction","interactive"],
+  "keywords": [
+    "novel-js",
+    "noveljs",
+    "novel.js",
+    "novel",
+    "text adventure",
+    "game engine",
+    "choose your own adventure",
+    "visual novel",
+    "text game",
+    "game",
+    "adventure",
+    "fiction",
+    "prose",
+    "interactive fiction",
+    "interactive",
+    "text",
+    "javascript"
+  ],
   "devDependencies": {
     "chai": "^3.5.0",
     "gulp": "^3.9.0",
@@ -28,6 +47,7 @@
     "gulp-sourcemaps": "^1.6.0",
     "gulp-uglify": "^1.5.2",
     "gulp-util": "^3.0.7",
+    "http-server": "^0.9.0",
     "mocha": "^2.4.5"
   },
   "dependencies": {

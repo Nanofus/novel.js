@@ -3,14 +3,14 @@
     <meta charset="UTF-8">
     <title>Novel.js</title>
     <link rel="stylesheet" href="../css/style.css">
-    <link rel="stylesheet" href="game/skin.css">
+    <link rel="stylesheet" href="novel/skin.css">
     <link href='https://fonts.googleapis.com/css?family=Cinzel+Decorative|Lora' rel='stylesheet' type='text/css'>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
   </head>
   <body>
     <main>
-      <div id="game-area">
-        <div class="style-area {{ game.currentScene.style }}">
+      <div id="novel-area">
+        <div class="style-area {{ novel.currentScene.style }}">
           <div id="notification-wrapper">
             <div id="save-notification" class="notification">
               <p>Copy and save this text:</p>
@@ -18,7 +18,7 @@
               <p><button type="button" onclick="ui.closeSaveNotification()">Close</button><button type="button" id="copy-button">Copy</button></p>
             </div>
             <div id="load-notification" class="notification">
-              <p>Paste your saved game here:</p>
+              <p>Paste your save data here:</p>
               <p><textarea name="load-text"></textarea></p>
               <p><button type="button" onclick="ui.closeLoadNotification(false)">Close</button><button type="button" onclick="ui.closeLoadNotification(true)">Load</button></p>
             </div>
@@ -31,7 +31,7 @@
             <button type="button" id="continue-button" onclick="textPrinter.unpause()">Continue</button>
             <div class="choices">
               <ul class="choice-list">
-                <div v-for="choice in game.parsedChoices">
+                <div v-for="choice in novel.parsedChoices">
                   <li v-if="requirementsFilled(choice)" class="choice">
                     <a href="#" v-on:click="selectChoice(choice)">{{{ choice.parsedText }}}</a>
                   </li>
@@ -47,20 +47,20 @@
           <div v-if="!inventoryHidden" class="inventory">
             <h5>Inventory:</h5>
             <ul class="item-list">
-              <li v-for="item in game.inventories[game.currentInventory]" class="inventory-item" v-if="itemsOverZeroAndNotHidden(item)">
+              <li v-for="item in novel.inventories[novel.currentInventory]" class="inventory-item" v-if="itemsOverZeroAndNotHidden(item)">
                 {{{ item.displayName }}} - {{{ item.value }}}
               </li>
             </ul>
           </div>
-          <div v-if="game.settings.debugMode" class="stats">
+          <div v-if="novel.settings.debugMode" class="stats">
             <h5>Stats:</h5>
             <ul class="item-list">
-              <li v-for="item in game.inventories[game.currentInventory]" class="inventory-item" v-if="itemsOverZeroAndAreHidden(item)">
+              <li v-for="item in novel.inventories[novel.currentInventory]" class="inventory-item" v-if="itemsOverZeroAndAreHidden(item)">
                 {{{ item.displayName }}} - {{{ item.value }}}
               </li>
             </ul>
           </div>
-          <div v-if="game.settings.showSaveButtons" class="save-buttons">
+          <div v-if="novel.settings.showSaveButtons" class="save-buttons">
             <button type="button" id="save-button" onclick="gameManager.saveGame()">Save</button>
             <button type="button" id="load-button" onclick="ui.showLoadNotification()">Load</button>
           </div>
