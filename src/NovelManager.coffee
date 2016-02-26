@@ -47,6 +47,7 @@ class NovelManager
       console.warn "WARNING! novel version mismatch"
     novelData.novel = loadedData
     novelData.debugMode = novelData.novel.debugMode
+    soundManager.init()
     sceneManager.updateScene(novelData.novel.currentScene,true)
 
   # Start the novel by loading the default novel.json
@@ -60,6 +61,7 @@ class NovelManager
         novelData.novel = json
         novelData.novel.currentScene = sceneManager.changeScene(novelData.novel.scenes[0].name)
         novelData.debugMode = novelData.novel.debugMode
+        soundManager.init()
     request.onerror = ->
       return
     request.send()

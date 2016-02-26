@@ -59,6 +59,7 @@ NovelManager = (function() {
     }
     novelData.novel = loadedData;
     novelData.debugMode = novelData.novel.debugMode;
+    soundManager.init();
     return sceneManager.updateScene(novelData.novel.currentScene, true);
   };
 
@@ -73,7 +74,8 @@ NovelManager = (function() {
         json = novelManager.prepareData(json);
         novelData.novel = json;
         novelData.novel.currentScene = sceneManager.changeScene(novelData.novel.scenes[0].name);
-        return novelData.debugMode = novelData.novel.debugMode;
+        novelData.debugMode = novelData.novel.debugMode;
+        return soundManager.init();
       }
     };
     request.onerror = function() {};
@@ -971,10 +973,10 @@ SceneManager = (function() {
   };
 
   SceneManager.prototype.readSaving = function(source) {
-    if (source.saveNovel !== void 0) {
+    if (source.save !== void 0) {
       novelManager.saveNovel();
     }
-    if (source.loadNovel !== void 0) {
+    if (source.load !== void 0) {
       return ui.showLoadNotification();
     }
   };
@@ -1048,7 +1050,25 @@ SceneManager = (function() {
 /* SOUNDS */
 
 SoundManager = (function() {
+  var sounds;
+
   function SoundManager() {}
+
+  sounds = [];
+
+  SoundManager.prototype.init = function() {
+    var index, k, len, ref, results, s;
+    index = 0;
+    ref = novelData.novel.sounds;
+    results = [];
+    for (k = 0, len = ref.length; k < len; k++) {
+      s = ref[k];
+      s.sound = new Audio(novelPath + '/sounds/' + s.file);
+      sounds[index] = s;
+      results.push(index++);
+    }
+    return results;
+  };
 
   SoundManager.prototype.playDefaultClickSound = function(name, clicked) {
     return this.playSound(novelData.novel.settings.soundSettings.defaultClickSound, false);
@@ -1060,7 +1080,7 @@ SoundManager = (function() {
     for (k = 0, len = ref.length; k < len; k++) {
       s = ref[k];
       if (s.name === name) {
-        sound = new Audio(novelPath + '/sounds/' + s.file);
+        sound = s.sound;
         if (isMusic) {
           sound.volume = novelData.novel.settings.soundSettings.musicVolume;
         } else {

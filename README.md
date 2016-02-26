@@ -61,10 +61,10 @@ These features are planned or currently in development.
 ### Techy installation
 
 1. `npm install novel-js`.
-2. Create an `index.html` file and include the [HTML](#html-structure) in it. Include Novel.js (`node_modules/novel-js/novel.min.js`) and Vue.js scripts.
-3. Create the folder `novel` and a `novel.json` inside it.
-4. Use a web server of your choice or use `npm install http-server` -> `http-server` -> open `http://localhost:8080/`
-5. Start working on `novel.json`!
+2. Create an `index.html` file and include the [HTML](https://github.com/Nanofus/novel.js/blob/master/DOCUMENTATION.md#html-structure) in it. Include Novel.js (`node_modules/novel-js/novel.min.js`) and Vue.js scripts.
+3. Create the folder `game` and a `game.json` inside it.
+4. `http-server` and open `http://localhost:8080/` or use a web server of your choice.
+5. Start working on `game.json`!
 
 ## Getting Started
 

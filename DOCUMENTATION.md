@@ -174,9 +174,9 @@ A scene object can contain the following variables and parameters:
 - `addItem` - Add items to the player's inventory upon entering the scene.
 - `removeItem` - Remove items from the player's inventory upon entering the scene.
 - `setItem` - Sets the specified items' counts in the player's inventory upon entering the scene. If the item does not exist in the inventory, it is added.
-- `setValue` - See its [own chapter](#format-for-var-and-value-manipulation-commands).
-- `increaseValue` - See its [own chapter](#format-for-var-and-value-manipulation-commands).
-- `decreaseValue` - See its [own chapter](#format-for-var-and-value-manipulation-commands).
+- `setValue` - See its [own chapter](#format-for-value-statements-and-commands).
+- `increaseValue` - See its [own chapter](#format-for-value-statements-and-commands).
+- `decreaseValue` - See its [own chapter](#format-for-value-statements-and-commands).
 - `scrollSpeed` - Override the scene's text scrolling speed.
 - `skipEnabled` - Override the player's ability to skip the scene's text.
 - `playSound` - Play a sound with the chosen name upon entering the scene.
@@ -201,9 +201,9 @@ Choices are the options the player can choose in a scene. An example is provided
 - `addItem` - Add items to the player's inventory upon selecting this choice.
 - `removeItem` - Remove items from the player's inventory upon selecting this choice.
 - `setItem` - Sets the specified items' value in the player's inventory selecting this choice. If the item does not exist in the inventory, it is added.
-- `setValue` - See its [own chapter](#format-for-var-and-value-manipulation-commands).
-- `increaseValue` - See its [own chapter](#format-for-var-and-value-manipulation-commands).
-- `decreaseValue` - See its [own chapter](#format-for-var-and-value-manipulation-commands).
+- `setValue` - See its [own chapter](#format-for-value-statements-and-commands).
+- `increaseValue` - See its [own chapter](#format-for-value-statements-and-commands).
+- `decreaseValue` - See its [own chapter](#format-for-value-statements-and-commands).
 - `playSound` - Play a sound with the chosen name upon selecting the choice. Overrides the default click sound.
 - `startMusic` - Start a music loop with the chosen name.
 - `endMusic` - End a music loop with the chosen name.

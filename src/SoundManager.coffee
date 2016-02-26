@@ -3,6 +3,15 @@
 
 # A class for sound functions
 class SoundManager
+  sounds = []
+
+  # Load all sounds
+  init: () ->
+    index = 0
+    for s in novelData.novel.sounds
+      s.sound = new Audio(novelPath+'/sounds/'+s.file)
+      sounds[index] = s
+      index++
 
   # Play the default sound for clicking an item
   playDefaultClickSound: (name,clicked) ->
@@ -12,7 +21,7 @@ class SoundManager
   playSound: (name, isMusic) ->
     for s in novelData.novel.sounds
       if s.name == name
-        sound = new Audio(novelPath+'/sounds/'+s.file)
+        sound = s.sound
         if isMusic
           sound.volume = novelData.novel.settings.soundSettings.musicVolume
         else
