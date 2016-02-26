@@ -974,7 +974,7 @@ SceneManager = (function() {
 
   SceneManager.prototype.readSaving = function(source) {
     if (source.save !== void 0) {
-      novelManager.saveNovel();
+      novelManager.saveData();
     }
     if (source.load !== void 0) {
       return ui.showLoadNotification();

@@ -128,7 +128,7 @@
         },
         {
           "text": "Save game",
-          "saveGame": ""
+          "save": ""
         }
       ]
     },

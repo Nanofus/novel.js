@@ -104,7 +104,7 @@ Novel.js needs some HTML on the webpage to run properly. You can use this code o
 ## `novel.json` structure
 
 `novel.json` is a JavaScript Object Notation file - a neat way to work with structured information. The top level of the structure contains the following variables:
-- `name` - Use this to set your novel's name.
+- `name` - Use this to set your application's name.
 - `version` - The version number.
 - `inventories` - A list of lists of the player's items and other variables.
 - `scenes` - A list of the scenes, i.e. views, areas, different texts the player can see.
@@ -141,9 +141,9 @@ This inventory contains six items of two kinds. A single item has the following 
 
 ### Scenes
 
-Scenes are the most important of the things defined in `novel.json`, as the entire game itself consists of a group of scenes with choices connecting them.
+Scenes are the most important of the things defined in `novel.json`, as the entire application itself consists of a group of scenes with choices connecting them.
 
-The scene the game loads upon startup is the first defined scene.
+The scene the application loads upon startup is the first defined scene.
 
 An example scene:
 
@@ -208,8 +208,8 @@ Choices are the options the player can choose in a scene. An example is provided
 - `startMusic` - Start a music loop with the chosen name.
 - `endMusic` - End a music loop with the chosen name.
 - `executeJs` - JavaScript to be executed when the choice is selected. You can access the application data through the `data.novel` object.
-- `save` - Saves the game state in the way defined in `settings.saveMode` upon selecting the choice. Value can be anything, works as long as it is defined.
-- `load` - Loads the game state in the way defined in `settings.saveMode` upon selecting the choice. Value can be anything, works as long as it is defined.
+- `save` - Saves the application state in the way defined in `settings.saveMode` upon selecting the choice. Value can be anything, works as long as it is defined.
+- `load` - Loads the application state in the way defined in `settings.saveMode` upon selecting the choice. Value can be anything, works as long as it is defined.
 - `saveCheckpoint` - Save this scene as a checkpoint with the chosen name. See [Checkpoints](#checkpoints).
 - `loadCheckpoint` - Load a checkpoint with the chosen name. See [Checkpoints](#checkpoints).
 - `nextChoice` - Redirect to another choice after handling this choice. Cannot be used in the same choice with `nextScene`. Supports multiple outcomes, as different probabilities can be set for different choices. See the format for [probabilities](#format-for-probabilities).
@@ -241,7 +241,7 @@ The settings object contains settings for the application. All of the settings v
 
 ### Sounds
 
-The sounds object contains sounds used by the novel. The sounds must be placed in the `sounds` folder inside the `novel` folder. An example sound array:
+The sounds object contains sounds used by the application. The sounds must be placed in the `sounds` folder inside the `novel` folder. An example sound array:
 ```json
 "sounds": [
   {"name": "click", "file": "click.wav"},
@@ -425,7 +425,7 @@ scenes,1,choices,2,parsedText
 
 ## Audio
 
-Sounds and music the novel uses are located in the `novel/sounds` folder, and they have to be defined in `novel.json`. More information [here](#sounds).
+Sounds and music the application uses are located in the `novel/sounds` folder, and they have to be defined in `novel.json`. More information [here](#sounds).
 
 All music's and sounds' volume is dependent on the `musicVolume` and `soundVolume` attributes of `settings.soundSettings`.
 
@@ -469,20 +469,20 @@ The `css` folder contains a file named `skin.css`. Styles in `skin.css` override
 
 ## Checkpoints
 
-By using the `saveCheckpoint` and `loadCheckpoint` commands in scenes or choices it is possible to "tag" scenes so that they can easily be returned to later. This is useful when, for example, creating a menu with a "continue novel" button. Both commands take a name for the checkpoint as a parameter. The checkpoint objects are saved to `data.novel.checkpoints`, so they are saved when the novel is saved. The objects have two values: `name`, which is the checkpoint's name used in the commands, and `scene`, the name of the scene it refers to.
+By using the `saveCheckpoint` and `loadCheckpoint` commands in scenes or choices it is possible to "tag" scenes so that they can easily be returned to later. This is useful when, for example, creating a menu with a "continue reading" button. Both commands take a name for the checkpoint as a parameter. The checkpoint objects are saved to `data.novel.checkpoints`, so they are saved when the application state is saved. The objects have two values: `name`, which is the checkpoint's name used in the commands, and `scene`, the name of the scene it refers to.
 
 Checkpoints do not affect the player's items or other values. Use saving and loading to return those to a previous state.
 
 ## Saving
 
-Novel.js has currently two ways to allow the player to save and load their novel. This is controlled by the `settings.saveMode` value, which can be either `cookie` or `text`. Saving is done by clicking the "Save" and "Load" buttons in the novel window, or by using the `savenovel` and `loadnovel` commands. The buttons can be hidden by setting `settings.showSaveButtons` to false.
+Novel.js has currently two ways to allow the player to save and load their application state. This is controlled by the `settings.saveMode` value, which can be either `cookie` or `text`. Saving is done by clicking the "Save" and "Load" buttons in the application window, or by using the `save` and `load` commands. The buttons can be hidden by setting `settings.showSaveButtons` to false.
 
-If the novel's name does not match the loaded data's novel name, an error is thrown and loading is cancelled. If the save version does not match the novel's version, a warning is thrown.
+If the application's name does not match the loaded data's application name, an error is thrown and loading is cancelled. If the save version does not match the application's version, a warning is thrown.
 
 ### Cookie
 
-The first way to save a novel is to use the browser's cookies. If you use this option, make sure you have the required legal notifications in your novel. The novel is saved as a cookie named `novelData`, and contains the `novel.json` file Base64 encoded. The cookie has an expiration time of 365 days by default. There can currently be only a single saved novel. Note that cookies might not work when testing the novel on `localhost` in some browsers.
+The first way to save a application is to use the browser's cookies. If you use this option, make sure you have the required legal notifications in your application. The application is saved as a cookie named `novelData`, and contains the `novelData.novel` data object as Base64 encoded JSON. The cookie has an expiration time of 365 days by default. There can currently be only a single saved application. Note that cookies might not work when testing the application on `localhost` in some browsers.
 
 ### Text
 
-The second way is to save the `novel.json` file as a Base64 encoded string, that is then shown to the player and prompted to be copied. The "Load" button then shows a text field that allows the player to paste in their saved novel data.
+The second way is to save the `novel.json` file as a Base64 encoded string, that is then shown to the player and prompted to be copied. The "Load" button then shows a text field that allows the player to paste in their saved application data.

@@ -197,7 +197,7 @@ class SceneManager
   # Read save and load commands from scene or choice
   readSaving: (source) ->
     if source.save != undefined
-      novelManager.saveNovel()
+      novelManager.saveData()
     if source.load != undefined
       ui.showLoadNotification()
 

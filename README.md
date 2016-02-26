@@ -36,7 +36,7 @@ You can use [electron-noveljs-boilerplate](https://github.com/Nanofus/electron-n
 - Play sound effects and looping music/ambient sound effects!
 - Shorthand tags for general styling of names etc. and presets to help with recurring styles.
 - Checkpoints to easily jump back and forth between scenes.
-- Saving the game state as a cookie or an encoded string that is given to the player.
+- Saving the application state as a cookie or an encoded string that is given to the player.
 - Support for CSS styling, custom JavaScript and HTML tags in text.
 - ... And much more ~!
 
@@ -62,9 +62,9 @@ These features are planned or currently in development.
 
 1. `npm install novel-js`.
 2. Create an `index.html` file and include the [HTML](https://github.com/Nanofus/novel.js/blob/master/DOCUMENTATION.md#html-structure) in it. Include Novel.js (`node_modules/novel-js/novel.min.js`) and Vue.js scripts.
-3. Create the folder `game` and a `game.json` inside it.
+3. Create the folder `novel` and a `novel.json` inside it.
 4. `http-server` and open `http://localhost:8080/` or use a web server of your choice.
-5. Start working on `game.json`!
+5. Start working on `novel.json`!
 
 ## Getting Started
 
