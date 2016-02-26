@@ -94,7 +94,7 @@ Novel.js needs some HTML on the webpage to run properly. You can use this code o
 			</ul>
 		</div>
 		<div v-if="novel.settings.showSaveButtons" class="save-buttons">
-			<button type="button" id="save-button" onclick="novelManager.savenovel()">Save</button>
+			<button type="button" id="save-button" onclick="novelManager.saveData()">Save</button>
 			<button type="button" id="load-button" onclick="ui.showLoadNotification()">Load</button>
 		</div>
 	</div>
