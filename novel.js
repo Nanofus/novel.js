@@ -1463,8 +1463,10 @@ TextPrinter = (function() {
           s = str.split("pause ");
           s = s[1].split(/\s|\"/)[0];
           this.pause = s;
-          if (document.querySelector("#continue-button") !== null) {
-            document.querySelector("#continue-button").style.display = 'inline';
+          if (this.pause === "input") {
+            if (document.querySelector("#continue-button") !== null) {
+              document.querySelector("#continue-button").style.display = 'inline';
+            }
           }
         }
         if (str.indexOf("execute-command") > -1) {
