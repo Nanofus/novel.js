@@ -4,13 +4,13 @@
 [![Github All Releases](https://img.shields.io/github/downloads/Nanofus/novel.js/total.svg)]() [![GitHub release](https://img.shields.io/github/release/Nanofus/novel.js.svg)]() [![npm version](https://badge.fury.io/js/novel-js.svg)](https://badge.fury.io/js/novel-js)
 [![Build Status](https://travis-ci.org/Nanofus/novel.js.svg?branch=master)](https://travis-ci.org/Nanofus/novel.js)
 
-Novel.js is a versatile, lightweight JavaScript text game engine that works directly in the browser. A **[live demo](http://nanofus.github.io/novel.js/)** is available, however it covers only a small part of all functionality!
+Novel.js is a versatile, lightweight JavaScript text game engine that works directly in the browser.
 
-It is suitable for interactive fiction such as "choose your own adventure" games and other kinds of text-based entertainment. It also works well as a base for straightforward prose frosted with images and sounds. It requires only a `novel.json` file containing all the text, choices, items and so on, an `html` file to display the novel/game and optionally a stylesheet (`skin.css`), images and sounds.
+It is suitable for interactive fiction such as "choose your own adventure" games and other kinds of text-based entertainment. It also works well as a base for straightforward prose garnished with images and sounds. It requires only a `novel.json` file containing all the text, choices, items and so on, an `html` file to display the novel/game and optionally a stylesheet (`skin.css`), images and sounds.
 
-Novel.js is written in CoffeeScript, HTML and SASS and depends only on Vue.js. It was born out of a need for a lightweight, easy-to-use but fully-featured text adventure system that could easily be embedded on a webpage. It is open source (MIT License) and free to use both commercially and non-commercially.
+Text adventures are often overlooked as something only game development beginners create, and Novel.js aims to fix this misconception. Interactive fiction combines the flexibility and possibilities that prose can offer with interactivity and reader choice – a type of entertainment I think has not yet been thoroughly explored. The popularity of visual novels demonstrates the possibilities the medium can offer!
 
-Contributions are welcome!
+Novel.js is written in CoffeeScript, HTML and SASS and depends only on Vue.js. It was born out of a need for a lightweight, easy-to-use but fully-featured text adventure system that could easily be embedded on a webpage. It is open source (MIT License) and free to use both commercially and non-commercially. A **[live demo](http://nanofus.github.io/novel.js/)** is available, however it covers only a small part of all functionality!
 
 You can use [electron-noveljs-boilerplate](https://github.com/Nanofus/electron-noveljs-boilerplate) with Novel.js to create standalone desktop applications. It requires a bit more technical knowledge than Novel.js itself.
 
