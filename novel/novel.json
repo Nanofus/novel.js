@@ -11,13 +11,12 @@
         "It is a dark and stormy night.[pause 15]",
         "You stand in a dark room, watching the raindrops hit the window.[pause 15]",
         "[if inv.Newspaper==0]On the table in front of you is a newspaper. [s1]Novel.js[/s], says the headline.[pause 15][/if]",
-        "What do you do?[pause 20]"
+        "What do you do?[pause 20] "
       ],
       "style": "main-menu",
       "choices": [
         {
           "text": "Pick up the newspaper",
-          "alwaysShow": true,
           "requirement": "inv.Newspaper<1",
           "addItem": "Newspaper,1",
           "nextScene": "newspaper"
@@ -39,7 +38,7 @@
         "[pause 10].[pause 10].[pause 10].[pause 10]",
         "Some kind of text adventure framework, you figure out. And written in JavaScript, no less.[pause 10]",
         "Scrolling text with customizable speed, conditional statements, multiple inventories, checkpoints, sound effects, saving... [pause 15]All sorts of useful features![pause 10]",
-        "Your curiosity is piqued.[pause 10]"
+        "Your curiosity is piqued.[pause 20] "
       ],
       "choices": [
         {
