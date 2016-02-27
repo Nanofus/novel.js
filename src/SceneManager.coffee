@@ -230,9 +230,9 @@ class SceneManager
     reqs = []
     if choice.itemRequirement != undefined
       requirements = parser.parseItems choice.itemRequirement
-      reqs.push inventoryManager.checkRequirements(requirements)
+      reqs.push inventoryManager.checkRequirements requirements
     if choice.requirement != undefined
-      reqs.push inventoryManager.parseIfStatement choice.requirement
+      reqs.push parser.parseStatement choice.requirement
     success = true
     for r in reqs
       if r == false

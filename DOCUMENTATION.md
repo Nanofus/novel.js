@@ -418,7 +418,7 @@ The format:
 objectName,id,objectName,id,objectName...
 ```
 
-If the path contains arrays, give the path to that array as the first parameter, then the array index as the next parameter, and then the path inside that object as the third parameter and so forth. An example that picks a choice from another scene:
+If the path contains arrays, give the path to that array as the first parameter, then the array index as the next parameter, and then the path inside that object as the third parameter and so forth. If there are multiple arrays immediately inside each other, use an empty `objectName` (for example, `inventories,0,,1,value` refers to the item `1` in inventory `0`). An example that picks a choice from another scene:
 ```
 scenes,1,choices,2,parsedText
 ```

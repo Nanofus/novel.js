@@ -53,6 +53,11 @@
           "nextScene": "road"
         },
         {
+          "text": "Heyoo!!!",
+          "requirement": "inv.stick==0",
+          "nextScene": "road"
+        },
+        {
           "name": "pickastick",
           "addItem": "stick,1",
           "executeJs": "console.log(\"Sticks are neat!\")",
@@ -120,10 +125,10 @@
           ]
         },
         {
-          "text": "Increase sandwiches by 1",
+          "text": "Increase sandwiches by 1 in inventory 0",
           "requirement": "inv.sandwich<10",
           "increaseValue": [
-            {"path": "inventory,1,count", "value": 1}
+            {"path": "inventories,0,,1,value", "value": 1}
           ]
         },
         {

@@ -1034,7 +1034,7 @@ SceneManager = (function() {
       reqs.push(inventoryManager.checkRequirements(requirements));
     }
     if (choice.requirement !== void 0) {
-      reqs.push(inventoryManager.parseIfStatement(choice.requirement));
+      reqs.push(parser.parseStatement(choice.requirement));
     }
     success = true;
     for (k = 0, len = reqs.length; k < len; k++) {
