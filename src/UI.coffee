@@ -17,7 +17,7 @@ class UI
 
   # Show the load notification window
   showLoadNotification: ->
-    if gameArea.game.settings.saveMode == "text"
+    if novelArea.novel.settings.saveMode == "text"
       e = document.getElementById("load-notification")
       e.style.display = 'block';
     else
@@ -28,7 +28,7 @@ class UI
     e = document.getElementById("load-notification")
     if load
       textArea = e.querySelectorAll("textarea")
-      novelManager.loadGame(textArea[0].value)
+      novelManager.loadData(textArea[0].value)
       textArea[0].value = ""
     e.style.display = 'none'
 

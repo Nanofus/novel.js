@@ -57,10 +57,10 @@ NovelManager = (function() {
     if (novelData.novel.version !== loadedData.version) {
       console.warn("WARNING! novel version mismatch");
     }
-    novelData.novel = loadedData;
+    novelData.novel.inventories = loadedData.inventories;
     novelData.debugMode = novelData.novel.debugMode;
     soundManager.init();
-    return sceneManager.updateScene(novelData.novel.currentScene, true);
+    return sceneManager.updateScene(loadedData.currentScene, true);
   };
 
   NovelManager.prototype.start = function() {
@@ -86,8 +86,12 @@ NovelManager = (function() {
   };
 
   NovelManager.prototype.saveDataAsJson = function() {
-    var save;
-    save = btoa(JSON.stringify(novelData.novel));
+    var save, saveData;
+    saveData = novelData.novel;
+    delete saveData.scenes;
+    delete saveData.tagPresets;
+    delete saveData.sounds;
+    save = btoa(JSON.stringify(saveData));
     return save;
   };
 
@@ -1521,7 +1525,7 @@ UI = (function() {
 
   UI.prototype.showLoadNotification = function() {
     var e;
-    if (gameArea.game.settings.saveMode === "text") {
+    if (novelArea.novel.settings.saveMode === "text") {
       e = document.getElementById("load-notification");
       return e.style.display = 'block';
     } else {
@@ -1534,7 +1538,7 @@ UI = (function() {
     e = document.getElementById("load-notification");
     if (load) {
       textArea = e.querySelectorAll("textarea");
-      novelManager.loadGame(textArea[0].value);
+      novelManager.loadData(textArea[0].value);
       textArea[0].value = "";
     }
     return e.style.display = 'none';

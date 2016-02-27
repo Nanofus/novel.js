@@ -45,10 +45,10 @@ class NovelManager
       return
     if novelData.novel.version != loadedData.version
       console.warn "WARNING! novel version mismatch"
-    novelData.novel = loadedData
+    novelData.novel.inventories = loadedData.inventories
     novelData.debugMode = novelData.novel.debugMode
     soundManager.init()
-    sceneManager.updateScene(novelData.novel.currentScene,true)
+    sceneManager.updateScene(loadedData.currentScene,true)
 
   # Start the novel by loading the default novel.json
   start: ->
@@ -70,7 +70,11 @@ class NovelManager
 
   # Converts the novel's state into json and Base64 encode it
   saveDataAsJson: () ->
-    save = btoa(JSON.stringify(novelData.novel))
+    saveData = novelData.novel
+    delete saveData.scenes
+    delete saveData.tagPresets
+    delete saveData.sounds
+    save = btoa(JSON.stringify(saveData))
     return save
 
   # Save novel in the defined way
