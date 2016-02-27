@@ -10,13 +10,15 @@
       "text": [
         "It is a dark and stormy night.[pause 15]",
         "You stand in a dark room, watching the raindrops hit the window.[pause 15]",
-        "[if inv.Newspaper==0]On the table in front of you there is a newspaper. [s1]Novel.js[/s], says the headline.[pause 15][/if]",
-        "What do you do?"
+        "[if inv.Newspaper==0]On the table in front of you is a newspaper. [s1]Novel.js[/s], says the headline.[pause 15][/if]",
+        "What do you do?[pause 20]"
       ],
       "style": "main-menu",
       "choices": [
         {
           "text": "Pick up the newspaper",
+          "alwaysShow": true,
+          "requirement": "inv.Newspaper<1",
           "addItem": "Newspaper,1",
           "nextScene": "newspaper"
         },
@@ -24,9 +26,9 @@
           "text": "<a href=\"http://github.com/Nanofus/Novel.js/\">Cut to the chase and check the [s1]Novel.js[/s] GitHub repo</a>"
         },
         {
-          "text": "Search for your revolver",
-          "addItem": "Revolver,1,0.5",
-          "nextScene": "revolver"
+          "text": "Search for your umbrella",
+          "addItem": "Umbrella,1,0.5",
+          "nextScene": "umbrella"
         }
       ]
     },
@@ -34,12 +36,15 @@
       "name": "newspaper",
       "text": [
         "You pick up the newspaper. What is this \"Novel.js\" you keep hearing about?[pause 10]",
-        "[pause 10].[pause 10].[pause 10].",
-        "Some kind of text adventure framework, you figure out. And written in JavaScript, no less."
+        "[pause 10].[pause 10].[pause 10].[pause 10]",
+        "Some kind of text adventure framework, you figure out. And written in JavaScript, no less.[pause 10]",
+        "Scrolling text with customizable speed, conditional statements, multiple inventories, checkpoints, sound effects, saving... [pause 15]All sorts of useful features![pause 10]",
+        "Your curiosity is piqued.[pause 10]"
       ],
       "choices": [
         {
           "text": "Return",
+          "name": "Continue",
           "nextScene": "start"
         },
         {
@@ -48,11 +53,12 @@
       ]
     },
     {
-      "name": "revolver",
-      "text": "[if inv.revolver==0]You can't find your revolver! You should probably try harder.[/if][if inv.revolver==1]You found your revolver![/if][if inv.revolver>1][pause 300].[pause 300].[pause 300]. [pause 400].... A second revolver?[/if]",
+      "name": "umbrella",
+      "text": "[if inv.Umbrella==0]You can't find your umbrella! You should probably try harder.[/if][if inv.Umbrella==1]You found your umbrella![/if][if inv.Umbrella>1][pause 30].[pause 30].[pause 30]. [pause 40].... Another umbrella?[/if]",
       "choices": [
         {
           "text": "Return",
+          "name": "Continue",
           "nextScene": "start"
         }
       ]
@@ -71,7 +77,7 @@
       "textSkipEnabled": false,
       "skipButtonShown": false,
       "skipWithKeyboard": false,
-      "continueWithKeyboard": false,
+      "continueWithKeyboard": true,
       "fastScrollWithKeyboard": true,
       "fastScrollSpeedMultiplier": 20,
       "tickFreqThreshold": 100
