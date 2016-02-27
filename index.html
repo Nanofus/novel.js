@@ -1,0 +1,50 @@
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Utopia</title>
+    <link rel="stylesheet" href="../node_modules/novel-js/css/style.css">
+    <link rel="stylesheet" href="novel/skin.css">
+    <link href='https://fonts.googleapis.com/css?family=Cinzel+Decorative|Lora' rel='stylesheet' type='text/css'>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  </head>
+  <body>
+    <main>
+      <div id="novel-area">
+        <div class="style-area {{ novel.currentScene.style }}">
+            <div class="text-and-choices-area">
+                <div class="text-area">
+                    {{{ printedText }}}
+                </div>
+                <button v-show="textSkipEnabled()" type="button" id="skip-button" onclick="textPrinter.complete()">Skip</button>
+                <button type="button" id="continue-button" onclick="textPrinter.unpause()">Continue</button>
+                <div class="choices">
+                    <ul class="choice-list">
+                        <div v-for="choice in novel.parsedChoices">
+                            <li v-if="requirementsFilled(choice)" class="choice">
+                                <a href="#" v-on:click="selectChoice(choice)">{{{ choice.parsedText }}}</a>
+                            </li>
+                            <div v-if="choice.alwaysShow">
+                                <li v-if="!requirementsFilled(choice)">
+                                    {{{ choice.parsedText }}}
+                                </li>
+                            </div>
+                        </div>
+                    </ul>
+                </div>
+            </div>
+            <div v-if="!inventoryHidden" class="inventory">
+                <h5>Inventory:</h5>
+                <ul class="item-list">
+                    <li v-for="item in novel.inventories[novel.currentInventory]" class="inventory-item" v-if="itemsOverZeroAndNotHidden(item)">
+                        {{{ item.displayName }}} - {{{ item.value }}}
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    </main>
+
+    <script src="../node_modules/vue/dist/vue.min.js"></script>
+    <script src="../node_modules/novel-js/novel.min.js"></script>
+  </body>
+</html>

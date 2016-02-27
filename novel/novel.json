@@ -1,0 +1,86 @@
+{
+  "name": "Novel.js website",
+  "version": "0.1.0",
+  "inventories": [
+    []
+  ],
+  "scenes": [
+    {
+      "name": "start",
+      "text": [
+        "It is a dark and stormy night.[pause 15]",
+        "You stand in a dark room, watching the raindrops hit the window.[pause 15]",
+        "[if inv.Newspaper==0]On the table in front of you there is a newspaper. [s1]Novel.js[/s], says the headline.[pause 15][/if]",
+        "What do you do?"
+      ],
+      "style": "main-menu",
+      "choices": [
+        {
+          "text": "Pick up the newspaper",
+          "addItem": "Newspaper,1",
+          "nextScene": "newspaper"
+        },
+        {
+          "text": "<a href=\"http://github.com/Nanofus/Novel.js/\">Cut to the chase and check the [s1]Novel.js[/s] GitHub repo</a>"
+        },
+        {
+          "text": "Search for your revolver",
+          "addItem": "Revolver,1,0.5",
+          "nextScene": "revolver"
+        }
+      ]
+    },
+    {
+      "name": "newspaper",
+      "text": [
+        "You pick up the newspaper. What is this \"Novel.js\" you keep hearing about?[pause 10]",
+        "[pause 10].[pause 10].[pause 10].",
+        "Some kind of text adventure framework, you figure out. And written in JavaScript, no less."
+      ],
+      "choices": [
+        {
+          "text": "Return",
+          "nextScene": "start"
+        },
+        {
+          "text": "<a href=\"http://github.com/Nanofus/Novel.js\">This seems interesting...to the repository!</a>"
+        }
+      ]
+    },
+    {
+      "name": "revolver",
+      "text": "[if inv.revolver==0]You can't find your revolver! You should probably try harder.[/if][if inv.revolver==1]You found your revolver![/if][if inv.revolver>1][pause 300].[pause 300].[pause 300]. [pause 400].... A second revolver?[/if]",
+      "choices": [
+        {
+          "text": "Return",
+          "nextScene": "start"
+        }
+      ]
+    }
+  ],
+  "tagPresets": [
+  ],
+  "settings": {
+    "debugMode": true,
+    "saveMode": "text",
+    "showSaveButtons": false,
+    "alwaysShowDisabledChoices": false,
+    "floatPrecision": 5,
+    "scrollSettings": {
+      "defaultScrollSpeed": 60,
+      "textSkipEnabled": false,
+      "skipButtonShown": false,
+      "skipWithKeyboard": false,
+      "continueWithKeyboard": false,
+      "fastScrollWithKeyboard": true,
+      "fastScrollSpeedMultiplier": 20,
+      "tickFreqThreshold": 100
+    },
+    "soundSettings": {
+      "soundVolume": 0.5,
+      "musicVolume": 0.5
+    }
+  },
+  "sounds": [
+  ]
+}
