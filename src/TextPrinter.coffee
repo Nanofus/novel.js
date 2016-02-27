@@ -248,8 +248,9 @@ class TextPrinter
           s = str.split("pause ")
           s = s[1].split(/\s|\"/)[0]
           @pause = s
-          if document.querySelector("#continue-button") != null
-            document.querySelector("#continue-button").style.display = 'inline';
+          if @pause == "input"
+            if document.querySelector("#continue-button") != null
+              document.querySelector("#continue-button").style.display = 'inline';
         if str.indexOf("execute-command") > -1
           s = str.split("execute-command ")
           s = s[1].split(/\s|\"/)[0]
