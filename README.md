@@ -4,7 +4,7 @@
 [![Github All Releases](https://img.shields.io/github/downloads/Nanofus/novel.js/total.svg)]() [![GitHub release](https://img.shields.io/github/release/Nanofus/novel.js.svg)]() [![npm version](https://badge.fury.io/js/novel-js.svg)](https://badge.fury.io/js/novel-js)
 [![Build Status](https://travis-ci.org/Nanofus/novel.js.svg?branch=master)](https://travis-ci.org/Nanofus/novel.js)
 
-Novel.js is a versatile, lightweight JavaScript text game engine that works directly in the browser.
+Novel.js is a versatile, lightweight JavaScript text game engine that works directly in the browser. A **[live demo](http://nanofus.github.io/novel.js/)** is available, however it covers only a small part of all functionality!
 
 It is suitable for interactive fiction such as "choose your own adventure" games and other kinds of text-based entertainment. It also works well as a base for straightforward prose frosted with images and sounds. It requires only a `novel.json` file containing all the text, choices, items and so on, an `html` file to display the novel/game and optionally a stylesheet (`skin.css`), images and sounds.
 
