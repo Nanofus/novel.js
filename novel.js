@@ -516,6 +516,9 @@ Parser = (function() {
         }
       }
     }
+    if (variable === void 0) {
+      console.warn("WARNING: Searched value not found.");
+    }
     return variable;
   };
 
@@ -1163,12 +1166,6 @@ TextPrinter = (function() {
 
   TextPrinter.prototype.executeBuffer = [];
 
-  TextPrinter.prototype.addItemBuffer = [];
-
-  TextPrinter.prototype.setItemBuffer = [];
-
-  TextPrinter.prototype.removeItemBuffer = [];
-
   TextPrinter.prototype.buffersExecuted = false;
 
   TextPrinter.prototype.scrollSound = null;
@@ -1199,9 +1196,6 @@ TextPrinter = (function() {
     this.musicBuffer = [];
     this.stopMusicBuffer = [];
     this.executeBuffer = [];
-    this.addItemBuffer = [];
-    this.setItemBuffer = [];
-    this.removeItemBuffer = [];
     this.buffersExecuted = false;
     if (noBuffers) {
       this.buffersExecuted = true;

@@ -84,3 +84,10 @@ describe 'InventoryManager', ->
       expect(inventoryManager.checkRequirements([["sword",10],["shield",10]])).to.equal(false)
       expect(inventoryManager.checkRequirements([["sword",5],["shield",10]])).to.equal(false)
       expect(inventoryManager.checkRequirements([["sword",10],["shield",3]])).to.equal(false)
+  describe 'setValue', ->
+    it 'should set a value in root correctly', ->
+      inventoryManager.setValue("name","name")
+      expect(novelData.novel.name).to.equal("name")
+    it 'should set a value in a child path correctly', ->
+      inventoryManager.setValue("settings.soundSettings.soundVolume",0.2)
+      expect(novelData.novel.settings.soundSettings.soundVolume).to.equal(0.2)

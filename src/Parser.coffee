@@ -244,6 +244,8 @@ class Parser
             splitted[i] = "parsedText"
             variable.parsedText = @parseText(variable.text)
           variable = @findValueByName(variable,splitted[i])[0]
+    if variable == undefined
+      console.warn "WARNING: Searched value not found."
     return variable
 
   # Find an object from the object hierarchy by string name
