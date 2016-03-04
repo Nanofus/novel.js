@@ -224,7 +224,7 @@
       "soundVolume": 0.5,
       "musicVolume": 0.5,
       "defaultClickSound": "click",
-      "defaultScrollSound": "click"
+      "defaultScrollSound": "click,0.5|scream,0.5"
     }
   },
   "sounds": [

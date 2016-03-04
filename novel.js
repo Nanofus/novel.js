@@ -106,7 +106,7 @@ NovelManager = (function() {
   };
 
   NovelManager.prototype.prepareData = function(json) {
-    var c, i, j, k, l, len, len1, len2, len3, m, o, ref, ref1, ref2, s;
+    var c, i, j, k, l, len, len1, len2, len3, o, q, ref, ref1, ref2, s;
     json.currentScene = "";
     json.parsedChoices = "";
     if (json.currentInventory === void 0) {
@@ -129,13 +129,13 @@ NovelManager = (function() {
       }
     }
     ref1 = json.scenes;
-    for (m = 0, len2 = ref1.length; m < len2; m++) {
-      s = ref1[m];
+    for (o = 0, len2 = ref1.length; o < len2; o++) {
+      s = ref1[o];
       s.combinedText = "";
       s.parsedText = "";
       ref2 = s.choices;
-      for (o = 0, len3 = ref2.length; o < len3; o++) {
-        c = ref2[o];
+      for (q = 0, len3 = ref2.length; q < len3; q++) {
+        c = ref2[q];
         c.parsedText = "";
         if (c.nextScene === void 0) {
           c.nextScene = "";
@@ -242,6 +242,55 @@ document.onkeyup = function(evt) {
 Parser = (function() {
   function Parser() {}
 
+  Parser.prototype.selectRandomOption = function(name) {
+    var i, k, len, parsed, separate;
+    util.checkFormat(name, 'string');
+    separate = name.split("|");
+    if (separate.length === 1) {
+      return separate[0];
+    }
+    parsed = [];
+    for (k = 0, len = separate.length; k < len; k++) {
+      i = separate[k];
+      i = i.split(",");
+      parsed.push(i);
+    }
+    parsed = this.chooseRandomly(parsed);
+    return parsed;
+  };
+
+  Parser.prototype.chooseRandomly = function(options) {
+    var chances, i, k, l, len, len1, len2, nameIndex, names, o, previous, rawChances, totalChance, value;
+    names = [];
+    chances = [];
+    rawChances = [];
+    previous = 0;
+    for (k = 0, len = options.length; k < len; k++) {
+      i = options[k];
+      names.push(i[0]);
+      previous = parseFloat(i[1]) + previous;
+      chances.push(previous);
+      rawChances.push(parseFloat(i[1]));
+    }
+    totalChance = 0;
+    for (l = 0, len1 = rawChances.length; l < len1; l++) {
+      i = rawChances[l];
+      totalChance = totalChance + parseFloat(i);
+    }
+    if (totalChance !== 1) {
+      console.error("ERROR: Invalid scene or choice odds (should add up to exactly 1)!");
+    }
+    value = Math.random();
+    nameIndex = 0;
+    for (o = 0, len2 = chances.length; o < len2; o++) {
+      i = chances[o];
+      if (value < i) {
+        return names[nameIndex];
+      }
+      nameIndex++;
+    }
+  };
+
   Parser.prototype.parseItems = function(items) {
     var i, k, len, parsed, separate;
     util.checkFormat(items, 'string');
@@ -259,7 +308,7 @@ Parser = (function() {
   };
 
   Parser.prototype.parseText = function(text) {
-    var asToBeClosed, i, index, k, l, len, len1, len2, len3, m, nameText, o, p, parsed, q, ref, ref1, ref2, ref3, s, spansToBeClosed, splitText, t, tagName, value;
+    var asToBeClosed, i, index, k, l, len, len1, len2, len3, nameText, o, p, parsed, q, ref, ref1, ref2, ref3, s, spansToBeClosed, splitText, t, tagName, u, value;
     if (text !== void 0) {
       util.checkFormat(text, 'string');
       ref = novelData.novel.tagPresets;
@@ -281,15 +330,15 @@ Parser = (function() {
       text = text.replace(/\/\[/g, "OPEN_BRACKET_REPLACEMENT").replace(/\/\]/g, "CLOSE_BRACKET_REPLACEMENT");
       splitText = text.split(/\[|\]/);
       index = 0;
-      for (m = 0, len1 = splitText.length; m < len1; m++) {
-        s = splitText[m];
+      for (o = 0, len1 = splitText.length; o < len1; o++) {
+        s = splitText[o];
         splitText[index] = s.replace(/OPEN_BRACKET_REPLACEMENT/g, "[").replace(/CLOSE_BRACKET_REPLACEMENT/g, "]");
         index++;
       }
       spansToBeClosed = 0;
       asToBeClosed = 0;
       index = 0;
-      for (index = o = 0, ref1 = splitText.length - 1; 0 <= ref1 ? o <= ref1 : o >= ref1; index = 0 <= ref1 ? ++o : --o) {
+      for (index = q = 0, ref1 = splitText.length - 1; 0 <= ref1 ? q <= ref1 : q >= ref1; index = 0 <= ref1 ? ++q : --q) {
         s = splitText[index];
         if (s.substring(0, 2) === "if") {
           parsed = s.split("if ");
@@ -310,8 +359,8 @@ Parser = (function() {
           value = s.substring(4, s.length);
           splitText[index] = 0;
           ref2 = novelData.novel.inventories[novelData.novel.currentInventory];
-          for (q = 0, len2 = ref2.length; q < len2; q++) {
-            i = ref2[q];
+          for (t = 0, len2 = ref2.length; t < len2; t++) {
+            i = ref2[t];
             if (i.name === value) {
               splitText[index] = i.value;
             }
@@ -354,8 +403,8 @@ Parser = (function() {
           parsed = s.split("input ");
           nameText = "";
           ref3 = novelData.novel.inventories[novelData.novel.currentInventory];
-          for (t = 0, len3 = ref3.length; t < len3; t++) {
-            i = ref3[t];
+          for (u = 0, len3 = ref3.length; u < len3; u++) {
+            i = ref3[u];
             if (i.name === parsed[1]) {
               nameText = i.value;
             }
@@ -381,7 +430,7 @@ Parser = (function() {
   };
 
   Parser.prototype.parseStatement = function(s) {
-    var found, i, k, l, len, len1, m, parsedString, parsedValues, plus, ref, ref1, result, type, val, vals;
+    var found, i, k, l, len, len1, o, parsedString, parsedValues, plus, ref, ref1, result, type, val, vals;
     if (s === void 0) {
       return void 0;
     }
@@ -460,7 +509,7 @@ Parser = (function() {
           }
       }
     }
-    for (i = m = 0, ref1 = parsedString.length - 1; 0 <= ref1 ? m <= ref1 : m >= ref1; i = 0 <= ref1 ? ++m : --m) {
+    for (i = o = 0, ref1 = parsedString.length - 1; 0 <= ref1 ? o <= ref1 : o >= ref1; i = 0 <= ref1 ? ++o : --o) {
       if (parsedString[i] !== "" && parsedValues[i] !== "") {
         parsedString[i] = parsedString[i].replace("{", "\{");
         parsedString[i] = parsedString[i].replace("}", "\}");
@@ -735,7 +784,7 @@ SceneManager = (function() {
       return this.changeScene(choice.nextScene);
     } else if (choice.nextScene === "") {
       if (choice.nextChoice !== void 0) {
-        return this.selectChoiceByName(this.selectRandomOption(choice.nextChoice));
+        return this.selectChoiceByName(parser.selectRandomOption(choice.nextChoice));
       } else {
         return this.updateScene(novelData.novel.currentScene, true);
       }
@@ -771,7 +820,7 @@ SceneManager = (function() {
   SceneManager.prototype.changeScene = function(sceneNames) {
     var scene;
     util.checkFormat(sceneNames, 'string');
-    scene = this.findSceneByName(this.selectRandomOption(sceneNames));
+    scene = this.findSceneByName(parser.selectRandomOption(sceneNames));
     this.setupScene(scene);
     return scene;
   };
@@ -809,55 +858,6 @@ SceneManager = (function() {
     }));
   };
 
-  SceneManager.prototype.selectRandomOption = function(name) {
-    var i, k, len, parsed, separate;
-    util.checkFormat(name, 'string');
-    separate = name.split("|");
-    if (separate.length === 1) {
-      return separate[0];
-    }
-    parsed = [];
-    for (k = 0, len = separate.length; k < len; k++) {
-      i = separate[k];
-      i = i.split(",");
-      parsed.push(i);
-    }
-    parsed = this.chooseRandomly(parsed);
-    return parsed;
-  };
-
-  SceneManager.prototype.chooseRandomly = function(options) {
-    var chances, i, k, l, len, len1, len2, m, nameIndex, names, previous, rawChances, totalChance, value;
-    names = [];
-    chances = [];
-    rawChances = [];
-    previous = 0;
-    for (k = 0, len = options.length; k < len; k++) {
-      i = options[k];
-      names.push(i[0]);
-      previous = parseFloat(i[1]) + previous;
-      chances.push(previous);
-      rawChances.push(parseFloat(i[1]));
-    }
-    totalChance = 0;
-    for (l = 0, len1 = rawChances.length; l < len1; l++) {
-      i = rawChances[l];
-      totalChance = totalChance + parseFloat(i);
-    }
-    if (totalChance !== 1) {
-      console.error("ERROR: Invalid scene or choice odds (should add up to exactly 1)!");
-    }
-    value = Math.random();
-    nameIndex = 0;
-    for (m = 0, len2 = chances.length; m < len2; m++) {
-      i = chances[m];
-      if (value < i) {
-        return names[nameIndex];
-      }
-      nameIndex++;
-    }
-  };
-
   SceneManager.prototype.findSceneByName = function(name) {
     var i, k, len, ref;
     util.checkFormat(name, 'string');
@@ -890,7 +890,7 @@ SceneManager = (function() {
   };
 
   SceneManager.prototype.readItemEdits = function(source) {
-    var k, l, len, len1, len2, m, ref, ref1, ref2, results, val;
+    var k, l, len, len1, len2, o, ref, ref1, ref2, results, val;
     if (source.changeInventory !== void 0) {
       novelData.novel.currentInventory = parser.parseStatement(source.changeInventory);
     }
@@ -920,8 +920,8 @@ SceneManager = (function() {
     if (source.decreaseValue !== void 0) {
       ref2 = source.decreaseValue;
       results = [];
-      for (m = 0, len2 = ref2.length; m < len2; m++) {
-        val = ref2[m];
+      for (o = 0, len2 = ref2.length; o < len2; o++) {
+        val = ref2[o];
         results.push(inventoryManager.decreaseValue(val.path, parser.parseStatement(val.value.toString())));
       }
       return results;
@@ -1083,6 +1083,10 @@ SoundManager = (function() {
 
   SoundManager.prototype.playSound = function(name, isMusic) {
     var k, len, ref, s, sound;
+    if (name === void 0) {
+      return;
+    }
+    name = parser.selectRandomOption(name);
     ref = novelData.novel.sounds;
     for (k = 0, len = ref.length; k < len; k++) {
       s = ref[k];
@@ -1113,7 +1117,14 @@ SoundManager = (function() {
   };
 
   SoundManager.prototype.startMusic = function(name) {
-    var music;
+    var k, len, m, music, ref;
+    ref = novelData.music;
+    for (k = 0, len = ref.length; k < len; k++) {
+      m = ref[k];
+      if (m.name === name) {
+        return;
+      }
+    }
     music = this.playSound(name, true);
     music.addEventListener('ended', (function() {
       this.currentTime = 0;
@@ -1212,7 +1223,7 @@ TextPrinter = (function() {
   };
 
   TextPrinter.prototype.complete = function() {
-    var first, i, k, l, len, len1, len2, len3, m, o, q, ref, ref1, ref2, ref3, ref4, ref5, ref6, ref7, s, ss, t, u, v;
+    var first, i, k, l, len, len1, len2, len3, o, q, ref, ref1, ref2, ref3, ref4, ref5, ref6, ref7, s, ss, t, u, v, w;
     this.printCompleted = true;
     this.currentOffset = 0;
     if (document.querySelector("#skip-button") !== null) {
@@ -1242,8 +1253,8 @@ TextPrinter = (function() {
       first = true;
       if (this.fullText.indexOf("play-music") > -1) {
         s = this.fullText.split("play-music ");
-        for (m = 0, len1 = s.length; m < len1; m++) {
-          i = s[m];
+        for (o = 0, len1 = s.length; o < len1; o++) {
+          i = s[o];
           if (!first) {
             ss.push(i.split(/\s|\"/)[0]);
           }
@@ -1251,7 +1262,7 @@ TextPrinter = (function() {
         }
       }
       if (ss.length > 0) {
-        for (i = o = 0, ref2 = ss.length; 0 <= ref2 ? o <= ref2 : o >= ref2; i = 0 <= ref2 ? ++o : --o) {
+        for (i = q = 0, ref2 = ss.length; 0 <= ref2 ? q <= ref2 : q >= ref2; i = 0 <= ref2 ? ++q : --q) {
           if (!(ref3 = ss[i], indexOf.call(this.musicBuffer, ref3) >= 0)) {
             soundManager.startMusic(parser.parseStatement(ss[i]));
           }
@@ -1261,8 +1272,8 @@ TextPrinter = (function() {
       first = true;
       if (this.fullText.indexOf("stop-music") > -1) {
         s = this.fullText.split("stop-music ");
-        for (q = 0, len2 = s.length; q < len2; q++) {
-          i = s[q];
+        for (t = 0, len2 = s.length; t < len2; t++) {
+          i = s[t];
           if (!first) {
             ss.push(i.split(/\s|\"/)[0]);
           }
@@ -1270,7 +1281,7 @@ TextPrinter = (function() {
         }
       }
       if (ss.length > 0) {
-        for (i = t = 0, ref4 = ss.length; 0 <= ref4 ? t <= ref4 : t >= ref4; i = 0 <= ref4 ? ++t : --t) {
+        for (i = u = 0, ref4 = ss.length; 0 <= ref4 ? u <= ref4 : u >= ref4; i = 0 <= ref4 ? ++u : --u) {
           if (!(ref5 = ss[i], indexOf.call(this.stopMusicBuffer, ref5) >= 0)) {
             soundManager.stopMusic(parser.parseStatement(ss[i]));
           }
@@ -1280,8 +1291,8 @@ TextPrinter = (function() {
       first = true;
       if (this.fullText.indexOf("execute-command") > -1) {
         s = this.fullText.split("execute-command ");
-        for (u = 0, len3 = s.length; u < len3; u++) {
-          i = s[u];
+        for (v = 0, len3 = s.length; v < len3; v++) {
+          i = s[v];
           if (!first) {
             ss.push(i.split(/\s|\"/)[0]);
           }
@@ -1289,7 +1300,7 @@ TextPrinter = (function() {
         }
       }
       if (ss.length > 0) {
-        for (i = v = 0, ref6 = ss.length; 0 <= ref6 ? v <= ref6 : v >= ref6; i = 0 <= ref6 ? ++v : --v) {
+        for (i = w = 0, ref6 = ss.length; 0 <= ref6 ? w <= ref6 : w >= ref6; i = 0 <= ref6 ? ++w : --w) {
           if (!(ref7 = ss[i], indexOf.call(this.executeBuffer, ref7) >= 0) && ss[i] !== void 0) {
             eval(novelData.parsedJavascriptCommands[parseInt(s.substring(4, s.length))]);
           }

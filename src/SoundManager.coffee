@@ -19,6 +19,9 @@ class SoundManager
 
   # Play a sound by name
   playSound: (name, isMusic) ->
+    if name == undefined
+      return
+    name = parser.selectRandomOption(name);
     for s in novelData.novel.sounds
       if s.name == name
         sound = s.sound
@@ -39,6 +42,9 @@ class SoundManager
 
   # Start music
   startMusic: (name) ->
+    for m in novelData.music
+      if m.name == name
+        return
     music = @playSound(name,true)
     music.addEventListener 'ended', (->
       @currentTime = 0

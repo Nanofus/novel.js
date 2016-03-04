@@ -20,7 +20,7 @@ class SceneManager
       @changeScene(choice.nextScene)
     else if choice.nextScene == ""
       if choice.nextChoice != undefined
-        @selectChoiceByName(@selectRandomOption(choice.nextChoice))
+        @selectChoiceByName(parser.selectRandomOption(choice.nextChoice))
       else
         @updateScene(novelData.novel.currentScene,true)
 
@@ -44,7 +44,7 @@ class SceneManager
   # Called when changing a scene
   changeScene: (sceneNames) ->
     util.checkFormat(sceneNames,'string')
-    scene = @findSceneByName(@selectRandomOption sceneNames)
+    scene = @findSceneByName(parser.selectRandomOption sceneNames)
     @setupScene(scene)
     return scene
 
@@ -78,42 +78,6 @@ class SceneManager
         choice.alwaysShow = true
       choice
     )
-
-  # Select a random scene or choice from a list separated by |, takes string
-  selectRandomOption: (name) ->
-    util.checkFormat(name,'string')
-    separate = name.split("|")
-    if separate.length == 1
-      return separate[0]
-    parsed = []
-    for i in separate
-      i = i.split(",")
-      parsed.push(i)
-    parsed = @chooseRandomly(parsed)
-    return parsed
-
-  # Select a scene or choice randomly from multiple scenes with different probabilities, takes array
-  chooseRandomly: (options) ->
-    names = []
-    chances = []
-    rawChances = []
-    previous = 0
-    for i in options
-      names.push i[0]
-      previous = parseFloat(i[1])+previous
-      chances.push previous
-      rawChances.push parseFloat(i[1])
-    totalChance = 0
-    for i in rawChances
-      totalChance = totalChance + parseFloat(i)
-    if totalChance != 1
-      console.error "ERROR: Invalid scene or choice odds (should add up to exactly 1)!"
-    value = Math.random()
-    nameIndex = 0
-    for i in chances
-      if value < i
-        return names[nameIndex]
-      nameIndex++
 
   # Return a scene by its name; throw an error if not found.
   findSceneByName: (name) ->

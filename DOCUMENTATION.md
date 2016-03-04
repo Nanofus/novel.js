@@ -179,8 +179,8 @@ A scene object can contain the following variables and parameters:
 - `decreaseValue` - See its [own chapter](#format-for-value-statements-and-commands).
 - `scrollSpeed` - Override the scene's text scrolling speed.
 - `skipEnabled` - Override the player's ability to skip the scene's text.
-- `playSound` - Play a sound with the chosen name upon entering the scene.
-- `startMusic` - Start a music loop with the chosen name.
+- `playSound` - Play a sound with the chosen name upon entering the scene. You can select randomly between multiple options by using the [format for probabilities](#format-for-probabilities).
+- `startMusic` - Start a music loop with the chosen name. You can select randomly between multiple options by using the [format for probabilities](#format-for-probabilities).
 - `endMusic` - End a music loop with the chosen name.
 - `executeJs` - JavaScript to be executed when the scene is loaded. You can access the application data through the `novelData.novel` object.
 - `save` - Saves the state in the way defined in `settings.saveMode` upon entering the scene. Value can be anything, works as long as it is defined.
@@ -204,8 +204,8 @@ Choices are the options the player can choose in a scene. An example is provided
 - `setValue` - See its [own chapter](#format-for-value-statements-and-commands).
 - `increaseValue` - See its [own chapter](#format-for-value-statements-and-commands).
 - `decreaseValue` - See its [own chapter](#format-for-value-statements-and-commands).
-- `playSound` - Play a sound with the chosen name upon selecting the choice. Overrides the default click sound.
-- `startMusic` - Start a music loop with the chosen name.
+- `playSound` - Play a sound with the chosen name upon selecting the choice. Overrides the default click sound. You can select randomly between multiple options by using the [format for probabilities](#format-for-probabilities).
+- `startMusic` - Start a music loop with the chosen name. You can select randomly between multiple options by using the [format for probabilities](#format-for-probabilities).
 - `endMusic` - End a music loop with the chosen name.
 - `executeJs` - JavaScript to be executed when the choice is selected. You can access the application data through the `data.novel` object.
 - `save` - Saves the application state in the way defined in `settings.saveMode` upon selecting the choice. Value can be anything, works as long as it is defined.
@@ -236,8 +236,8 @@ The settings object contains settings for the application. All of the settings v
 - `soundSettings`:
   - `soundVolume` - A float between 0 and 1. The volume of all sound effects.
   - `musicVolume` - A float between 0 and 1. The music's volume.
-  - `defaultClickSound` - A sound's name. If defined, this sound is played when clicking any choice.
-  - `defaultScrollSound` - A sound's name. The default scrolling sound. If not defined, no sound is played.
+  - `defaultClickSound` - A sound's name. If defined, this sound is played when clicking any choice. You can set multiple random options by using the [format for probabilities](#format-for-probabilities).
+  - `defaultScrollSound` - A sound's name. The default scrolling sound. If not defined, no sound is played. You can set multiple random options by using the [format for probabilities](#format-for-probabilities).
 
 ### Sounds
 
@@ -325,7 +325,7 @@ You can pause the scrolling text by using the `[pause]` tag. It can take two dif
 
 ### Setting text scrolling sound
 
-You can override the text's default scrolling sound by using the tag `[scrollSound x]`, where x is the sound's name. If x is `"none"`, no sound is played. The default value is defined in [settings](#settings). Can be restored to default with `[/scrollSound]`.
+You can override the text's default scrolling sound by using the tag `[scrollSound x]`, where x is the sound's name. If x is `"none"`, no sound is played. The default value is defined in [settings](#settings). Can be restored to default with `[/scrollSound]`. You can select randomly between multiple options by using the [format for probabilities](#format-for-probabilities).
 
 ### Playing sounds while text scrolls
 
@@ -459,7 +459,7 @@ Music works a bit differently in Novel.js than sound effects do; music is starte
   ]
 }
 ```
-You should not play multiple instances of the same music at once, because it will not stop correctly.
+If you try to play music that is already playing, the command is ignored. You can set multiple random options by using the [format for probabilities](#format-for-probabilities).
 
 You can also use an inline tag.
 
