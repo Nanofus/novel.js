@@ -107,8 +107,10 @@ class NovelManager
       s.combinedText = ""
       s.parsedText = ""
       if s.text == undefined
+        console.warn "WARNING! scene "+s.name+" has no text"
         s.text = ""
       if s.choices == undefined
+        console.warn "WARNING! scene "+s.name+" has no choices"
         s.choices = []
       for c in s.choices
         c.parsedText = ""
