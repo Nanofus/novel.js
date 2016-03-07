@@ -46,6 +46,8 @@ class SoundManager
       if m.name == name
         return
     music = @playSound(name,true)
+    if music == undefined
+      return
     music.addEventListener 'ended', (->
       @currentTime = 0
       @play()

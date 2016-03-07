@@ -1126,6 +1126,9 @@ SoundManager = (function() {
       }
     }
     music = this.playSound(name, true);
+    if (music === void 0) {
+      return;
+    }
     music.addEventListener('ended', (function() {
       this.currentTime = 0;
       this.play();
