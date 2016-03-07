@@ -106,6 +106,10 @@ class NovelManager
     for s in json.scenes
       s.combinedText = ""
       s.parsedText = ""
+      if s.text == undefined
+        s.text = ""
+      if s.choices == undefined
+        s.choices = []
       for c in s.choices
         c.parsedText = ""
         if c.alwaysShow == undefined
