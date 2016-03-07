@@ -16,9 +16,9 @@ class SceneManager
     @readSaving(choice)
     @readExecutes(choice)
     @readCheckpoints(choice)
-    if choice.nextScene != ""
+    if choice.nextScene != undefined
       @changeScene(choice.nextScene)
-    else if choice.nextScene == ""
+    else
       if choice.nextChoice != undefined
         @selectChoiceByName(parser.selectRandomOption(choice.nextChoice))
       else
@@ -61,7 +61,7 @@ class SceneManager
 
   # If not changing scenes but update needed, this is called
   updateScene: (scene, onlyUpdating) ->
-    @combineSceneTexts(scene)
+    scene = @combineSceneTexts(scene)
     scene.parsedText = parser.parseText scene.combinedText
     novelData.novel.currentScene = scene
     if !onlyUpdating
@@ -97,6 +97,7 @@ class SceneManager
         s.combinedText = s.combinedText + "<p>" + i + "</p>"
     else
       s.combinedText = s.text
+    return s
 
   # Read item and val edit commands from scene or choice
   readItemEdits: (source) ->

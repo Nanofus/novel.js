@@ -23,12 +23,12 @@ class UI
     else
       novelManager.loadGame()
 
-  # Close the load notification - if load, then load a save.
-  closeLoadNotification: (load) ->
+  # Close the load notification - if load, then load a save. ChangeScene defines whether the scene should be updated or not.
+  closeLoadNotification: (load, changeScene) ->
     e = document.getElementById("load-notification")
     if load
       textArea = e.querySelectorAll("textarea")
-      novelManager.loadData(textArea[0].value)
+      novelManager.loadData(textArea[0].value,changeScene)
       textArea[0].value = ""
     e.style.display = 'none'
 

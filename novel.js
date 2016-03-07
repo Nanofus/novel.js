@@ -32,8 +32,11 @@ NovelManager = (function() {
     return document.cookie = cname + '=' + cvalue + '; ' + expires + '; path=/';
   };
 
-  NovelManager.prototype.loadData = function(novel) {
+  NovelManager.prototype.loadData = function(novel, changeScene) {
     var cookie, loadedData;
+    if (changeScene === void 0) {
+      changeScene = true;
+    }
     if (novel === void 0) {
       if (this.loadCookie("gameData") !== '') {
         console.log("Cookie found!");
@@ -41,15 +44,15 @@ NovelManager = (function() {
         console.log("Cookie loaded");
         console.log(cookie);
         loadedData = JSON.parse(atob(this.loadCookie("gameData")));
-        return this.prepareLoadedData(loadedData);
+        return this.prepareLoadedData(loadedData, changeScene);
       }
     } else if (novel !== void 0) {
       loadedData = JSON.parse(atob(novel));
-      return this.prepareLoadedData(loadedData);
+      return this.prepareLoadedData(loadedData, changeScene);
     }
   };
 
-  NovelManager.prototype.prepareLoadedData = function(loadedData) {
+  NovelManager.prototype.prepareLoadedData = function(loadedData, changeScene) {
     if (novelData.novel.name !== loadedData.name) {
       console.error("ERROR! novel name mismatch");
       return;
@@ -60,7 +63,9 @@ NovelManager = (function() {
     novelData.novel.inventories = loadedData.inventories;
     novelData.debugMode = novelData.novel.debugMode;
     soundManager.init();
-    return sceneManager.updateScene(loadedData.currentScene, true);
+    if (changeScene) {
+      return sceneManager.updateScene(loadedData.currentScene, true);
+    }
   };
 
   NovelManager.prototype.start = function() {
@@ -87,7 +92,7 @@ NovelManager = (function() {
 
   NovelManager.prototype.saveDataAsJson = function() {
     var save, saveData;
-    saveData = novelData.novel;
+    saveData = JSON.parse(JSON.stringify(novelData.novel));
     delete saveData.scenes;
     delete saveData.tagPresets;
     delete saveData.sounds;
@@ -137,9 +142,6 @@ NovelManager = (function() {
       for (q = 0, len3 = ref2.length; q < len3; q++) {
         c = ref2[q];
         c.parsedText = "";
-        if (c.nextScene === void 0) {
-          c.nextScene = "";
-        }
         if (c.alwaysShow === void 0) {
           c.alwaysShow = false;
         }
@@ -780,9 +782,9 @@ SceneManager = (function() {
     this.readSaving(choice);
     this.readExecutes(choice);
     this.readCheckpoints(choice);
-    if (choice.nextScene !== "") {
+    if (choice.nextScene !== void 0) {
       return this.changeScene(choice.nextScene);
-    } else if (choice.nextScene === "") {
+    } else {
       if (choice.nextChoice !== void 0) {
         return this.selectChoiceByName(parser.selectRandomOption(choice.nextChoice));
       } else {
@@ -837,7 +839,7 @@ SceneManager = (function() {
   };
 
   SceneManager.prototype.updateScene = function(scene, onlyUpdating) {
-    this.combineSceneTexts(scene);
+    scene = this.combineSceneTexts(scene);
     scene.parsedText = parser.parseText(scene.combinedText);
     novelData.novel.currentScene = scene;
     if (!onlyUpdating) {
@@ -872,21 +874,20 @@ SceneManager = (function() {
   };
 
   SceneManager.prototype.combineSceneTexts = function(s) {
-    var i, k, len, ref, results;
+    var i, k, len, ref;
     util.checkFormat(s, 'object');
     util.checkFormat(s.text, 'arrayOrString');
     s.combinedText = "";
     if (Object.prototype.toString.call(s.text) === "[object Array]") {
       ref = s.text;
-      results = [];
       for (k = 0, len = ref.length; k < len; k++) {
         i = ref[k];
-        results.push(s.combinedText = s.combinedText + "<p>" + i + "</p>");
+        s.combinedText = s.combinedText + "<p>" + i + "</p>";
       }
-      return results;
     } else {
-      return s.combinedText = s.text;
+      s.combinedText = s.text;
     }
+    return s;
   };
 
   SceneManager.prototype.readItemEdits = function(source) {
@@ -1543,12 +1544,12 @@ UI = (function() {
     }
   };
 
-  UI.prototype.closeLoadNotification = function(load) {
+  UI.prototype.closeLoadNotification = function(load, changeScene) {
     var e, textArea;
     e = document.getElementById("load-notification");
     if (load) {
       textArea = e.querySelectorAll("textarea");
-      novelManager.loadData(textArea[0].value);
+      novelManager.loadData(textArea[0].value, changeScene);
       textArea[0].value = "";
     }
     return e.style.display = 'none';

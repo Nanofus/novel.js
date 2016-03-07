@@ -25,7 +25,9 @@ class NovelManager
     document.cookie = cname + '=' + cvalue + '; ' + expires + '; path=/'
 
   # Load the novel from a cookie or entered json
-  loadData: (novel) ->
+  loadData: (novel, changeScene) ->
+    if changeScene == undefined
+      changeScene = true
     if novel == undefined
       if @loadCookie("gameData") != ''
         console.log "Cookie found!"
@@ -33,13 +35,13 @@ class NovelManager
         console.log "Cookie loaded"
         console.log cookie
         loadedData = JSON.parse(atob(@loadCookie("gameData")))
-        @prepareLoadedData(loadedData)
+        @prepareLoadedData(loadedData, changeScene)
     else if novel != undefined
       loadedData = JSON.parse(atob(novel))
-      @prepareLoadedData(loadedData)
+      @prepareLoadedData(loadedData, changeScene)
 
   # Prepare the novel from the loaded save file
-  prepareLoadedData: (loadedData) ->
+  prepareLoadedData: (loadedData, changeScene) ->
     if novelData.novel.name != loadedData.name
       console.error "ERROR! novel name mismatch"
       return
@@ -48,7 +50,8 @@ class NovelManager
     novelData.novel.inventories = loadedData.inventories
     novelData.debugMode = novelData.novel.debugMode
     soundManager.init()
-    sceneManager.updateScene(loadedData.currentScene,true)
+    if changeScene
+      sceneManager.updateScene(loadedData.currentScene,true)
 
   # Start the novel by loading the default novel.json
   start: ->
@@ -70,7 +73,8 @@ class NovelManager
 
   # Converts the novel's state into json and Base64 encode it
   saveDataAsJson: () ->
-    saveData = novelData.novel
+    # Clone the game data
+    saveData = JSON.parse(JSON.stringify(novelData.novel))
     delete saveData.scenes
     delete saveData.tagPresets
     delete saveData.sounds
@@ -104,8 +108,6 @@ class NovelManager
       s.parsedText = ""
       for c in s.choices
         c.parsedText = ""
-        if c.nextScene == undefined
-          c.nextScene = ""
         if c.alwaysShow == undefined
           c.alwaysShow = false
     return json
