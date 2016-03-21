@@ -138,6 +138,14 @@ NovelManager = (function() {
       s = ref1[o];
       s.combinedText = "";
       s.parsedText = "";
+      if (s.text === void 0) {
+        console.warn("WARNING! scene " + s.name + " has no text");
+        s.text = "";
+      }
+      if (s.choices === void 0) {
+        console.warn("WARNING! scene " + s.name + " has no choices");
+        s.choices = [];
+      }
       ref2 = s.choices;
       for (q = 0, len3 = ref2.length; q < len3; q++) {
         c = ref2[q];
@@ -891,9 +899,16 @@ SceneManager = (function() {
   };
 
   SceneManager.prototype.readItemEdits = function(source) {
-    var k, l, len, len1, len2, o, ref, ref1, ref2, results, val;
+    var i, k, l, len, len1, len2, o, q, ref, ref1, ref2, ref3, results, val;
     if (source.changeInventory !== void 0) {
       novelData.novel.currentInventory = parser.parseStatement(source.changeInventory);
+      if (novelData.novel.currentInventory > novelData.novel.inventories.length) {
+        for (i = k = 0, ref = novelData.novel.currentInventory; 0 <= ref ? k <= ref : k >= ref; i = 0 <= ref ? ++k : --k) {
+          if (novelData.novel.inventories[i] === void 0) {
+            novelData.novel.inventories[i] = [];
+          }
+        }
+      }
     }
     if (source.removeItem !== void 0) {
       inventoryManager.editItems(parser.parseItems(source.removeItem), "remove");
@@ -905,24 +920,24 @@ SceneManager = (function() {
       inventoryManager.editItems(parser.parseItems(source.setItem), "set");
     }
     if (source.setValue !== void 0) {
-      ref = source.setValue;
-      for (k = 0, len = ref.length; k < len; k++) {
-        val = ref[k];
+      ref1 = source.setValue;
+      for (l = 0, len = ref1.length; l < len; l++) {
+        val = ref1[l];
         inventoryManager.setValue(val.path, parser.parseStatement(val.value.toString()));
       }
     }
     if (source.increaseValue !== void 0) {
-      ref1 = source.increaseValue;
-      for (l = 0, len1 = ref1.length; l < len1; l++) {
-        val = ref1[l];
+      ref2 = source.increaseValue;
+      for (o = 0, len1 = ref2.length; o < len1; o++) {
+        val = ref2[o];
         inventoryManager.increaseValue(val.path, parser.parseStatement(val.value.toString()));
       }
     }
     if (source.decreaseValue !== void 0) {
-      ref2 = source.decreaseValue;
+      ref3 = source.decreaseValue;
       results = [];
-      for (o = 0, len2 = ref2.length; o < len2; o++) {
-        val = ref2[o];
+      for (q = 0, len2 = ref3.length; q < len2; q++) {
+        val = ref3[q];
         results.push(inventoryManager.decreaseValue(val.path, parser.parseStatement(val.value.toString())));
       }
       return results;

@@ -103,8 +103,10 @@ class SceneManager
   readItemEdits: (source) ->
     if source.changeInventory != undefined
       novelData.novel.currentInventory = parser.parseStatement(source.changeInventory)
-      if novelData.novel.currentInventory == undefined
-        novelData.novel.currentInventory = []
+      if novelData.novel.currentInventory > novelData.novel.inventories.length
+        for i in [0 .. novelData.novel.currentInventory]
+          if novelData.novel.inventories[i] == undefined
+            novelData.novel.inventories[i] = []
     if source.removeItem != undefined
       inventoryManager.editItems(parser.parseItems(source.removeItem),"remove")
     if source.addItem != undefined
