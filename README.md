@@ -44,8 +44,12 @@ You can use [electron-noveljs-boilerplate](https://github.com/Nanofus/electron-n
 
 These features are planned or currently in development.
 - Alternative visual novel system with animations
-- A settings menu for the player
+- A standard settings menu
+- [else] tag
+- HTML5 Local Storage saving
 - Item descriptions
+- API
+- Text loading from separate files
 - Translation support
 
 ## Installation
