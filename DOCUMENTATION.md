@@ -208,7 +208,7 @@ Choices are the options the player can choose in a scene. An example is provided
 - `playSound` - Play a sound with the chosen name upon selecting the choice. Overrides the default click sound. You can select randomly between multiple options by using the [format for probabilities](#format-for-probabilities).
 - `startMusic` - Start a music loop with the chosen name. You can select randomly between multiple options by using the [format for probabilities](#format-for-probabilities).
 - `endMusic` - End a music loop with the chosen name.
-- `executeJs` - JavaScript to be executed when the choice is selected. You can access the application data through the `data.novel` object.
+- `executeJs` - JavaScript to be executed when the choice is selected. You can access the application data through the `novelData.novel` object.
 - `save` - Saves the application state in the way defined in `settings.saveMode` upon selecting the choice. Value can be anything, works as long as it is defined.
 - `load` - Loads the application state in the way defined in `settings.saveMode` upon selecting the choice. Value can be anything, works as long as it is defined.
 - `saveCheckpoint` - Save this scene as a checkpoint with the chosen name. See [Checkpoints](#checkpoints).
@@ -228,7 +228,7 @@ The settings object contains settings for the application. All of the settings v
 - `scrollSettings`:
 	- `defaultScrollSpeed` - The default speed (letter interval in ms) at which text scrolls. If set to 0, all text appears instantly.
 	- `textSkipEnabled` - True or false. If disabled, text can't be skipped.
-	- `revisitSkipEnabled` - True or false. Should a scene's text should be automatically skipped if the scene has already been visited. Can be overridden on a per-scene basis.
+	- `revisitSkipEnabled` - True or false. Should a scene's text should be automatically skipped if the scene has already been visited. Can be overridden on a per-scene basis. The bool `novelData.novel.currentScene.revisit` for a scene is changed to true after the scene is left.
 	- `skipButtonShown` - True or false. If enabled, a skip button is shown. If disabled, no button is shown.
 	- `skipWithKeyboard` - True or false. If enabled, the player can skip text by pressing space or enter. Does not work with `fastScrollWithKeyboard`.
 	- `continueWithKeyboard` - True or false. If enabled, the player can choose the default choice (with `name` set to `"Continue"`) by pressing space or enter.
