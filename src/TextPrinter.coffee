@@ -38,6 +38,11 @@ class TextPrinter
       @buffersExecuted = true
     @defaultInterval = novelData.novel.currentScene.scrollSpeed
     @setTickSoundFrequency(@defaultInterval)
+
+    if novelData.novel.currentScene.visited && novelData.novel.currentScene.revisitSkipEnabled
+      @complete()
+      return
+
     setTimeout(@onTick(),@defaultInterval)
 
   # Try to skip text, if allowed
@@ -134,9 +139,6 @@ class TextPrinter
 
   # Show a new letter
   onTick: ->
-    if novelData.novel.currentScene.revisit && novelData.novel.currentScene.revisitSkipEnabled
-      @complete()
-      return
     if @pause != "input" && @pause > 0
       @pause--
     if @pause == 0
@@ -267,6 +269,6 @@ class TextPrinter
           s = s[1].split(/\s|\"/)[0]
           @scrollSound = parser.parseStatement(s)
         if str.indexOf("default-scroll-sound") > -1
-          @scrollSound = null
+          @scrollSound = undefined
       @currentOffset = i
       @offsetChanged = true

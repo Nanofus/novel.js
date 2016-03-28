@@ -237,7 +237,14 @@ class Parser
         parsedString[i] = parsedString[i].replace("}","\}")
         s = s.replace(new RegExp(parsedString[i],'g'),parsedValues[i])
     # Solve or calculate the statement
-    return eval(s)
+    returnVal = eval(s)
+    # Fix booleans
+    if returnVal == "true"
+      returnVal = true
+    if returnVal == "false"
+      returnVal = false
+    # Return the actual result
+    return returnVal
 
   # Read a string's beginning to detect its type
   getStatementType: (val) ->

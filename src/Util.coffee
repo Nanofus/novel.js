@@ -28,13 +28,13 @@ class Util
       if Object::toString.call(s) == '[object Array]' || typeof s == 'string'
         return true
       else
-        console.error "ERROR: Invalid input format in (should be " + format + ")"
+        console.error "ERROR: Invalid input format (should be " + format + ")"
         return false
     else
       if typeof s == format
         return true
       else
-        console.error "ERROR: Invalid input format in (should be " + format + ")"
+        console.error "ERROR: Invalid input format (should be " + format + ")"
         return false
 
   # Check if the string has valid parentheses

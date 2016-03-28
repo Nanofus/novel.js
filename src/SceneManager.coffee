@@ -39,12 +39,12 @@ class SceneManager
 
   # Called when exiting a scene
   exitScene: (scene) ->
+    # Set the previous scene as visited
+    scene.visited = true
     ui.updateInputs(false)
 
   # Called when changing a scene
   changeScene: (sceneNames) ->
-    # Set the previous scene as visited
-    novelData.novel.currentScene.revisit = true
     # Load the new scene
     util.checkFormat(sceneNames,'string')
     scene = @findSceneByName(parser.selectRandomOption sceneNames)
@@ -64,8 +64,10 @@ class SceneManager
 
   # If not changing scenes but update needed, this is called
   updateScene: (scene, onlyUpdating) ->
+    # Handle the scene text
     scene = @combineSceneTexts(scene)
     scene.parsedText = parser.parseText scene.combinedText
+    # Set the current scene
     novelData.novel.currentScene = scene
     if !onlyUpdating
       novelData.novel.parsedChoices = null

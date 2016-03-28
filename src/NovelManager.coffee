@@ -106,7 +106,9 @@ class NovelManager
     for s in json.scenes
       s.combinedText = ""
       s.parsedText = ""
-      s.revisit = false
+      s.visited = false
+      if s.revisitSkipEnabled == undefined
+        s.revisitSkipEnabled = json.settings.scrollSettings.revisitSkipEnabled
       if s.text == undefined
         console.warn "WARNING! scene "+s.name+" has no text"
         s.text = ""

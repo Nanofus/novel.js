@@ -138,7 +138,10 @@ NovelManager = (function() {
       s = ref1[o];
       s.combinedText = "";
       s.parsedText = "";
-      s.revisit = false;
+      s.visited = false;
+      if (s.revisitSkipEnabled === void 0) {
+        s.revisitSkipEnabled = json.settings.scrollSettings.revisitSkipEnabled;
+      }
       if (s.text === void 0) {
         console.warn("WARNING! scene " + s.name + " has no text");
         s.text = "";
@@ -441,7 +444,7 @@ Parser = (function() {
   };
 
   Parser.prototype.parseStatement = function(s) {
-    var found, i, k, l, len, len1, o, parsedString, parsedValues, plus, ref, ref1, result, type, val, vals;
+    var found, i, k, l, len, len1, o, parsedString, parsedValues, plus, ref, ref1, result, returnVal, type, val, vals;
     if (s === void 0) {
       return void 0;
     }
@@ -527,7 +530,14 @@ Parser = (function() {
         s = s.replace(new RegExp(parsedString[i], 'g'), parsedValues[i]);
       }
     }
-    return eval(s);
+    returnVal = eval(s);
+    if (returnVal === "true") {
+      returnVal = true;
+    }
+    if (returnVal === "false") {
+      returnVal = false;
+    }
+    return returnVal;
   };
 
   Parser.prototype.getStatementType = function(val) {
@@ -825,12 +835,12 @@ SceneManager = (function() {
   };
 
   SceneManager.prototype.exitScene = function(scene) {
+    scene.visited = true;
     return ui.updateInputs(false);
   };
 
   SceneManager.prototype.changeScene = function(sceneNames) {
     var scene;
-    novelData.novel.currentScene.revisit = true;
     util.checkFormat(sceneNames, 'string');
     scene = this.findSceneByName(parser.selectRandomOption(sceneNames));
     this.setupScene(scene);
@@ -1239,6 +1249,10 @@ TextPrinter = (function() {
     }
     this.defaultInterval = novelData.novel.currentScene.scrollSpeed;
     this.setTickSoundFrequency(this.defaultInterval);
+    if (novelData.novel.currentScene.visited && novelData.novel.currentScene.revisitSkipEnabled) {
+      this.complete();
+      return;
+    }
     return setTimeout(this.onTick(), this.defaultInterval);
   };
 
@@ -1371,10 +1385,6 @@ TextPrinter = (function() {
 
   TextPrinter.prototype.onTick = function() {
     var offsetChanged;
-    if (novelData.novel.currentScene.revisit && novelData.novel.currentScene.revisitSkipEnabled) {
-      this.complete();
-      return;
-    }
     if (this.pause !== "input" && this.pause > 0) {
       this.pause--;
     }
@@ -1528,7 +1538,7 @@ TextPrinter = (function() {
           this.scrollSound = parser.parseStatement(s);
         }
         if (str.indexOf("default-scroll-sound") > -1) {
-          this.scrollSound = null;
+          this.scrollSound = void 0;
         }
       }
       this.currentOffset = i;
@@ -1662,14 +1672,14 @@ Util = (function() {
       if (Object.prototype.toString.call(s) === '[object Array]' || typeof s === 'string') {
         return true;
       } else {
-        console.error("ERROR: Invalid input format in (should be " + format + ")");
+        console.error("ERROR: Invalid input format (should be " + format + ")");
         return false;
       }
     } else {
       if (typeof s === format) {
         return true;
       } else {
-        console.error("ERROR: Invalid input format in (should be " + format + ")");
+        console.error("ERROR: Invalid input format (should be " + format + ")");
         return false;
       }
     }

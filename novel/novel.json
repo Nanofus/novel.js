@@ -142,6 +142,7 @@
       "text": "You wander across a [s1]dragon[/s] with [inv.sword] teeth. [p dragon]ROAAARRRRRRRR[/p dragon], it says. What do you do?",
       "startMusic": "testMusic",
       "scrollSpeed": 20,
+      "revisitSkipEnabled" : false,
       "skipEnabled": false,
       "saveCheckpoint": "beforeBattle",
       "choices": [
@@ -230,7 +231,7 @@
   },
   "sounds": [
     {"name": "click", "file": "click.wav"},
-    {"name": "testMusic", "file": "music.mp3"},
+    {"name": "testMusic", "file": "music.wav"},
     {"name": "scream", "file": "wilhelm.wav"}
   ]
 }

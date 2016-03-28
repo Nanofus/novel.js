@@ -228,7 +228,7 @@ The settings object contains settings for the application. All of the settings v
 - `scrollSettings`:
 	- `defaultScrollSpeed` - The default speed (letter interval in ms) at which text scrolls. If set to 0, all text appears instantly.
 	- `textSkipEnabled` - True or false. If disabled, text can't be skipped.
-	- `revisitSkipEnabled` - True or false. Should a scene's text should be automatically skipped if the scene has already been visited. Can be overridden on a per-scene basis. The bool `novelData.novel.currentScene.revisit` for a scene is changed to true after the scene is left.
+	- `revisitSkipEnabled` - True or false. Should a scene's text should be automatically skipped if the scene has already been visited. Can be overridden on a per-scene basis. The bool `novelData.novel.currentScene.visited` for a scene is changed to true after the scene is left.
 	- `skipButtonShown` - True or false. If enabled, a skip button is shown. If disabled, no button is shown.
 	- `skipWithKeyboard` - True or false. If enabled, the player can skip text by pressing space or enter. Does not work with `fastScrollWithKeyboard`.
 	- `continueWithKeyboard` - True or false. If enabled, the player can choose the default choice (with `name` set to `"Continue"`) by pressing space or enter.
