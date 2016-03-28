@@ -213,6 +213,7 @@
     "floatPrecision": 5,
     "scrollSettings": {
       "defaultScrollSpeed": 60,
+      "revisitSkipEnabled": true,
       "textSkipEnabled": true,
       "skipWithKeyboard": false,
       "continueWithKeyboard": true,

@@ -43,6 +43,9 @@ class SceneManager
 
   # Called when changing a scene
   changeScene: (sceneNames) ->
+    # Set the previous scene as visited
+    novelData.novel.currentScene.revisit = true
+    # Load the new scene
     util.checkFormat(sceneNames,'string')
     scene = @findSceneByName(parser.selectRandomOption sceneNames)
     @setupScene(scene)
@@ -154,6 +157,10 @@ class SceneManager
       novelData.novel.currentScene.skipEnabled = parser.parseStatement(source.skipEnabled)
     else
       novelData.novel.currentScene.skipEnabled = novelData.novel.settings.scrollSettings.textSkipEnabled
+    if source.revisitSkipEnabled != undefined
+      novelData.novel.currentScene.revisitSkipEnabled = parser.parseStatement(source.revisitSkipEnabled)
+    else
+      novelData.novel.currentScene.revisitSkipEnabled = novelData.novel.settings.scrollSettings.revisitSkipEnabled
     if source.scrollSpeed != undefined
       novelData.novel.currentScene.scrollSpeed = source.scrollSpeed
     else

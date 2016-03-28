@@ -101,7 +101,7 @@ class TextPrinter
       if ss.length > 0
         for i in [0 .. ss.length]
           if !(ss[i] in @executeBuffer) && ss[i] != undefined
-            eval(novelData.parsedJavascriptCommands[parseInt(s.substring(4,s.length))])
+            eval(novelData.parsedJavascriptCommands[parseInt(ss[i].substring(4,ss[i].length))])
       @buffersExecuted = true
     # Set printed text and update choices
     novelData.printedText = @fullText
@@ -134,6 +134,9 @@ class TextPrinter
 
   # Show a new letter
   onTick: ->
+    if novelData.novel.currentScene.revisit && novelData.novel.currentScene.revisitSkipEnabled
+      @complete()
+      return
     if @pause != "input" && @pause > 0
       @pause--
     if @pause == 0

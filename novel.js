@@ -138,6 +138,7 @@ NovelManager = (function() {
       s = ref1[o];
       s.combinedText = "";
       s.parsedText = "";
+      s.revisit = false;
       if (s.text === void 0) {
         console.warn("WARNING! scene " + s.name + " has no text");
         s.text = "";
@@ -829,6 +830,7 @@ SceneManager = (function() {
 
   SceneManager.prototype.changeScene = function(sceneNames) {
     var scene;
+    novelData.novel.currentScene.revisit = true;
     util.checkFormat(sceneNames, 'string');
     scene = this.findSceneByName(parser.selectRandomOption(sceneNames));
     this.setupScene(scene);
@@ -982,6 +984,11 @@ SceneManager = (function() {
       novelData.novel.currentScene.skipEnabled = parser.parseStatement(source.skipEnabled);
     } else {
       novelData.novel.currentScene.skipEnabled = novelData.novel.settings.scrollSettings.textSkipEnabled;
+    }
+    if (source.revisitSkipEnabled !== void 0) {
+      novelData.novel.currentScene.revisitSkipEnabled = parser.parseStatement(source.revisitSkipEnabled);
+    } else {
+      novelData.novel.currentScene.revisitSkipEnabled = novelData.novel.settings.scrollSettings.revisitSkipEnabled;
     }
     if (source.scrollSpeed !== void 0) {
       novelData.novel.currentScene.scrollSpeed = source.scrollSpeed;
@@ -1321,7 +1328,7 @@ TextPrinter = (function() {
       if (ss.length > 0) {
         for (i = w = 0, ref6 = ss.length; 0 <= ref6 ? w <= ref6 : w >= ref6; i = 0 <= ref6 ? ++w : --w) {
           if (!(ref7 = ss[i], indexOf.call(this.executeBuffer, ref7) >= 0) && ss[i] !== void 0) {
-            eval(novelData.parsedJavascriptCommands[parseInt(s.substring(4, s.length))]);
+            eval(novelData.parsedJavascriptCommands[parseInt(ss[i].substring(4, ss[i].length))]);
           }
         }
       }
@@ -1364,6 +1371,10 @@ TextPrinter = (function() {
 
   TextPrinter.prototype.onTick = function() {
     var offsetChanged;
+    if (novelData.novel.currentScene.revisit && novelData.novel.currentScene.revisitSkipEnabled) {
+      this.complete();
+      return;
+    }
     if (this.pause !== "input" && this.pause > 0) {
       this.pause--;
     }

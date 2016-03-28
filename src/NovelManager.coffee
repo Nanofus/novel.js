@@ -106,6 +106,7 @@ class NovelManager
     for s in json.scenes
       s.combinedText = ""
       s.parsedText = ""
+      s.revisit = false
       if s.text == undefined
         console.warn "WARNING! scene "+s.name+" has no text"
         s.text = ""
