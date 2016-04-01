@@ -555,10 +555,11 @@ Parser = (function() {
         case "var":
           val = this.findValue(val.substring(4, val.length), true);
           if (!isNaN(parseFloat(val))) {
-            parsedValues.push(parseFloat(val).toFixed(novelData.novel.settings.floatPrecision));
+            val = parseFloat(val).toFixed(novelData.novel.settings.floatPrecision);
           } else {
-            parsedValues.push("'" + val + "'");
+            val = "'" + val + "'";
           }
+          parsedValues.push(val);
           break;
         case "float":
           parsedValues.push(parseFloat(val).toFixed(novelData.novel.settings.floatPrecision));
@@ -581,9 +582,7 @@ Parser = (function() {
         s = s.replace(new RegExp(parsedString[i], 'g'), parsedValues[i]);
       }
     }
-    console.log(s);
     returnVal = eval(s);
-    console.log(returnVal);
     if (returnVal === "true") {
       returnVal = true;
     }

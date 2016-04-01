@@ -243,9 +243,10 @@ class Parser
         when "var"
           val = @findValue(val.substring(4,val.length),true)
           if !isNaN(parseFloat(val))
-            parsedValues.push parseFloat(val).toFixed(novelData.novel.settings.floatPrecision)
+            val = parseFloat(val).toFixed(novelData.novel.settings.floatPrecision)
           else
-            parsedValues.push "'" + val + "'"
+            val = "'" + val + "'"
+          parsedValues.push val
         when "float"
           parsedValues.push parseFloat(val).toFixed(novelData.novel.settings.floatPrecision)
         when "int"
@@ -262,9 +263,7 @@ class Parser
         parsedString[i] = parsedString[i].replace("}","\}")
         s = s.replace(new RegExp(parsedString[i],'g'),parsedValues[i])
     # Solve or calculate the statement
-    console.log s
     returnVal = eval(s)
-    console.log returnVal
     # Fix booleans
     if returnVal == "true"
       returnVal = true

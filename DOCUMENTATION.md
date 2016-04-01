@@ -9,6 +9,7 @@
 	- [Choices](#choices)
 	- [Settings](#settings)
 	- [Sounds](#sounds)
+	- [External text files](#external-text-files)
 - [Tags](#tags)
 	- [`if` - Conditional statements](#conditional-statements)
 	- [`choice` - Choice links](#choice-links)
@@ -16,6 +17,7 @@
 	- [`inv` - Item counts & values](#item-counts--values)
 	- [`print` - Displaying values](#displaying-values)
 	- [`exec` - Executing JavaScript while text scrolls](#executing-javascript-while-text-scrolls)
+	- [`file` - Printing text from external files](#printing-text-from-external-files)
 	- [`speed` - Setting text scrolling speed](#setting-text-scrolling-speed)
 	- [`pause` - Pausing text scrolling](#pausing-text-scrolling)
 	- [`scrollSound` - Setting text scrolling sound](#setting-text-scrolling-sound)
@@ -111,6 +113,7 @@ Novel.js needs some HTML on the webpage to run properly. You can use this code o
 - `presets` - Pre-defined strings that can contain tags and be embedded in scenes and choices. See [definition](#tag-and-string-presets)
 - `settings` - Settings to edit, some of which can also be made visible to the player.
 - `sounds` - A list of all the sound effects.
+- `externalTexts` - A list of all external text sources.
 
 Now lets take a closer look on the lists:
 
@@ -243,7 +246,7 @@ The settings object contains settings for the application. All of the settings v
 
 ### Sounds
 
-The sounds object contains sounds used by the application. The sounds must be placed in the `sounds` folder inside the `novel` folder. An example sound array:
+The sounds object contains all sounds used by the application. The sounds must be placed in the `sounds` folder inside the `novel` folder. An example sound array:
 ```json
 "sounds": [
   {"name": "click", "file": "click.wav"},
@@ -252,6 +255,19 @@ The sounds object contains sounds used by the application. The sounds must be pl
 ```
 A single sound has the following attributes:
 - `name` - The name is used when playing the sound with `playSound`.
+- `file` - The file name.
+
+### External text files
+
+The `externalTexts` object contains all external text files used by the `[file]` tag. The default file path is the `texts` folder inside the `novel` folder. The text files should be in a format such as `.txt` that returns its contents as a string when `GET`-requested. An example external text array:
+```json
+"externalTexts": [
+	{"name": "content", "file": "content.txt"},
+	{"name": "content2", "file": "content2.txt"}
+]
+```
+A single text file has the following attributes:
+- `name` - The name used when using the text with `[file]`.
 - `file` - The file name.
 
 ## Tags
@@ -313,9 +329,24 @@ That you have over 24 swords is obviously [print inv.sword>24].
 ```
 See [Formats for statements and commands](#formats-for-statements-and-commands) for all possible values you can display.
 
+**NOTICE** There is currently a bug with an unknown cause that results an error when trying to use `var.` to print a string that contains a `[file]` tag.
+
 ### Executing JavaScript while text scrolls
 
 You can run JavaScript while the text scrolls by using the `[exec x]` tag, where x is JavaScript code, such as a function call. For example, `[exec console.log(\"Hello world! The novel's name is \" + data.novel.name)]`. The code is executed with JavaScript's `eval()` function. You can access the application's data through the `data.novel` object. If the tag is inside an if-statement that returns false, so that it is not shown, the tag is ignored. If the text scrolling is skipped, these are buffered and will be executed at the end.
+
+### Printing text from external files
+
+The `[file]` tag can be used to print text from an external file. This tag is parsed before all other tags, so the text file can contain other Novel.js tags. The files are referred to by the name defined in `externalTexts` in `game.json`. For example, `[file content]` prints the contents of a file named `content` in `externalTexts`:
+```
+Hello, [file content]!
+```
+If the content of the file `content` is `my name is Bob, and I have [inv.sword] swords` and the current inventory contains five swords, then the result would be:
+```
+Hello, my name is Bob, and I have 5 swords!
+```
+
+See [External text files](#external-text-files) for the definition of `externalTexts`.
 
 ### Setting text scrolling speed
 
