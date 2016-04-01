@@ -36,7 +36,8 @@
     },
     {
       "name": "road",
-      "text": ["[if (inv.villagesSaved==10||(inv.dragonsKilled>0&&(inv.sword<=5||inv.magicalshield>=5)&&(inv.smallstone>5&&inv.smallstone<10)))][sound click]You are a [s1]knight[/s].[/if]",
+      "text": ["[file content] <- That was loaded from a text file!",
+      "[if (inv.villagesSaved==10||(inv.dragonsKilled>0&&(inv.sword<=5||inv.magicalshield>=5)&&(inv.smallstone>5&&inv.smallstone<10)))][sound click]You are a [s1]knight[/s].[/if]",
       "You (random number [print rand.minus20,20,5]) have[pause 30] /[hahahaha/] saved [inv.villagesSaved] village[if (inv.villagesSaved!=1)]s[/if]. You have [inv.sword] [scrollSound none]sword[if (inv.sword!=1)]s[/if]. [if inv.sword>0]You have a [s2]sword[/s]. [/if][if inv.sword<1]You don't have a [s2]sword[/s]. [/if][/scrollSound]You walk on a road towards a [s1]town[/s].",
       "[print var.scenes,1,choices,0,text] [speed 100][exec console.log(\"Hello world! The game's name is \" + novelData.novel.name)]What do you do? There is also a [choice pickastick]stick[/choice] on the ground. You faintly hear a [choice dragon]dragon[/choice].",
       "[speed 500*2][sound scream]Sound [speed 0]volume is [print var.settings.soundSettings.soundVolume].[/speed] <a href=\"http://google.com\">This links to Google</a>. Divided by two times swords that is [print var.settings.soundSettings.soundVolume/2*inv.sword]. That you have slain a dragon is obviously [print inv.dragonsKilled>0]. Or what do you do not do?[/speed]",
@@ -46,7 +47,7 @@
       "executeJs": "console.log(\"Hello there! The game version is \" + novelData.novel.version)",
       "choices": [
         {
-          "text": "Keep walking. [if var.settings.soundSettings.soundVolume>0.7]jajaja[/if][if var.name==kakkonen] this game has a weird [if inv.sword<3]and boearkoraeroak[/if] name[/if]",
+          "text": "Keep walking [file content] [file content] [if var.settings.soundSettings.soundVolume>0.7]jajaja[/if][if var.name==kakkonen] this game has a weird [if inv.sword<3]and boearkoraeroak[/if] name[/if]",
           "name": "Continue",
           "changeInventory": 0,
           "setItem": "!introductionSeen,1",
@@ -233,5 +234,8 @@
     {"name": "click", "file": "click.wav"},
     {"name": "testMusic", "file": "music.wav"},
     {"name": "scream", "file": "wilhelm.wav"}
+  ],
+  "externalTexts": [
+    {"name": "content", "file": "content.txt"}
   ]
 }

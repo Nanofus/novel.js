@@ -52,3 +52,32 @@ class Util
       return true
     else
       return false
+
+  # Check if [] parentheses are valid - ignore /[ and /]
+  validateTagParentheses: (s) ->
+    open = 0
+    index = 0
+    for i in s
+      if i == "["
+        if s[index-1]
+          if s[index-1] != "/"
+            open++
+        else
+          open++
+      if i == "]"
+        if s[index-1]
+          if s[index-1] != "/"
+            if open > 0
+              open--
+            else
+              return false
+        else
+          if open > 0
+            open--
+          else
+            return false
+      index++
+    if open == 0
+      return true
+    else
+      return false

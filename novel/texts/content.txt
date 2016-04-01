@@ -1,0 +1,1 @@
+Heyoo! Here's some text imported from a text file. You have [inv.sword] swords!

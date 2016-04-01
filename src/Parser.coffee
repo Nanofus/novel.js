@@ -55,6 +55,31 @@ class Parser
   parseText: (text) ->
     if text != undefined
       util.checkFormat(text,'string')
+      if !util.validateTagParentheses(text)
+        console.error "ERROR: Invalid tags in text"
+      # External files
+      splitText = text.split("[file ")
+      for index in [1 .. splitText.length]
+        name = ""
+        if splitText[index]
+          for i in splitText[index].split('')
+            if i != ']'
+              name = name + i
+            else
+              break
+        # Clean spaces
+        name = name.replace(/\s+/g, '');
+        # If name detected
+        if name != ""
+          newText = null
+          # Find external text by name
+          for i in novelData.novel.externalTexts
+            if i.name == name
+              newText = i.content
+              break
+          # Replace the text
+          if newText != null
+            text = text.split("[file "+name+"]").join(newText)
       # [p] tags
       for i in novelData.novel.tagPresets
         tagName = "[p " + i.name + "]"
@@ -237,7 +262,9 @@ class Parser
         parsedString[i] = parsedString[i].replace("}","\}")
         s = s.replace(new RegExp(parsedString[i],'g'),parsedValues[i])
     # Solve or calculate the statement
+    console.log s
     returnVal = eval(s)
+    console.log returnVal
     # Fix booleans
     if returnVal == "true"
       returnVal = true

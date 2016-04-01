@@ -64,6 +64,7 @@ class NovelManager
         novelData.novel = json
         novelData.novel.currentScene = sceneManager.changeScene(novelData.novel.scenes[0].name)
         novelData.debugMode = novelData.novel.debugMode
+        novelManager.loadExternalTexts()
         soundManager.init()
     request.onerror = ->
       return
@@ -78,6 +79,7 @@ class NovelManager
     delete saveData.scenes
     delete saveData.tagPresets
     delete saveData.sounds
+    delete saveData.externalTexts
     save = btoa(JSON.stringify(saveData))
     return save
 
@@ -120,3 +122,13 @@ class NovelManager
         if c.alwaysShow == undefined
           c.alwaysShow = false
     return json
+
+  # Load external text files
+  loadExternalTexts: ->
+    for s in novelData.novel.externalTexts
+      client = new XMLHttpRequest
+      client.open 'GET', novelPath+'/texts/'+s.file
+      client.onreadystatechange = ->
+        s.content = client.responseText
+        return
+      client.send()

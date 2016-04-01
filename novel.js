@@ -80,6 +80,7 @@ NovelManager = (function() {
         novelData.novel = json;
         novelData.novel.currentScene = sceneManager.changeScene(novelData.novel.scenes[0].name);
         novelData.debugMode = novelData.novel.debugMode;
+        novelManager.loadExternalTexts();
         return soundManager.init();
       }
     };
@@ -96,6 +97,7 @@ NovelManager = (function() {
     delete saveData.scenes;
     delete saveData.tagPresets;
     delete saveData.sounds;
+    delete saveData.externalTexts;
     save = btoa(JSON.stringify(saveData));
     return save;
   };
@@ -160,6 +162,22 @@ NovelManager = (function() {
       }
     }
     return json;
+  };
+
+  NovelManager.prototype.loadExternalTexts = function() {
+    var client, k, len, ref, results, s;
+    ref = novelData.novel.externalTexts;
+    results = [];
+    for (k = 0, len = ref.length; k < len; k++) {
+      s = ref[k];
+      client = new XMLHttpRequest;
+      client.open('GET', novelPath + '/texts/' + s.file);
+      client.onreadystatechange = function() {
+        s.content = client.responseText;
+      };
+      results.push(client.send());
+    }
+    return results;
   };
 
   return NovelManager;
@@ -322,12 +340,45 @@ Parser = (function() {
   };
 
   Parser.prototype.parseText = function(text) {
-    var asToBeClosed, i, index, k, l, len, len1, len2, len3, nameText, o, p, parsed, q, ref, ref1, ref2, ref3, s, spansToBeClosed, splitText, t, tagName, u, value;
+    var asToBeClosed, i, index, k, l, len, len1, len2, len3, len4, len5, name, nameText, newText, o, p, parsed, q, ref, ref1, ref2, ref3, ref4, ref5, ref6, s, spansToBeClosed, splitText, t, tagName, u, v, value, w, x;
     if (text !== void 0) {
       util.checkFormat(text, 'string');
-      ref = novelData.novel.tagPresets;
-      for (k = 0, len = ref.length; k < len; k++) {
-        i = ref[k];
+      if (!util.validateTagParentheses(text)) {
+        console.error("ERROR: Invalid tags in text");
+      }
+      splitText = text.split("[file ");
+      for (index = k = 1, ref = splitText.length; 1 <= ref ? k <= ref : k >= ref; index = 1 <= ref ? ++k : --k) {
+        name = "";
+        if (splitText[index]) {
+          ref1 = splitText[index].split('');
+          for (l = 0, len = ref1.length; l < len; l++) {
+            i = ref1[l];
+            if (i !== ']') {
+              name = name + i;
+            } else {
+              break;
+            }
+          }
+        }
+        name = name.replace(/\s+/g, '');
+        if (name !== "") {
+          newText = null;
+          ref2 = novelData.novel.externalTexts;
+          for (o = 0, len1 = ref2.length; o < len1; o++) {
+            i = ref2[o];
+            if (i.name === name) {
+              newText = i.content;
+              break;
+            }
+          }
+          if (newText !== null) {
+            text = text.split("[file " + name + "]").join(newText);
+          }
+        }
+      }
+      ref3 = novelData.novel.tagPresets;
+      for (q = 0, len2 = ref3.length; q < len2; q++) {
+        i = ref3[q];
         tagName = "[p " + i.name + "]";
         if (text.indexOf(tagName) > -1) {
           text = text.split(tagName).join(i.start);
@@ -337,22 +388,22 @@ Parser = (function() {
           text = text.split(tagName).join(i.end);
         }
       }
-      for (i = l = 0; l <= 99; i = ++l) {
+      for (i = t = 0; t <= 99; i = ++t) {
         text = text.split("[s" + i + "]").join("<span class=\"highlight-" + i + "\">");
       }
       text = text.split("[/s]").join("</span>");
       text = text.replace(/\/\[/g, "OPEN_BRACKET_REPLACEMENT").replace(/\/\]/g, "CLOSE_BRACKET_REPLACEMENT");
       splitText = text.split(/\[|\]/);
       index = 0;
-      for (o = 0, len1 = splitText.length; o < len1; o++) {
-        s = splitText[o];
+      for (u = 0, len3 = splitText.length; u < len3; u++) {
+        s = splitText[u];
         splitText[index] = s.replace(/OPEN_BRACKET_REPLACEMENT/g, "[").replace(/CLOSE_BRACKET_REPLACEMENT/g, "]");
         index++;
       }
       spansToBeClosed = 0;
       asToBeClosed = 0;
       index = 0;
-      for (index = q = 0, ref1 = splitText.length - 1; 0 <= ref1 ? q <= ref1 : q >= ref1; index = 0 <= ref1 ? ++q : --q) {
+      for (index = v = 0, ref4 = splitText.length - 1; 0 <= ref4 ? v <= ref4 : v >= ref4; index = 0 <= ref4 ? ++v : --v) {
         s = splitText[index];
         if (s.substring(0, 2) === "if") {
           parsed = s.split("if ");
@@ -372,9 +423,9 @@ Parser = (function() {
         } else if (s.substring(0, 4) === "inv.") {
           value = s.substring(4, s.length);
           splitText[index] = 0;
-          ref2 = novelData.novel.inventories[novelData.novel.currentInventory];
-          for (t = 0, len2 = ref2.length; t < len2; t++) {
-            i = ref2[t];
+          ref5 = novelData.novel.inventories[novelData.novel.currentInventory];
+          for (w = 0, len4 = ref5.length; w < len4; w++) {
+            i = ref5[w];
             if (i.name === value) {
               splitText[index] = i.value;
             }
@@ -416,9 +467,9 @@ Parser = (function() {
         } else if (s.substring(0, 5) === "input") {
           parsed = s.split("input ");
           nameText = "";
-          ref3 = novelData.novel.inventories[novelData.novel.currentInventory];
-          for (u = 0, len3 = ref3.length; u < len3; u++) {
-            i = ref3[u];
+          ref6 = novelData.novel.inventories[novelData.novel.currentInventory];
+          for (x = 0, len5 = ref6.length; x < len5; x++) {
+            i = ref6[x];
             if (i.name === parsed[1]) {
               nameText = i.value;
             }
@@ -530,7 +581,9 @@ Parser = (function() {
         s = s.replace(new RegExp(parsedString[i], 'g'), parsedValues[i]);
       }
     }
+    console.log(s);
     returnVal = eval(s);
+    console.log(returnVal);
     if (returnVal === "true") {
       returnVal = true;
     }
@@ -1700,6 +1753,47 @@ Util = (function() {
           return false;
         }
       }
+    }
+    if (open === 0) {
+      return true;
+    } else {
+      return false;
+    }
+  };
+
+  Util.prototype.validateTagParentheses = function(s) {
+    var i, index, k, len, open;
+    open = 0;
+    index = 0;
+    for (k = 0, len = s.length; k < len; k++) {
+      i = s[k];
+      if (i === "[") {
+        if (s[index - 1]) {
+          if (s[index - 1] !== "/") {
+            open++;
+          }
+        } else {
+          open++;
+        }
+      }
+      if (i === "]") {
+        if (s[index - 1]) {
+          if (s[index - 1] !== "/") {
+            if (open > 0) {
+              open--;
+            } else {
+              return false;
+            }
+          }
+        } else {
+          if (open > 0) {
+            open--;
+          } else {
+            return false;
+          }
+        }
+      }
+      index++;
     }
     if (open === 0) {
       return true;
