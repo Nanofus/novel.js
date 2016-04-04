@@ -2,12 +2,12 @@
 ### GLOBAL GAME novelData ###
 
 novelData = {
-  novel: null,
-  choices: null,
-  debugMode: false,
-  inventoryHidden: false,
-  printedText: "",
-  parsedJavascriptCommands: [],
+  novel: null
+  choices: null
+  debugMode: false
+  inventoryHidden: false
+  printedText: ""
+  parsedJavascriptCommands: []
   music: []
 }
 

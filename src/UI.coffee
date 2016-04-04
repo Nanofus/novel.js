@@ -17,7 +17,7 @@ class UI
 
   # Show the load notification window
   showLoadNotification: ->
-    if novelArea.novel.settings.saveMode == "text"
+    if novelArea.novel.settings.saveMode is "text"
       e = document.getElementById("load-notification")
       e.style.display = 'block';
     else
@@ -37,14 +37,14 @@ class UI
     inputs = document.getElementById("novel-area").querySelectorAll("input")
     for i in inputs
       for a in novelData.novel.inventories[novelData.novel.currentInventory]
-        if a.name == i.className.substring(6,i.className.length)
+        if a.name is i.className.substring(6,i.className.length)
           a.value = util.stripHTML(i.value)
           if needForUpdate
             sceneManager.updateScene(novelData.novel.currentScene,true)
 
 # The button that can be used to copy the text from the save window.
 copyButton = document.querySelector('#copy-button')
-if copyButton != null
+if copyButton isnt null
   copyButton.addEventListener 'click', (event) ->
     copyTextarea = document.getElementById("save-notification").querySelector("textarea")
     copyTextarea.select()
@@ -52,4 +52,3 @@ if copyButton != null
       successful = document.execCommand('copy')
     catch err
       console.error "Copying to clipboard failed: "+err
-    return

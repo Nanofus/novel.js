@@ -10,12 +10,11 @@ class NovelManager
     i = 0
     while i < ca.length
       c = ca[i]
-      while c.charAt(0) == ' '
+      while c.charAt(0) is ' '
         c = c.substring(1)
-      if c.indexOf(name) == 0
+      if c.indexOf(name) is 0
         return c.substring(name.length, c.length)
       i++
-    ''
 
   # Save a browser cookie
   saveCookie: (cname, cvalue, exdays) ->
@@ -26,26 +25,26 @@ class NovelManager
 
   # Load the novel from a cookie or entered json
   loadData: (novel, changeScene) ->
-    if changeScene == undefined
+    if changeScene is undefined
       changeScene = true
-    if novel == undefined
-      if @loadCookie("gameData") != ''
+    if novel is undefined
+      if @loadCookie("gameData") isnt ''
         console.log "Cookie found!"
         cookie = @loadCookie("gameData")
         console.log "Cookie loaded"
         console.log cookie
         loadedData = JSON.parse(atob(@loadCookie("gameData")))
         @prepareLoadedData(loadedData, changeScene)
-    else if novel != undefined
+    else if novel isnt undefined
       loadedData = JSON.parse(atob(novel))
       @prepareLoadedData(loadedData, changeScene)
 
   # Prepare the novel from the loaded save file
   prepareLoadedData: (loadedData, changeScene) ->
-    if novelData.novel.name != loadedData.name
+    if novelData.novel.name isnt loadedData.name
       console.error "ERROR! novel name mismatch"
       return
-    if novelData.novel.version != loadedData.version
+    if novelData.novel.version isnt loadedData.version
       console.warn "WARNING! novel version mismatch"
     novelData.novel.inventories = loadedData.inventories
     novelData.debugMode = novelData.novel.debugMode
@@ -68,40 +67,40 @@ class NovelManager
   # Save novel in the defined way
   saveData: ->
     save = @saveDataAsJson()
-    if novelData.novel.settings.saveMode == "cookie"
+    if novelData.novel.settings.saveMode is "cookie"
       @saveCookie("novelData",save,365)
-    else if novelData.novel.settings.saveMode == "text"
+    else if novelData.novel.settings.saveMode is "text"
       ui.showSaveNotification(save)
 
   # Add values to novel.json that are not defined but are required for Vue.js view updating and other functions
   prepareData: (json) ->
     json.currentScene=""
     json.parsedChoices=""
-    if json.currentInventory == undefined
+    if json.currentInventory is undefined
       json.currentInventory = 0
-    if json.inventories == undefined
+    if json.inventories is undefined
       json.inventories = []
-    if json.scenes == undefined
+    if json.scenes is undefined
       json.scenes = []
     for i in json.inventories
       for j in i
-        if j.displayName == undefined
+        if j.displayName is undefined
           j.displayName = j.name
     for s in json.scenes
       s.combinedText = ""
       s.parsedText = ""
       s.visited = false
-      if s.revisitSkipEnabled == undefined
+      if s.revisitSkipEnabled is undefined
         s.revisitSkipEnabled = json.settings.scrollSettings.revisitSkipEnabled
-      if s.text == undefined
+      if s.text is undefined
         console.warn "WARNING! scene "+s.name+" has no text"
         s.text = ""
-      if s.choices == undefined
+      if s.choices is undefined
         console.warn "WARNING! scene "+s.name+" has no choices"
         s.choices = []
       for c in s.choices
         c.parsedText = ""
-        if c.alwaysShow == undefined
+        if c.alwaysShow is undefined
           c.alwaysShow = false
 
   # Start the novel by loading the default novel.json
@@ -117,7 +116,7 @@ class NovelManager
     request.onerror = ->
       return
     request.send()
-    if document.querySelector("#continue-button") != null
+    if document.querySelector("#continue-button") isnt null
       document.querySelector("#continue-button").style.display = 'none'
 
   # Load external json
@@ -132,7 +131,7 @@ class NovelManager
           if request.status >= 200 and request.status < 400
             s.content = JSON.parse(request.responseText)
             ready++
-            if ready == json.externalJson.length
+            if ready is json.externalJson.length
               novelManager.includeJsons(json,json)
               novelManager.loadExternalText(json)
             return
@@ -144,11 +143,11 @@ class NovelManager
   # Combine other json objects with the main json
   includeJsons: (root,object) ->
     for x of object
-      if typeof object[x] == 'object'
+      if typeof object[x] is 'object'
         @includeJsons root,object[x]
-      if object[x].include != undefined
+      if object[x].include isnt undefined
         for i in root.externalJson
-          if i.name == object[x].include
+          if i.name is object[x].include
             object[x] = i.content
             @includeJsons root,object[x]
             break
@@ -165,7 +164,7 @@ class NovelManager
           if request.status >= 200 and request.status < 400
             s.content = request.responseText
             ready++
-            if ready == json.externalText.length
+            if ready is json.externalText.length
               novelManager.prepareLoadedJson(json)
             return
         request.onerror = ->

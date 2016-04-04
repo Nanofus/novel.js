@@ -9,10 +9,10 @@ class InventoryManager
     reqsFilled = 0
     for i in novelData.novel.inventories[novelData.novel.currentInventory]
       for j in requirements
-        if j[0] == i.name
+        if j[0] is i.name
           if j[1] <= i.value
             reqsFilled = reqsFilled + 1
-    if reqsFilled == requirements.length
+    if reqsFilled is requirements.length
       return true
     else
       return false
@@ -30,7 +30,7 @@ class InventoryManager
     getValueArrayLast = @getValueArrayLast(parsed)
     value = parser.findValue(parsed,false)
     value[getValueArrayLast] = value[getValueArrayLast] + change
-    if !isNaN(parseFloat(value[getValueArrayLast]))
+    if not isNaN(parseFloat(value[getValueArrayLast]))
       value[getValueArrayLast] = parseFloat(value[getValueArrayLast].toFixed(novelData.novel.settings.floatPrecision));
 
   # Decrease a value in JSON
@@ -39,7 +39,7 @@ class InventoryManager
     getValueArrayLast = @getValueArrayLast(parsed)
     value = parser.findValue(parsed,false)
     value[getValueArrayLast] = value[getValueArrayLast] - change
-    if !isNaN(parseFloat(value[getValueArrayLast]))
+    if not isNaN(parseFloat(value[getValueArrayLast]))
       value[getValueArrayLast] = parseFloat(value[getValueArrayLast].toFixed(novelData.novel.settings.floatPrecision));
 
   # Get the last item in a value array
@@ -54,17 +54,17 @@ class InventoryManager
     util.checkFormat(items,'array')
     for j in items
       hidden = false
-      if j[0].substring(0,1) == "!"
+      if j[0].substring(0,1) is "!"
         hidden = true
         j[0] = j[0].substring(1,j[0].length)
       itemAdded = false
       for i in novelData.novel.inventories[novelData.novel.currentInventory]
-        if i.name == j[0]
+        if i.name is j[0]
           probability = 1
           if j.length > 2
             displayName = j[2]
             value = parseInt(parser.parseStatement(j[1]))
-            if !isNaN(displayName)
+            if not isNaN(displayName)
               probability = j[2]
               displayName = j.name
             if j.length > 3
@@ -75,31 +75,31 @@ class InventoryManager
             value = parseInt(parser.parseStatement(j[1]))
           random = Math.random()
           if random < probability
-            if (mode == "set")
+            if (mode is "set")
               if isNaN parseInt(j[1])
                 i.value = j[1]
               else
                 i.value = parseInt(j[1])
-            else if (mode == "add")
+            else if (mode is "add")
               if isNaN parseInt(i.value)
                 i.value = 0
               i.value = parseInt(i.value) + value
-            else if (mode == "remove")
-              if !isNaN parseInt(i.value)
+            else if (mode is "remove")
+              if not isNaN parseInt(i.value)
                 i.value = parseInt(i.value) - value
                 if i.value < 0
                   i.value = 0
               else
                 i.value = 0
           itemAdded = true
-      if !itemAdded && mode != "remove"
+      if not itemAdded and mode isnt "remove"
         probability = 1
         value = parseInt(parser.parseStatement(j[1]))
         if isNaN value
           value = parser.parseStatement(j[1])
         if j.length > 2
           displayName = j[2]
-          if !isNaN(displayName)
+          if not isNaN(displayName)
             probability = j[2]
             displayName = j.name
           if j.length > 3
@@ -108,7 +108,7 @@ class InventoryManager
         else
           displayName = j[0]
         random = Math.random()
-        if displayName == undefined
+        if displayName is undefined
           displayName = j[0]
         if random < probability
           novelData.novel.inventories[novelData.novel.currentInventory].push({"name": j[0], "value": value, "displayName": displayName, "hidden": hidden})

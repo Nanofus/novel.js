@@ -3,14 +3,12 @@
 
 # A class for sound functions
 class SoundManager
-  sounds = []
 
   # Load all sounds
   init: () ->
     index = 0
     for s in novelData.novel.sounds
       s.sound = new Audio(novelPath+'/sounds/'+s.file)
-      sounds[index] = s
       index++
 
   # Play the default sound for clicking an item
@@ -19,11 +17,11 @@ class SoundManager
 
   # Play a sound by name
   playSound: (name, isMusic) ->
-    if name == undefined
+    if name is undefined
       return
     name = parser.selectRandomOption(name);
     for s in novelData.novel.sounds
-      if s.name == name
+      if s.name is name
         sound = s.sound
         if isMusic
           sound.volume = novelData.novel.settings.soundSettings.musicVolume
@@ -43,10 +41,10 @@ class SoundManager
   # Start music
   startMusic: (name) ->
     for m in novelData.music
-      if m.name == name
+      if m.name is name
         return
     music = @playSound(name,true)
-    if music == undefined
+    if music is undefined
       return
     music.addEventListener 'ended', (->
       @currentTime = 0
@@ -58,7 +56,7 @@ class SoundManager
   # Stop a music that was started previously
   stopMusic: (name) ->
     for i in novelData.music
-      if name == i.name
+      if name is i.name
         i.music.pause()
         index = novelData.music.indexOf(i)
         novelData.music.splice(index,1)

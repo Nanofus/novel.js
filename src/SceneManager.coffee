@@ -5,7 +5,7 @@ class SceneManager
 
   # Try to select "Continue"
   tryContinue: ->
-    if textPrinter.printCompleted && textPrinter.tickSpeedMultiplier == 1
+    if textPrinter.printCompleted and textPrinter.tickSpeedMultiplier is 1
       @selectChoiceByName("Continue")
 
   # Select a choice
@@ -16,10 +16,10 @@ class SceneManager
     @readSaving(choice)
     @readExecutes(choice)
     @readCheckpoints(choice)
-    if choice.nextScene != undefined
+    if choice.nextScene isnt undefined
       @changeScene(choice.nextScene)
     else
-      if choice.nextChoice != undefined
+      if choice.nextChoice isnt undefined
         @selectChoiceByName(parser.selectRandomOption(choice.nextChoice))
       else
         @updateScene(novelData.novel.currentScene,true)
@@ -33,7 +33,7 @@ class SceneManager
   # Select a choice by name
   selectChoiceByName: (name) ->
     for i in novelData.novel.currentScene.choices
-      if i.name == name
+      if i.name is name
         novelArea.selectChoice(i)
         break
 
@@ -69,7 +69,7 @@ class SceneManager
     scene.parsedText = parser.parseText scene.combinedText
     # Set the current scene
     novelData.novel.currentScene = scene
-    if !onlyUpdating
+    if not onlyUpdating
       novelData.novel.parsedChoices = null
     else
       textPrinter.printText(scene.parsedText,true)
@@ -88,7 +88,7 @@ class SceneManager
   findSceneByName: (name) ->
     util.checkFormat(name,'string')
     for i in novelData.novel.scenes
-      if i.name == name
+      if i.name is name
         return i
     console.error "ERROR: Scene by name '"+name+"' not found!"
 
@@ -97,7 +97,7 @@ class SceneManager
     util.checkFormat(s,'object')
     util.checkFormat(s.text,'arrayOrString')
     s.combinedText = ""
-    if Object.prototype.toString.call(s.text) == "[object Array]"
+    if Object.prototype.toString.call(s.text) is "[object Array]"
       for i in s.text
         s.combinedText = s.combinedText + "<p>" + i + "</p>"
     else
@@ -106,41 +106,41 @@ class SceneManager
 
   # Read item and val edit commands from scene or choice
   readItemEdits: (source) ->
-    if source.changeInventory != undefined
+    if source.changeInventory isnt undefined
       novelData.novel.currentInventory = parser.parseStatement(source.changeInventory)
       if novelData.novel.currentInventory > novelData.novel.inventories.length
         for i in [0 .. novelData.novel.currentInventory]
-          if novelData.novel.inventories[i] == undefined
+          if novelData.novel.inventories[i] is undefined
             novelData.novel.inventories[i] = []
-    if source.removeItem != undefined
+    if source.removeItem isnt undefined
       inventoryManager.editItems(parser.parseItems(source.removeItem),"remove")
-    if source.addItem != undefined
+    if source.addItem isnt undefined
       inventoryManager.editItems(parser.parseItems(source.addItem),"add")
-    if source.setItem != undefined
+    if source.setItem isnt undefined
       inventoryManager.editItems(parser.parseItems(source.setItem),"set")
-    if source.setValue != undefined
+    if source.setValue isnt undefined
       for val in source.setValue
         inventoryManager.setValue(val.path,parser.parseStatement(val.value.toString()))
-    if source.increaseValue != undefined
+    if source.increaseValue isnt undefined
       for val in source.increaseValue
         inventoryManager.increaseValue(val.path,parser.parseStatement(val.value.toString()))
-    if source.decreaseValue != undefined
+    if source.decreaseValue isnt undefined
       for val in source.decreaseValue
         inventoryManager.decreaseValue(val.path,parser.parseStatement(val.value.toString()))
 
   # Read sound commands from scene or choice
   readSounds: (source,clicked) ->
     played = false
-    if source.playSound != undefined
+    if source.playSound isnt undefined
       soundManager.playSound(parser.parseStatement(source.playSound),false)
       played = true
-    if clicked && !played
+    if clicked and not played
       soundManager.playDefaultClickSound()
-    if source.startMusic != undefined
+    if source.startMusic isnt undefined
       soundManager.startMusic(parser.parseStatement(source.startMusic))
-    if source.stopMusic != undefined
+    if source.stopMusic isnt undefined
       soundManager.stopMusic(parser.parseStatement(source.stopMusic))
-    if source.scrollSound != undefined
+    if source.scrollSound isnt undefined
       novelData.novel.currentScene.scrollSound = parser.parseStatement(source.scrollSound)
     else
       if novelData.novel.settings.soundSettings.defaultScrollSound
@@ -150,69 +150,69 @@ class SceneManager
 
   # Read JS commands
   readExecutes: (source) ->
-    if source.executeJs != undefined
+    if source.executeJs isnt undefined
       eval(source.executeJs)
 
   # Read miscellaneous scene values
   readMisc: (source) ->
-    if source.skipEnabled != undefined
+    if source.skipEnabled isnt undefined
       novelData.novel.currentScene.skipEnabled = parser.parseStatement(source.skipEnabled)
     else
       novelData.novel.currentScene.skipEnabled = novelData.novel.settings.scrollSettings.textSkipEnabled
-    if source.revisitSkipEnabled != undefined
+    if source.revisitSkipEnabled isnt undefined
       novelData.novel.currentScene.revisitSkipEnabled = parser.parseStatement(source.revisitSkipEnabled)
     else
       novelData.novel.currentScene.revisitSkipEnabled = novelData.novel.settings.scrollSettings.revisitSkipEnabled
-    if source.scrollSpeed != undefined
+    if source.scrollSpeed isnt undefined
       novelData.novel.currentScene.scrollSpeed = source.scrollSpeed
     else
       novelData.novel.currentScene.scrollSpeed = novelData.novel.settings.scrollSettings.defaultScrollSpeed
-    if source.inventoryHidden != undefined
+    if source.inventoryHidden isnt undefined
       novelData.inventoryHidden = parser.parseStatement(source.inventoryHidden)
     else
       novelData.inventoryHidden = false
 
   # Read save and load commands from scene or choice
   readSaving: (source) ->
-    if source.save != undefined
+    if source.save isnt undefined
       novelManager.saveData()
-    if source.load != undefined
+    if source.load isnt undefined
       ui.showLoadNotification()
 
   # Read checkpoint commands
   readCheckpoints: (source) ->
-    if source.saveCheckpoint != undefined
-      if novelData.novel.checkpoints == undefined
+    if source.saveCheckpoint isnt undefined
+      if novelData.novel.checkpoints is undefined
         novelData.novel.checkpoints = []
       dataChanged = false
       for i in novelData.novel.checkpoints
-        if i.name == parser.parseStatement(source.saveCheckpoint)
+        if i.name is parser.parseStatement(source.saveCheckpoint)
           i.scene = novelData.novel.currentScene.name
           dataChanged = true
           #console.log "Updated checkpoint!"
-      if !dataChanged
+      if not dataChanged
         checkpoint = {name:parser.parseStatement(source.saveCheckpoint),scene:novelData.novel.currentScene.name}
         novelData.novel.checkpoints.push(checkpoint)
       #console.log "Checkpoint saved!"
       #console.log checkpoint
-    if source.loadCheckpoint != undefined
-      if novelData.novel.checkpoints == undefined
+    if source.loadCheckpoint isnt undefined
+      if novelData.novel.checkpoints is undefined
         novelData.novel.checkpoints = []
       for i in novelData.novel.checkpoints
-        if i.name == parser.parseStatement(source.loadCheckpoint)
+        if i.name is parser.parseStatement(source.loadCheckpoint)
           #console.log "Checkpoint found!"
           @changeScene(i.scene)
 
   # Check whether the requirements for a choice have been met
   requirementsFilled: (choice) ->
     reqs = []
-    if choice.itemRequirement != undefined
+    if choice.itemRequirement isnt undefined
       requirements = parser.parseItems choice.itemRequirement
       reqs.push inventoryManager.checkRequirements requirements
-    if choice.requirement != undefined
+    if choice.requirement isnt undefined
       reqs.push parser.parseStatement choice.requirement
     success = true
     for r in reqs
-      if r == false
+      if r is false
         success = false
     return success

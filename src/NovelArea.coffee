@@ -11,12 +11,12 @@ novelArea = new Vue(
 
     # Return whether the text can be skipped
     textSkipEnabled: (choice) ->
-      return novelData.novel.currentScene.skipEnabled && novelData.novel.settings.skipButtonShown
+      return novelData.novel.currentScene.skipEnabled and novelData.novel.settings.skipButtonShown
 
     # Check if specific item's count is over 0; if it isn't, it's not shown. Also it should be hidden.
     itemsOverZeroAndAreHidden: (item) ->
       for i in novelData.novel.inventories[novelData.novel.currentInventory]
-        if i.name == item.name && (i.hidden && i.hidden != undefined)
+        if i.name is item.name and (i.hidden and i.hidden isnt undefined)
           if i.value > 0
             return true
           if isNaN i.value
@@ -26,7 +26,7 @@ novelArea = new Vue(
     # Check if specific item's count is over 0; if it isn't, it's not shown. Also should not be hidden.
     itemsOverZeroAndNotHidden: (item) ->
       for i in novelData.novel.inventories[novelData.novel.currentInventory]
-        if i.name == item.name && (!i.hidden || i.hidden == undefined)
+        if i.name is item.name and (not i.hidden or i.hidden is undefined)
           if i.value > 0
             return true
           if isNaN i.value
@@ -35,7 +35,7 @@ novelArea = new Vue(
 
     # Check if specific item's count is over 0; if it isn't, it's not shown. Also should be hidden.
     itemsOverZeroAndHidden: (item) ->
-      return inventoryManager.itemsOverZero(item) && inventoryManager.itemHidden(item)
+      return inventoryManager.itemsOverZero(item) and inventoryManager.itemHidden(item)
 
     # Select a choice
     selectChoice: (choice) ->

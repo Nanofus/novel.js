@@ -5,11 +5,11 @@ class Util
 
   # Check if a value is even or not
   isEven: (n) ->
-    n % 2 == 0
+    n % 2 is 0
 
   # Check if a value is odd or not
   isOdd: (n) ->
-    Math.abs(n % 2) == 1
+    Math.abs(n % 2) is 1
 
   # Remove HTML tags from a string - used to clean input
   stripHTML: (text) ->
@@ -18,20 +18,20 @@ class Util
 
   # Check if a variable is the chosen format
   checkFormat: (s, format) ->
-    if format == 'array'
-      if Object::toString.call(s) == '[object Array]'
+    if format is 'array'
+      if Object::toString.call(s) is '[object Array]'
         return true
       else
         console.error "ERROR: Invalid input format (should be " + format + ")"
         return false
-    else if format == 'arrayOrString'
-      if Object::toString.call(s) == '[object Array]' || typeof s == 'string'
+    else if format is 'arrayOrString'
+      if Object::toString.call(s) is '[object Array]' || typeof s is 'string'
         return true
       else
         console.error "ERROR: Invalid input format (should be " + format + ")"
         return false
     else
-      if typeof s == format
+      if typeof s is format
         return true
       else
         console.error "ERROR: Invalid input format (should be " + format + ")"
@@ -41,14 +41,14 @@ class Util
   validateParentheses: (s) ->
     open = 0
     for i in s
-      if i == "("
+      if i is "("
         open++
-      if i == ")"
+      if i is ")"
         if open > 0
           open--
         else
           return false
-    if open == 0
+    if open is 0
       return true
     else
       return false
@@ -58,15 +58,15 @@ class Util
     open = 0
     index = 0
     for i in s
-      if i == "["
+      if i is "["
         if s[index-1]
-          if s[index-1] != "/"
+          if s[index-1] isnt "/"
             open++
         else
           open++
-      if i == "]"
+      if i is "]"
         if s[index-1]
-          if s[index-1] != "/"
+          if s[index-1] isnt "/"
             if open > 0
               open--
             else
@@ -77,7 +77,7 @@ class Util
           else
             return false
       index++
-    if open == 0
+    if open is 0
       return true
     else
       return false

@@ -21,7 +21,6 @@ NovelManager = (function() {
       }
       i++;
     }
-    return '';
   };
 
   NovelManager.prototype.saveCookie = function(cname, cvalue, exdays) {
@@ -277,7 +276,7 @@ NovelManager = (function() {
 InputManager = (function() {
   function InputManager() {}
 
-  InputManager.prototype.presses = 0;
+  InputManager.prototype._presses = 0;
 
   InputManager.prototype.keyDown = function(charCode) {
     if (this.formsSelected()) {
@@ -298,9 +297,9 @@ InputManager = (function() {
     if (this.formsSelected()) {
       return;
     }
-    this.presses++;
+    this._presses++;
     if (charCode === 13 || charCode === 32) {
-      if (this.presses > 2) {
+      if (this._presses > 2) {
         if (novelData.novel.settings.scrollSettings.fastScrollWithKeyboard) {
           return textPrinter.fastScroll();
         }
@@ -312,7 +311,7 @@ InputManager = (function() {
     if (this.formsSelected()) {
       return;
     }
-    this.presses = 0;
+    this._presses = 0;
     if (charCode === 13 || charCode === 32) {
       return textPrinter.stopFastScroll();
     }
@@ -1229,11 +1228,7 @@ SceneManager = (function() {
 /* SOUNDS */
 
 SoundManager = (function() {
-  var sounds;
-
   function SoundManager() {}
-
-  sounds = [];
 
   SoundManager.prototype.init = function() {
     var index, k, len, ref, results, s;
@@ -1243,7 +1238,6 @@ SoundManager = (function() {
     for (k = 0, len = ref.length; k < len; k++) {
       s = ref[k];
       s.sound = new Audio(novelPath + '/sounds/' + s.file);
-      sounds[index] = s;
       results.push(index++);
     }
     return results;
@@ -1771,10 +1765,10 @@ if (copyButton !== null) {
     copyTextarea = document.getElementById("save-notification").querySelector("textarea");
     copyTextarea.select();
     try {
-      successful = document.execCommand('copy');
+      return successful = document.execCommand('copy');
     } catch (error) {
       err = error;
-      console.error("Copying to clipboard failed: " + err);
+      return console.error("Copying to clipboard failed: " + err);
     }
   });
 }
