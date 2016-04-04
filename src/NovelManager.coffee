@@ -179,4 +179,5 @@ class NovelManager
     novelData.novel.currentScene = sceneManager.changeScene(novelData.novel.scenes[0].name)
     novelData.debugMode = novelData.novel.debugMode
     soundManager.init()
+    novelData.status = "Ready"
     console.log "-- Loading Novel.js complete! --"

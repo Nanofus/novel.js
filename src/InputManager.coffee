@@ -2,7 +2,7 @@
 ### HANDLES KEYBOARD INPUT ###
 
 class InputManager
-  _presses: 0
+  presses: 0
 
   # Gets key down and handles their functions
   keyDown: (charCode) ->
@@ -19,9 +19,9 @@ class InputManager
   keyPressed: (charCode) ->
     if @formsSelected()
       return
-    @_presses++
+    @presses++
     if (charCode is 13 or charCode is 32)
-      if @_presses > 2
+      if @presses > 2
         if novelData.novel.settings.scrollSettings.fastScrollWithKeyboard
           textPrinter.fastScroll()
 
@@ -29,7 +29,7 @@ class InputManager
   keyUp: (charCode) ->
     if @formsSelected()
       return
-    @_presses = 0
+    @presses = 0
     if (charCode is 13 or charCode is 32)
       textPrinter.stopFastScroll()
 

@@ -263,6 +263,7 @@ NovelManager = (function() {
     novelData.novel.currentScene = sceneManager.changeScene(novelData.novel.scenes[0].name);
     novelData.debugMode = novelData.novel.debugMode;
     soundManager.init();
+    novelData.status = "Ready";
     return console.log("-- Loading Novel.js complete! --");
   };
 
@@ -276,7 +277,7 @@ NovelManager = (function() {
 InputManager = (function() {
   function InputManager() {}
 
-  InputManager.prototype._presses = 0;
+  InputManager.prototype.presses = 0;
 
   InputManager.prototype.keyDown = function(charCode) {
     if (this.formsSelected()) {
@@ -297,9 +298,9 @@ InputManager = (function() {
     if (this.formsSelected()) {
       return;
     }
-    this._presses++;
+    this.presses++;
     if (charCode === 13 || charCode === 32) {
-      if (this._presses > 2) {
+      if (this.presses > 2) {
         if (novelData.novel.settings.scrollSettings.fastScrollWithKeyboard) {
           return textPrinter.fastScroll();
         }
@@ -311,7 +312,7 @@ InputManager = (function() {
     if (this.formsSelected()) {
       return;
     }
-    this._presses = 0;
+    this.presses = 0;
     if (charCode === 13 || charCode === 32) {
       return textPrinter.stopFastScroll();
     }
@@ -1893,6 +1894,7 @@ novelData = {
   novel: null,
   choices: null,
   debugMode: false,
+  status: "Loading",
   inventoryHidden: false,
   printedText: "",
   parsedJavascriptCommands: [],
