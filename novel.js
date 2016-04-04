@@ -199,34 +199,6 @@ NovelManager = (function() {
     return results;
   };
 
-  NovelManager.prototype.loadExternalText = function(json) {
-    var k, len, ready, ref, results, s;
-    console.log("Loading external text files...");
-    ready = 0;
-    ref = json.externalText;
-    results = [];
-    for (k = 0, len = ref.length; k < len; k++) {
-      s = ref[k];
-      results.push((function(s) {
-        var request;
-        request = new XMLHttpRequest;
-        request.open('GET', novelPath + '/texts/' + s.file, true);
-        request.onload = function() {
-          if (request.status >= 200 && request.status < 400) {
-            s.content = request.responseText;
-            ready++;
-            if (ready === json.externalText.length) {
-              novelManager.prepareLoadedJson(json);
-            }
-          }
-        };
-        request.onerror = function() {};
-        return request.send();
-      })(s));
-    }
-    return results;
-  };
-
   NovelManager.prototype.includeJsons = function(root, object) {
     var i, results, x;
     results = [];
@@ -254,6 +226,34 @@ NovelManager = (function() {
       } else {
         results.push(void 0);
       }
+    }
+    return results;
+  };
+
+  NovelManager.prototype.loadExternalText = function(json) {
+    var k, len, ready, ref, results, s;
+    console.log("Loading external text files...");
+    ready = 0;
+    ref = json.externalText;
+    results = [];
+    for (k = 0, len = ref.length; k < len; k++) {
+      s = ref[k];
+      results.push((function(s) {
+        var request;
+        request = new XMLHttpRequest;
+        request.open('GET', novelPath + '/texts/' + s.file, true);
+        request.onload = function() {
+          if (request.status >= 200 && request.status < 400) {
+            s.content = request.responseText;
+            ready++;
+            if (ready === json.externalText.length) {
+              novelManager.prepareLoadedJson(json);
+            }
+          }
+        };
+        request.onerror = function() {};
+        return request.send();
+      })(s));
     }
     return results;
   };
