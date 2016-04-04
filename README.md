@@ -49,7 +49,7 @@ These features are planned or currently in development.
 - HTML5 Local Storage saving
 - Item descriptions
 - API
-- Text loading from separate files
+- Text loading from csv files
 - Translation support
 
 ## Installation

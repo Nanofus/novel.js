@@ -10,6 +10,7 @@
 	- [Settings](#settings)
 	- [Sounds](#sounds)
 	- [External text files](#external-text-files)
+	- [External json files](#external-json-files)
 - [Tags](#tags)
 	- [`if` - Conditional statements](#conditional-statements)
 	- [`choice` - Choice links](#choice-links)
@@ -113,7 +114,8 @@ Novel.js needs some HTML on the webpage to run properly. You can use this code o
 - `presets` - Pre-defined strings that can contain tags and be embedded in scenes and choices. See [definition](#tag-and-string-presets)
 - `settings` - Settings to edit, some of which can also be made visible to the player.
 - `sounds` - A list of all the sound effects.
-- `externalTexts` - A list of all external text sources.
+- `externalText` - A list of all external text sources.
+- `externalJson` - A list of all external json files.
 
 Now lets take a closer look on the lists:
 
@@ -246,7 +248,7 @@ The settings object contains settings for the application. All of the settings v
 
 ### Sounds
 
-The sounds object contains all sounds used by the application. The sounds must be placed in the `sounds` folder inside the `novel` folder. An example sound array:
+The sounds array contains all sounds used by the application. The sounds must be placed in the `sounds` folder inside the `novel` folder. An example sound array:
 ```json
 "sounds": [
   {"name": "click", "file": "click.wav"},
@@ -259,9 +261,9 @@ A single sound has the following attributes:
 
 ### External text files
 
-The `externalTexts` object contains all external text files used by the `[file]` tag. The default file path is the `texts` folder inside the `novel` folder. The text files should be in a format such as `.txt` that returns its contents as a string when `GET`-requested. An example external text array:
+The `externalText` array contains all external text files used by the `[file]` tag. The default file path is the `texts` folder inside the `novel` folder. The text files should be in a format such as `.txt` that returns its contents as a string when `GET`-requested. An example external text array:
 ```json
-"externalTexts": [
+"externalText": [
 	{"name": "content", "file": "content.txt"},
 	{"name": "content2", "file": "content2.txt"}
 ]
@@ -269,6 +271,51 @@ The `externalTexts` object contains all external text files used by the `[file]`
 A single text file has the following attributes:
 - `name` - The name used when using the text with `[file]`.
 - `file` - The file name.
+
+### External json files
+
+If you find your `novel.json` convoluted, you can separate it into multiple `json` files. The `externalJson` array has to be in the root `game.json`, but all other objects can be in separate files. It lists all other `json` files your game uses. The default path for the files is the `json` folder inside the `novel` folder. An example:
+```json
+"externalText": [
+	{"name": "scene1", "file": "scene1.json"},
+	{"name": "scene2", "file": "scene2.json"}
+]
+```
+An example `scene1.json`:
+```json
+{
+  "name": "amazingScene",
+  "text": "This scene is really special!",
+  "choices": [
+    {
+      "text": "Yee!",
+      "nextScene": "exit"
+    }
+  ]
+}
+```
+You can use an object with `include` attribute to include a `json` file in `novel.json` like this:
+```json
+"scenes": [
+	{"include": "scene1"}
+]
+```
+The end result looks internally like this:
+```json
+"scenes": [
+	{
+	  "name": "amazingScene",
+	  "text": "This scene is really special!",
+	  "choices": [
+	    {
+	      "text": "Yee!",
+	      "nextScene": "exit"
+	    }
+	  ]
+	}
+]
+```
+`include` object nesting is also supported; you can use `include` objects inside other included `json` files.
 
 ## Tags
 
@@ -337,7 +384,7 @@ You can run JavaScript while the text scrolls by using the `[exec x]` tag, where
 
 ### Printing text from external files
 
-The `[file]` tag can be used to print text from an external file. This tag is parsed before all other tags, so the text file can contain other Novel.js tags. The files are referred to by the name defined in `externalTexts` in `game.json`. For example, `[file content]` prints the contents of a file named `content` in `externalTexts`:
+The `[file]` tag can be used to print text from an external file. This tag is parsed before all other tags, so the text file can contain other Novel.js tags. The files are referred to by the name defined in `externalText` in `game.json`. For example, `[file content]` prints the contents of a file named `content` in `externalText`:
 ```
 Hello, [file content]!
 ```
@@ -346,7 +393,7 @@ If the content of the file `content` is `my name is Bob, and I have [inv.sword] 
 Hello, my name is Bob, and I have 5 swords!
 ```
 
-See [External text files](#external-text-files) for the definition of `externalTexts`.
+See [External text files](#external-text-files) for the definition of `externalText`.
 
 ### Setting text scrolling speed
 

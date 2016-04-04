@@ -53,25 +53,6 @@ class NovelManager
     if changeScene
       sceneManager.updateScene(loadedData.currentScene,true)
 
-  # Start the novel by loading the default novel.json
-  start: ->
-    request = new XMLHttpRequest
-    request.open 'GET', novelPath + '/novel.json', true
-    request.onload = ->
-      if request.status >= 200 and request.status < 400
-        json = JSON.parse(request.responseText)
-        json = novelManager.prepareData(json)
-        novelData.novel = json
-        novelData.novel.currentScene = sceneManager.changeScene(novelData.novel.scenes[0].name)
-        novelData.debugMode = novelData.novel.debugMode
-        novelManager.loadExternalTexts()
-        soundManager.init()
-    request.onerror = ->
-      return
-    request.send()
-    if document.querySelector("#continue-button") != null
-      document.querySelector("#continue-button").style.display = 'none'
-
   # Converts the novel's state into json and Base64 encode it
   saveDataAsJson: () ->
     # Clone the game data
@@ -79,7 +60,8 @@ class NovelManager
     delete saveData.scenes
     delete saveData.tagPresets
     delete saveData.sounds
-    delete saveData.externalTexts
+    delete saveData.externalText
+    delete saveData.externalJson
     save = btoa(JSON.stringify(saveData))
     return save
 
@@ -121,14 +103,81 @@ class NovelManager
         c.parsedText = ""
         if c.alwaysShow == undefined
           c.alwaysShow = false
-    return json
+
+  # Start the novel by loading the default novel.json
+  start: ->
+    console.log "-- Starting Novel.js... --"
+    console.log "Loading main json..."
+    request = new XMLHttpRequest
+    request.open 'GET', novelPath + '/novel.json', true
+    request.onload = ->
+      if request.status >= 200 and request.status < 400
+        json = JSON.parse(request.responseText)
+        novelManager.loadExternalJson(json)
+    request.onerror = ->
+      return
+    request.send()
+    if document.querySelector("#continue-button") != null
+      document.querySelector("#continue-button").style.display = 'none'
+
+  # Load external json
+  loadExternalJson: (json) ->
+    console.log "Loading external json files..."
+    ready = 0
+    for s in json.externalJson
+      ((s) ->
+        request = new XMLHttpRequest
+        request.open 'GET', novelPath + '/json/' + s.file, true
+        request.onload = ->
+          if request.status >= 200 and request.status < 400
+            s.content = JSON.parse(request.responseText)
+            ready++
+            if ready == json.externalJson.length
+              novelManager.includeJsons(json,json)
+              novelManager.loadExternalText(json)
+            return
+        request.onerror = ->
+          return
+        request.send()
+      ) s
+
+  # Combine other json objects with the main json
+  includeJsons: (root,object) ->
+    for x of object
+      if typeof object[x] == 'object'
+        @includeJsons root,object[x]
+      if object[x].include != undefined
+        for i in root.externalJson
+          if i.name == object[x].include
+            object[x] = i.content
+            @includeJsons root,object[x]
+            break
 
   # Load external text files
-  loadExternalTexts: ->
-    for s in novelData.novel.externalTexts
-      client = new XMLHttpRequest
-      client.open 'GET', novelPath+'/texts/'+s.file
-      client.onreadystatechange = ->
-        s.content = client.responseText
-        return
-      client.send()
+  loadExternalText: (json) ->
+    console.log "Loading external text files..."
+    ready = 0
+    for s in json.externalText
+      ((s) ->
+        request = new XMLHttpRequest
+        request.open 'GET', novelPath + '/texts/' + s.file, true
+        request.onload = ->
+          if request.status >= 200 and request.status < 400
+            s.content = request.responseText
+            ready++
+            if ready == json.externalText.length
+              novelManager.prepareLoadedJson(json)
+            return
+        request.onerror = ->
+          return
+        request.send()
+      ) s
+
+  # Prepare loaded json data
+  prepareLoadedJson: (json) ->
+    novelManager.prepareData(json)
+    novelData.novel = json
+    novelData.novel.currentScene = sceneManager.changeScene(novelData.novel.scenes[0].name)
+    novelData.debugMode = novelData.novel.debugMode
+    soundManager.init()
+    console.log "-- Loading Novel.js complete! --"

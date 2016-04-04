@@ -68,36 +68,14 @@ NovelManager = (function() {
     }
   };
 
-  NovelManager.prototype.start = function() {
-    var request;
-    request = new XMLHttpRequest;
-    request.open('GET', novelPath + '/novel.json', true);
-    request.onload = function() {
-      var json;
-      if (request.status >= 200 && request.status < 400) {
-        json = JSON.parse(request.responseText);
-        json = novelManager.prepareData(json);
-        novelData.novel = json;
-        novelData.novel.currentScene = sceneManager.changeScene(novelData.novel.scenes[0].name);
-        novelData.debugMode = novelData.novel.debugMode;
-        novelManager.loadExternalTexts();
-        return soundManager.init();
-      }
-    };
-    request.onerror = function() {};
-    request.send();
-    if (document.querySelector("#continue-button") !== null) {
-      return document.querySelector("#continue-button").style.display = 'none';
-    }
-  };
-
   NovelManager.prototype.saveDataAsJson = function() {
     var save, saveData;
     saveData = JSON.parse(JSON.stringify(novelData.novel));
     delete saveData.scenes;
     delete saveData.tagPresets;
     delete saveData.sounds;
-    delete saveData.externalTexts;
+    delete saveData.externalText;
+    delete saveData.externalJson;
     save = btoa(JSON.stringify(saveData));
     return save;
   };
@@ -113,7 +91,7 @@ NovelManager = (function() {
   };
 
   NovelManager.prototype.prepareData = function(json) {
-    var c, i, j, k, l, len, len1, len2, len3, o, q, ref, ref1, ref2, s;
+    var c, i, j, k, l, len, len1, len2, o, ref, ref1, results, s;
     json.currentScene = "";
     json.parsedChoices = "";
     if (json.currentInventory === void 0) {
@@ -136,6 +114,7 @@ NovelManager = (function() {
       }
     }
     ref1 = json.scenes;
+    results = [];
     for (o = 0, len2 = ref1.length; o < len2; o++) {
       s = ref1[o];
       s.combinedText = "";
@@ -152,32 +131,140 @@ NovelManager = (function() {
         console.warn("WARNING! scene " + s.name + " has no choices");
         s.choices = [];
       }
-      ref2 = s.choices;
-      for (q = 0, len3 = ref2.length; q < len3; q++) {
-        c = ref2[q];
-        c.parsedText = "";
-        if (c.alwaysShow === void 0) {
-          c.alwaysShow = false;
+      results.push((function() {
+        var len3, q, ref2, results1;
+        ref2 = s.choices;
+        results1 = [];
+        for (q = 0, len3 = ref2.length; q < len3; q++) {
+          c = ref2[q];
+          c.parsedText = "";
+          if (c.alwaysShow === void 0) {
+            results1.push(c.alwaysShow = false);
+          } else {
+            results1.push(void 0);
+          }
         }
-      }
+        return results1;
+      })());
     }
-    return json;
+    return results;
   };
 
-  NovelManager.prototype.loadExternalTexts = function() {
-    var client, k, len, ref, results, s;
-    ref = novelData.novel.externalTexts;
+  NovelManager.prototype.start = function() {
+    var request;
+    console.log("-- Starting Novel.js... --");
+    console.log("Loading main json...");
+    request = new XMLHttpRequest;
+    request.open('GET', novelPath + '/novel.json', true);
+    request.onload = function() {
+      var json;
+      if (request.status >= 200 && request.status < 400) {
+        json = JSON.parse(request.responseText);
+        return novelManager.loadExternalJson(json);
+      }
+    };
+    request.onerror = function() {};
+    request.send();
+    if (document.querySelector("#continue-button") !== null) {
+      return document.querySelector("#continue-button").style.display = 'none';
+    }
+  };
+
+  NovelManager.prototype.loadExternalJson = function(json) {
+    var k, len, ready, ref, results, s;
+    console.log("Loading external json files...");
+    ready = 0;
+    ref = json.externalJson;
     results = [];
     for (k = 0, len = ref.length; k < len; k++) {
       s = ref[k];
-      client = new XMLHttpRequest;
-      client.open('GET', novelPath + '/texts/' + s.file);
-      client.onreadystatechange = function() {
-        s.content = client.responseText;
-      };
-      results.push(client.send());
+      results.push((function(s) {
+        var request;
+        request = new XMLHttpRequest;
+        request.open('GET', novelPath + '/json/' + s.file, true);
+        request.onload = function() {
+          if (request.status >= 200 && request.status < 400) {
+            s.content = JSON.parse(request.responseText);
+            ready++;
+            if (ready === json.externalJson.length) {
+              novelManager.includeJsons(json, json);
+              novelManager.loadExternalText(json);
+            }
+          }
+        };
+        request.onerror = function() {};
+        return request.send();
+      })(s));
     }
     return results;
+  };
+
+  NovelManager.prototype.loadExternalText = function(json) {
+    var k, len, ready, ref, results, s;
+    console.log("Loading external text files...");
+    ready = 0;
+    ref = json.externalText;
+    results = [];
+    for (k = 0, len = ref.length; k < len; k++) {
+      s = ref[k];
+      results.push((function(s) {
+        var request;
+        request = new XMLHttpRequest;
+        request.open('GET', novelPath + '/texts/' + s.file, true);
+        request.onload = function() {
+          if (request.status >= 200 && request.status < 400) {
+            s.content = request.responseText;
+            ready++;
+            if (ready === json.externalText.length) {
+              novelManager.prepareLoadedJson(json);
+            }
+          }
+        };
+        request.onerror = function() {};
+        return request.send();
+      })(s));
+    }
+    return results;
+  };
+
+  NovelManager.prototype.includeJsons = function(root, object) {
+    var i, results, x;
+    results = [];
+    for (x in object) {
+      if (typeof object[x] === 'object') {
+        this.includeJsons(root, object[x]);
+      }
+      if (object[x].include !== void 0) {
+        results.push((function() {
+          var k, len, ref, results1;
+          ref = root.externalJson;
+          results1 = [];
+          for (k = 0, len = ref.length; k < len; k++) {
+            i = ref[k];
+            if (i.name === object[x].include) {
+              object[x] = i.content;
+              this.includeJsons(root, object[x]);
+              break;
+            } else {
+              results1.push(void 0);
+            }
+          }
+          return results1;
+        }).call(this));
+      } else {
+        results.push(void 0);
+      }
+    }
+    return results;
+  };
+
+  NovelManager.prototype.prepareLoadedJson = function(json) {
+    novelManager.prepareData(json);
+    novelData.novel = json;
+    novelData.novel.currentScene = sceneManager.changeScene(novelData.novel.scenes[0].name);
+    novelData.debugMode = novelData.novel.debugMode;
+    soundManager.init();
+    return console.log("-- Loading Novel.js complete! --");
   };
 
   return NovelManager;
@@ -340,7 +427,7 @@ Parser = (function() {
   };
 
   Parser.prototype.parseText = function(text) {
-    var asToBeClosed, i, index, k, l, len, len1, len2, len3, len4, len5, name, nameText, newText, o, p, parsed, q, ref, ref1, ref2, ref3, ref4, ref5, ref6, s, spansToBeClosed, splitText, t, tagName, u, v, value, w, x;
+    var asToBeClosed, i, index, k, l, len, len1, len2, len3, len4, len5, name, nameText, newText, o, p, parsed, q, ref, ref1, ref2, ref3, ref4, ref5, ref6, s, spansToBeClosed, splitText, t, tagName, u, v, value, w, y;
     if (text !== void 0) {
       util.checkFormat(text, 'string');
       if (!util.validateTagParentheses(text)) {
@@ -363,7 +450,7 @@ Parser = (function() {
         name = name.replace(/\s+/g, '');
         if (name !== "") {
           newText = null;
-          ref2 = novelData.novel.externalTexts;
+          ref2 = novelData.novel.externalText;
           for (o = 0, len1 = ref2.length; o < len1; o++) {
             i = ref2[o];
             if (i.name === name) {
@@ -468,8 +555,8 @@ Parser = (function() {
           parsed = s.split("input ");
           nameText = "";
           ref6 = novelData.novel.inventories[novelData.novel.currentInventory];
-          for (x = 0, len5 = ref6.length; x < len5; x++) {
-            i = ref6[x];
+          for (y = 0, len5 = ref6.length; y < len5; y++) {
+            i = ref6[y];
             if (i.name === parsed[1]) {
               nameText = i.value;
             }

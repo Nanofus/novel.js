@@ -1,0 +1,11 @@
+{
+  "name": "Superscene!",
+  "text": "This scene is really special!",
+  "choices": [
+    {
+      "text": "Yee! Haww!!!",
+      "nextScene": "road"
+    },
+    { "include": "someChoice" }
+  ]
+}

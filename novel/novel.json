@@ -31,9 +31,14 @@
           "text": "Start",
           "name": "Continue",
           "nextScene": "road"
+        },
+        {
+          "text": "Go to SUPERSCENE! (it's loaded from another json)",
+          "nextScene": "Superscene!"
         }
       ]
     },
+    { "include": "include" },
     {
       "name": "road",
       "text": ["[file content] <- That was loaded from a text file!",
@@ -65,7 +70,7 @@
           "nextChoice": "shieldSearch"
         },
         {
-          "text": "Wander offroad. The following awaits you: \"[print var.scenes,2,text]\"",
+          "text": "Wander offroad. The following awaits you: \"[print var.scenes,3,text]\"",
           "name": "dragon",
           "setItem": "!introductionSeen,1",
           "nextScene": "dragon"
@@ -235,7 +240,13 @@
     {"name": "testMusic", "file": "music.wav"},
     {"name": "scream", "file": "wilhelm.wav"}
   ],
-  "externalTexts": [
-    {"name": "content", "file": "content.txt"}
+  "externalText": [
+    {"name": "content", "file": "content.txt"},
+    {"name": "content2", "file": "content.txt"},
+    {"name": "content3", "file": "content.txt"}
+  ],
+  "externalJson": [
+    {"name": "include", "file": "include.json"},
+    {"name": "someChoice", "file": "someChoice.json"}
   ]
 }

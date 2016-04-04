@@ -73,7 +73,7 @@ class Parser
         if name != ""
           newText = null
           # Find external text by name
-          for i in novelData.novel.externalTexts
+          for i in novelData.novel.externalText
             if i.name == name
               newText = i.content
               break
