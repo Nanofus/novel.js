@@ -276,7 +276,7 @@ A single text file has the following attributes:
 
 If you find your `novel.json` convoluted, you can separate it into multiple `json` files. The `externalJson` array has to be in the root `game.json`, but all other objects can be in separate files. It lists all other `json` files your game uses. The default path for the files is the `json` folder inside the `novel` folder. An example:
 ```json
-"externalText": [
+"externalJson": [
 	{"name": "scene1", "file": "scene1.json"},
 	{"name": "scene2", "file": "scene2.json"}
 ]
