@@ -216,6 +216,7 @@
     "debugMode": true,
     "saveMode": "text",
     "showSaveButtons": true,
+    "inventoryHidden": false,
     "alwaysShowDisabledChoices": false,
     "floatPrecision": 5,
     "scrollSettings": {

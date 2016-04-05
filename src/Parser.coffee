@@ -2,10 +2,16 @@
 ### PARSERS ###
 
 class Parser
+  instance = null
+  constructor: ->
+    if instance
+      return instance
+    else
+      instance = this
 
   # Select a random scene or choice from a list separated by |, takes string
-  selectRandomOption: (name) ->
-    util.checkFormat(name,'string')
+  @selectRandomOption: (name) ->
+    Util.checkFormat(name,'string')
     separate = name.split("|")
     if separate.length is 1
       return separate[0]
@@ -17,7 +23,7 @@ class Parser
     return parsed
 
   # Select a scene or choice randomly from multiple scenes with different probabilities, takes array
-  chooseRandomly: (options) ->
+  @chooseRandomly: (options) ->
     names = []
     chances = []
     rawChances = []
@@ -40,8 +46,8 @@ class Parser
       nameIndex++
 
   # Parse a string of items and output an array
-  parseItems: (items) ->
-    util.checkFormat(items,'string')
+  @parseItems: (items) ->
+    Util.checkFormat(items,'string')
     if items is ""
       return undefined
     separate = items.split("|")
@@ -52,10 +58,10 @@ class Parser
     return parsed
 
   # Parse a text for Novel.js tags, and replace them with the correct HTML tags.
-  parseText: (text) ->
+  @parseText: (text) ->
     if text isnt undefined
-      util.checkFormat(text,'string')
-      if not util.validateTagParentheses(text)
+      Util.checkFormat(text,'string')
+      if not Util.validateTagParentheses(text)
         console.error "ERROR: Invalid tags in text"
       # External files
       splitText = text.split("[file ")
@@ -180,7 +186,7 @@ class Parser
         # Embedded choice
         else if s.substring(0,6) is "choice"
           parsed = s.split("choice ")
-          splitText[index] = "<a href=\"#\" onclick=\"sceneManager.selectChoiceByNameByClicking(event,'"+parsed[1]+"')\">"
+          splitText[index] = "<a href=\"#\" onclick=\"SceneManager.selectChoiceByNameByClicking(event,'"+parsed[1]+"')\">"
           asToBeClosed++
         else if s.substring(0,7) is "/choice"
           if asToBeClosed > 0
@@ -194,13 +200,13 @@ class Parser
       return text
 
   # Parse a statement that returns true or false or calculate a value
-  parseStatement: (s) ->
+  @parseStatement: (s) ->
     if s is undefined
       return undefined
     s = s.toString()
-    util.checkFormat(s,'string')
+    Util.checkFormat(s,'string')
     # Check for valid parentheses
-    if not util.validateParentheses(s)
+    if not Util.validateParentheses(s)
       console.error "ERROR: Invalid parentheses in statement"
     # Clean spaces
     s = s.replace(/\s+/g, '');
@@ -273,7 +279,7 @@ class Parser
     return returnVal
 
   # Read a string's beginning to detect its type
-  getStatementType: (val) ->
+  @getStatementType: (val) ->
     type = null
     if val.substring(0,4) is "inv."
       type = "item"
@@ -291,7 +297,7 @@ class Parser
 
   # Find a value from the game novelData json
   # toPrint is true returns the value, toPrint is false returns the object
-  findValue: (parsed, toPrint) ->
+  @findValue: (parsed, toPrint) ->
     splitted = parsed.split(",")
     # Find the first object in hierarchy
     if not toPrint
@@ -303,7 +309,7 @@ class Parser
       variable = @findValueByName(novelData.novel,splitted[0])[0]
     # Follow the path
     for i in [0 .. splitted.length - 1]
-      if util.isOdd(i)
+      if Util.isOdd(i)
         variable = variable[parseInt(splitted[i])]
       else if i isnt 0
         if not toPrint
@@ -318,8 +324,8 @@ class Parser
     return variable
 
   # Find an object from the object hierarchy by string name
-  findValueByName: (obj, string) ->
-    util.checkFormat(string,'string')
+  @findValueByName: (obj, string) ->
+    Util.checkFormat(string,'string')
     parts = string.split('.')
     newObj = obj[parts[0]]
     if parts[1]

@@ -2,22 +2,28 @@
 ### UTILITY SCRIPTS ###
 
 class Util
+  instance = null
+  constructor: ->
+    if instance
+      return instance
+    else
+      instance = this
 
   # Check if a value is even or not
-  isEven: (n) ->
+  @isEven: (n) ->
     n % 2 is 0
 
   # Check if a value is odd or not
-  isOdd: (n) ->
+  @isOdd: (n) ->
     Math.abs(n % 2) is 1
 
   # Remove HTML tags from a string - used to clean input
-  stripHTML: (text) ->
+  @stripHTML: (text) ->
     regex = /(<([^>]+)>)/ig
     text.replace regex, ''
 
   # Check if a variable is the chosen format
-  checkFormat: (s, format) ->
+  @checkFormat: (s, format) ->
     if format is 'array'
       if Object::toString.call(s) is '[object Array]'
         return true
@@ -38,7 +44,7 @@ class Util
         return false
 
   # Check if the string has valid parentheses
-  validateParentheses: (s) ->
+  @validateParentheses: (s) ->
     open = 0
     for i in s
       if i is "("
@@ -54,7 +60,7 @@ class Util
       return false
 
   # Check if [] parentheses are valid - ignore /[ and /]
-  validateTagParentheses: (s) ->
+  @validateTagParentheses: (s) ->
     open = 0
     index = 0
     for i in s

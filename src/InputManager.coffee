@@ -2,39 +2,46 @@
 ### HANDLES KEYBOARD INPUT ###
 
 class InputManager
+  instance = null
+  constructor: ->
+    if instance
+      return instance
+    else
+      instance = this
+
   presses: 0
 
   # Gets key down and handles their functions
-  keyDown: (charCode) ->
+  @keyDown: (charCode) ->
     if @formsSelected()
       return
     if (charCode is 13 or charCode is 32)
       if novelData.novel.settings.scrollSettings.continueWithKeyboard
-        sceneManager.tryContinue()
+        SceneManager.tryContinue()
       if novelData.novel.settings.scrollSettings.skipWithKeyboard
-        textPrinter.trySkip()
-      textPrinter.unpause()
+        TextPrinter.trySkip()
+      TextPrinter.unpause()
 
   # Gets key being pressed
-  keyPressed: (charCode) ->
+  @keyPressed: (charCode) ->
     if @formsSelected()
       return
     @presses++
     if (charCode is 13 or charCode is 32)
       if @presses > 2
         if novelData.novel.settings.scrollSettings.fastScrollWithKeyboard
-          textPrinter.fastScroll()
+          TextPrinter.fastScroll()
 
   # Gets key release
-  keyUp: (charCode) ->
+  @keyUp: (charCode) ->
     if @formsSelected()
       return
     @presses = 0
     if (charCode is 13 or charCode is 32)
-      textPrinter.stopFastScroll()
+      TextPrinter.stopFastScroll()
 
   # Checks if any forms on the page are active
-  formsSelected: ->
+  @formsSelected: ->
     inputs = document.getElementById("novel-area").querySelectorAll("input")
     for i in inputs
       if i is document.activeElement
@@ -44,14 +51,14 @@ class InputManager
 document.onkeydown = (evt) ->
   evt = evt or window.event
   charCode = evt.keyCode or evt.which
-  inputManager.keyDown(charCode)
+  InputManager.keyDown(charCode)
 
 document.onkeypress = (evt) ->
   evt = evt or window.event
   charCode = evt.keyCode or evt.which
-  inputManager.keyPressed(charCode)
+  InputManager.keyPressed(charCode)
 
 document.onkeyup = (evt) ->
   evt = evt or window.event
   charCode = evt.keyCode or evt.which
-  inputManager.keyUp(charCode)
+  InputManager.keyUp(charCode)

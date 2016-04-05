@@ -2,25 +2,32 @@
 ### TEXT PRINTING (letter by letter etc.) ###
 
 class TextPrinter
-  fullText: ""
-  currentOffset: 0
-  defaultInterval: 0
-  soundBuffer: []
-  musicBuffer: []
-  stopMusicBuffer: []
-  executeBuffer: []
-  buffersExecuted: false
-  scrollSound: null
-  tickSoundFrequency: 1
-  tickCounter: 0
-  tickSpeedMultiplier: 1
-  speedMod: false
-  pause: 0
-  interval: 0
-  printCompleted: false
+  instance = null
+  constructor: ->
+    if instance
+      return instance
+    else
+      instance = this
+
+  @fullText: ""
+  @currentOffset: 0
+  @defaultInterval: 0
+  @soundBuffer: []
+  @musicBuffer: []
+  @stopMusicBuffer: []
+  @executeBuffer: []
+  @buffersExecuted: false
+  @scrollSound: null
+  @tickSoundFrequency: 1
+  @tickCounter: 0
+  @tickSpeedMultiplier: 1
+  @speedMod: false
+  @pause: 0
+  @interval: 0
+  @printCompleted: false
 
   # Print a scene's text - noBuffers prevents buffers from replaying when scene is not changed
-  printText: (text, noBuffers) ->
+  @printText: (text, noBuffers) ->
     @printCompleted = false
     novelData.printedText = ""
     # Disable the skip button
@@ -44,12 +51,12 @@ class TextPrinter
     setTimeout(@onTick(),@defaultInterval)
 
   # Try to skip text, if allowed
-  trySkip: ->
+  @trySkip: ->
     if novelData.novel.currentScene.skipEnabled
       @complete()
 
   # Instantly show all text
-  complete: ->
+  @complete: ->
     @printCompleted = true
     @currentOffset = 0
     # Re-enable skip button
@@ -68,7 +75,7 @@ class TextPrinter
       if ss.length > 0
         for i in [0 .. ss.length]
           if not (ss[i] in @soundBuffer)
-            soundManager.playSound(parser.parseStatement(ss[i]))
+            SoundManager.playSound(Parser.parseStatement(ss[i]))
       ss = []
       first = true
       if @fullText.indexOf("play-music") > -1
@@ -80,7 +87,7 @@ class TextPrinter
       if ss.length > 0
         for i in [0 .. ss.length]
           if not (ss[i] in @musicBuffer)
-            soundManager.startMusic(parser.parseStatement(ss[i]))
+            SoundManager.startMusic(Parser.parseStatement(ss[i]))
       ss = []
       first = true
       if @fullText.indexOf("stop-music") > -1
@@ -92,7 +99,7 @@ class TextPrinter
       if ss.length > 0
         for i in [0 .. ss.length]
           if not (ss[i] in @stopMusicBuffer)
-            soundManager.stopMusic(parser.parseStatement(ss[i]))
+            SoundManager.stopMusic(Parser.parseStatement(ss[i]))
       ss = []
       first = true
       if @fullText.indexOf("execute-command") > -1
@@ -108,26 +115,26 @@ class TextPrinter
       @buffersExecuted = true
     # Set printed text and update choices
     novelData.printedText = @fullText
-    sceneManager.updateChoices()
+    SceneManager.updateChoices()
 
   # Stop pause
-  unpause: () ->
+  @unpause: () ->
     if document.querySelector("#continue-button") isnt null
       document.querySelector("#continue-button").style.display = 'none'
     if @pause is "input"
       @pause = 0
 
   # Fast text scrolling
-  fastScroll: () ->
+  @fastScroll: () ->
     if novelData.novel.currentScene.skipEnabled
       @tickSpeedMultiplier = novelData.novel.settings.scrollSettings.fastScrollSpeedMultiplier
 
   # Stop fast text scrolling
-  stopFastScroll: () ->
+  @stopFastScroll: () ->
     @tickSpeedMultiplier = 1
 
   # Set how frequently the scrolling sound is played
-  setTickSoundFrequency: (freq) ->
+  @setTickSoundFrequency: (freq) ->
     threshold = novelData.novel.settings.scrollSettings.tickFreqThreshold
     @tickSoundFrequency = 1
     if freq <= (threshold * 2)
@@ -136,7 +143,7 @@ class TextPrinter
       @tickSoundFrequency = 3
 
   # Show a new letter
-  onTick: ->
+  @onTick: ->
     if @pause isnt "input" and @pause > 0
       @pause--
     if @pause is 0
@@ -160,18 +167,18 @@ class TextPrinter
       if @tickCounter >= @tickSoundFrequency
         if @scrollSound isnt "none" and @interval isnt 0
           if @scrollSound isnt null
-            soundManager.playSound(@scrollSound)
+            SoundManager.playSound(@scrollSound)
           else if (novelData.novel.currentScene.scrollSound isnt undefined)
-            soundManager.playSound(novelData.novel.currentScene.scrollSound)
+            SoundManager.playSound(novelData.novel.currentScene.scrollSound)
           @tickCounter = 0
     @setTickSoundFrequency(@interval / @tickSpeedMultiplier)
     setTimeout (->
-      textPrinter.onTick()
+      TextPrinter.onTick()
       return
     ), @interval / @tickSpeedMultiplier
 
   # Skip chars that are not printed, and parse tags
-  readTags: ->
+  @readTags: ->
     if @fullText[@currentOffset] is ' '
       @currentOffset++
     if @fullText[@currentOffset] is '>'
@@ -203,35 +210,35 @@ class TextPrinter
       if str.indexOf("play-sound") > -1 and str.indexOf("display:none;") > -1
         s = str.split("play-sound ")
         s = s[1].split(/\s|\"/)[0]
-        @soundBuffer.push(parser.parseStatement(s))
+        @soundBuffer.push(Parser.parseStatement(s))
       if str.indexOf("play-music") > -1 and str.indexOf("display:none;") > -1
         s = str.split("play-music ")
         s = s[1].split(/\s|\"/)[0]
-        @musicBuffer.push(parser.parseStatement(s))
+        @musicBuffer.push(Parser.parseStatement(s))
       if str.indexOf("stop-music") > -1 and str.indexOf("display:none;") > -1
         s = str.split("stop-music ")
         s = s[1].split(/\s|\"/)[0]
-        @stopMusicBuffer.push(parser.parseStatement(s))
+        @stopMusicBuffer.push(Parser.parseStatement(s))
       if str.indexOf("execute-command") > -1 and str.indexOf("display:none;") > -1
         s = str.split("execute-command ")
         s = s[1].split(/\s|\"/)[0]
-        @executeBuffer.push(parser.parseStatement(s))
+        @executeBuffer.push(Parser.parseStatement(s))
       if str.indexOf("display:none;") is -1
         if str.indexOf("play-sound") > -1
           s = str.split("play-sound ")
           s = s[1].split(/\s|\"/)[0]
-          @soundBuffer.push(parser.parseStatement(s))
-          soundManager.playSound(parser.parseStatement(s))
+          @soundBuffer.push(Parser.parseStatement(s))
+          SoundManager.playSound(Parser.parseStatement(s))
         if str.indexOf("play-music") > -1
           s = str.split("play-music ")
           s = s[1].split(/\s|\"/)[0]
-          @musicBuffer.push(parser.parseStatement(s))
-          soundManager.startMusic(parser.parseStatement(s))
+          @musicBuffer.push(Parser.parseStatement(s))
+          SoundManager.startMusic(Parser.parseStatement(s))
         if str.indexOf("stop-music") > -1
           s = str.split("stop-music ")
           s = s[1].split(/\s|\"/)[0]
-          @stopMusicBuffer.push(parser.parseStatement(s))
-          soundManager.stopMusic(parser.parseStatement(s))
+          @stopMusicBuffer.push(Parser.parseStatement(s))
+          SoundManager.stopMusic(Parser.parseStatement(s))
         if str.indexOf("pause") > -1
           s = str.split("pause ")
           s = s[1].split(/\s|\"/)[0]
@@ -248,7 +255,7 @@ class TextPrinter
         if str.indexOf("set-speed") > -1
           s = str.split("set-speed ")
           s = s[1].split(/\s|\"/)[0]
-          @interval = parser.parseStatement(s)
+          @interval = Parser.parseStatement(s)
           @speedMod = true
         if str.indexOf("default-speed") > -1
           @interval = @defaultInterval
@@ -256,7 +263,7 @@ class TextPrinter
         if str.indexOf("set-scroll-sound") > -1
           s = str.split("set-scroll-sound ")
           s = s[1].split(/\s|\"/)[0]
-          @scrollSound = parser.parseStatement(s)
+          @scrollSound = Parser.parseStatement(s)
         if str.indexOf("default-scroll-sound") > -1
           @scrollSound = undefined
       @currentOffset = i

@@ -51,20 +51,20 @@ Novel.js needs some HTML on the webpage to run properly. You can use this code o
 			<div id="save-notification" class="notification">
 				<p>Copy and save this text:</p>
 				<p><textarea name="save-text" readonly></textarea></p>
-				<p><button type="button" onclick="ui.closeSaveNotification()">Close</button><button type="button" id="copy-button">Copy</button></p>
+				<p><button type="button" onclick="UI.closeSaveNotification()">Close</button><button type="button" id="copy-button">Copy</button></p>
 			</div>
 			<div id="load-notification" class="notification">
-				<p>Paste your saved data here:</p>
+				<p>Paste your save data here:</p>
 				<p><textarea name="load-text"></textarea></p>
-				<p><button type="button" onclick="ui.closeLoadNotification(false)">Close</button><button type="button" onclick="ui.closeLoadNotification(true)">Load</button></p>
+				<p><button type="button" onclick="UI.closeLoadNotification(false)">Close</button><button type="button" onclick="ui.closeLoadNotification(true)">Load</button></p>
 			</div>
 		</div>
 		<div class="text-and-choices-area">
 			<div class="text-area">
 				{{{ printedText }}}
 			</div>
-			<button v-show="textSkipEnabled()" type="button" id="skip-button" onclick="textPrinter.complete()">Skip</button>
-			<button type="button" id="continue-button" onclick="textPrinter.unpause()">Continue</button>
+			<button v-show="textSkipEnabled()" type="button" id="skip-button" onclick="TextPrinter.complete()">Skip</button>
+			<button type="button" id="continue-button" onclick="TextPrinter.unpause()">Continue</button>
 			<div class="choices">
 				<ul class="choice-list">
 					<div v-for="choice in novel.parsedChoices">
@@ -97,8 +97,8 @@ Novel.js needs some HTML on the webpage to run properly. You can use this code o
 			</ul>
 		</div>
 		<div v-if="novel.settings.showSaveButtons" class="save-buttons">
-			<button type="button" id="save-button" onclick="novelManager.saveData()">Save</button>
-			<button type="button" id="load-button" onclick="ui.showLoadNotification()">Load</button>
+			<button type="button" id="save-button" onclick="NovelManager.saveData()">Save</button>
+			<button type="button" id="load-button" onclick="UI.showLoadNotification()">Load</button>
 		</div>
 	</div>
 </div>
@@ -106,7 +106,7 @@ Novel.js needs some HTML on the webpage to run properly. You can use this code o
 
 ## `novel.json` structure
 
-`novel.json` is a JavaScript Object Notation file - a neat way to work with structured information. The top level of the structure contains the following variables:
+`novel.json` is a JavaScript Object Notation file - a neat way to work with structured information. The top level of the structure contains the following attributes:
 - `name` - Use this to set your application's name.
 - `version` - The version number.
 - `inventories` - A list of lists of the player's items and other variables.
@@ -170,7 +170,7 @@ An example scene:
 }
 ```
 
-A scene object can contain the following variables and parameters:
+A scene object can contain the following attributes:
 - `name` - Required. The scene's name. Not visible to the user, used internally to navigate between scenes.
 - `text` - Required (not enforced). The scene's text. Can be formatted using html and Novel.js's own tags. The text can be a simple string, or an array of strings. If it is an array, each of the array items gets surrounded by paragraph tags (`<p></p>`). This makes formatting long text easier.
 - `style` - The scene's style. Adds a html class that can be styled in `skin.css` to give different looks to different scenes.
@@ -197,7 +197,7 @@ A scene object can contain the following variables and parameters:
 
 ### Choices
 
-Choices are the options the player can choose in a scene. An example is provided in the Scenes example. Choices can have the following variables and parameters:
+Choices are the options the player can choose in a scene. An example is provided in the Scenes example. Choices can have the following attributes:
 - `text` - Required in most cases. The text to show the player. Can be formatted using html or Novel.js's own tags. If not specified, the choice will not be shown but can be linked to using its name.
 - `name` - Optional. Not visible, but is used when this choice is referred to from a link. Cannot contain spaces. If set to `"Continue"`, this selection is selected by default when skipping text.
 - `itemRequirement` - Items that the player has to have in their inventory to be able to select this choice. An unselectable choice is hidden by default, unless `alwaysShow` is true.
@@ -226,6 +226,7 @@ Choices are the options the player can choose in a scene. An example is provided
 The settings object contains settings for the application. All of the settings values should always be defined, unless otherwise stated; see the example application for default values.
 
 - `debugMode` - True or false. If true, the hidden items list is shown to the player the same way as the regular inventory.
+- `inventoryHidden` - True or false. If true, the inventory is always hidden. Can be overridden on a scene-by-scene basis.
 - `alwaysShowDisabledChoices` - True or false. If true, choices with unmet requirements are always shown.
 - `saveMode` - `text` or `cookie`. See [Saving](#saving).
 - `showSaveButtons` - True or false. If true, the saving and loading buttons are shown, otherwise they are hidden.

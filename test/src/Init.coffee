@@ -13,23 +13,13 @@ novelData = {
 
 novelPath = './novel'
 
-novelManager = new NovelManager
-inputManager = new InputManager
-inventoryManager = new InventoryManager
-parser = new Parser
-sceneManager = new SceneManager
-soundManager = new SoundManager
-textPrinter = new TextPrinter
-ui = new UI
-util = new Util
-
 novelArea = new Vue(
   el: '#novel-area'
   data: novelData
   methods:
     # Return whether the requirements of a choice have been filled
     requirementsFilled: (choice) ->
-      return sceneManager.requirementsFilled(choice)
+      return SceneManager.requirementsFilled(choice)
 
     # Return whether the text can be skipped
     textSkipEnabled: (choice) ->
@@ -61,5 +51,5 @@ novelArea = new Vue(
 
     # Select a choice
     selectChoice: (choice) ->
-      sceneManager.selectChoice(choice)
+      SceneManager.selectChoice(choice)
 )

@@ -1,5 +1,5 @@
 
-### GLOBAL GAME novelData ###
+### GLOBAL GAME DATA ###
 
 novelData = {
   novel: null
@@ -13,13 +13,3 @@ novelData = {
 }
 
 novelPath = './novel'
-
-novelManager = new NovelManager
-inputManager = new InputManager
-inventoryManager = new InventoryManager
-parser = new Parser
-sceneManager = new SceneManager
-soundManager = new SoundManager
-textPrinter = new TextPrinter
-ui = new UI
-util = new Util

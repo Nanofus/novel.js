@@ -2,10 +2,16 @@
 ### INVENTORY, STAT & VALUE OPERATIONS ###
 
 class InventoryManager
+  instance = null
+  constructor: ->
+    if instance
+      return instance
+    else
+      instance = this
 
   # Check if item or stat requirements have been filled
-  checkRequirements: (requirements) ->
-    util.checkFormat(requirements,'array')
+  @checkRequirements: (requirements) ->
+    Util.checkFormat(requirements,'array')
     reqsFilled = 0
     for i in novelData.novel.inventories[novelData.novel.currentInventory]
       for j in requirements
@@ -18,40 +24,40 @@ class InventoryManager
       return false
 
   # Set a value in JSON
-  setValue: (parsed, newValue) ->
-    util.checkFormat(parsed,'string')
+  @setValue: (parsed, newValue) ->
+    Util.checkFormat(parsed,'string')
     getValueArrayLast = @getValueArrayLast(parsed)
-    value = parser.findValue(parsed,false)
+    value = Parser.findValue(parsed,false)
     value[getValueArrayLast] = newValue
 
   # Increase a value in JSON
-  increaseValue: (parsed, change) ->
-    util.checkFormat(parsed,'string')
+  @increaseValue: (parsed, change) ->
+    Util.checkFormat(parsed,'string')
     getValueArrayLast = @getValueArrayLast(parsed)
-    value = parser.findValue(parsed,false)
+    value = Parser.findValue(parsed,false)
     value[getValueArrayLast] = value[getValueArrayLast] + change
     if not isNaN(parseFloat(value[getValueArrayLast]))
       value[getValueArrayLast] = parseFloat(value[getValueArrayLast].toFixed(novelData.novel.settings.floatPrecision));
 
   # Decrease a value in JSON
-  decreaseValue: (parsed, change) ->
-    util.checkFormat(parsed,'string')
+  @decreaseValue: (parsed, change) ->
+    Util.checkFormat(parsed,'string')
     getValueArrayLast = @getValueArrayLast(parsed)
-    value = parser.findValue(parsed,false)
+    value = Parser.findValue(parsed,false)
     value[getValueArrayLast] = value[getValueArrayLast] - change
     if not isNaN(parseFloat(value[getValueArrayLast]))
       value[getValueArrayLast] = parseFloat(value[getValueArrayLast].toFixed(novelData.novel.settings.floatPrecision));
 
   # Get the last item in a value array
-  getValueArrayLast: (parsed) ->
+  @getValueArrayLast: (parsed) ->
     getValueArrayLast = parsed.split(",")
     getValueArrayLast = getValueArrayLast[getValueArrayLast.length-1].split(".")
     getValueArrayLast = getValueArrayLast[getValueArrayLast.length-1]
     return getValueArrayLast
 
   # Edit the player's items or stats
-  editItems: (items, mode) ->
-    util.checkFormat(items,'array')
+  @editItems: (items, mode) ->
+    Util.checkFormat(items,'array')
     for j in items
       hidden = false
       if j[0].substring(0,1) is "!"
@@ -63,7 +69,7 @@ class InventoryManager
           probability = 1
           if j.length > 2
             displayName = j[2]
-            value = parseInt(parser.parseStatement(j[1]))
+            value = parseInt(Parser.parseStatement(j[1]))
             if not isNaN(displayName)
               probability = j[2]
               displayName = j.name
@@ -72,7 +78,7 @@ class InventoryManager
               displayName = j[3]
           else
             displayName = j[0]
-            value = parseInt(parser.parseStatement(j[1]))
+            value = parseInt(Parser.parseStatement(j[1]))
           random = Math.random()
           if random < probability
             if (mode is "set")
@@ -94,9 +100,9 @@ class InventoryManager
           itemAdded = true
       if not itemAdded and mode isnt "remove"
         probability = 1
-        value = parseInt(parser.parseStatement(j[1]))
+        value = parseInt(Parser.parseStatement(j[1]))
         if isNaN value
-          value = parser.parseStatement(j[1])
+          value = Parser.parseStatement(j[1])
         if j.length > 2
           displayName = j[2]
           if not isNaN(displayName)

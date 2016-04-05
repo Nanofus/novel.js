@@ -7,7 +7,7 @@ novelArea = new Vue(
   methods:
     # Return whether the requirements of a choice have been filled
     requirementsFilled: (choice) ->
-      return sceneManager.requirementsFilled(choice)
+      return SceneManager.requirementsFilled(choice)
 
     # Return whether the text can be skipped
     textSkipEnabled: (choice) ->
@@ -35,9 +35,9 @@ novelArea = new Vue(
 
     # Check if specific item's count is over 0; if it isn't, it's not shown. Also should be hidden.
     itemsOverZeroAndHidden: (item) ->
-      return inventoryManager.itemsOverZero(item) and inventoryManager.itemHidden(item)
+      return InventoryManager.itemsOverZero(item) and InventoryManager.itemHidden(item)
 
     # Select a choice
     selectChoice: (choice) ->
-      sceneManager.selectChoice(choice)
+      SceneManager.selectChoice(choice)
 )
