@@ -2,7 +2,7 @@
 
 
 [![Build Status](https://travis-ci.org/Nanofus/novel.js.svg?branch=master)](https://travis-ci.org/Nanofus/novel.js) [![Dependency Status](https://david-dm.org/Nanofus/novel.js.svg)](https://david-dm.org/Nanofus/novel.js) [![devDependency Status](https://david-dm.org/Nanofus/novel.js/dev-status.svg)](https://david-dm.org/Nanofus/novel.js#info=devDependencies)
-[![GitHub release](https://img.shields.io/github/release/Nanofus/novel.js.svg)]() [![npm version](https://badge.fury.io/js/novel-js.svg)](https://badge.fury.io/js/novel-js) [![npm](https://img.shields.io/npm/dm/novel-js.svg?maxAge=2592000)]()
+[![GitHub release](https://img.shields.io/github/release/Nanofus/novel.js.svg)]() [![npm version](https://badge.fury.io/js/novel-js.svg)](https://badge.fury.io/js/novel-js) [![npm](https://img.shields.io/npm/dm/novel-js.svg?maxAge=2592000)]() [![npm](https://img.shields.io/npm/dt/novel-js.svg?maxAge=2592000)]()
 
 Novel.js is a versatile, lightweight JavaScript text game engine that works directly in the browser.
 
