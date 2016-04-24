@@ -157,8 +157,12 @@ NovelManager = (function() {
   };
 
   NovelManager.start = function() {
-    var request;
     console.log("-- Starting Novel.js... --");
+    return this.loadMainJson();
+  };
+
+  NovelManager.loadMainJson = function() {
+    var request;
     console.log("Loading main json...");
     request = new XMLHttpRequest;
     request.open('GET', novelPath + '/novel.json', true);
@@ -2008,6 +2012,7 @@ Util = (function() {
 novelData = {
   novel: null,
   choices: null,
+  debugMode: false,
   status: "Loading",
   inventoryHidden: false,
   choicesHidden: false,

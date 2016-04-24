@@ -114,6 +114,10 @@ class NovelManager
   # Start the novel by loading the default novel.json
   @start: ->
     console.log "-- Starting Novel.js... --"
+    @loadMainJson()
+
+  # Load the main json
+  @loadMainJson = ->
     console.log "Loading main json..."
     request = new XMLHttpRequest
     request.open 'GET', novelPath + '/novel.json', true
