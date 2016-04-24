@@ -52,7 +52,7 @@ gulp.task('test-coffee', ['test-concat'], function() {
 
 gulp.task('compress', ['coffee'], function() {
   return gulp.src('./novel.js')
-    .pipe(uglify({"mangle":true}))
+    .pipe(uglify())
     .pipe(rename('novel.min.js'))
     .pipe(gulp.dest('./'));
 });
