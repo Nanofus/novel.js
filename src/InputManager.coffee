@@ -2,6 +2,8 @@
 ### HANDLES KEYBOARD INPUT ###
 
 class InputManager
+
+  # Create instance
   instance = null
   constructor: ->
     if instance
@@ -9,12 +11,14 @@ class InputManager
     else
       instance = this
 
-  presses: 0
+  # Set class-wide variables
+  @presses: 0
 
   # Gets key down and handles their functions
   @keyDown: (charCode) ->
     if @formsSelected()
       return
+    # Use SPACE to skip or continue
     if (charCode is 13 or charCode is 32)
       if novelData.novel.settings.scrollSettings.continueWithKeyboard
         SceneManager.tryContinue()
@@ -27,6 +31,7 @@ class InputManager
     if @formsSelected()
       return
     @presses++
+    # Use SPACE to fast scroll
     if (charCode is 13 or charCode is 32)
       if @presses > 2
         if novelData.novel.settings.scrollSettings.fastScrollWithKeyboard
@@ -37,6 +42,7 @@ class InputManager
     if @formsSelected()
       return
     @presses = 0
+    # Release SPACE to stop fast scroll
     if (charCode is 13 or charCode is 32)
       TextPrinter.stopFastScroll()
 

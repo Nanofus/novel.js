@@ -129,9 +129,6 @@ NovelManager = (function() {
       s.combinedText = "";
       s.parsedText = "";
       s.visited = false;
-      if (s.revisitSkipEnabled === void 0) {
-        s.revisitSkipEnabled = json.settings.scrollSettings.revisitSkipEnabled;
-      }
       if (s.text === void 0) {
         console.warn("WARNING! scene " + s.name + " has no text");
         s.text = "";
@@ -297,7 +294,7 @@ InputManager = (function() {
     }
   }
 
-  InputManager.prototype.presses = 0;
+  InputManager.presses = 0;
 
   InputManager.keyDown = function(charCode) {
     if (this.formsSelected()) {
@@ -565,8 +562,8 @@ Parser = (function() {
         } else if (s.substring(0, 5) === "sound") {
           parsed = s.split("sound ");
           splitText[index] = "<span class=\"play-sound " + parsed[1] + "\"></span>";
-        } else if (s.substring(0, 9) === "stopMusic") {
-          parsed = s.split("stopMusic ");
+        } else if (s.substring(0, 6) === "/music") {
+          parsed = s.split("/music ");
           splitText[index] = "<span class=\"stop-music " + parsed[1] + "\"></span>";
         } else if (s.substring(0, 5) === "music") {
           parsed = s.split("music ");
@@ -859,7 +856,7 @@ InventoryManager = (function() {
   };
 
   InventoryManager.editItems = function(items, mode) {
-    var displayName, hidden, i, itemAdded, j, k, l, len, len1, probability, random, ref, results, value;
+    var hidden, itemAdded, j, k, len, results;
     Util.checkFormat(items, 'array');
     results = [];
     for (k = 0, len = items.length; k < len; k++) {
@@ -869,62 +866,26 @@ InventoryManager = (function() {
         hidden = true;
         j[0] = j[0].substring(1, j[0].length);
       }
-      itemAdded = false;
-      ref = novelData.novel.inventories[novelData.novel.currentInventory];
-      for (l = 0, len1 = ref.length; l < len1; l++) {
-        i = ref[l];
-        if (i.name === j[0]) {
-          probability = 1;
-          if (j.length > 2) {
-            displayName = j[2];
-            value = parseInt(Parser.parseStatement(j[1]));
-            if (!isNaN(displayName)) {
-              probability = j[2];
-              displayName = j.name;
-            }
-            if (j.length > 3) {
-              probability = parseFloat(j[2]);
-              displayName = j[3];
-            }
-          } else {
-            displayName = j[0];
-            value = parseInt(Parser.parseStatement(j[1]));
-          }
-          random = Math.random();
-          if (random < probability) {
-            if (mode === "set") {
-              if (isNaN(parseInt(j[1]))) {
-                i.value = j[1];
-              } else {
-                i.value = parseInt(j[1]);
-              }
-            } else if (mode === "add") {
-              if (isNaN(parseInt(i.value))) {
-                i.value = 0;
-              }
-              i.value = parseInt(i.value) + value;
-            } else if (mode === "remove") {
-              if (!isNaN(parseInt(i.value))) {
-                i.value = parseInt(i.value) - value;
-                if (i.value < 0) {
-                  i.value = 0;
-                }
-              } else {
-                i.value = 0;
-              }
-            }
-          }
-          itemAdded = true;
-        }
+      itemAdded = this.tryEditInInventory(mode, j, hidden);
+      if (!itemAdded) {
+        results.push(this.tryEditNotInInventory(mode, j, hidden));
+      } else {
+        results.push(void 0);
       }
-      if (!itemAdded && mode !== "remove") {
+    }
+    return results;
+  };
+
+  InventoryManager.tryEditInInventory = function(mode, j, hidden) {
+    var displayName, i, k, len, probability, random, ref, value;
+    ref = novelData.novel.inventories[novelData.novel.currentInventory];
+    for (k = 0, len = ref.length; k < len; k++) {
+      i = ref[k];
+      if (i.name === j[0]) {
         probability = 1;
-        value = parseInt(Parser.parseStatement(j[1]));
-        if (isNaN(value)) {
-          value = Parser.parseStatement(j[1]);
-        }
         if (j.length > 2) {
           displayName = j[2];
+          value = parseInt(Parser.parseStatement(j[1]));
           if (!isNaN(displayName)) {
             probability = j[2];
             displayName = j.name;
@@ -935,26 +896,73 @@ InventoryManager = (function() {
           }
         } else {
           displayName = j[0];
+          value = parseInt(Parser.parseStatement(j[1]));
         }
         random = Math.random();
-        if (displayName === void 0) {
-          displayName = j[0];
-        }
         if (random < probability) {
-          results.push(novelData.novel.inventories[novelData.novel.currentInventory].push({
-            "name": j[0],
-            "value": value,
-            "displayName": displayName,
-            "hidden": hidden
-          }));
-        } else {
-          results.push(void 0);
+          if (mode === "set") {
+            if (isNaN(parseInt(j[1]))) {
+              i.value = j[1];
+            } else {
+              i.value = parseInt(j[1]);
+            }
+          } else if (mode === "add") {
+            if (isNaN(parseInt(i.value))) {
+              i.value = 0;
+            }
+            i.value = parseInt(i.value) + value;
+          } else if (mode === "remove") {
+            if (!isNaN(parseInt(i.value))) {
+              i.value = parseInt(i.value) - value;
+              if (i.value < 0) {
+                i.value = 0;
+              }
+            } else {
+              i.value = 0;
+            }
+          }
+          i.hidden = hidden;
         }
-      } else {
-        results.push(void 0);
+        return true;
       }
     }
-    return results;
+    return false;
+  };
+
+  InventoryManager.tryEditNotInInventory = function(mode, j, hidden) {
+    var displayName, probability, random, value;
+    if (mode !== "remove") {
+      probability = 1;
+      value = parseInt(Parser.parseStatement(j[1]));
+      if (isNaN(value)) {
+        value = Parser.parseStatement(j[1]);
+      }
+      if (j.length > 2) {
+        displayName = j[2];
+        if (!isNaN(displayName)) {
+          probability = j[2];
+          displayName = j.name;
+        }
+        if (j.length > 3) {
+          probability = parseFloat(j[2]);
+          displayName = j[3];
+        }
+      } else {
+        displayName = j[0];
+      }
+      random = Math.random();
+      if (displayName === void 0) {
+        displayName = j[0];
+      }
+      if (random < probability) {
+        return novelData.novel.inventories[novelData.novel.currentInventory].push({
+          "name": j[0],
+          "value": value,
+          "displayName": displayName,
+          "hidden": hidden
+        });
+      }
+    }
   };
 
   return InventoryManager;
@@ -1978,7 +1986,7 @@ Util = (function() {
 })();
 
 
-/* GLOBAL GAME novelData */
+/* GLOBAL GAME DATA */
 
 novelData = {
   novel: null,

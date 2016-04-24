@@ -2,6 +2,8 @@
 ### SAVING AND LOADING ###
 
 class NovelManager
+
+  # Create instance
   instance = null
   constructor: ->
     if instance
@@ -80,8 +82,9 @@ class NovelManager
 
   # Add values to novel.json that are not defined but are required for Vue.js view updating and other functions
   @prepareData: (json) ->
-    json.currentScene=""
-    json.parsedChoices=""
+    # Define variables
+    json.currentScene = ""
+    json.parsedChoices = ""
     if json.currentInventory is undefined
       json.currentInventory = 0
     if json.inventories is undefined
@@ -92,12 +95,11 @@ class NovelManager
       for j in i
         if j.displayName is undefined
           j.displayName = j.name
+    # Prepare scenes
     for s in json.scenes
       s.combinedText = ""
       s.parsedText = ""
       s.visited = false
-      if s.revisitSkipEnabled is undefined
-        s.revisitSkipEnabled = json.settings.scrollSettings.revisitSkipEnabled
       if s.text is undefined
         console.warn "WARNING! scene "+s.name+" has no text"
         s.text = ""

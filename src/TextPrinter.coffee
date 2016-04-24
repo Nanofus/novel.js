@@ -2,6 +2,8 @@
 ### TEXT PRINTING (letter by letter etc.) ###
 
 class TextPrinter
+
+  # Create instance
   instance = null
   constructor: ->
     if instance
@@ -9,6 +11,7 @@ class TextPrinter
     else
       instance = this
 
+  # Define class-wide variables
   @fullText: ""
   @currentOffset: 0
   @defaultInterval: 0
@@ -66,6 +69,7 @@ class TextPrinter
     if not @buffersExecuted
       ss = []
       first = true
+      # Play missed sounds
       if @fullText.indexOf("play-sound") > -1
         s = @fullText.split("play-sound ")
         for i in s
@@ -78,6 +82,7 @@ class TextPrinter
             SoundManager.playSound(Parser.parseStatement(ss[i]))
       ss = []
       first = true
+      # Play missed music
       if @fullText.indexOf("play-music") > -1
         s = @fullText.split("play-music ")
         for i in s
@@ -90,6 +95,7 @@ class TextPrinter
             SoundManager.startMusic(Parser.parseStatement(ss[i]))
       ss = []
       first = true
+      # Stop missed music
       if @fullText.indexOf("stop-music") > -1
         s = @fullText.split("stop-music ")
         for i in s
@@ -102,6 +108,7 @@ class TextPrinter
             SoundManager.stopMusic(Parser.parseStatement(ss[i]))
       ss = []
       first = true
+      # Execute missed commands
       if @fullText.indexOf("execute-command") > -1
         s = @fullText.split("execute-command ")
         for i in s
@@ -144,25 +151,33 @@ class TextPrinter
 
   # Show a new letter
   @onTick: ->
+    # Do not continue if paused
     if @pause isnt "input" and @pause > 0
       @pause--
+    # Continue if not paused
     if @pause is 0
       if not @speedMod
         @interval = @defaultInterval
+      # Instantly finish if interval is 0
       if @defaultInterval is 0
         @complete()
         return
+      # Return if all text is printed
       if novelData.printedText is @fullText
         return
+      # Parse tags
       offsetChanged = false
       while (@fullText[@currentOffset] is ' ' || @fullText[@currentOffset] is '<' || @fullText[@currentOffset] is '>')
         @readTags()
+      # Move forward
       novelData.printedText = @fullText.substring(0, @currentOffset)
       if not offsetChanged
         @currentOffset++
+      # Complete if printing finished
       if @currentOffset >= @fullText.length
         @complete()
         return
+      # Play tick sounds
       @tickCounter++
       if @tickCounter >= @tickSoundFrequency
         if @scrollSound isnt "none" and @interval isnt 0
@@ -171,7 +186,9 @@ class TextPrinter
           else if (novelData.novel.currentScene.scrollSound isnt undefined)
             SoundManager.playSound(novelData.novel.currentScene.scrollSound)
           @tickCounter = 0
+    # Set the tick sound frequency
     @setTickSoundFrequency(@interval / @tickSpeedMultiplier)
+    # Set the timeout until the next tick
     setTimeout (->
       TextPrinter.onTick()
       return
@@ -179,18 +196,22 @@ class TextPrinter
 
   # Skip chars that are not printed, and parse tags
   @readTags: ->
+    # Skip spaces and tag enders
     if @fullText[@currentOffset] is ' '
       @currentOffset++
     if @fullText[@currentOffset] is '>'
       @currentOffset++
+    # Tag starter found, start reading
     if @fullText[@currentOffset] is '<'
       i = @currentOffset
       str = ""
       i++
+      # Read the tag
       while (@fullText[i-1] isnt '>' and @fullText[i] isnt '<')
         str = str + @fullText[i]
         i++
       str = str.substring(1,str.length)
+      # Do not print hidden text
       if str.indexOf("display:none;") > -1
         disp = ""
         spans = 1
@@ -206,39 +227,48 @@ class TextPrinter
           if spans is 0
             break
         i++
-      # Buffering
+      # Buffering of hidden commands
+      # Sound playing
       if str.indexOf("play-sound") > -1 and str.indexOf("display:none;") > -1
         s = str.split("play-sound ")
         s = s[1].split(/\s|\"/)[0]
         @soundBuffer.push(Parser.parseStatement(s))
+      # Music playing
       if str.indexOf("play-music") > -1 and str.indexOf("display:none;") > -1
         s = str.split("play-music ")
         s = s[1].split(/\s|\"/)[0]
         @musicBuffer.push(Parser.parseStatement(s))
+      # Music stopping
       if str.indexOf("stop-music") > -1 and str.indexOf("display:none;") > -1
         s = str.split("stop-music ")
         s = s[1].split(/\s|\"/)[0]
         @stopMusicBuffer.push(Parser.parseStatement(s))
+      # Command executing
       if str.indexOf("execute-command") > -1 and str.indexOf("display:none;") > -1
         s = str.split("execute-command ")
         s = s[1].split(/\s|\"/)[0]
         @executeBuffer.push(Parser.parseStatement(s))
+      # Executing of non-hidden commands
       if str.indexOf("display:none;") is -1
+        # Sound playing
         if str.indexOf("play-sound") > -1
           s = str.split("play-sound ")
           s = s[1].split(/\s|\"/)[0]
           @soundBuffer.push(Parser.parseStatement(s))
           SoundManager.playSound(Parser.parseStatement(s))
+        # Music playing
         if str.indexOf("play-music") > -1
           s = str.split("play-music ")
           s = s[1].split(/\s|\"/)[0]
           @musicBuffer.push(Parser.parseStatement(s))
           SoundManager.startMusic(Parser.parseStatement(s))
+        # Music stopping
         if str.indexOf("stop-music") > -1
           s = str.split("stop-music ")
           s = s[1].split(/\s|\"/)[0]
           @stopMusicBuffer.push(Parser.parseStatement(s))
           SoundManager.stopMusic(Parser.parseStatement(s))
+        # Pausing
         if str.indexOf("pause") > -1
           s = str.split("pause ")
           s = s[1].split(/\s|\"/)[0]
@@ -246,24 +276,29 @@ class TextPrinter
           if @pause is "input"
             if document.querySelector("#continue-button") isnt null
               document.querySelector("#continue-button").style.display = 'inline';
+        # Command executing
         if str.indexOf("execute-command") > -1
           s = str.split("execute-command ")
           s = s[1].split(/\s|\"/)[0]
           @executeBuffer.push(s)
           if s isnt undefined
             eval(novelData.parsedJavascriptCommands[parseInt(s.substring(4,s.length))])
+        # Speed setting
         if str.indexOf("set-speed") > -1
           s = str.split("set-speed ")
           s = s[1].split(/\s|\"/)[0]
           @interval = Parser.parseStatement(s)
           @speedMod = true
+        # Speed resetting
         if str.indexOf("default-speed") > -1
           @interval = @defaultInterval
           @speedMod = false
+        # Scroll sound setting
         if str.indexOf("set-scroll-sound") > -1
           s = str.split("set-scroll-sound ")
           s = s[1].split(/\s|\"/)[0]
           @scrollSound = Parser.parseStatement(s)
+        # Scroll sound resetting
         if str.indexOf("default-scroll-sound") > -1
           @scrollSound = undefined
       @currentOffset = i

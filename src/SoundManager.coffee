@@ -3,6 +3,8 @@
 
 # A class for sound functions
 class SoundManager
+
+  # Create instance
   instance = null
   constructor: ->
     if instance

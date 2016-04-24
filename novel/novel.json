@@ -50,6 +50,7 @@
       "style": "road",
       "saveCheckpoint": "road",
       "executeJs": "console.log(\"Hello there! The game version is \" + novelData.novel.version)",
+      "revisitSkipEnabled": false,
       "choices": [
         {
           "text": "Keep walking [file content] [if var.settings.soundSettings.soundVolume>0.7]jajaja[/if][if var.name==kakkonen] this game has a weird [if inv.sword<3]and boearkoraeroak[/if] name[/if]",

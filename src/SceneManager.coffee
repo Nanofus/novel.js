@@ -2,6 +2,8 @@
 ### SCENE MANIPULATION ###
 
 class SceneManager
+  
+  # Create instance
   instance = null
   constructor: ->
     if instance
@@ -22,6 +24,7 @@ class SceneManager
     @readSaving(choice)
     @readExecutes(choice)
     @readCheckpoints(choice)
+    # Move to the next scene or choice
     if choice.nextScene isnt undefined
       @changeScene(choice.nextScene)
     else
@@ -66,6 +69,7 @@ class SceneManager
     @readExecutes(novelData.novel.currentScene)
     @readCheckpoints(novelData.novel.currentScene)
     @readMisc(novelData.novel.currentScene)
+    # Finally print the scene's text
     TextPrinter.printText(scene.parsedText,false)
 
   # If not changing scenes but update needed, this is called
@@ -75,6 +79,7 @@ class SceneManager
     scene.parsedText = Parser.parseText scene.combinedText
     # Set the current scene
     novelData.novel.currentScene = scene
+    # Make the next steps
     if not onlyUpdating
       novelData.novel.parsedChoices = null
     else
@@ -87,7 +92,7 @@ class SceneManager
       choice.parsedText = Parser.parseText choice.text
       if novelArea.novel.settings.alwaysShowDisabledChoices
         choice.alwaysShow = true
-      choice
+      return choice
     )
 
   # Return a scene by its name; throw an error if not found.
@@ -105,6 +110,7 @@ class SceneManager
     s.combinedText = ""
     if Object.prototype.toString.call(s.text) is "[object Array]"
       for i in s.text
+        # Rows should be formatted into paragraphs
         s.combinedText = s.combinedText + "<p>" + i + "</p>"
     else
       s.combinedText = s.text
@@ -112,18 +118,23 @@ class SceneManager
 
   # Read item and val edit commands from scene or choice
   @readItemEdits: (source) ->
+    # Handle inventory changing
     if source.changeInventory isnt undefined
       novelData.novel.currentInventory = Parser.parseStatement(source.changeInventory)
       if novelData.novel.currentInventory > novelData.novel.inventories.length
         for i in [0 .. novelData.novel.currentInventory]
           if novelData.novel.inventories[i] is undefined
             novelData.novel.inventories[i] = []
+    # Handle item removal
     if source.removeItem isnt undefined
       InventoryManager.editItems(Parser.parseItems(source.removeItem),"remove")
+    # Handle item adding
     if source.addItem isnt undefined
       InventoryManager.editItems(Parser.parseItems(source.addItem),"add")
+    # Handle item value setting
     if source.setItem isnt undefined
       InventoryManager.editItems(Parser.parseItems(source.setItem),"set")
+    # Handle object value setting
     if source.setValue isnt undefined
       for val in source.setValue
         InventoryManager.setValue(val.path,Parser.parseStatement(val.value.toString()))
@@ -135,17 +146,22 @@ class SceneManager
         InventoryManager.decreaseValue(val.path,Parser.parseStatement(val.value.toString()))
 
   # Read sound commands from scene or choice
-  @readSounds: (source,clicked) ->
+  @readSounds: (source, clicked) ->
     played = false
+    # If should play a sound
     if source.playSound isnt undefined
       SoundManager.playSound(Parser.parseStatement(source.playSound),false)
       played = true
+    # If no other sound was played, play the default click sound
     if clicked and not played
       SoundManager.playDefaultClickSound()
+    # Start music
     if source.startMusic isnt undefined
       SoundManager.startMusic(Parser.parseStatement(source.startMusic))
+    # Stop music
     if source.stopMusic isnt undefined
       SoundManager.stopMusic(Parser.parseStatement(source.stopMusic))
+    # Scene-specific scrolling sound
     if source.scrollSound isnt undefined
       novelData.novel.currentScene.scrollSound = Parser.parseStatement(source.scrollSound)
     else
@@ -156,23 +172,28 @@ class SceneManager
 
   # Read JS commands
   @readExecutes: (source) ->
+    # Execute found JS
     if source.executeJs isnt undefined
       eval(source.executeJs)
 
   # Read miscellaneous scene values
   @readMisc: (source) ->
+    # Check if skipping is enabled in this scene
     if source.skipEnabled isnt undefined
       novelData.novel.currentScene.skipEnabled = Parser.parseStatement(source.skipEnabled)
     else
       novelData.novel.currentScene.skipEnabled = novelData.novel.settings.scrollSettings.textSkipEnabled
+    # Check if revisit skipping is enabled in this scene
     if source.revisitSkipEnabled isnt undefined
       novelData.novel.currentScene.revisitSkipEnabled = Parser.parseStatement(source.revisitSkipEnabled)
     else
       novelData.novel.currentScene.revisitSkipEnabled = novelData.novel.settings.scrollSettings.revisitSkipEnabled
+    # Check if scroll speed setting is enabled
     if source.scrollSpeed isnt undefined
       novelData.novel.currentScene.scrollSpeed = source.scrollSpeed
     else
       novelData.novel.currentScene.scrollSpeed = novelData.novel.settings.scrollSettings.defaultScrollSpeed
+    # Check if inventory hiding is enabled
     if source.inventoryHidden isnt undefined
       novelData.inventoryHidden = Parser.parseStatement(source.inventoryHidden)
     else
@@ -187,37 +208,42 @@ class SceneManager
 
   # Read checkpoint commands
   @readCheckpoints: (source) ->
+    # Save a new checkpoint
     if source.saveCheckpoint isnt undefined
+      # Generate checkpoints object if not defined
       if novelData.novel.checkpoints is undefined
         novelData.novel.checkpoints = []
       dataChanged = false
+      # Try to set a checkpoint
       for i in novelData.novel.checkpoints
         if i.name is Parser.parseStatement(source.saveCheckpoint)
           i.scene = novelData.novel.currentScene.name
           dataChanged = true
-          #console.log "Updated checkpoint!"
+      # If an existing checkpoint was not found, create a new one
       if not dataChanged
-        checkpoint = {name:Parser.parseStatement(source.saveCheckpoint),scene:novelData.novel.currentScene.name}
+        checkpoint = { name: Parser.parseStatement(source.saveCheckpoint), scene: novelData.novel.currentScene.name }
         novelData.novel.checkpoints.push(checkpoint)
-      #console.log "Checkpoint saved!"
-      #console.log checkpoint
+    # Load a checkpoint if able
     if source.loadCheckpoint isnt undefined
+      # Generate a checkpoints object if not defined
       if novelData.novel.checkpoints is undefined
         novelData.novel.checkpoints = []
       for i in novelData.novel.checkpoints
         if i.name is Parser.parseStatement(source.loadCheckpoint)
-          #console.log "Checkpoint found!"
           @changeScene(i.scene)
 
   # Check whether the requirements for a choice have been met
   @requirementsFilled: (choice) ->
     reqs = []
+    # Check the item requirement
     if choice.itemRequirement isnt undefined
       requirements = Parser.parseItems choice.itemRequirement
       reqs.push InventoryManager.checkRequirements requirements
+    # Check the requirement statement
     if choice.requirement isnt undefined
       reqs.push Parser.parseStatement choice.requirement
     success = true
+    # If both were satisfied, return true
     for r in reqs
       if r is false
         success = false

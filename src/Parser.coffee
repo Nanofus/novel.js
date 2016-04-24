@@ -2,6 +2,8 @@
 ### PARSERS ###
 
 class Parser
+
+  # Create instance
   instance = null
   constructor: ->
     if instance
@@ -119,6 +121,7 @@ class Parser
             spansToBeClosed++
           else
             splitText[index] = ""
+        # Endif
         else if s.substring(0,3) is "/if"
           if spansToBeClosed > 0
             splitText[index] = "</span>"
@@ -188,6 +191,7 @@ class Parser
           parsed = s.split("choice ")
           splitText[index] = "<a href=\"#\" onclick=\"SceneManager.selectChoiceByNameByClicking(event,'"+parsed[1]+"')\">"
           asToBeClosed++
+        # Choice end
         else if s.substring(0,7) is "/choice"
           if asToBeClosed > 0
             splitText[index] = "</a>"
@@ -217,6 +221,7 @@ class Parser
     for val in parsedString
       type = @getStatementType(val)
       switch type
+        # Parse item
         when "item"
           found = false
           for i in novelData.novel.inventories[novelData.novel.currentInventory]
@@ -225,6 +230,7 @@ class Parser
               found = true
           if not found
             parsedValues.push 0
+        # Generate a random value
         when "rand"
           val = val.split(".")
           vals = val[1].split(",")
@@ -246,6 +252,7 @@ class Parser
           else
             result = parseFloat(result).toFixed(vals[2])
           parsedValues.push result
+        # Parse variable
         when "var"
           val = @findValue(val.substring(4,val.length),true)
           if not isNaN(parseFloat(val))
@@ -253,10 +260,13 @@ class Parser
           else
             val = "'" + val + "'"
           parsedValues.push val
+        # Parse float
         when "float"
           parsedValues.push parseFloat(val).toFixed(novelData.novel.settings.floatPrecision)
+        # Parse int
         when "int"
           parsedValues.push parseInt(val)
+        # Parse string
         when "string"
           if val isnt ""
             parsedValues.push "'" + val + "'"
