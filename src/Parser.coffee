@@ -154,8 +154,8 @@ class Parser
           parsed = s.split("sound ")
           splitText[index] = "<span class=\"play-sound " + parsed[1] + "\"></span>"
         # Stop music
-        else if s.substring(0,9) is "stopMusic"
-          parsed = s.split("stopMusic ")
+        else if s.substring(0,6) is "/music"
+          parsed = s.split("/music ")
           splitText[index] = "<span class=\"stop-music " + parsed[1] + "\"></span>"
         # Play music
         else if s.substring(0,5) is "music"

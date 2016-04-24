@@ -24,7 +24,6 @@
 	- [`scrollSound` - Setting text scrolling sound](#setting-text-scrolling-sound)
 	- [`sound` - Playing sounds while text scrolls](#playing-sounds-while-text-scrolls)
 	- [`music` - Playing music while text scrolls](#playing-music-while-text-scrolls)
-	- [`stopMusic` - Stopping music while text scrolls](#stopping-music-while-text-scrolls)
 	- [`p` - Tag and string presets](#tag-and-string-presets)
 	- [`s` - Styling shorthands](#styling-shorthands)
 - [Formats for statements and commands](#formats-for-statements-and-commands)
@@ -187,7 +186,7 @@ A scene object can contain the following attributes:
 - `revisitSkipEnabled` - Override the settings value for this scene. Should this scene's text should be automatically skipped if the scene has already been visited?
 - `playSound` - Play a sound with the chosen name upon entering the scene. You can select randomly between multiple options by using the [format for probabilities](#format-for-probabilities).
 - `startMusic` - Start a music loop with the chosen name. You can select randomly between multiple options by using the [format for probabilities](#format-for-probabilities).
-- `endMusic` - End a music loop with the chosen name.
+- `stopMusic` - End a music loop with the chosen name.
 - `executeJs` - JavaScript to be executed when the scene is loaded. You can access the application data through the `novelData.novel` object.
 - `save` - Saves the state in the way defined in `settings.saveMode` upon entering the scene. Value can be anything, works as long as it is defined.
 - `load` - Loads the state in the way defined in `settings.saveMode` upon entering the scene. Value can be anything, works as long as it is defined.
@@ -212,7 +211,7 @@ Choices are the options the player can choose in a scene. An example is provided
 - `decreaseValue` - See its [own chapter](#format-for-value-statements-and-commands).
 - `playSound` - Play a sound with the chosen name upon selecting the choice. Overrides the default click sound. You can select randomly between multiple options by using the [format for probabilities](#format-for-probabilities).
 - `startMusic` - Start a music loop with the chosen name. You can select randomly between multiple options by using the [format for probabilities](#format-for-probabilities).
-- `endMusic` - End a music loop with the chosen name.
+- `stopMusic` - End a music loop with the chosen name.
 - `executeJs` - JavaScript to be executed when the choice is selected. You can access the application data through the `novelData.novel` object.
 - `save` - Saves the application state in the way defined in `settings.saveMode` upon selecting the choice. Value can be anything, works as long as it is defined.
 - `load` - Loads the application state in the way defined in `settings.saveMode` upon selecting the choice. Value can be anything, works as long as it is defined.
@@ -416,9 +415,7 @@ You can play a sound at any point of the text's scrolling with the tag `[sound x
 
 You can start a song at any point of the text's scrolling with the tag `[music x]`, where x is the song's name. If the text scrolling is skipped, these are buffered and will be started all at once at the end.
 
-### Stopping music while text scrolls
-
-You can stop a song at any point of the text's scrolling with the tag `[stopMusic x]`, where x is the song's name. If the text scrolling is skipped, these are buffered and will be stopped all at once at the end.
+You can stop a song at any point by using the tag `[/music x]`, where x is the song's name.
 
 ### Tag and string presets
 
@@ -542,7 +539,7 @@ Music works a bit differently in Novel.js than sound effects do; music is starte
 ```
 If you try to play music that is already playing, the command is ignored. You can set multiple random options by using the [format for probabilities](#format-for-probabilities).
 
-You can also use an inline tag.
+You can also use the inline tags `[music]` and `[/music]`.
 
 ## Styling
 
