@@ -150,7 +150,7 @@ class TextPrinter
       @tickSoundFrequency = 3
 
   # Show a new letter
-  @onTick: ->
+  @onTick = ->
     # Do not continue if paused
     if @pause isnt "input" and @pause > 0
       @pause--
@@ -195,7 +195,7 @@ class TextPrinter
     ), @interval / @tickSpeedMultiplier
 
   # Skip chars that are not printed, and parse tags
-  @readTags: ->
+  @readTags = ->
     # Skip spaces and tag enders
     if @fullText[@currentOffset] is ' '
       @currentOffset++

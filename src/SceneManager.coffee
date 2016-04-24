@@ -2,7 +2,7 @@
 ### SCENE MANIPULATION ###
 
 class SceneManager
-  
+
   # Create instance
   instance = null
   constructor: ->
@@ -47,13 +47,13 @@ class SceneManager
         break
 
   # Called when exiting a scene
-  @exitScene: (scene) ->
+  @exitScene = (scene) ->
     # Set the previous scene as visited
     scene.visited = true
     UI.updateInputs(false)
 
   # Called when changing a scene
-  @changeScene: (sceneNames) ->
+  @changeScene = (sceneNames) ->
     # Load the new scene
     Util.checkFormat(sceneNames,'string')
     scene = @findSceneByName(Parser.selectRandomOption sceneNames)
@@ -61,7 +61,7 @@ class SceneManager
     return scene
 
   # Setup a scene changed to
-  @setupScene: (scene) ->
+  @setupScene = (scene) ->
     @updateScene(scene, false)
     @readItemEdits(novelData.novel.currentScene)
     @readSounds(novelData.novel.currentScene,false)
@@ -73,7 +73,7 @@ class SceneManager
     TextPrinter.printText(scene.parsedText,false)
 
   # If not changing scenes but update needed, this is called
-  @updateScene: (scene, onlyUpdating) ->
+  @updateScene = (scene, onlyUpdating) ->
     # Handle the scene text
     scene = @combineSceneTexts(scene)
     scene.parsedText = Parser.parseText scene.combinedText
@@ -87,7 +87,7 @@ class SceneManager
       TextPrinter.complete()
 
   # Update choice texts when they are changed - Vue.js doesn't detect them without this.
-  @updateChoices: ->
+  @updateChoices = ->
     novelArea.$set 'novel.parsedChoices', novelData.novel.currentScene.choices.map((choice) ->
       choice.parsedText = Parser.parseText choice.text
       if novelArea.novel.settings.alwaysShowDisabledChoices
@@ -96,7 +96,7 @@ class SceneManager
     )
 
   # Return a scene by its name; throw an error if not found.
-  @findSceneByName: (name) ->
+  @findSceneByName = (name) ->
     Util.checkFormat(name,'string')
     for i in novelData.novel.scenes
       if i.name is name
@@ -104,7 +104,7 @@ class SceneManager
     console.error "ERROR: Scene by name '"+name+"' not found!"
 
   # Combine the multiple scene text rows
-  @combineSceneTexts: (s) ->
+  @combineSceneTexts = (s) ->
     Util.checkFormat(s,'object')
     Util.checkFormat(s.text,'arrayOrString')
     s.combinedText = ""
@@ -117,7 +117,7 @@ class SceneManager
     return s
 
   # Read item and val edit commands from scene or choice
-  @readItemEdits: (source) ->
+  @readItemEdits = (source) ->
     # Handle inventory changing
     if source.changeInventory isnt undefined
       novelData.novel.currentInventory = Parser.parseStatement(source.changeInventory)
@@ -127,13 +127,13 @@ class SceneManager
             novelData.novel.inventories[i] = []
     # Handle item removal
     if source.removeItem isnt undefined
-      InventoryManager.editItems(Parser.parseItems(source.removeItem),"remove")
+      InventoryManager.removeItems(Parser.parseItems(source.removeItem))
     # Handle item adding
     if source.addItem isnt undefined
-      InventoryManager.editItems(Parser.parseItems(source.addItem),"add")
+      InventoryManager.addItems(Parser.parseItems(source.addItem))
     # Handle item value setting
     if source.setItem isnt undefined
-      InventoryManager.editItems(Parser.parseItems(source.setItem),"set")
+      InventoryManager.setItems(Parser.parseItems(source.setItem))
     # Handle object value setting
     if source.setValue isnt undefined
       for val in source.setValue
@@ -146,7 +146,7 @@ class SceneManager
         InventoryManager.decreaseValue(val.path,Parser.parseStatement(val.value.toString()))
 
   # Read sound commands from scene or choice
-  @readSounds: (source, clicked) ->
+  @readSounds = (source, clicked) ->
     played = false
     # If should play a sound
     if source.playSound isnt undefined
@@ -171,13 +171,13 @@ class SceneManager
         novelData.novel.currentScene.scrollSound = undefined
 
   # Read JS commands
-  @readExecutes: (source) ->
+  @readExecutes = (source) ->
     # Execute found JS
     if source.executeJs isnt undefined
       eval(source.executeJs)
 
   # Read miscellaneous scene values
-  @readMisc: (source) ->
+  @readMisc = (source) ->
     # Check if skipping is enabled in this scene
     if source.skipEnabled isnt undefined
       novelData.novel.currentScene.skipEnabled = Parser.parseStatement(source.skipEnabled)
@@ -200,14 +200,14 @@ class SceneManager
       novelData.inventoryHidden = novelData.novel.settings.inventoryHidden
 
   # Read save and load commands from scene or choice
-  @readSaving: (source) ->
+  @readSaving = (source) ->
     if source.save isnt undefined
       NovelManager.saveData()
     if source.load isnt undefined
       UI.showLoadNotification()
 
   # Read checkpoint commands
-  @readCheckpoints: (source) ->
+  @readCheckpoints = (source) ->
     # Save a new checkpoint
     if source.saveCheckpoint isnt undefined
       # Generate checkpoints object if not defined
@@ -233,7 +233,7 @@ class SceneManager
           @changeScene(i.scene)
 
   # Check whether the requirements for a choice have been met
-  @requirementsFilled: (choice) ->
+  @requirementsFilled = (choice) ->
     reqs = []
     # Check the item requirement
     if choice.itemRequirement isnt undefined

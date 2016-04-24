@@ -59,8 +59,20 @@ class InventoryManager
     getValueArrayLast = getValueArrayLast[getValueArrayLast.length-1]
     return getValueArrayLast
 
+  # Add items
+  @addItems: (items) ->
+    @editItems(items, "add")
+
+  # Set items
+  @setItems: (items) ->
+    @editItems(items, "set")
+
+  # Remove items
+  @removeItems: (items) ->
+    @editItems(items, "remove")
+
   # Edit the player's items or stats
-  @editItems: (items, mode) ->
+  @editItems = (items, mode) ->
     Util.checkFormat(items,'array')
     for j in items
       hidden = false

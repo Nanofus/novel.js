@@ -855,6 +855,18 @@ InventoryManager = (function() {
     return getValueArrayLast;
   };
 
+  InventoryManager.addItems = function(items) {
+    return this.editItems(items, "add");
+  };
+
+  InventoryManager.setItems = function(items) {
+    return this.editItems(items, "set");
+  };
+
+  InventoryManager.removeItems = function(items) {
+    return this.editItems(items, "remove");
+  };
+
   InventoryManager.editItems = function(items, mode) {
     var hidden, itemAdded, j, k, len, results;
     Util.checkFormat(items, 'array');
@@ -1120,13 +1132,13 @@ SceneManager = (function() {
       }
     }
     if (source.removeItem !== void 0) {
-      InventoryManager.editItems(Parser.parseItems(source.removeItem), "remove");
+      InventoryManager.removeItems(Parser.parseItems(source.removeItem));
     }
     if (source.addItem !== void 0) {
-      InventoryManager.editItems(Parser.parseItems(source.addItem), "add");
+      InventoryManager.addItems(Parser.parseItems(source.addItem));
     }
     if (source.setItem !== void 0) {
-      InventoryManager.editItems(Parser.parseItems(source.setItem), "set");
+      InventoryManager.setItems(Parser.parseItems(source.setItem));
     }
     if (source.setValue !== void 0) {
       ref1 = source.setValue;

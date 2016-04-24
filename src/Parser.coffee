@@ -25,7 +25,7 @@ class Parser
     return parsed
 
   # Select a scene or choice randomly from multiple scenes with different probabilities, takes array
-  @chooseRandomly: (options) ->
+  @chooseRandomly = (options) ->
     names = []
     chances = []
     rawChances = []

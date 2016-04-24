@@ -12,7 +12,7 @@ class NovelManager
       instance = this
 
   # Load a browser cookie
-  @loadCookie: (cname) ->
+  @loadCookie = (cname) ->
     name = cname + '='
     ca = document.cookie.split(';')
     i = 0
@@ -25,7 +25,7 @@ class NovelManager
       i++
 
   # Save a browser cookie
-  @saveCookie: (cname, cvalue, exdays) ->
+  @saveCookie = (cname, cvalue, exdays) ->
     d = new Date
     d.setTime d.getTime() + exdays * 24 * 60 * 60 * 1000
     expires = 'expires=' + d.toUTCString()
@@ -48,7 +48,7 @@ class NovelManager
       @prepareLoadedData(loadedData, changeScene)
 
   # Prepare the novel from the loaded save file
-  @prepareLoadedData: (loadedData, changeScene) ->
+  @prepareLoadedData = (loadedData, changeScene) ->
     if novelData.novel.name isnt loadedData.name
       console.error "ERROR! novel name mismatch"
       return
@@ -61,7 +61,7 @@ class NovelManager
       SceneManager.updateScene(loadedData.currentScene,true)
 
   # Converts the novel's state into json and Base64 encode it
-  @saveDataAsJson: () ->
+  @saveDataAsJson = () ->
     # Clone the game data
     saveData = JSON.parse(JSON.stringify(novelData.novel))
     delete saveData.scenes
@@ -81,7 +81,7 @@ class NovelManager
       UI.showSaveNotification(save)
 
   # Add values to novel.json that are not defined but are required for Vue.js view updating and other functions
-  @prepareData: (json) ->
+  @prepareData = (json) ->
     # Define variables
     json.currentScene = ""
     json.parsedChoices = ""
@@ -128,7 +128,7 @@ class NovelManager
       document.querySelector("#continue-button").style.display = 'none'
 
   # Load external json
-  @loadExternalJson: (json) ->
+  @loadExternalJson = (json) ->
     console.log "Loading external json files..."
     ready = 0
     for s in json.externalJson
@@ -149,7 +149,7 @@ class NovelManager
       ) s
 
   # Combine other json objects with the main json
-  @includeJsons: (root,object) ->
+  @includeJsons = (root,object) ->
     for x of object
       if typeof object[x] is 'object'
         @includeJsons root,object[x]
@@ -161,7 +161,7 @@ class NovelManager
             break
 
   # Load external text files
-  @loadExternalText: (json) ->
+  @loadExternalText = (json) ->
     console.log "Loading external text files..."
     ready = 0
     for s in json.externalText
@@ -181,7 +181,7 @@ class NovelManager
       ) s
 
   # Prepare loaded json data
-  @prepareLoadedJson: (json) ->
+  @prepareLoadedJson = (json) ->
     @prepareData(json)
     novelData.novel = json
     novelData.debugMode = novelData.novel.debugMode
