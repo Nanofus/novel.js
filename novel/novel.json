@@ -218,6 +218,7 @@
     "debugMode": true,
     "saveMode": "text",
     "showSaveButtons": true,
+    "showSkipButton": false,
     "inventoryHidden": false,
     "choicesHidden": false,
     "alwaysShowDisabledChoices": false,

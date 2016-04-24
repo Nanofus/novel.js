@@ -69,6 +69,8 @@ class SceneManager
     @readExecutes(novelData.novel.currentScene)
     @readCheckpoints(novelData.novel.currentScene)
     @readMisc(novelData.novel.currentScene)
+    # Show the hidden inventory items based on debug mode
+    UI.showHiddenInventoryArea()
     # Finally print the scene's text
     TextPrinter.printText(scene.parsedText,false)
 
@@ -79,6 +81,8 @@ class SceneManager
     scene.parsedText = Parser.parseText scene.combinedText
     # Set the current scene
     novelData.novel.currentScene = scene
+    # Update scene style
+    UI.updateStyle(scene.style)
     # Make the next steps
     if not onlyUpdating
       novelData.novel.parsedChoices = null
@@ -180,9 +184,11 @@ class SceneManager
   @readMisc = (source) ->
     # Check if skipping is enabled in this scene
     if source.skipEnabled isnt undefined
-      novelData.novel.currentScene.skipEnabled = Parser.parseStatement(source.skipEnabled)
+      val = Parser.parseStatement(source.skipEnabled)
     else
-      novelData.novel.currentScene.skipEnabled = novelData.novel.settings.scrollSettings.textSkipEnabled
+      val = novelData.novel.settings.scrollSettings.textSkipEnabled
+    novelData.novel.currentScene.skipEnabled = val
+    UI.showSkipButton(val)
     # Check if revisit skipping is enabled in this scene
     if source.revisitSkipEnabled isnt undefined
       novelData.novel.currentScene.revisitSkipEnabled = Parser.parseStatement(source.revisitSkipEnabled)
@@ -195,14 +201,25 @@ class SceneManager
       novelData.novel.currentScene.scrollSpeed = novelData.novel.settings.scrollSettings.defaultScrollSpeed
     # Check if inventory hiding is enabled
     if source.inventoryHidden isnt undefined
-      novelData.inventoryHidden = Parser.parseStatement(source.inventoryHidden)
+      val = Parser.parseStatement(source.inventoryHidden)
     else
-      novelData.inventoryHidden = novelData.novel.settings.inventoryHidden
+      val = novelData.novel.settings.inventoryHidden
+    novelData.inventoryHidden = val
+    UI.showInventoryArea(!val)
     # Check if choice hiding is enabled
     if source.choicesHidden isnt undefined
-      novelData.choicesHidden = Parser.parseStatement(source.choicesHidden)
+      val = Parser.parseStatement(source.choicesHidden)
     else
-      novelData.choicesHidden = novelData.novel.settings.choicesHidden
+      val = novelData.novel.settings.choicesHidden
+    novelData.choicesHidden = val
+    UI.showChoicesArea(!val)
+    # Check if choice hiding is enabled
+    if source.saveButtonsHidden isnt undefined
+      val = Parser.parseStatement(source.saveButtonsHidden)
+    else
+      val = !novelData.novel.settings.showSaveButtons
+    novelData.saveButtonsHidden = val
+    UI.showSaveButtons(!val)
 
   # Read save and load commands from scene or choice
   @readSaving = (source) ->

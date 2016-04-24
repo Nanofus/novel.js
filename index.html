@@ -2,7 +2,7 @@
   <head>
     <meta charset="UTF-8">
     <title>Novel.js</title>
-    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="novel/skin.css">
     <link href='https://fonts.googleapis.com/css?family=Cinzel+Decorative|Lora' rel='stylesheet' type='text/css'>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,7 +10,7 @@
   <body>
     <main>
       <div id="novel-area">
-        <div class="style-area {{ novel.currentScene.style }}">
+        <div id="novel-style-area">
           <div id="notification-wrapper">
             <div id="save-notification" class="notification">
               <p>Copy and save this text:</p>
@@ -24,12 +24,10 @@
             </div>
           </div>
           <div class="text-and-choices-area">
-            <div class="text-area">
-              {{{ printedText }}}
-            </div>
-            <button v-show="textSkipEnabled()" type="button" id="skip-button" onclick="TextPrinter.complete()">Skip</button>
+            <div id="novel-text-area" class="text-area"></div>
+            <button type="button" id="skip-button" onclick="TextPrinter.complete()">Skip</button>
             <button type="button" id="continue-button" onclick="TextPrinter.unpause()">Continue</button>
-            <div v-if="!choicesHidden" class="choices">
+            <div id="novel-choices-area" class="choices">
               <ul class="choice-list">
                 <div v-for="choice in novel.parsedChoices">
                   <li v-if="requirementsFilled(choice)" class="choice">
@@ -44,7 +42,7 @@
               </ul>
             </div>
           </div>
-          <div v-if="!inventoryHidden" class="inventory">
+          <div id="novel-inventory-area" class="inventory">
             <h5>Inventory:</h5>
             <ul class="item-list">
               <li v-for="item in novel.inventories[novel.currentInventory]" class="inventory-item" v-if="itemsOverZeroAndNotHidden(item)">
@@ -52,7 +50,7 @@
               </li>
             </ul>
           </div>
-          <div v-if="novel.settings.debugMode" class="stats">
+          <div id="novel-hidden-inventory-area" class="stats">
             <h5>Stats:</h5>
             <ul class="item-list">
               <li v-for="item in novel.inventories[novel.currentInventory]" class="inventory-item" v-if="itemsOverZeroAndAreHidden(item)">
@@ -60,7 +58,7 @@
               </li>
             </ul>
           </div>
-          <div v-if="novel.settings.showSaveButtons" class="save-buttons">
+          <div id="novel-save-area" class="save-buttons">
             <button type="button" id="save-button" onclick="NovelManager.saveData()">Save</button>
             <button type="button" id="load-button" onclick="UI.showLoadNotification()">Load</button>
           </div>

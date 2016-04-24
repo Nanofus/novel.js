@@ -13,6 +13,7 @@ class TextPrinter
 
   # Define class-wide variables
   @fullText: ""
+  @currentText: ""
   @currentOffset: 0
   @defaultInterval: 0
   @soundBuffer: []
@@ -32,7 +33,8 @@ class TextPrinter
   # Print a scene's text - noBuffers prevents buffers from replaying when scene is not changed
   @printText: (text, noBuffers) ->
     @printCompleted = false
-    novelData.printedText = ""
+    @currentText = ""
+    UI.updateText(@currentText)
     # Disable the skip button
     if document.querySelector("#skip-button") isnt null
       document.querySelector("#skip-button").disabled = false;
@@ -121,7 +123,8 @@ class TextPrinter
             eval(novelData.parsedJavascriptCommands[parseInt(ss[i].substring(4,ss[i].length))])
       @buffersExecuted = true
     # Set printed text and update choices
-    novelData.printedText = @fullText
+    @currentText = @fullText
+    UI.updateText(@currentText)
     SceneManager.updateChoices()
 
   # Stop pause
@@ -163,14 +166,15 @@ class TextPrinter
         @complete()
         return
       # Return if all text is printed
-      if novelData.printedText is @fullText
+      if @currentText is @fullText
         return
       # Parse tags
       offsetChanged = false
       while (@fullText[@currentOffset] is ' ' || @fullText[@currentOffset] is '<' || @fullText[@currentOffset] is '>')
         @readTags()
       # Move forward
-      novelData.printedText = @fullText.substring(0, @currentOffset)
+      @currentText = @fullText.substring(0, @currentOffset)
+      UI.updateText(@currentText)
       if not offsetChanged
         @currentOffset++
       # Complete if printing finished

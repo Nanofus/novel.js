@@ -11,7 +11,7 @@ novelArea = new Vue(
 
     # Return whether the text can be skipped
     textSkipEnabled: (choice) ->
-      return novelData.novel.currentScene.skipEnabled and novelData.novel.settings.skipButtonShown
+      return novelData.novel.currentScene.skipEnabled and novelData.novel.settings.skipButtonShown 
 
     # Check if specific item's count is over 0; if it isn't, it's not shown. Also it should be hidden.
     itemsOverZeroAndAreHidden: (item) ->

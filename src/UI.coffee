@@ -2,12 +2,59 @@
 ### UI SCRIPTS ###
 
 class UI
+
+  # Create instance
   instance = null
   constructor: ->
     if instance
       return instance
     else
       instance = this
+
+  @updateStyle: (style) ->
+    e = document.getElementById("novel-style-area")
+    if style is undefined
+      style = ""
+    e.setAttribute( 'class', style );
+
+  @showSkipButton: (show) ->
+    e = document.getElementById("skip-button")
+    if show && novelData.novel.settings.showSkipButton
+      e.style.display = "inline"
+    else
+      e.style.display = "none"
+
+  @showChoicesArea: (show) ->
+    e = document.getElementById("novel-choices-area")
+    if show
+      e.style.display = "inline"
+    else
+      e.style.display = "none"
+
+  @showInventoryArea: (show) ->
+    e = document.getElementById("novel-inventory-area")
+    if show
+      e.style.display = "inline"
+    else
+      e.style.display = "none"
+
+  @showHiddenInventoryArea: () ->
+    e = document.getElementById("novel-hidden-inventory-area")
+    if novelData.novel.settings.debugMode
+      e.style.display = "inline"
+    else
+      e.style.display = "none"
+
+  @showSaveButtons: (show) ->
+    e = document.getElementById("novel-save-area")
+    if show
+      e.style.display = "inline"
+    else
+      e.style.display = "none"
+
+  @updateText: (text) ->
+    e = document.getElementById("novel-text-area")
+    e.innerHTML = text
 
   # Show the save notification window, and update its text
   @showSaveNotification: (text) ->

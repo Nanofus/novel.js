@@ -175,6 +175,7 @@ A scene object can contain the following attributes:
 - `style` - The scene's style. Adds a html class that can be styled in `skin.css` to give different looks to different scenes.
 - `inventoryHidden` - If defined and set to true, the inventory is not shown in this scene.
 - `choicesHidden` - If defined and set to true, the choices in this scene are hidden from the user. Keyboard input still works.
+- `saveButtonsHidden` - If defined and set to true, the save buttons are hidden from the user.
 - `changeInventory` - Change the current inventory. Takes an index. The default inventory is `0`. This is parsed before any other item-related commands, so they affect the new inventory.
 - `addItem` - Add items to the player's inventory upon entering the scene.
 - `removeItem` - Remove items from the player's inventory upon entering the scene.
@@ -236,7 +237,7 @@ The settings object contains settings for the application. All of the settings v
 	- `defaultScrollSpeed` - The default speed (letter interval in ms) at which text scrolls. If set to 0, all text appears instantly.
 	- `textSkipEnabled` - True or false. If disabled, text can't be skipped.
 	- `revisitSkipEnabled` - True or false. Should a scene's text should be automatically skipped if the scene has already been visited. Can be overridden on a per-scene basis. The bool `novelData.novel.currentScene.visited` for a scene is changed to true after the scene is left.
-	- `skipButtonShown` - True or false. If enabled, a skip button is shown. If disabled, no button is shown.
+	- `showSkipButton` - True or false. If enabled, a skip button is shown. If disabled, no button is shown.
 	- `skipWithKeyboard` - True or false. If enabled, the player can skip text by pressing space or enter. Does not work with `fastScrollWithKeyboard`.
 	- `continueWithKeyboard` - True or false. If enabled, the player can choose the default choice (with `name` set to `"Continue"`) by pressing space or enter.
 	- `fastScrollWithKeyboard` - True or false. If enabled, the player can make text scroll faster by pressing space or enter. Does not work with `skipWithKeyboard`.

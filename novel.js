@@ -1068,6 +1068,7 @@ SceneManager = (function() {
     this.readExecutes(novelData.novel.currentScene);
     this.readCheckpoints(novelData.novel.currentScene);
     this.readMisc(novelData.novel.currentScene);
+    UI.showHiddenInventoryArea();
     return TextPrinter.printText(scene.parsedText, false);
   };
 
@@ -1075,6 +1076,7 @@ SceneManager = (function() {
     scene = this.combineSceneTexts(scene);
     scene.parsedText = Parser.parseText(scene.combinedText);
     novelData.novel.currentScene = scene;
+    UI.updateStyle(scene.style);
     if (!onlyUpdating) {
       return novelData.novel.parsedChoices = null;
     } else {
@@ -1203,11 +1205,14 @@ SceneManager = (function() {
   };
 
   SceneManager.readMisc = function(source) {
+    var val;
     if (source.skipEnabled !== void 0) {
-      novelData.novel.currentScene.skipEnabled = Parser.parseStatement(source.skipEnabled);
+      val = Parser.parseStatement(source.skipEnabled);
     } else {
-      novelData.novel.currentScene.skipEnabled = novelData.novel.settings.scrollSettings.textSkipEnabled;
+      val = novelData.novel.settings.scrollSettings.textSkipEnabled;
     }
+    novelData.novel.currentScene.skipEnabled = val;
+    UI.showSkipButton(val);
     if (source.revisitSkipEnabled !== void 0) {
       novelData.novel.currentScene.revisitSkipEnabled = Parser.parseStatement(source.revisitSkipEnabled);
     } else {
@@ -1219,15 +1224,26 @@ SceneManager = (function() {
       novelData.novel.currentScene.scrollSpeed = novelData.novel.settings.scrollSettings.defaultScrollSpeed;
     }
     if (source.inventoryHidden !== void 0) {
-      novelData.inventoryHidden = Parser.parseStatement(source.inventoryHidden);
+      val = Parser.parseStatement(source.inventoryHidden);
     } else {
-      novelData.inventoryHidden = novelData.novel.settings.inventoryHidden;
+      val = novelData.novel.settings.inventoryHidden;
     }
+    novelData.inventoryHidden = val;
+    UI.showInventoryArea(!val);
     if (source.choicesHidden !== void 0) {
-      return novelData.choicesHidden = Parser.parseStatement(source.choicesHidden);
+      val = Parser.parseStatement(source.choicesHidden);
     } else {
-      return novelData.choicesHidden = novelData.novel.settings.choicesHidden;
+      val = novelData.novel.settings.choicesHidden;
     }
+    novelData.choicesHidden = val;
+    UI.showChoicesArea(!val);
+    if (source.saveButtonsHidden !== void 0) {
+      val = Parser.parseStatement(source.saveButtonsHidden);
+    } else {
+      val = !novelData.novel.settings.showSaveButtons;
+    }
+    novelData.saveButtonsHidden = val;
+    return UI.showSaveButtons(!val);
   };
 
   SceneManager.readSaving = function(source) {
@@ -1434,6 +1450,8 @@ TextPrinter = (function() {
 
   TextPrinter.fullText = "";
 
+  TextPrinter.currentText = "";
+
   TextPrinter.currentOffset = 0;
 
   TextPrinter.defaultInterval = 0;
@@ -1466,7 +1484,8 @@ TextPrinter = (function() {
 
   TextPrinter.printText = function(text, noBuffers) {
     this.printCompleted = false;
-    novelData.printedText = "";
+    this.currentText = "";
+    UI.updateText(this.currentText);
     if (document.querySelector("#skip-button") !== null) {
       document.querySelector("#skip-button").disabled = false;
     }
@@ -1581,7 +1600,8 @@ TextPrinter = (function() {
       }
       this.buffersExecuted = true;
     }
-    novelData.printedText = this.fullText;
+    this.currentText = this.fullText;
+    UI.updateText(this.currentText);
     return SceneManager.updateChoices();
   };
 
@@ -1629,14 +1649,15 @@ TextPrinter = (function() {
         this.complete();
         return;
       }
-      if (novelData.printedText === this.fullText) {
+      if (this.currentText === this.fullText) {
         return;
       }
       offsetChanged = false;
       while (this.fullText[this.currentOffset] === ' ' || this.fullText[this.currentOffset] === '<' || this.fullText[this.currentOffset] === '>') {
         this.readTags();
       }
-      novelData.printedText = this.fullText.substring(0, this.currentOffset);
+      this.currentText = this.fullText.substring(0, this.currentOffset);
+      UI.updateText(this.currentText);
       if (!offsetChanged) {
         this.currentOffset++;
       }
@@ -1798,6 +1819,71 @@ UI = (function() {
       instance = this;
     }
   }
+
+  UI.updateStyle = function(style) {
+    var e;
+    e = document.getElementById("novel-style-area");
+    if (style === void 0) {
+      style = "";
+    }
+    return e.setAttribute('class', style);
+  };
+
+  UI.showSkipButton = function(show) {
+    var e;
+    e = document.getElementById("skip-button");
+    if (show && novelData.novel.settings.showSkipButton) {
+      return e.style.display = "inline";
+    } else {
+      return e.style.display = "none";
+    }
+  };
+
+  UI.showChoicesArea = function(show) {
+    var e;
+    e = document.getElementById("novel-choices-area");
+    if (show) {
+      return e.style.display = "inline";
+    } else {
+      return e.style.display = "none";
+    }
+  };
+
+  UI.showInventoryArea = function(show) {
+    var e;
+    e = document.getElementById("novel-inventory-area");
+    if (show) {
+      return e.style.display = "inline";
+    } else {
+      return e.style.display = "none";
+    }
+  };
+
+  UI.showHiddenInventoryArea = function() {
+    var e;
+    e = document.getElementById("novel-hidden-inventory-area");
+    if (novelData.novel.settings.debugMode) {
+      return e.style.display = "inline";
+    } else {
+      return e.style.display = "none";
+    }
+  };
+
+  UI.showSaveButtons = function(show) {
+    var e;
+    e = document.getElementById("novel-save-area");
+    if (show) {
+      return e.style.display = "inline";
+    } else {
+      return e.style.display = "none";
+    }
+  };
+
+  UI.updateText = function(text) {
+    var e;
+    e = document.getElementById("novel-text-area");
+    return e.innerHTML = text;
+  };
 
   UI.showSaveNotification = function(text) {
     var e, textArea;
