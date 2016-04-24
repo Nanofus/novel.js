@@ -198,6 +198,11 @@ class SceneManager
       novelData.inventoryHidden = Parser.parseStatement(source.inventoryHidden)
     else
       novelData.inventoryHidden = novelData.novel.settings.inventoryHidden
+    # Check if choice hiding is enabled
+    if source.choicesHidden isnt undefined
+      novelData.choicesHidden = Parser.parseStatement(source.choicesHidden)
+    else
+      novelData.choicesHidden = novelData.novel.settings.choicesHidden
 
   # Read save and load commands from scene or choice
   @readSaving = (source) ->

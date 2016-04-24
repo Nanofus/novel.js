@@ -26,6 +26,7 @@
       "text": "SUPER AMAZING MEDIEVAL ADVENTURE!",
       "style": "main-menu",
       "changeInventory": 1,
+      "choicesHidden": true,
       "choices": [
         {
           "text": "Start",
@@ -218,6 +219,7 @@
     "saveMode": "text",
     "showSaveButtons": true,
     "inventoryHidden": false,
+    "choicesHidden": false,
     "alwaysShowDisabledChoices": false,
     "floatPrecision": 5,
     "scrollSettings": {

@@ -29,7 +29,7 @@
             </div>
             <button v-show="textSkipEnabled()" type="button" id="skip-button" onclick="TextPrinter.complete()">Skip</button>
             <button type="button" id="continue-button" onclick="TextPrinter.unpause()">Continue</button>
-            <div class="choices">
+            <div v-if="!choicesHidden" class="choices">
               <ul class="choice-list">
                 <div v-for="choice in novel.parsedChoices">
                   <li v-if="requirementsFilled(choice)" class="choice">

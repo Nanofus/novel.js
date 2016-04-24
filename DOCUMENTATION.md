@@ -174,6 +174,7 @@ A scene object can contain the following attributes:
 - `text` - Required (not enforced). The scene's text. Can be formatted using html and Novel.js's own tags. The text can be a simple string, or an array of strings. If it is an array, each of the array items gets surrounded by paragraph tags (`<p></p>`). This makes formatting long text easier.
 - `style` - The scene's style. Adds a html class that can be styled in `skin.css` to give different looks to different scenes.
 - `inventoryHidden` - If defined and set to true, the inventory is not shown in this scene.
+- `choicesHidden` - If defined and set to true, the choices in this scene are hidden from the user. Keyboard input still works.
 - `changeInventory` - Change the current inventory. Takes an index. The default inventory is `0`. This is parsed before any other item-related commands, so they affect the new inventory.
 - `addItem` - Add items to the player's inventory upon entering the scene.
 - `removeItem` - Remove items from the player's inventory upon entering the scene.
@@ -226,7 +227,8 @@ The settings object contains settings for the application. All of the settings v
 
 - `debugMode` - True or false. If true, the hidden items list is shown to the player the same way as the regular inventory.
 - `inventoryHidden` - True or false. If true, the inventory is always hidden. Can be overridden on a scene-by-scene basis.
-- `alwaysShowDisabledChoices` - True or false. If true, choices with unmet requirements are always shown.
+- `choicesHidden` - True or false. If true, all choices are hidden from the user.
+- `alwaysShowDisabledChoices` - True or false. If true, choices with unmet requirements are always shown (except if `choicesHidden` is true).
 - `saveMode` - `text` or `cookie`. See [Saving](#saving).
 - `showSaveButtons` - True or false. If true, the saving and loading buttons are shown, otherwise they are hidden.
 - `floatPrecision` - How many significant digits printed floats should have, used to prevent JavaScript's handling of floats from causing strange values.

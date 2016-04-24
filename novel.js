@@ -1215,9 +1215,14 @@ SceneManager = (function() {
       novelData.novel.currentScene.scrollSpeed = novelData.novel.settings.scrollSettings.defaultScrollSpeed;
     }
     if (source.inventoryHidden !== void 0) {
-      return novelData.inventoryHidden = Parser.parseStatement(source.inventoryHidden);
+      novelData.inventoryHidden = Parser.parseStatement(source.inventoryHidden);
     } else {
-      return novelData.inventoryHidden = novelData.novel.settings.inventoryHidden;
+      novelData.inventoryHidden = novelData.novel.settings.inventoryHidden;
+    }
+    if (source.choicesHidden !== void 0) {
+      return novelData.choicesHidden = Parser.parseStatement(source.choicesHidden);
+    } else {
+      return novelData.choicesHidden = novelData.novel.settings.choicesHidden;
     }
   };
 
@@ -2003,9 +2008,9 @@ Util = (function() {
 novelData = {
   novel: null,
   choices: null,
-  debugMode: false,
   status: "Loading",
   inventoryHidden: false,
+  choicesHidden: false,
   printedText: "",
   parsedJavascriptCommands: [],
   music: []
