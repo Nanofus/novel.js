@@ -114,6 +114,7 @@ class NovelManager
   # Start the novel by loading the default novel.json
   @start: ->
     console.log "-- Starting Novel.js... --"
+    UI.init()
     @loadMainJson()
 
   # Load the main json

@@ -158,6 +158,7 @@ NovelManager = (function() {
 
   NovelManager.start = function() {
     console.log("-- Starting Novel.js... --");
+    UI.init();
     return this.loadMainJson();
   };
 
@@ -1807,6 +1808,18 @@ UI = (function() {
       instance = this;
     }
   }
+
+  UI.init = function() {
+    var d, n;
+    n = document.getElementsByTagName('novel')[0];
+    if (n) {
+      d = document.createElement('div');
+      d.id = "novel-area";
+      d.innerHTML = '<div id="novel-style-area"> <div id="novel-notification-wrapper"> <div id="novel-save-notification" class="novel-notification"> <p>Copy and save this text:</p> <p><textarea name="save-text" readonly></textarea></p> <p><button type="button" onclick="UI.closeSaveNotification()">Close</button><button type="button" id="novel-copy-button">Copy</button></p> </div> <div id="novel-load-notification" class="novel-notification"> <p>Paste your save data here:</p> <p><textarea name="load-text"></textarea></p> <p><button type="button" onclick="UI.closeLoadNotification(false)">Close</button><button type="button" onclick="UI.closeLoadNotification(true)">Load</button></p> </div> </div> <div id="novel-text-area"> <div id="novel-text"></div> <button type="button" id="novel-skip-button" onclick="TextPrinter.complete()">Skip</button> <button type="button" id="novel-continue-button" onclick="TextPrinter.unpause()">Continue</button> </div> <div id="novel-choices-area"> <ul id="novel-choice-list"></ul> </div> <div id="novel-inventory-area"> <h5>Inventory:</h5> <ul id="novel-inventory"></ul> </div> <div id="novel-hidden-inventory-area"> <h5>Stats:</h5> <ul id="novel-hidden-inventory"></ul> </div> <div id="novel-save-area"> <button type="button" id="novel-save-button" onclick="NovelManager.saveData()">Save</button> <button type="button" id="novel-load-button" onclick="UI.showLoadNotification()">Load</button> </div> </div>';
+      n.parentNode.insertBefore(d, n);
+      return n.parentNode.removeChild(n);
+    }
+  };
 
   UI.updateStyle = function(style) {
     var e;
