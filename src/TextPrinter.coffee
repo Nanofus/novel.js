@@ -36,8 +36,7 @@ class TextPrinter
     @currentText = ""
     UI.updateText(@currentText)
     # Disable the skip button
-    if document.querySelector("#skip-button") isnt null
-      document.querySelector("#skip-button").disabled = false;
+    UI.disableSkipButton()
     @fullText = text
     #console.log fullText
     @currentOffset = -1
@@ -65,8 +64,7 @@ class TextPrinter
     @printCompleted = true
     @currentOffset = 0
     # Re-enable skip button
-    if document.querySelector("#skip-button") isnt null
-      document.querySelector("#skip-button").disabled = true;
+    UI.enableSkipButton()
     # Play missed sounds and start missed music
     if not @buffersExecuted
       ss = []
@@ -129,8 +127,7 @@ class TextPrinter
 
   # Stop pause
   @unpause: () ->
-    if document.querySelector("#continue-button") isnt null
-      document.querySelector("#continue-button").style.display = 'none'
+    UI.showContinueButton(false)
     if @pause is "input"
       @pause = 0
 
@@ -278,8 +275,7 @@ class TextPrinter
           s = s[1].split(/\s|\"/)[0]
           @pause = s
           if @pause is "input"
-            if document.querySelector("#continue-button") isnt null
-              document.querySelector("#continue-button").style.display = 'inline';
+            UI.showContinueButton(true)
         # Command executing
         if str.indexOf("execute-command") > -1
           s = str.split("execute-command ")

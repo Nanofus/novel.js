@@ -4,10 +4,6 @@ $background-color: #FAFAFA;
 $footer-text-color: #BDBDBD;
 $footer-link-color: #757575;
 
-body {
-  transition: all 250ms;
-}
-
 #novel-style-area {
   background-color: $background-color;
   box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
@@ -17,14 +13,18 @@ body {
   padding: 2rem;
 }
 
-.text-and-choices-area {
+#novel-text-area {
   overflow: auto;
 }
 
-#notification-wrapper {
+#novel-choices-area {
+  overflow: auto;
+}
+
+#novel-notification-wrapper {
   position: absolute;
   left: 50%;
-  & .notification {
+  & .novel-notification {
     background-color: $background-color;
     box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
     text-align: center;
@@ -43,11 +43,11 @@ body {
   }
 }
 
-#skip-button {
+#novel-skip-button {
   float: right;
 }
 
-a {
+#novel-area a {
   text-decoration: none;
   color: $link-color;
   &:hover {
@@ -55,12 +55,12 @@ a {
   }
 }
 
-ul {
+#novel-area ul {
   padding-left: 1rem;
   list-style-type: none;
 }
 
-.footer-text {
+#novel-footer-text {
   padding-top: 1rem;
   font-size: 80%;
   color: $footer-text-color;

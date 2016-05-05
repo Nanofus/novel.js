@@ -43,7 +43,7 @@ class NovelManager
         console.log cookie
         loadedData = JSON.parse(atob(@loadCookie("gameData")))
         @prepareLoadedData(loadedData, changeScene)
-    else if novel isnt undefined
+    else if novel isnt undefined and novel isnt ''
       loadedData = JSON.parse(atob(novel))
       @prepareLoadedData(loadedData, changeScene)
 
@@ -128,8 +128,7 @@ class NovelManager
     request.onerror = ->
       return
     request.send()
-    if document.querySelector("#continue-button") isnt null
-      document.querySelector("#continue-button").style.display = 'none'
+    UI.showContinueButton(false)
 
   # Load external json
   @loadExternalJson = (json) ->

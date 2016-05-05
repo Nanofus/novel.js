@@ -17,15 +17,23 @@ class UI
       style = ""
     e.setAttribute( 'class', style );
 
+  @disableSkipButton: ->
+    if document.querySelector("#novel-skip-button") isnt null
+      document.querySelector("#novel-skip-button").disabled = true;
+
+  @enableSkipButton: ->
+    if document.querySelector("#novel-skip-button") isnt null
+      document.querySelector("#novel-skip-button").disabled = true;
+
   @showSkipButton: (show) ->
-    e = document.getElementById("skip-button")
+    e = document.getElementById("novel-skip-button")
     if show && novelData.novel.settings.showSkipButton
       e.style.display = "inline"
     else
       e.style.display = "none"
 
   @showChoicesArea: (show) ->
-    e = document.getElementById("novel-choice-list")
+    e = document.getElementById("novel-choices-area")
     if show
       e.style.display = "inline"
     else
@@ -52,33 +60,40 @@ class UI
     else
       e.style.display = "none"
 
+  @showContinueButton: (show) ->
+    if document.querySelector("#novel-continue-button") isnt null
+      if not show
+        document.querySelector("#novel-continue-button").style.display = 'none'
+      else
+        document.querySelector("#novel-continue-button").style.display = 'inline'
+
   @updateText: (text) ->
-    e = document.getElementById("novel-text-area")
+    e = document.getElementById("novel-text")
     e.innerHTML = text
 
   # Show the save notification window, and update its text
   @showSaveNotification: (text) ->
-    e = document.getElementById("save-notification")
+    e = document.getElementById("novel-save-notification")
     textArea = e.querySelectorAll("textarea")
     textArea[0].value = text
     e.style.display = 'block';
 
   # Close the save notification window
   @closeSaveNotification: ->
-    e = document.getElementById("save-notification")
+    e = document.getElementById("novel-save-notification")
     e.style.display = 'none';
 
   # Show the load notification window
   @showLoadNotification: ->
-    if novelArea.novel.settings.saveMode is "text"
-      e = document.getElementById("load-notification")
+    if novelData.novel.settings.saveMode is "text"
+      e = document.getElementById("novel-load-notification")
       e.style.display = 'block';
     else
       NovelManager.loadGame()
 
   # Close the load notification - if load, then load a save. ChangeScene defines whether the scene should be updated or not.
   @closeLoadNotification: (load, changeScene) ->
-    e = document.getElementById("load-notification")
+    e = document.getElementById("novel-load-notification")
     if load
       textArea = e.querySelectorAll("textarea")
       NovelManager.loadData(textArea[0].value,changeScene)
@@ -144,10 +159,10 @@ class UI
 
 
 # The button that can be used to copy the text from the save window.
-copyButton = document.querySelector('#copy-button')
+copyButton = document.querySelector('#novel-copy-button')
 if copyButton isnt null
   copyButton.addEventListener 'click', (event) ->
-    copyTextarea = document.getElementById("save-notification").querySelector("textarea")
+    copyTextarea = document.getElementById("novel-save-notification").querySelector("textarea")
     copyTextarea.select()
     try
       successful = document.execCommand('copy')

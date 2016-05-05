@@ -1,6 +1,3 @@
-body {
-  transition: all 250ms; }
-
 #novel-style-area {
   background-color: #FAFAFA;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
@@ -9,13 +6,16 @@ body {
   margin-top: 2rem;
   padding: 2rem; }
 
-.text-and-choices-area {
+#novel-text-area {
   overflow: auto; }
 
-#notification-wrapper {
+#novel-choices-area {
+  overflow: auto; }
+
+#novel-notification-wrapper {
   position: absolute;
   left: 50%; }
-  #notification-wrapper .notification {
+  #novel-notification-wrapper .novel-notification {
     background-color: #FAFAFA;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
     text-align: center;
@@ -24,30 +24,30 @@ body {
     margin: auto;
     padding: 1rem;
     display: none; }
-    #notification-wrapper .notification button {
+    #novel-notification-wrapper .novel-notification button {
       margin: 0.4rem; }
-    #notification-wrapper .notification textarea {
+    #novel-notification-wrapper .novel-notification textarea {
       width: 40rem;
       height: 30rem; }
 
-#skip-button {
+#novel-skip-button {
   float: right; }
 
-a {
+#novel-area a {
   text-decoration: none;
   color: #1976D2; }
-  a:hover {
+  #novel-area a:hover {
     color: #42A5F5; }
 
-ul {
+#novel-area ul {
   padding-left: 1rem;
   list-style-type: none; }
 
-.footer-text {
+#novel-footer-text {
   padding-top: 1rem;
   font-size: 80%;
   color: #BDBDBD; }
-  .footer-text a {
+  #novel-footer-text a {
     color: #757575; }
 
 .highlight-1 {

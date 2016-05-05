@@ -55,7 +55,7 @@ NovelManager = (function() {
         loadedData = JSON.parse(atob(this.loadCookie("gameData")));
         return this.prepareLoadedData(loadedData, changeScene);
       }
-    } else if (novel !== void 0) {
+    } else if (novel !== void 0 && novel !== '') {
       loadedData = JSON.parse(atob(novel));
       return this.prepareLoadedData(loadedData, changeScene);
     }
@@ -175,9 +175,7 @@ NovelManager = (function() {
     };
     request.onerror = function() {};
     request.send();
-    if (document.querySelector("#continue-button") !== null) {
-      return document.querySelector("#continue-button").style.display = 'none';
-    }
+    return UI.showContinueButton(false);
   };
 
   NovelManager.loadExternalJson = function(json) {
@@ -1484,9 +1482,7 @@ TextPrinter = (function() {
     this.printCompleted = false;
     this.currentText = "";
     UI.updateText(this.currentText);
-    if (document.querySelector("#skip-button") !== null) {
-      document.querySelector("#skip-button").disabled = false;
-    }
+    UI.disableSkipButton();
     this.fullText = text;
     this.currentOffset = -1;
     this.soundBuffer = [];
@@ -1516,9 +1512,7 @@ TextPrinter = (function() {
     var first, i, k, l, len, len1, len2, len3, o, q, ref, ref1, ref2, ref3, ref4, ref5, ref6, ref7, s, ss, t, u, v, w;
     this.printCompleted = true;
     this.currentOffset = 0;
-    if (document.querySelector("#skip-button") !== null) {
-      document.querySelector("#skip-button").disabled = true;
-    }
+    UI.enableSkipButton();
     if (!this.buffersExecuted) {
       ss = [];
       first = true;
@@ -1604,9 +1598,7 @@ TextPrinter = (function() {
   };
 
   TextPrinter.unpause = function() {
-    if (document.querySelector("#continue-button") !== null) {
-      document.querySelector("#continue-button").style.display = 'none';
-    }
+    UI.showContinueButton(false);
     if (this.pause === "input") {
       return this.pause = 0;
     }
@@ -1761,9 +1753,7 @@ TextPrinter = (function() {
           s = s[1].split(/\s|\"/)[0];
           this.pause = s;
           if (this.pause === "input") {
-            if (document.querySelector("#continue-button") !== null) {
-              document.querySelector("#continue-button").style.display = 'inline';
-            }
+            UI.showContinueButton(true);
           }
         }
         if (str.indexOf("execute-command") > -1) {
@@ -1827,9 +1817,21 @@ UI = (function() {
     return e.setAttribute('class', style);
   };
 
+  UI.disableSkipButton = function() {
+    if (document.querySelector("#novel-skip-button") !== null) {
+      return document.querySelector("#novel-skip-button").disabled = true;
+    }
+  };
+
+  UI.enableSkipButton = function() {
+    if (document.querySelector("#novel-skip-button") !== null) {
+      return document.querySelector("#novel-skip-button").disabled = true;
+    }
+  };
+
   UI.showSkipButton = function(show) {
     var e;
-    e = document.getElementById("skip-button");
+    e = document.getElementById("novel-skip-button");
     if (show && novelData.novel.settings.showSkipButton) {
       return e.style.display = "inline";
     } else {
@@ -1839,7 +1841,7 @@ UI = (function() {
 
   UI.showChoicesArea = function(show) {
     var e;
-    e = document.getElementById("novel-choice-list");
+    e = document.getElementById("novel-choices-area");
     if (show) {
       return e.style.display = "inline";
     } else {
@@ -1877,15 +1879,25 @@ UI = (function() {
     }
   };
 
+  UI.showContinueButton = function(show) {
+    if (document.querySelector("#novel-continue-button") !== null) {
+      if (!show) {
+        return document.querySelector("#novel-continue-button").style.display = 'none';
+      } else {
+        return document.querySelector("#novel-continue-button").style.display = 'inline';
+      }
+    }
+  };
+
   UI.updateText = function(text) {
     var e;
-    e = document.getElementById("novel-text-area");
+    e = document.getElementById("novel-text");
     return e.innerHTML = text;
   };
 
   UI.showSaveNotification = function(text) {
     var e, textArea;
-    e = document.getElementById("save-notification");
+    e = document.getElementById("novel-save-notification");
     textArea = e.querySelectorAll("textarea");
     textArea[0].value = text;
     return e.style.display = 'block';
@@ -1893,14 +1905,14 @@ UI = (function() {
 
   UI.closeSaveNotification = function() {
     var e;
-    e = document.getElementById("save-notification");
+    e = document.getElementById("novel-save-notification");
     return e.style.display = 'none';
   };
 
   UI.showLoadNotification = function() {
     var e;
-    if (novelArea.novel.settings.saveMode === "text") {
-      e = document.getElementById("load-notification");
+    if (novelData.novel.settings.saveMode === "text") {
+      e = document.getElementById("novel-load-notification");
       return e.style.display = 'block';
     } else {
       return NovelManager.loadGame();
@@ -1909,7 +1921,7 @@ UI = (function() {
 
   UI.closeLoadNotification = function(load, changeScene) {
     var e, textArea;
-    e = document.getElementById("load-notification");
+    e = document.getElementById("novel-load-notification");
     if (load) {
       textArea = e.querySelectorAll("textarea");
       NovelManager.loadData(textArea[0].value, changeScene);
@@ -2027,12 +2039,12 @@ UI = (function() {
 
 })();
 
-copyButton = document.querySelector('#copy-button');
+copyButton = document.querySelector('#novel-copy-button');
 
 if (copyButton !== null) {
   copyButton.addEventListener('click', function(event) {
     var copyTextarea, err, error, successful;
-    copyTextarea = document.getElementById("save-notification").querySelector("textarea");
+    copyTextarea = document.getElementById("novel-save-notification").querySelector("textarea");
     copyTextarea.select();
     try {
       return successful = document.execCommand('copy');
