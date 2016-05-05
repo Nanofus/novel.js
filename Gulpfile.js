@@ -27,7 +27,7 @@ gulp.task('sass', function () {
 });
 
 gulp.task('concat', function() {
-  return gulp.src(['./src/NovelManager.coffee','./src/InputManager.coffee','./src/Parser.coffee','./src/InventoryManager.coffee','./src/SceneManager.coffee','./src/SoundManager.coffee','./src/TextPrinter.coffee','./src/UI.coffee','./src/Util.coffee','./src/Init.coffee','./src/NovelArea.coffee','./src/Start.coffee'])
+  return gulp.src(['./src/NovelManager.coffee','./src/InputManager.coffee','./src/Parser.coffee','./src/InventoryManager.coffee','./src/SceneManager.coffee','./src/SoundManager.coffee','./src/TextPrinter.coffee','./src/UI.coffee','./src/Util.coffee','./src/Init.coffee','./src/Start.coffee'])
     .pipe(concat('novel.coffee'))
     .pipe(gulp.dest('./'));
 });

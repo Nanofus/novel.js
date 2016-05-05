@@ -1,6 +1,6 @@
 
 /* SAVING AND LOADING */
-var InputManager, InventoryManager, NovelManager, Parser, SceneManager, SoundManager, TextPrinter, UI, Util, copyButton, novelArea, novelData, novelPath,
+var InputManager, InventoryManager, NovelManager, Parser, SceneManager, SoundManager, TextPrinter, UI, Util, copyButton, novelData, novelPath,
   indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
 NovelManager = (function() {
@@ -592,7 +592,7 @@ Parser = (function() {
               nameText = i.value;
             }
           }
-          splitText[index] = "<input type=\"text\" value=\"" + nameText + "\" name=\"input\" class=\"input-" + parsed[1] + "\" onblur=\"ui.updateInputs(true)\">";
+          splitText[index] = "<input type=\"text\" value=\"" + nameText + "\" name=\"input\" class=\"input-" + parsed[1] + "\" onblur=\"UI.updateInputs(true)\">";
         } else if (s.substring(0, 6) === "choice") {
           parsed = s.split("choice ");
           splitText[index] = "<a href=\"#\" onclick=\"SceneManager.selectChoiceByNameByClicking(event,'" + parsed[1] + "')\">";
@@ -1015,14 +1015,15 @@ SceneManager = (function() {
     this.readExecutes(choice);
     this.readCheckpoints(choice);
     if (choice.nextScene !== void 0) {
-      return this.changeScene(choice.nextScene);
+      this.changeScene(choice.nextScene);
     } else {
       if (choice.nextChoice !== void 0) {
-        return this.selectChoiceByName(Parser.selectRandomOption(choice.nextChoice));
+        this.selectChoiceByName(Parser.selectRandomOption(choice.nextChoice));
       } else {
-        return this.updateScene(novelData.novel.currentScene, true);
+        this.updateScene(novelData.novel.currentScene, true);
       }
     }
+    return UI.updateInventories();
   };
 
   SceneManager.selectChoiceByNameByClicking = function(event, name) {
@@ -1038,7 +1039,7 @@ SceneManager = (function() {
     for (k = 0, len = ref.length; k < len; k++) {
       i = ref[k];
       if (i.name === name) {
-        novelArea.selectChoice(i);
+        this.selectChoice(i);
         break;
       } else {
         results.push(void 0);
@@ -1047,9 +1048,16 @@ SceneManager = (function() {
     return results;
   };
 
+  SceneManager.selectChoiceById = function(id) {
+    if (novelData.novel.currentScene.choices[id]) {
+      return this.selectChoice(novelData.novel.currentScene.choices[id]);
+    }
+  };
+
   SceneManager.exitScene = function(scene) {
     scene.visited = true;
-    return UI.updateInputs(false);
+    UI.updateInputs(false);
+    return UI.resetChoices();
   };
 
   SceneManager.changeScene = function(sceneNames) {
@@ -1083,16 +1091,6 @@ SceneManager = (function() {
       TextPrinter.printText(scene.parsedText, true);
       return TextPrinter.complete();
     }
-  };
-
-  SceneManager.updateChoices = function() {
-    return novelArea.$set('novel.parsedChoices', novelData.novel.currentScene.choices.map(function(choice) {
-      choice.parsedText = Parser.parseText(choice.text);
-      if (novelArea.novel.settings.alwaysShowDisabledChoices) {
-        choice.alwaysShow = true;
-      }
-      return choice;
-    }));
   };
 
   SceneManager.findSceneByName = function(name) {
@@ -1602,7 +1600,7 @@ TextPrinter = (function() {
     }
     this.currentText = this.fullText;
     UI.updateText(this.currentText);
-    return SceneManager.updateChoices();
+    return UI.updateChoices();
   };
 
   TextPrinter.unpause = function() {
@@ -1841,7 +1839,7 @@ UI = (function() {
 
   UI.showChoicesArea = function(show) {
     var e;
-    e = document.getElementById("novel-choices-area");
+    e = document.getElementById("novel-choice-list");
     if (show) {
       return e.style.display = "inline";
     } else {
@@ -1945,6 +1943,82 @@ UI = (function() {
         }
         return results1;
       })());
+    }
+    return results;
+  };
+
+  UI.resetChoices = function() {
+    var choiceArea, results;
+    choiceArea = document.getElementById("novel-choice-list");
+    results = [];
+    while (choiceArea.firstChild) {
+      results.push(choiceArea.removeChild(choiceArea.firstChild));
+    }
+    return results;
+  };
+
+  UI.resetInventories = function() {
+    var inventoryArea, results;
+    inventoryArea = document.getElementById("novel-inventory");
+    while (inventoryArea.firstChild) {
+      inventoryArea.removeChild(inventoryArea.firstChild);
+    }
+    inventoryArea = document.getElementById("novel-hidden-inventory");
+    results = [];
+    while (inventoryArea.firstChild) {
+      results.push(inventoryArea.removeChild(inventoryArea.firstChild));
+    }
+    return results;
+  };
+
+  UI.updateChoices = function() {
+    var choice, choiceArea, i, k, li, ref, results;
+    this.resetChoices();
+    choiceArea = document.getElementById("novel-choice-list");
+    i = 0;
+    results = [];
+    for (i = k = 0, ref = novelData.novel.currentScene.choices.length; 0 <= ref ? k < ref : k > ref; i = 0 <= ref ? ++k : --k) {
+      choice = novelData.novel.currentScene.choices[i];
+      if (choice.text) {
+        choice.parsedText = Parser.parseText(choice.text);
+        if (SceneManager.requirementsFilled(choice)) {
+          li = document.createElement("li");
+          li.innerHTML = '<a href="#"; onclick="SceneManager.selectChoiceById(' + i + ')">' + choice.parsedText + '</a>';
+          results.push(choiceArea.appendChild(li));
+        } else if (choice.alwaysShow || novelData.novel.settings.alwaysShowDisabledChoices) {
+          li = document.createElement("li");
+          li.innerHTML = choice.parsedText;
+          results.push(choiceArea.appendChild(li));
+        } else {
+          results.push(void 0);
+        }
+      } else {
+        results.push(void 0);
+      }
+    }
+    return results;
+  };
+
+  UI.updateInventories = function() {
+    var hiddenInventoryArea, inventoryArea, item, k, len, li, ref, results, targetInventory;
+    this.resetInventories();
+    inventoryArea = document.getElementById("novel-inventory");
+    hiddenInventoryArea = document.getElementById("novel-hidden-inventory");
+    ref = novelData.novel.inventories[novelData.novel.currentInventory];
+    results = [];
+    for (k = 0, len = ref.length; k < len; k++) {
+      item = ref[k];
+      targetInventory = hiddenInventoryArea;
+      if (!item.hidden || item.hidden === void 0) {
+        targetInventory = inventoryArea;
+      }
+      if (item.value > 0 || isNaN(item.value)) {
+        li = document.createElement("li");
+        li.innerHTML = item.displayName + ' - ' + item.value;
+        results.push(targetInventory.appendChild(li));
+      } else {
+        results.push(void 0);
+      }
     }
     return results;
   };
@@ -2108,60 +2182,6 @@ novelData = {
 };
 
 novelPath = './novel';
-
-
-/* GAME AREA */
-
-novelArea = new Vue({
-  el: '#novel-area',
-  data: novelData,
-  methods: {
-    requirementsFilled: function(choice) {
-      return SceneManager.requirementsFilled(choice);
-    },
-    textSkipEnabled: function(choice) {
-      return novelData.novel.currentScene.skipEnabled && novelData.novel.settings.skipButtonShown;
-    },
-    itemsOverZeroAndAreHidden: function(item) {
-      var i, k, len, ref;
-      ref = novelData.novel.inventories[novelData.novel.currentInventory];
-      for (k = 0, len = ref.length; k < len; k++) {
-        i = ref[k];
-        if (i.name === item.name && (i.hidden && i.hidden !== void 0)) {
-          if (i.value > 0) {
-            return true;
-          }
-          if (isNaN(i.value)) {
-            return true;
-          }
-        }
-      }
-      return false;
-    },
-    itemsOverZeroAndNotHidden: function(item) {
-      var i, k, len, ref;
-      ref = novelData.novel.inventories[novelData.novel.currentInventory];
-      for (k = 0, len = ref.length; k < len; k++) {
-        i = ref[k];
-        if (i.name === item.name && (!i.hidden || i.hidden === void 0)) {
-          if (i.value > 0) {
-            return true;
-          }
-          if (isNaN(i.value)) {
-            return true;
-          }
-        }
-      }
-      return false;
-    },
-    itemsOverZeroAndHidden: function(item) {
-      return InventoryManager.itemsOverZero(item) && InventoryManager.itemHidden(item);
-    },
-    selectChoice: function(choice) {
-      return SceneManager.selectChoice(choice);
-    }
-  }
-});
 
 
 /* And finally, start the game... */

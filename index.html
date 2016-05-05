@@ -27,36 +27,15 @@
             <div id="novel-text-area" class="text-area"></div>
             <button type="button" id="skip-button" onclick="TextPrinter.complete()">Skip</button>
             <button type="button" id="continue-button" onclick="TextPrinter.unpause()">Continue</button>
-            <div id="novel-choices-area" class="choices">
-              <ul class="choice-list">
-                <div v-for="choice in novel.parsedChoices">
-                  <li v-if="requirementsFilled(choice)" class="choice">
-                    <a href="#" v-on:click="selectChoice(choice)">{{{ choice.parsedText }}}</a>
-                  </li>
-                  <div v-if="choice.alwaysShow">
-                    <li v-if="!requirementsFilled(choice)">
-                      {{{ choice.parsedText }}}
-                    </li>
-                  </div>
-                </div>
-              </ul>
-            </div>
+            <ul id="novel-choice-list"></ul>
           </div>
           <div id="novel-inventory-area" class="inventory">
             <h5>Inventory:</h5>
-            <ul class="item-list">
-              <li v-for="item in novel.inventories[novel.currentInventory]" class="inventory-item" v-if="itemsOverZeroAndNotHidden(item)">
-                {{{ item.displayName }}} - {{{ item.value }}}
-              </li>
-            </ul>
+            <ul id="novel-inventory"></ul>
           </div>
           <div id="novel-hidden-inventory-area" class="stats">
             <h5>Stats:</h5>
-            <ul class="item-list">
-              <li v-for="item in novel.inventories[novel.currentInventory]" class="inventory-item" v-if="itemsOverZeroAndAreHidden(item)">
-                {{{ item.displayName }}} - {{{ item.value }}}
-              </li>
-            </ul>
+            <ul id="novel-hidden-inventory"></ul>
           </div>
           <div id="novel-save-area" class="save-buttons">
             <button type="button" id="save-button" onclick="NovelManager.saveData()">Save</button>
@@ -66,8 +45,6 @@
       </div>
     </main>
 
-    <script src="../node_modules/vue/dist/vue.min.js"></script>
     <script src="../novel.js"></script>
-    <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/vue/1.0.16/vue.min.js"></script>-->
   </body>
 </html>

@@ -125,7 +125,7 @@ class TextPrinter
     # Set printed text and update choices
     @currentText = @fullText
     UI.updateText(@currentText)
-    SceneManager.updateChoices()
+    UI.updateChoices()
 
   # Stop pause
   @unpause: () ->

@@ -32,6 +32,7 @@ class SceneManager
         @selectChoiceByName(Parser.selectRandomOption(choice.nextChoice))
       else
         @updateScene(novelData.novel.currentScene,true)
+    UI.updateInventories()
 
   # Select a choice by clicking a link embedded in text
   @selectChoiceByNameByClicking: (event, name) ->
@@ -43,14 +44,20 @@ class SceneManager
   @selectChoiceByName: (name) ->
     for i in novelData.novel.currentScene.choices
       if i.name is name
-        novelArea.selectChoice(i)
+        @selectChoice(i)
         break
+
+  # Select a choice by ID
+  @selectChoiceById: (id) ->
+    if novelData.novel.currentScene.choices[id]
+      @selectChoice(novelData.novel.currentScene.choices[id])
 
   # Called when exiting a scene
   @exitScene = (scene) ->
     # Set the previous scene as visited
     scene.visited = true
     UI.updateInputs(false)
+    UI.resetChoices()
 
   # Called when changing a scene
   @changeScene = (sceneNames) ->
@@ -89,15 +96,6 @@ class SceneManager
     else
       TextPrinter.printText(scene.parsedText,true)
       TextPrinter.complete()
-
-  # Update choice texts when they are changed - Vue.js doesn't detect them without this.
-  @updateChoices = ->
-    novelArea.$set 'novel.parsedChoices', novelData.novel.currentScene.choices.map((choice) ->
-      choice.parsedText = Parser.parseText choice.text
-      if novelArea.novel.settings.alwaysShowDisabledChoices
-        choice.alwaysShow = true
-      return choice
-    )
 
   # Return a scene by its name; throw an error if not found.
   @findSceneByName = (name) ->

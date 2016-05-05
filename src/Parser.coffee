@@ -185,7 +185,7 @@ class Parser
           for i in novelData.novel.inventories[novelData.novel.currentInventory]
             if i.name is parsed[1]
               nameText = i.value
-          splitText[index] = "<input type=\"text\" value=\"" + nameText + "\" name=\"input\" class=\"input-" + parsed[1] +  "\" onblur=\"ui.updateInputs(true)\">"
+          splitText[index] = "<input type=\"text\" value=\"" + nameText + "\" name=\"input\" class=\"input-" + parsed[1] +  "\" onblur=\"UI.updateInputs(true)\">"
         # Embedded choice
         else if s.substring(0,6) is "choice"
           parsed = s.split("choice ")

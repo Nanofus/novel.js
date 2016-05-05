@@ -25,7 +25,7 @@ class UI
       e.style.display = "none"
 
   @showChoicesArea: (show) ->
-    e = document.getElementById("novel-choices-area")
+    e = document.getElementById("novel-choice-list")
     if show
       e.style.display = "inline"
     else
@@ -94,6 +94,54 @@ class UI
           a.value = Util.stripHTML(i.value)
           if needForUpdate
             SceneManager.updateScene(novelData.novel.currentScene,true)
+
+  # Reset all choices
+  @resetChoices: () ->
+    choiceArea = document.getElementById("novel-choice-list")
+    while choiceArea.firstChild
+      choiceArea.removeChild(choiceArea.firstChild)
+
+  # Reset the inventories
+  @resetInventories: () ->
+    inventoryArea = document.getElementById("novel-inventory")
+    while inventoryArea.firstChild
+      inventoryArea.removeChild(inventoryArea.firstChild)
+    inventoryArea = document.getElementById("novel-hidden-inventory")
+    while inventoryArea.firstChild
+      inventoryArea.removeChild(inventoryArea.firstChild)
+
+  # Update the choices
+  @updateChoices: () ->
+    @resetChoices()
+    choiceArea = document.getElementById("novel-choice-list")
+    i = 0
+    for i in [0 ... novelData.novel.currentScene.choices.length]
+      choice = novelData.novel.currentScene.choices[i]
+      if choice.text
+        choice.parsedText = Parser.parseText(choice.text)
+        if SceneManager.requirementsFilled(choice)
+          li = document.createElement("li")
+          li.innerHTML = '<a href="#"; onclick="SceneManager.selectChoiceById(' + i + ')">' + choice.parsedText + '</a>'
+          choiceArea.appendChild(li)
+        else if choice.alwaysShow || novelData.novel.settings.alwaysShowDisabledChoices
+          li = document.createElement("li")
+          li.innerHTML = choice.parsedText
+          choiceArea.appendChild(li)
+
+  # Update the inventory items
+  @updateInventories: () ->
+    @resetInventories()
+    inventoryArea = document.getElementById("novel-inventory")
+    hiddenInventoryArea = document.getElementById("novel-hidden-inventory")
+    for item in novelData.novel.inventories[novelData.novel.currentInventory]
+      targetInventory = hiddenInventoryArea
+      if not item.hidden or item.hidden is undefined
+        targetInventory = inventoryArea
+      if item.value > 0 or isNaN item.value
+        li = document.createElement("li")
+        li.innerHTML = item.displayName + ' - ' + item.value
+        targetInventory.appendChild(li)
+
 
 # The button that can be used to copy the text from the save window.
 copyButton = document.querySelector('#copy-button')
