@@ -10,7 +10,7 @@ It is suitable for interactive fiction such as "choose your own adventure" games
 
 Text adventures are often overlooked as something only game development beginners create, and Novel.js aims to fix this misconception. Interactive fiction combines the flexibility and possibilities that prose can offer with interactivity and reader choice – a type of entertainment I think has not yet been thoroughly explored. The popularity of visual novels demonstrates the possibilities the medium can offer!
 
-Novel.js is written in CoffeeScript, HTML and SASS and depends only on Vue.js. It was born out of a need for a lightweight, easy-to-use but fully-featured text adventure system that could easily be embedded on a webpage. It is open source (MIT License) and free to use both commercially and non-commercially. A **[live demo](http://nanofus.github.io/novel.js/)** is available, however it covers only a small part of all functionality!
+Novel.js is written in CoffeeScript, HTML and SASS and has no dependencies. It was born out of a need for a lightweight, easy-to-use but fully-featured text adventure system that could easily be embedded on a webpage. It is open source (MIT License) and free to use both commercially and non-commercially. A **[live demo](http://nanofus.github.io/novel.js/)** is available, however it covers only a small part of all functionality!
 
 You can use [electron-noveljs-boilerplate](https://github.com/Nanofus/electron-noveljs-boilerplate) with Novel.js to create standalone desktop applications. It requires a bit more technical knowledge than Novel.js itself.
 
@@ -60,15 +60,14 @@ These features are planned or currently in development.
 ### Non-techy installation
 
 1. Download the [latest release .zip](https://github.com/Nanofus/novel.js/releases/latest) and extract it.
-2. Uncomment the commented `<script>` tags in `index.html`.
-3. Upload the folder to a web server, such as Dropbox. (Opening `index.html` locally does not work, as the browser cannot load `json` files locally!)
-4. Open the location in web browser. Check dev tools (usually F12) for logs.
-5. Start working on `novel/novel.json`!
+2. Upload the folder to a web server, such as Dropbox. (Opening `index.html` locally does not work, as the browser cannot load `json` files locally!)
+3. Open the location in web browser. Check dev tools (usually F12) for logs.
+4. Start working on `novel/novel.json`!
 
 ### Techy installation
 
 1. `npm install novel-js`.
-2. Create an `index.html` file and include the [HTML](https://github.com/Nanofus/novel.js/blob/master/DOCUMENTATION.md#html-structure) in it. Include Novel.js (`node_modules/novel-js/novel.min.js`) and Vue.js scripts.
+2. Create an `index.html` file and add ```<novel></novel>``` inside the body, or include the [customizable HTML](https://github.com/Nanofus/novel.js/blob/master/DOCUMENTATION.md#html-structure) in it. Include the Novel.js (`node_modules/novel-js/novel.min.js`) script.
 3. Create the folder `novel` and a `novel.json` inside it.
 4. `http-server` and open `http://localhost:8080/` or use a web server of your choice.
 5. Start working on `novel.json`!

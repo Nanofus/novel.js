@@ -42,66 +42,47 @@
 
 ## HTML structure
 
-Novel.js needs some HTML on the webpage to run properly. You can use this code or some variant of it:
+Novel.js needs some HTML on the webpage to run properly. You can use the simple ```<novel></novel>``` tag or if you need more control you can use this code or some variant of it:
 ```html
 <div id="novel-area">
-	<div class="style-area {{ novel.currentScene.style }}">
-		<div id="notification-wrapper">
-			<div id="save-notification" class="notification">
+	<div id="novel-style-area">
+		<div id="novel-notification-wrapper">
+			<div id="novel-save-notification" class="novel-notification">
 				<p>Copy and save this text:</p>
 				<p><textarea name="save-text" readonly></textarea></p>
-				<p><button type="button" onclick="UI.closeSaveNotification()">Close</button><button type="button" id="copy-button">Copy</button></p>
+				<p><button type="button" onclick="UI.closeSaveNotification()">Close</button><button type="button" id="novel-copy-button">Copy</button></p>
 			</div>
-			<div id="load-notification" class="notification">
+			<div id="novel-load-notification" class="novel-notification">
 				<p>Paste your save data here:</p>
 				<p><textarea name="load-text"></textarea></p>
-				<p><button type="button" onclick="UI.closeLoadNotification(false)">Close</button><button type="button" onclick="ui.closeLoadNotification(true)">Load</button></p>
+				<p><button type="button" onclick="UI.closeLoadNotification(false)">Close</button><button type="button" onclick="UI.closeLoadNotification(true)">Load</button></p>
 			</div>
 		</div>
-		<div class="text-and-choices-area">
-			<div class="text-area">
-				{{{ printedText }}}
-			</div>
-			<button v-show="textSkipEnabled()" type="button" id="skip-button" onclick="TextPrinter.complete()">Skip</button>
-			<button type="button" id="continue-button" onclick="TextPrinter.unpause()">Continue</button>
-			<div class="choices">
-				<ul class="choice-list">
-					<div v-for="choice in novel.parsedChoices">
-						<li v-if="requirementsFilled(choice)" class="choice">
-							<a href="#" v-on:click="selectChoice(choice)">{{{ choice.parsedText }}}</a>
-						</li>
-						<div v-if="choice.alwaysShow">
-							<li v-if="!requirementsFilled(choice)">
-								{{{ choice.parsedText }}}
-							</li>
-						</div>
-					</div>
-				</ul>
-			</div>
+		<div id="novel-text-area">
+			<div id="novel-text"></div>
+			<button type="button" id="novel-skip-button" onclick="TextPrinter.complete()">Skip</button>
+			<button type="button" id="novel-continue-button" onclick="TextPrinter.unpause()">Continue</button>
 		</div>
-		<div v-if="!inventoryHidden" class="inventory">
+		<div id="novel-choices-area">
+			<ul id="novel-choice-list"></ul>
+		</div>
+		<div id="novel-inventory-area">
 			<h5>Inventory:</h5>
-			<ul class="item-list">
-				<li v-for="item in novel.inventories[novel.currentInventory]" class="inventory-item" v-if="itemsOverZeroAndNotHidden(item)">
-					{{{ item.displayName }}} - {{{ item.value }}}
-				</li>
-			</ul>
+			<ul id="novel-inventory"></ul>
 		</div>
-		<div v-if="novel.settings.debugMode" class="stats">
+		<div id="novel-hidden-inventory-area">
 			<h5>Stats:</h5>
-			<ul class="item-list">
-				<li v-for="item in novel.inventories[novel.currentInventory]" class="inventory-item" v-if="itemsOverZeroAndAreHidden(item)">
-					{{{ item.displayName }}} - {{{ item.value }}}
-				</li>
-			</ul>
+			<ul id="novel-hidden-inventory"></ul>
 		</div>
-		<div v-if="novel.settings.showSaveButtons" class="save-buttons">
-			<button type="button" id="save-button" onclick="NovelManager.saveData()">Save</button>
-			<button type="button" id="load-button" onclick="UI.showLoadNotification()">Load</button>
+		<div id="novel-save-area">
+			<button type="button" id="novel-save-button" onclick="NovelManager.saveData()">Save</button>
+			<button type="button" id="novel-load-button" onclick="UI.showLoadNotification()">Load</button>
 		</div>
 	</div>
 </div>
 ```
+
+Only one Novel.js instance per webpage is supported.
 
 ## `novel.json` structure
 
