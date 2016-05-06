@@ -196,7 +196,13 @@ class UI
         targetInventory = inventoryArea
       if item.value > 0 or isNaN item.value
         li = document.createElement("li")
-        li.innerHTML = item.displayName + ' - ' + item.value
+        li.class = "novel-inventory-item"
+        innerHTML = item.displayName + ' - ' + item.value
+        innerHTML = innerHTML + '<ul class="novel-inventory-item-info">'
+        if item.description
+          innerHTML = innerHTML + '<li class="novel-inventory-item-description">' + item.description + '</li>'
+        innerHTML = innerHTML + '</ul>'
+        li.innerHTML = innerHTML
         targetInventory.appendChild(li)
 
 

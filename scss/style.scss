@@ -57,7 +57,19 @@ $footer-link-color: #757575;
 
 #novel-area ul {
   padding-left: 1rem;
-  list-style-type: none;
+  list-style-type: circle;
+}
+
+#novel-inventory {
+  & li .novel-inventory-item-info {
+    display: none;
+  }
+  & li:hover .novel-inventory-item-info {
+    display:inline;
+    & li {
+      margin-left: 2rem;
+    }
+  }
 }
 
 #novel-footer-text {

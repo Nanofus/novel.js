@@ -2025,7 +2025,7 @@ UI = (function() {
   };
 
   UI.updateInventories = function() {
-    var hiddenInventoryArea, inventoryArea, item, k, len, li, ref, results, targetInventory;
+    var hiddenInventoryArea, innerHTML, inventoryArea, item, k, len, li, ref, results, targetInventory;
     this.resetInventories();
     inventoryArea = document.getElementById("novel-inventory");
     hiddenInventoryArea = document.getElementById("novel-hidden-inventory");
@@ -2039,7 +2039,14 @@ UI = (function() {
       }
       if (item.value > 0 || isNaN(item.value)) {
         li = document.createElement("li");
-        li.innerHTML = item.displayName + ' - ' + item.value;
+        li["class"] = "novel-inventory-item";
+        innerHTML = item.displayName + ' - ' + item.value;
+        innerHTML = innerHTML + '<ul class="novel-inventory-item-info">';
+        if (item.description) {
+          innerHTML = innerHTML + '<li class="novel-inventory-item-description">' + item.description + '</li>';
+        }
+        innerHTML = innerHTML + '</ul>';
+        li.innerHTML = innerHTML;
         results.push(targetInventory.appendChild(li));
       } else {
         results.push(void 0);

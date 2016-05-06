@@ -5,7 +5,7 @@
     [
       {"name": "sword", "value": 1, "hidden": false},
       {"name": "sandwich", "value": 5, "hidden": false},
-      {"name": "magicalshield", "displayName": "Magical Shield", "value": 1, "hidden": false},
+      {"name": "magicalshield", "displayName": "Magical Shield", "description": "A very magical shield. Does not do anything.", "value": 1, "hidden": false},
       {"name": "villagesSaved", "value": 0, "hidden": true},
       {"name": "dragonsKilled", "value": 1, "hidden": true},
       {"name": "playerName", "value": "Default Name", "hidden": true},

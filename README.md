@@ -50,7 +50,6 @@ These features are planned or currently in development.
 - A standard settings menu
 - [else] tag
 - HTML5 Local Storage saving
-- Item descriptions
 - API
 - Text loading from csv files
 - Translation support

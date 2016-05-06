@@ -95,7 +95,7 @@ Only one Novel.js instance per webpage is supported.
 - `settings` - Settings to edit, some of which can also be made visible to the player.
 - `sounds` - A list of all the sound effects.
 - `externalText` - A list of all external text sources.
-- `externalJson` - A list of all external json files.
+- `externalJson` - A list of all external JSON files.
 
 Now lets take a closer look on the lists:
 
@@ -111,7 +111,7 @@ A single example inventory:
 "inventories": [
 	[
   {"name": "sword", "value": 1},
-  {"name": "sandwich", "value": 5},
+  {"name": "sandwich", "value": 5, "description": "It must be really tasty!"},
 	{"name": "playerName", "value": "Bob", "hidden": true},
 	{"name": "dragonsSlain", "value": 5, "hidden": true}
 	]
@@ -122,6 +122,7 @@ This inventory contains six items of two kinds. A single item has the following 
 - `name` - Required. The item's name. Cannot contain spaces.
 - `value` - Required. How many items of that specific type the player carries. If it becomes 0, the item is not removed from the inventory per se, but it does not show up in the UI. This can be used to track if the player has owned that kind of items in the past.
 - `displayName` - The item's display name. Can contain spaces. If omitted, `name` is used instead.
+- `description` - The item's description. Shown when hovering on the inventory item (can be customized via CSS).
 - `hidden` - If true, the value is hidden and not shown in the inventory. This can be used to track the player's actions (whether they have to talked to someone or not, etc.). Can be shown to the player by setting `debugMode` to true.
 
 ### Scenes
