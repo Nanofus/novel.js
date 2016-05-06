@@ -31,7 +31,7 @@ You can use [electron-noveljs-boilerplate](https://github.com/Nanofus/electron-n
 - Conditional statements to hide or show text and choices based on different conditions, such as the items the player is carrying, allowing for complex logic.
 - Print values such as item counts or even text from other scenes.
 - Scrolling text! Many ways to customize it and execute logic during scrolling to allow for voice acting, mood setting, character specific styles etc.
-- An inventory system, with support for hidden items and multiple inventories!
+- An inventory system, with support for hidden items, item descriptions and multiple inventories!
 - Choices can have several different outcomes with different probabilities, loads of different customization options and can be chained to prevent repetition.
 - Play sound effects and looping music/ambient sound effects!
 - Shorthand tags for general styling of names etc. and presets to help with recurring styles.

@@ -1,0 +1,8 @@
+/src/
+/scss/
+/css/
+/novel/
+/test/
+.travis.yml
+Gulpfile.js
+index.html
