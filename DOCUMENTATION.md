@@ -563,7 +563,12 @@ Novel.js supports selecting between multiple languages. The language used is def
 
 ### Translating text and choices
 
-In scene and choice texts you can use an array instead of a string to provide translations. This array must consist of objects, one for each language, with the following properties:
+You can use an array instead of a string to provide translations in the following texts:
+- scene `text`
+- choice `text`
+- item `displayName`
+- item `description`
+This array must consist of objects, one for each language, with the following properties:
 - `language` - This text version's language, such as `finnish`
 - `content` - The translated text. Supports tags normally.
 An example:

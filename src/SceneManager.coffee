@@ -180,7 +180,7 @@ class SceneManager
 
   # Read miscellaneous scene values
   @readMisc = (source) ->
-    # Check if changing Language
+    # Check if changing language
     if source.setLanguage isnt undefined
       LanguageManager.setLanguage(setLanguage)
     # Check if skipping is enabled in this scene

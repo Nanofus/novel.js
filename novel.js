@@ -145,6 +145,9 @@ NovelManager = (function() {
         }
       }
     }
+    if (json.settings.language === void 0) {
+      json.settings.language = "english";
+    }
     if (json.uiText === void 0) {
       return json.uiText = JSON.parse('[ {"name": "saveText", "language": "english", "content": "Copy and save your save data:" }, {"name": "loadText", "language": "english", "content": "Paste your save data here:" }, {"name": "closeButton", "language": "english", "content": "Close" }, {"name": "copyButton", "language": "english", "content": "Copy" }, {"name": "saveButton", "language": "english", "content": "Save" }, {"name": "loadButton", "language": "english", "content": "Load" }, {"name": "skipButton", "language": "english", "content": "Skip" }, {"name": "continueButton", "language": "english", "content": "Continue" }, {"name": "inventoryTitle", "language": "english", "content": "Inventory:" }, {"name": "hiddenInventoryTitle", "language": "english", "content": "Stats:" } ]');
     }
@@ -1253,6 +1256,9 @@ SceneManager = (function() {
 
   SceneManager.readMisc = function(source) {
     var val;
+    if (source.setLanguage !== void 0) {
+      LanguageManager.setLanguage(setLanguage);
+    }
     if (source.skipEnabled !== void 0) {
       val = Parser.parseStatement(source.skipEnabled);
     } else {
@@ -2094,10 +2100,10 @@ UI = (function() {
       if (item.value > 0 || isNaN(item.value)) {
         li = document.createElement("li");
         li["class"] = "novel-inventory-item";
-        innerHTML = item.displayName + ' - ' + item.value;
+        innerHTML = LanguageManager.getCorrectLanguageString(item.displayName) + ' - ' + item.value;
         innerHTML = innerHTML + '<ul class="novel-inventory-item-info">';
         if (item.description) {
-          innerHTML = innerHTML + '<li class="novel-inventory-item-description">' + item.description + '</li>';
+          innerHTML = innerHTML + '<li class="novel-inventory-item-description">' + LanguageManager.getCorrectLanguageString(item.description) + '</li>';
         }
         innerHTML = innerHTML + '</ul>';
         li.innerHTML = innerHTML;
