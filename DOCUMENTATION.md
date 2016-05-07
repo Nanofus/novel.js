@@ -558,8 +558,9 @@ The first way to save a application is to use the browser's cookies. If you use 
 The second way is to save the `novel.json` file as a Base64 encoded string, that is then shown to the player and prompted to be copied. The "Load" button then shows a text field that allows the player to paste in their saved application data.
 
 ## Translations
+**(COMING IN 0.8.0)**
 
-Novel.js supports selecting between multiple languages. The language used is defined in `novel.json`'s `settings.language`, and can be changed by using the `setLanguage` command in a choice or a scene.
+Novel.js supports multilingualism! The language used is defined in `novel.json`'s `settings.language`, and can be changed by using the `setLanguage` command in a choice or a scene.
 
 ### Translating text and choices
 
@@ -572,7 +573,7 @@ This array must consist of objects, one for each language, with the following pr
 - `language` - This text version's language, such as `finnish`
 - `content` - The translated text. Supports tags normally.
 An example:
-```
+```json
 "choices": [
 	{
 		"text": [
@@ -588,7 +589,7 @@ These object arrays work even if a scene's `text` itself is defined as an array.
 ### UI texts
 
 The `uiText` object in `novel.json` contains translations for the user interface. If using only English, does not have to be defined and the following values are used:
-```
+```json
 "uiText": [
   {"name": "saveText", "language": "english", "content": "Copy and save your save data:" },
   {"name": "loadText", "language": "english", "content": "Paste your save data here:" },

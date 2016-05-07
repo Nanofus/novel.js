@@ -607,6 +607,9 @@ Parser = (function() {
         index++;
       }
       text = splitText.join("");
+      if (novelData.markdownEnabled) {
+        text = marked(text);
+      }
       return text;
     }
   };

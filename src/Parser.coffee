@@ -201,6 +201,8 @@ class Parser
         index++
       # Join all back into a string
       text = splitText.join("")
+      if novelData.markdownEnabled
+        text = marked(text)
       return text
 
   # Parse a statement that returns true or false or calculate a value
