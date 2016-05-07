@@ -1,6 +1,6 @@
 
 /* SAVING AND LOADING */
-var InputManager, InventoryManager, NovelManager, Parser, SceneManager, SoundManager, TextPrinter, UI, Util, copyButton, novelData, novelPath,
+var InputManager, InventoryManager, LanguageManager, NovelManager, Parser, SceneManager, SoundManager, TextPrinter, UI, Util, copyButton, novelData, novelPath,
   indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
 NovelManager = (function() {
@@ -158,7 +158,6 @@ NovelManager = (function() {
 
   NovelManager.start = function() {
     console.log("-- Starting Novel.js... --");
-    UI.init();
     return this.loadMainJson();
   };
 
@@ -272,6 +271,7 @@ NovelManager = (function() {
     novelData.novel = json;
     novelData.debugMode = novelData.novel.debugMode;
     SoundManager.init();
+    UI.init();
     novelData.novel.currentScene = SceneManager.changeScene(novelData.novel.scenes[0].name);
     novelData.status = "Ready";
     return console.log("-- Loading Novel.js complete! --");
@@ -985,6 +985,39 @@ InventoryManager = (function() {
 })();
 
 
+/* HANDLES LANGUAGE SETTINGS */
+
+LanguageManager = (function() {
+  var instance;
+
+  instance = null;
+
+  function LanguageManager() {
+    if (instance) {
+      return instance;
+    } else {
+      instance = this;
+    }
+  }
+
+  LanguageManager.getString = function(name) {
+    var i, k, len, ref;
+    ref = novelData.novel.uiText;
+    for (k = 0, len = ref.length; k < len; k++) {
+      i = ref[k];
+      if (i.name === name && i.language === novelData.novel.settings.language) {
+        return Parser.parseText(i.content);
+      }
+    }
+    console.error('Error! UI string ' + name + ' not found!');
+    return '[NOT FOUND]';
+  };
+
+  return LanguageManager;
+
+})();
+
+
 /* SCENE MANIPULATION */
 
 SceneManager = (function() {
@@ -1484,6 +1517,7 @@ TextPrinter = (function() {
     this.currentText = "";
     UI.updateText(this.currentText);
     UI.disableSkipButton();
+    UI.showContinueButton(false);
     this.fullText = text;
     this.currentOffset = -1;
     this.soundBuffer = [];
@@ -1815,7 +1849,7 @@ UI = (function() {
     if (n) {
       d = document.createElement('div');
       d.id = "novel-area";
-      d.innerHTML = '<div id="novel-style-area"> <div id="novel-notification-wrapper"> <div id="novel-save-notification" class="novel-notification"> <p>Copy and save this text:</p> <p><textarea name="save-text" readonly></textarea></p> <p><button type="button" onclick="UI.closeSaveNotification()">Close</button><button type="button" id="novel-copy-button">Copy</button></p> </div> <div id="novel-load-notification" class="novel-notification"> <p>Paste your save data here:</p> <p><textarea name="load-text"></textarea></p> <p><button type="button" onclick="UI.closeLoadNotification(false)">Close</button><button type="button" onclick="UI.closeLoadNotification(true)">Load</button></p> </div> </div> <div id="novel-text-area"> <div id="novel-text"></div> <button type="button" id="novel-skip-button" onclick="TextPrinter.complete()">Skip</button> <button type="button" id="novel-continue-button" onclick="TextPrinter.unpause()">Continue</button> </div> <div id="novel-choices-area"> <ul id="novel-choice-list"></ul> </div> <div id="novel-inventory-area"> <h5>Inventory:</h5> <ul id="novel-inventory"></ul> </div> <div id="novel-hidden-inventory-area"> <h5>Stats:</h5> <ul id="novel-hidden-inventory"></ul> </div> <div id="novel-save-area"> <button type="button" id="novel-save-button" onclick="NovelManager.saveData()">Save</button> <button type="button" id="novel-load-button" onclick="UI.showLoadNotification()">Load</button> </div> </div>';
+      d.innerHTML = '<div id="novel-style-area"> <div id="novel-notification-wrapper"> <div id="novel-save-notification" class="novel-notification"> <p>' + LanguageManager.getString('saveText') + '</p> <p><textarea name="save-text" readonly></textarea></p> <p><button type="button" onclick="UI.closeSaveNotification()">' + LanguageManager.getString('closeButton') + '</button><button type="button" id="novel-copy-button">' + LanguageManager.getString('copyButton') + '</button></p> </div> <div id="novel-load-notification" class="novel-notification"> <p>' + LanguageManager.getString('loadText') + '</p> <p><textarea name="load-text"></textarea></p> <p><button type="button" onclick="UI.closeLoadNotification(false)">' + LanguageManager.getString('closeButton') + '</button><button type="button" onclick="UI.closeLoadNotification(true)">' + LanguageManager.getString('loadButton') + '</button></p> </div> </div> <div id="novel-text-area"> <div id="novel-text"></div> <button type="button" id="novel-skip-button" onclick="TextPrinter.complete()">' + LanguageManager.getString('skipButton') + '</button> <button type="button" id="novel-continue-button" onclick="TextPrinter.unpause()">' + LanguageManager.getString('continueButton') + '</button> </div> <div id="novel-choices-area"> <ul id="novel-choice-list"></ul> </div> <div id="novel-inventory-area"> <h5>' + LanguageManager.getString('inventoryTitle') + '</h5> <ul id="novel-inventory"></ul> </div> <div id="novel-hidden-inventory-area"> <h5>' + LanguageManager.getString('hiddenInventoryTitle') + '</h5> <ul id="novel-hidden-inventory"></ul> </div> <div id="novel-save-area"> <button type="button" id="novel-save-button" onclick="NovelManager.saveData()">' + LanguageManager.getString('saveButton') + '</button> <button type="button" id="novel-load-button" onclick="UI.showLoadNotification()">' + LanguageManager.getString('loadButton') + '</button> </div> </div>';
       n.parentNode.insertBefore(d, n);
       return n.parentNode.removeChild(n);
     }
@@ -2210,10 +2244,15 @@ novelData = {
   choicesHidden: false,
   printedText: "",
   parsedJavascriptCommands: [],
-  music: []
+  music: [],
+  csvEnabled: false
 };
 
 novelPath = './novel';
+
+if (typeof Papa !== "undefined") {
+  novelData.csvEnabled = true;
+}
 
 
 /* And finally, start the game... */

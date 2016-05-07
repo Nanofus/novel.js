@@ -217,6 +217,7 @@
   "settings": {
     "debugMode": true,
     "saveMode": "text",
+    "language": "english",
     "showSaveButtons": true,
     "showSkipButton": false,
     "inventoryHidden": false,
@@ -253,5 +254,20 @@
   "externalJson": [
     {"name": "include", "file": "include.json"},
     {"name": "someChoice", "file": "someChoice.json"}
+  ],
+  "externalCsv": [
+    {"name": "test", "file": "test.csv"}
+  ],
+  "uiText": [
+    {"name": "saveText", "language": "english", "content": "Copy and save this text:" },
+    {"name": "loadText", "language": "english", "content": "Paste your save data here:" },
+    {"name": "closeButton", "language": "english", "content": "Close" },
+    {"name": "copyButton", "language": "english", "content": "Copy" },
+    {"name": "saveButton", "language": "english", "content": "Save" },
+    {"name": "loadButton", "language": "english", "content": "Load" },
+    {"name": "skipButton", "language": "english", "content": "Skip" },
+    {"name": "continueButton", "language": "english", "content": "Continue" },
+    {"name": "inventoryTitle", "language": "english", "content": "Inventory:" },
+    {"name": "hiddenInventoryTitle", "language": "english", "content": "Stats:" }
   ]
 }

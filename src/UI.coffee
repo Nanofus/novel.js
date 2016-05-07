@@ -19,35 +19,35 @@ class UI
       d.innerHTML = '<div id="novel-style-area">
         <div id="novel-notification-wrapper">
           <div id="novel-save-notification" class="novel-notification">
-            <p>Copy and save this text:</p>
+            <p>' + LanguageManager.getUIString('saveText') + '</p>
             <p><textarea name="save-text" readonly></textarea></p>
-            <p><button type="button" onclick="UI.closeSaveNotification()">Close</button><button type="button" id="novel-copy-button">Copy</button></p>
+            <p><button type="button" onclick="UI.closeSaveNotification()">' + LanguageManager.getUIString('closeButton') + '</button><button type="button" id="novel-copy-button">' + LanguageManager.getUIString('copyButton') + '</button></p>
           </div>
           <div id="novel-load-notification" class="novel-notification">
-            <p>Paste your save data here:</p>
+            <p>' + LanguageManager.getUIString('loadText') + '</p>
             <p><textarea name="load-text"></textarea></p>
-            <p><button type="button" onclick="UI.closeLoadNotification(false)">Close</button><button type="button" onclick="UI.closeLoadNotification(true)">Load</button></p>
+            <p><button type="button" onclick="UI.closeLoadNotification(false)">' + LanguageManager.getUIString('closeButton') + '</button><button type="button" onclick="UI.closeLoadNotification(true)">' + LanguageManager.getUIString('loadButton') + '</button></p>
           </div>
         </div>
         <div id="novel-text-area">
           <div id="novel-text"></div>
-          <button type="button" id="novel-skip-button" onclick="TextPrinter.complete()">Skip</button>
-          <button type="button" id="novel-continue-button" onclick="TextPrinter.unpause()">Continue</button>
+          <button type="button" id="novel-skip-button" onclick="TextPrinter.complete()">' + LanguageManager.getUIString('skipButton') + '</button>
+          <button type="button" id="novel-continue-button" onclick="TextPrinter.unpause()">' + LanguageManager.getUIString('continueButton') + '</button>
         </div>
         <div id="novel-choices-area">
           <ul id="novel-choice-list"></ul>
         </div>
         <div id="novel-inventory-area">
-          <h5>Inventory:</h5>
+          <h5>' + LanguageManager.getUIString('inventoryTitle') + '</h5>
           <ul id="novel-inventory"></ul>
         </div>
         <div id="novel-hidden-inventory-area">
-          <h5>Stats:</h5>
+          <h5>' + LanguageManager.getUIString('hiddenInventoryTitle') + '</h5>
           <ul id="novel-hidden-inventory"></ul>
         </div>
         <div id="novel-save-area">
-          <button type="button" id="novel-save-button" onclick="NovelManager.saveData()">Save</button>
-          <button type="button" id="novel-load-button" onclick="UI.showLoadNotification()">Load</button>
+          <button type="button" id="novel-save-button" onclick="NovelManager.saveData()">' + LanguageManager.getUIString('saveButton') + '</button>
+          <button type="button" id="novel-load-button" onclick="UI.showLoadNotification()">' + LanguageManager.getUIString('loadButton') + '</button>
         </div>
       </div>';
       n.parentNode.insertBefore(d, n);

@@ -1,0 +1,9 @@
+LANGUAGES,english,finnish
+ITEMS,,
+sword,Sword,Miekka
+stick,Stick,Keppi
+,,
+# This is a comment line,,
+TEXT,,
+scene1,You have [inv.sword] swords!,Sinulla on [inv.sword] miekkaa!
+scene2,Something fishy is going on!,Jotain kalaisaa on tekeillä!

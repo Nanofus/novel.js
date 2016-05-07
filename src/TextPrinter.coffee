@@ -37,6 +37,8 @@ class TextPrinter
     UI.updateText(@currentText)
     # Disable the skip button
     UI.disableSkipButton()
+    # Hide the continue button
+    UI.showContinueButton(false)
     @fullText = text
     #console.log fullText
     @currentOffset = -1

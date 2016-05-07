@@ -114,7 +114,6 @@ class NovelManager
   # Start the novel by loading the default novel.json
   @start: ->
     console.log "-- Starting Novel.js... --"
-    UI.init()
     @loadMainJson()
 
   # Load the main json
@@ -190,6 +189,7 @@ class NovelManager
     novelData.novel = json
     novelData.debugMode = novelData.novel.debugMode
     SoundManager.init()
+    UI.init()
     novelData.novel.currentScene = SceneManager.changeScene(novelData.novel.scenes[0].name)
     novelData.status = "Ready"
     console.log "-- Loading Novel.js complete! --"

@@ -11,6 +11,10 @@ novelData = {
   printedText: ""
   parsedJavascriptCommands: []
   music: []
+  csvEnabled: false
 }
 
 novelPath = './novel'
+
+if typeof Papa isnt "undefined"
+   novelData.csvEnabled = true
