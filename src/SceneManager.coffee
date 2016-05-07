@@ -113,7 +113,7 @@ class SceneManager
     if Object.prototype.toString.call(s.text) is "[object Array]"
       for i in s.text
         # Rows should be formatted into paragraphs
-        s.combinedText = s.combinedText + "<p>" + i + "</p>"
+        s.combinedText = s.combinedText + "<p>" + LanguageManager.getCorrectLanguageString(i) + "</p>"
     else
       s.combinedText = s.text
     return s
@@ -180,6 +180,9 @@ class SceneManager
 
   # Read miscellaneous scene values
   @readMisc = (source) ->
+    # Check if changing Language
+    if source.setLanguage isnt undefined
+      LanguageManager.setLanguage(setLanguage)
     # Check if skipping is enabled in this scene
     if source.skipEnabled isnt undefined
       val = Parser.parseStatement(source.skipEnabled)

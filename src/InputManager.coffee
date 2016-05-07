@@ -48,10 +48,12 @@ class InputManager
 
   # Checks if any forms on the page are active
   @formsSelected: ->
-    inputs = document.getElementById("novel-area").querySelectorAll("input")
-    for i in inputs
-      if i is document.activeElement
-        return true
+    novelArea = document.getElementById("novel-area")
+    if novelArea
+      inputs = novelArea.querySelectorAll("input")
+      for i in inputs
+        if i is document.activeElement
+          return true
     return false
 
 document.onkeydown = (evt) ->

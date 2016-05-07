@@ -42,7 +42,7 @@
     { "include": "include" },
     {
       "name": "road",
-      "text": ["[file content] <- That was loaded from a text file!",
+      "text": [[{"language":"english","content":"[file content] <- That was loaded from a text file!"},{"language":"finnish","content":"[file content] <- Tuo tuli tiedostosta!"}],
       "[if (inv.villagesSaved==10||(inv.dragonsKilled>0&&(inv.sword<=5||inv.magicalshield>=5)&&(inv.smallstone>5&&inv.smallstone<10)))][sound click]You are a [s1]knight[/s].[/if]",
       "You (random number [print rand.minus20,20,5]) have[pause 30] /[hahahaha/] saved [inv.villagesSaved] village[if (inv.villagesSaved!=1)]s[/if]. You have [inv.sword] [scrollSound none]sword[if (inv.sword!=1)]s[/if]. [if inv.sword>0]You have a [s2]sword[/s]. [/if][if inv.sword<1]You don't have a [s2]sword[/s]. [/if][/scrollSound]You walk on a road towards a [s1]town[/s].",
       "[print var.scenes,1,choices,1,text] [speed 100][exec console.log(\"Hello world! The game's name is \" + novelData.novel.name)]What do you do? There is also a [choice pickastick]stick[/choice] on the ground. You faintly hear a [choice dragon]dragon[/choice].",
@@ -133,7 +133,10 @@
           ]
         },
         {
-          "text": "Increase sandwiches by 1 in inventory 0",
+          "text": [
+            { "language": "english", "content": "Increase sandwiches by 1 in inventory 0" },
+            { "language": "finnish", "content": "Kasvata voileipien määrää yhdellä inventoryssa 0" }
+          ],
           "requirement": "inv.sandwich<10",
           "increaseValue": [
             {"path": "inventories,0,,1,value", "value": 1}
@@ -217,7 +220,7 @@
   "settings": {
     "debugMode": true,
     "saveMode": "text",
-    "language": "english",
+    "language": "finnish",
     "showSaveButtons": true,
     "showSkipButton": false,
     "inventoryHidden": false,
@@ -259,7 +262,7 @@
     {"name": "test", "file": "test.csv"}
   ],
   "uiText": [
-    {"name": "saveText", "language": "english", "content": "Copy and save this text:" },
+    {"name": "saveText", "language": "english", "content": "Copy and save your save data:" },
     {"name": "loadText", "language": "english", "content": "Paste your save data here:" },
     {"name": "closeButton", "language": "english", "content": "Close" },
     {"name": "copyButton", "language": "english", "content": "Copy" },
@@ -268,6 +271,16 @@
     {"name": "skipButton", "language": "english", "content": "Skip" },
     {"name": "continueButton", "language": "english", "content": "Continue" },
     {"name": "inventoryTitle", "language": "english", "content": "Inventory:" },
-    {"name": "hiddenInventoryTitle", "language": "english", "content": "Stats:" }
+    {"name": "hiddenInventoryTitle", "language": "english", "content": "Stats:" },
+    {"name": "saveText", "language": "finnish", "content": "Kopioi ja tallenna tallennusdatasi:" },
+    {"name": "loadText", "language": "finnish", "content": "Liitä tallennusdatasi tähän:" },
+    {"name": "closeButton", "language": "finnish", "content": "Sulje" },
+    {"name": "copyButton", "language": "finnish", "content": "Kopioi" },
+    {"name": "saveButton", "language": "finnish", "content": "Tallenna" },
+    {"name": "loadButton", "language": "finnish", "content": "Lataa" },
+    {"name": "skipButton", "language": "finnish", "content": "Ohita" },
+    {"name": "continueButton", "language": "finnish", "content": "Jatka" },
+    {"name": "inventoryTitle", "language": "finnish", "content": "Esineet:" },
+    {"name": "hiddenInventoryTitle", "language": "finnish", "content": "Tilastot:" }
   ]
 }

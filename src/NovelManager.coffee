@@ -110,6 +110,23 @@ class NovelManager
         c.parsedText = ""
         if c.alwaysShow is undefined
           c.alwaysShow = false
+    # Set default language
+    if json.settings.language is undefined
+      json.settings.language = "english"
+    # Set default UI language values
+    if json.uiText is undefined
+      json.uiText = JSON.parse('[
+        {"name": "saveText", "language": "english", "content": "Copy and save your save data:" },
+        {"name": "loadText", "language": "english", "content": "Paste your save data here:" },
+        {"name": "closeButton", "language": "english", "content": "Close" },
+        {"name": "copyButton", "language": "english", "content": "Copy" },
+        {"name": "saveButton", "language": "english", "content": "Save" },
+        {"name": "loadButton", "language": "english", "content": "Load" },
+        {"name": "skipButton", "language": "english", "content": "Skip" },
+        {"name": "continueButton", "language": "english", "content": "Continue" },
+        {"name": "inventoryTitle", "language": "english", "content": "Inventory:" },
+        {"name": "hiddenInventoryTitle", "language": "english", "content": "Stats:" }
+      ]')
 
   # Start the novel by loading the default novel.json
   @start: ->

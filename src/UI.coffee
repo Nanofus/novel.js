@@ -13,6 +13,8 @@ class UI
 
   @init: ->
     n = document.getElementsByTagName('novel')[0];
+    if not n
+      n = document.getElementById('novel-area')
     if n
       d = document.createElement('div');
       d.id = "novel-area"
@@ -175,7 +177,7 @@ class UI
     for i in [0 ... novelData.novel.currentScene.choices.length]
       choice = novelData.novel.currentScene.choices[i]
       if choice.text
-        choice.parsedText = Parser.parseText(choice.text)
+        choice.parsedText = Parser.parseText(LanguageManager.getCorrectLanguageString(choice.text))
         if SceneManager.requirementsFilled(choice)
           li = document.createElement("li")
           li.innerHTML = '<a href="#"; onclick="SceneManager.selectChoiceById(' + i + ')">' + choice.parsedText + '</a>'

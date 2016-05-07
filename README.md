@@ -52,7 +52,6 @@ These features are planned or currently in development.
 - HTML5 Local Storage saving
 - API
 - Text loading from csv files
-- Translation support
 
 ## Installation
 
