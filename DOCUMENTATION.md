@@ -125,7 +125,7 @@ A single example inventory:
 ]
 ```
 
-This inventory contains six items of two kinds. A single item has the following attributes:
+This inventory contains four items. A single item has the following attributes:
 - `name` - Required. The item's name. Cannot contain spaces.
 - `value` - Required. How many items of that specific type the player carries. If it becomes 0, the item is not removed from the inventory per se, but it does not show up in the UI. This can be used to track if the player has owned that kind of items in the past.
 - `displayName` - The item's display name. Can contain spaces. If omitted, `name` is used instead.
