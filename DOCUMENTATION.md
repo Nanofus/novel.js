@@ -215,31 +215,31 @@ Choices are the options the player can choose in a scene. An example is provided
 
 ### Settings
 
-The settings object contains settings for the application. All of the settings values should always be defined, unless otherwise stated; see the example application for default values.
+The settings object contains settings for the application. Undefined settings use their default values.
 
-- `debugMode` - True or false. If true, the hidden items list is shown to the player the same way as the regular inventory.
-- `language` - The current language. If not defined, defaults to `english`.
-- `inventoryHidden` - True or false. If true, the inventory is always hidden. Can be overridden on a scene-by-scene basis.
-- `choicesHidden` - True or false. If true, all choices are hidden from the user.
-- `alwaysShowDisabledChoices` - True or false. If true, choices with unmet requirements are always shown (except if `choicesHidden` is true).
-- `saveMode` - `text` or `cookie`. See [Saving](#saving).
-- `showSaveButtons` - True or false. If true, the saving and loading buttons are shown, otherwise they are hidden.
-- `floatPrecision` - How many significant digits printed floats should have, used to prevent JavaScript's handling of floats from causing strange values.
+- `debugMode` - True or false. If true, the hidden items list is shown to the player the same way as the regular inventory. Default `false`.
+- `language` - The current language. Default `english`.
+- `inventoryHidden` - True or false. If true, the inventory is always hidden. Can be overridden on a scene-by-scene basis. Default `false`.
+- `choicesHidden` - True or false. If true, all choices are hidden from the user. Default `false`.
+- `alwaysShowDisabledChoices` - True or false. If true, choices with unmet requirements are always shown (except if `choicesHidden` is true). Default `false`.
+- `saveMode` - `text` or `cookie`. See [Saving](#saving). Default `text`.
+- `showSaveButtons` - True or false. If true, the saving and loading buttons are shown, otherwise they are hidden. Default `true`.
+- `showSkipButton` - True or false. If enabled, a skip button is shown. If disabled, no button is shown. Default `false`.
+- `floatPrecision` - How many significant digits printed floats should have, used to prevent JavaScript's handling of floats from causing strange values. Default `5`.
 - `scrollSettings`:
-	- `defaultScrollSpeed` - The default speed (letter interval in ms) at which text scrolls. If set to 0, all text appears instantly.
-	- `textSkipEnabled` - True or false. If disabled, text can't be skipped.
-	- `revisitSkipEnabled` - True or false. Should a scene's text should be automatically skipped if the scene has already been visited. Can be overridden on a per-scene basis. The bool `novelData.novel.currentScene.visited` for a scene is changed to true after the scene is left.
-	- `showSkipButton` - True or false. If enabled, a skip button is shown. If disabled, no button is shown.
-	- `skipWithKeyboard` - True or false. If enabled, the player can skip text by pressing space or enter. Does not work with `fastScrollWithKeyboard`.
-	- `continueWithKeyboard` - True or false. If enabled, the player can choose the default choice (with `name` set to `"Continue"`) by pressing space or enter.
-	- `fastScrollWithKeyboard` - True or false. If enabled, the player can make text scroll faster by pressing space or enter. Does not work with `skipWithKeyboard`.
-	- `fastScrollSpeedMultiplier` - The multiplier by which the scrolling speed is multiplied when fast scrolling.
-	- `tickFreqThreshold` - A value that defines how often the scrolling sound plays; if the letter interval is smaller than this, the sound is played on every third character. If it is smaller than two times this, it is played on every second character. Otherwise, on every character.
+	- `defaultScrollSpeed` - The default speed (letter interval in ms) at which text scrolls. If set to `0`, all text appears instantly. Default `60`.
+	- `textSkipEnabled` - True or false. If false, text can't be skipped. Default `true`.
+	- `revisitSkipEnabled` - True or false. Should a scene's text should be automatically skipped if the scene has already been visited. Can be overridden on a per-scene basis. The bool `visited` for a scene is changed to true after the scene is left. Default `true`.
+	- `skipWithKeyboard` - True or false. If enabled, the player can skip text by pressing space or enter. Does not work with `fastScrollWithKeyboard`. Default `false`.
+	- `continueWithKeyboard` - True or false. If enabled, the player can choose the default choice (with `name` set to `"Continue"`) by pressing space or enter. Default `true`.
+	- `fastScrollWithKeyboard` - True or false. If enabled, the player can make text scroll faster by pressing space or enter. Does not work with `skipWithKeyboard`. Default `true`.
+	- `fastScrollSpeedMultiplier` - The multiplier by which the scrolling speed is multiplied when fast scrolling. Default `20`.
+	- `tickFreqThreshold` - A value that defines how often the scrolling sound plays; if the letter interval is smaller than this, the sound is played on every third character. If it is smaller than two times this, it is played on every second character. Otherwise, on every character. Default `100`.
 - `soundSettings`:
-  - `soundVolume` - A float between 0 and 1. The volume of all sound effects.
-  - `musicVolume` - A float between 0 and 1. The music's volume.
-  - `defaultClickSound` - A sound's name. If defined, this sound is played when clicking any choice. You can set multiple random options by using the [format for probabilities](#format-for-probabilities).
-  - `defaultScrollSound` - A sound's name. The default scrolling sound. If not defined, no sound is played. You can set multiple random options by using the [format for probabilities](#format-for-probabilities).
+  - `soundVolume` - A float between 0 and 1. The volume of all sound effects. Default `0.5`.
+  - `musicVolume` - A float between 0 and 1. The music's volume. Default `0.4`.
+  - `defaultClickSound` - A sound's name. If defined, this sound is played when clicking any choice. You can set multiple random options by using the [format for probabilities](#format-for-probabilities). Default undefined.
+  - `defaultScrollSound` - A sound's name. The default scrolling sound. If not defined, no sound is played. You can set multiple random options by using the [format for probabilities](#format-for-probabilities). Default undefined.
 
 ### Sounds
 
