@@ -411,8 +411,9 @@ See [External text files](#external-text-files) for the definition of `externalT
 You have to include [Papa Parse](http://papaparse.com/) in your HTML to use CSV files.
 
 You can also use the `[file]` tag to print values from a CSV table, defined in `novel.json`'s `externalCsv`. The CSV can also be used to easily define [translations](#translations), so it has to be in a specific format (Finnish is used as an example, and you can define any number of languages):
+
 | name                | english                               | finnish                             |
-|---------------------|---------------------------------------|-------------------------------------|
+| ------------------- | ------------------------------------- | ----------------------------------- |
 | scene1              | Something something sword and sorcery | Jotain jotain miekkoja ja taikuutta |
 | scene2              | And another scene                     | Ja toinen scene                     |
 | # This is a comment |                                       |                                     |
