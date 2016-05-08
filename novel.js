@@ -176,14 +176,14 @@ NovelManager = (function() {
   };
 
   NovelManager.loadExternalJson = function(json) {
-    var k, len, ready, ref, results, s;
+    var k, len, ready, ref, results1, s;
     console.log("Loading external json files...");
     ready = 0;
     ref = json.externalJson;
-    results = [];
+    results1 = [];
     for (k = 0, len = ref.length; k < len; k++) {
       s = ref[k];
-      results.push((function(s) {
+      results1.push((function(s) {
         var request;
         request = new XMLHttpRequest;
         request.open('GET', novelPath + '/json/' + s.file, true);
@@ -193,7 +193,7 @@ NovelManager = (function() {
             ready++;
             if (ready === json.externalJson.length) {
               NovelManager.includeJsons(json, json);
-              NovelManager.loadExternalText(json);
+              return NovelManager.loadExternalText(json);
             }
           }
         };
@@ -201,21 +201,21 @@ NovelManager = (function() {
         return request.send();
       })(s));
     }
-    return results;
+    return results1;
   };
 
   NovelManager.includeJsons = function(root, object) {
-    var i, results, x;
-    results = [];
+    var i, results1, x;
+    results1 = [];
     for (x in object) {
       if (typeof object[x] === 'object') {
         this.includeJsons(root, object[x]);
       }
       if (object[x].include !== void 0) {
-        results.push((function() {
-          var k, len, ref, results1;
+        results1.push((function() {
+          var k, len, ref, results2;
           ref = root.externalJson;
-          results1 = [];
+          results2 = [];
           for (k = 0, len = ref.length; k < len; k++) {
             i = ref[k];
             if (i.name === object[x].include) {
@@ -223,27 +223,27 @@ NovelManager = (function() {
               this.includeJsons(root, object[x]);
               break;
             } else {
-              results1.push(void 0);
+              results2.push(void 0);
             }
           }
-          return results1;
+          return results2;
         }).call(this));
       } else {
-        results.push(void 0);
+        results1.push(void 0);
       }
     }
-    return results;
+    return results1;
   };
 
   NovelManager.loadExternalText = function(json) {
-    var k, len, ready, ref, results, s;
+    var k, len, ready, ref, results1, s;
     console.log("Loading external text files...");
     ready = 0;
     ref = json.externalText;
-    results = [];
+    results1 = [];
     for (k = 0, len = ref.length; k < len; k++) {
       s = ref[k];
-      results.push((function(s) {
+      results1.push((function(s) {
         var request;
         request = new XMLHttpRequest;
         request.open('GET', novelPath + '/texts/' + s.file, true);
@@ -252,7 +252,7 @@ NovelManager = (function() {
             s.content = request.responseText;
             ready++;
             if (ready === json.externalText.length) {
-              NovelManager.prepareLoadedJson(json);
+              return NovelManager.loadExternalCsv(json);
             }
           }
         };
@@ -260,7 +260,39 @@ NovelManager = (function() {
         return request.send();
       })(s));
     }
-    return results;
+    return results1;
+  };
+
+  NovelManager.loadExternalCsv = function(json) {
+    var k, len, ready, ref, results1, s;
+    if (novelData.csvEnabled) {
+      console.log("Loading external CSV files...");
+      ready = 0;
+      ref = json.externalCsv;
+      results1 = [];
+      for (k = 0, len = ref.length; k < len; k++) {
+        s = ref[k];
+        results1.push(Papa.parse(novelPath + '/csv/' + s.file, {
+          download: true,
+          header: true,
+          comments: '#',
+          complete: function(results) {
+            if (novelData.csvData === void 0) {
+              novelData.csvData = results.data;
+            } else {
+              novelData.csvData = Util.mergeObjArrays(novelData.csvData, results.data);
+            }
+            ready++;
+            if (ready === json.externalCsv.length) {
+              return NovelManager.prepareLoadedJson(json);
+            }
+          }
+        }));
+      }
+      return results1;
+    } else {
+      return NovelManager.prepareLoadedJson(json);
+    }
   };
 
   NovelManager.prepareLoadedJson = function(json) {
@@ -488,6 +520,9 @@ Parser = (function() {
               break;
             }
           }
+          if (newText === null) {
+            newText = LanguageManager.getCorrectLanguageCsvString(name);
+          }
           if (newText !== null) {
             text = text.split("[file " + name + "]").join(newText);
           }
@@ -607,9 +642,6 @@ Parser = (function() {
         index++;
       }
       text = splitText.join("");
-      if (novelData.markdownEnabled) {
-        text = marked(text);
-      }
       return text;
     }
   };
@@ -874,9 +906,9 @@ InventoryManager = (function() {
   };
 
   InventoryManager.editItems = function(items, mode) {
-    var hidden, itemAdded, j, k, len, results;
+    var hidden, itemAdded, j, k, len, results1;
     Util.checkFormat(items, 'array');
-    results = [];
+    results1 = [];
     for (k = 0, len = items.length; k < len; k++) {
       j = items[k];
       hidden = false;
@@ -886,12 +918,12 @@ InventoryManager = (function() {
       }
       itemAdded = this.tryEditInInventory(mode, j, hidden);
       if (!itemAdded) {
-        results.push(this.tryEditNotInInventory(mode, j, hidden));
+        results1.push(this.tryEditNotInInventory(mode, j, hidden));
       } else {
-        results.push(void 0);
+        results1.push(void 0);
       }
     }
-    return results;
+    return results1;
   };
 
   InventoryManager.tryEditInInventory = function(mode, j, hidden) {
@@ -1009,6 +1041,7 @@ LanguageManager = (function() {
 
   LanguageManager.getUIString = function(name) {
     var i, k, len, ref;
+    Util.checkFormat(name, 'string');
     ref = novelData.novel.uiText;
     for (k = 0, len = ref.length; k < len; k++) {
       i = ref[k];
@@ -1018,6 +1051,29 @@ LanguageManager = (function() {
     }
     console.error('Error! UI string ' + name + ' not found!');
     return '[NOT FOUND]';
+  };
+
+  LanguageManager.getCorrectLanguageCsvString = function(name) {
+    var i, k, len, ref;
+    Util.checkFormat(name, 'string');
+    if (novelData.csvData === void 0 || novelData.csvEnabled === false) {
+      console.error("Error! CSV data cannot be parsed, because Papa Parse can't be detected.");
+      return '[NOT FOUND]';
+    }
+    ref = novelData.csvData;
+    for (k = 0, len = ref.length; k < len; k++) {
+      i = ref[k];
+      if (i.name === name) {
+        if (i[novelData.novel.settings.language] === void 0) {
+          if (i['english'] === void 0) {
+            console.error('Error! No CSV value by name ' + name + ' could be found.');
+            return '[NOT FOUND]';
+          }
+          return Parser.parseText(i['english']);
+        }
+        return Parser.parseText(i[novelData.novel.settings.language]);
+      }
+    }
   };
 
   LanguageManager.getCorrectLanguageString = function(obj) {
@@ -1088,19 +1144,19 @@ SceneManager = (function() {
   };
 
   SceneManager.selectChoiceByName = function(name) {
-    var i, k, len, ref, results;
+    var i, k, len, ref, results1;
     ref = novelData.novel.currentScene.choices;
-    results = [];
+    results1 = [];
     for (k = 0, len = ref.length; k < len; k++) {
       i = ref[k];
       if (i.name === name) {
         this.selectChoice(i);
         break;
       } else {
-        results.push(void 0);
+        results1.push(void 0);
       }
     }
-    return results;
+    return results1;
   };
 
   SceneManager.selectChoiceById = function(id) {
@@ -1179,7 +1235,7 @@ SceneManager = (function() {
   };
 
   SceneManager.readItemEdits = function(source) {
-    var i, k, l, len, len1, len2, o, q, ref, ref1, ref2, ref3, results, val;
+    var i, k, l, len, len1, len2, o, q, ref, ref1, ref2, ref3, results1, val;
     if (source.changeInventory !== void 0) {
       novelData.novel.currentInventory = Parser.parseStatement(source.changeInventory);
       if (novelData.novel.currentInventory > novelData.novel.inventories.length) {
@@ -1215,12 +1271,12 @@ SceneManager = (function() {
     }
     if (source.decreaseValue !== void 0) {
       ref3 = source.decreaseValue;
-      results = [];
+      results1 = [];
       for (q = 0, len2 = ref3.length; q < len2; q++) {
         val = ref3[q];
-        results.push(InventoryManager.decreaseValue(val.path, Parser.parseStatement(val.value.toString())));
+        results1.push(InventoryManager.decreaseValue(val.path, Parser.parseStatement(val.value.toString())));
       }
-      return results;
+      return results1;
     }
   };
 
@@ -1312,7 +1368,7 @@ SceneManager = (function() {
   };
 
   SceneManager.readCheckpoints = function(source) {
-    var checkpoint, dataChanged, i, k, l, len, len1, ref, ref1, results;
+    var checkpoint, dataChanged, i, k, l, len, len1, ref, ref1, results1;
     if (source.saveCheckpoint !== void 0) {
       if (novelData.novel.checkpoints === void 0) {
         novelData.novel.checkpoints = [];
@@ -1339,16 +1395,16 @@ SceneManager = (function() {
         novelData.novel.checkpoints = [];
       }
       ref1 = novelData.novel.checkpoints;
-      results = [];
+      results1 = [];
       for (l = 0, len1 = ref1.length; l < len1; l++) {
         i = ref1[l];
         if (i.name === Parser.parseStatement(source.loadCheckpoint)) {
-          results.push(this.changeScene(i.scene));
+          results1.push(this.changeScene(i.scene));
         } else {
-          results.push(void 0);
+          results1.push(void 0);
         }
       }
-      return results;
+      return results1;
     }
   };
 
@@ -1393,16 +1449,16 @@ SoundManager = (function() {
   }
 
   SoundManager.init = function() {
-    var index, k, len, ref, results, s;
+    var index, k, len, ref, results1, s;
     index = 0;
     ref = novelData.novel.sounds;
-    results = [];
+    results1 = [];
     for (k = 0, len = ref.length; k < len; k++) {
       s = ref[k];
       s.sound = new Audio(novelPath + '/sounds/' + s.file);
-      results.push(index++);
+      results1.push(index++);
     }
-    return results;
+    return results1;
   };
 
   SoundManager.playDefaultClickSound = function(name, clicked) {
@@ -1468,20 +1524,20 @@ SoundManager = (function() {
   };
 
   SoundManager.stopMusic = function(name) {
-    var i, index, k, len, ref, results;
+    var i, index, k, len, ref, results1;
     ref = novelData.music;
-    results = [];
+    results1 = [];
     for (k = 0, len = ref.length; k < len; k++) {
       i = ref[k];
       if (name === i.name) {
         i.music.pause();
         index = novelData.music.indexOf(i);
-        results.push(novelData.music.splice(index, 1));
+        results1.push(novelData.music.splice(index, 1));
       } else {
-        results.push(void 0);
+        results1.push(void 0);
       }
     }
-    return results;
+    return results1;
   };
 
   return SoundManager;
@@ -2007,64 +2063,64 @@ UI = (function() {
   };
 
   UI.updateInputs = function(needForUpdate) {
-    var a, i, inputs, k, len, results;
+    var a, i, inputs, k, len, results1;
     inputs = document.getElementById("novel-area").querySelectorAll("input");
-    results = [];
+    results1 = [];
     for (k = 0, len = inputs.length; k < len; k++) {
       i = inputs[k];
-      results.push((function() {
-        var l, len1, ref, results1;
+      results1.push((function() {
+        var l, len1, ref, results2;
         ref = novelData.novel.inventories[novelData.novel.currentInventory];
-        results1 = [];
+        results2 = [];
         for (l = 0, len1 = ref.length; l < len1; l++) {
           a = ref[l];
           if (a.name === i.className.substring(6, i.className.length)) {
             a.value = Util.stripHTML(i.value);
             if (needForUpdate) {
-              results1.push(SceneManager.updateScene(novelData.novel.currentScene, true));
+              results2.push(SceneManager.updateScene(novelData.novel.currentScene, true));
             } else {
-              results1.push(void 0);
+              results2.push(void 0);
             }
           } else {
-            results1.push(void 0);
+            results2.push(void 0);
           }
         }
-        return results1;
+        return results2;
       })());
     }
-    return results;
+    return results1;
   };
 
   UI.resetChoices = function() {
-    var choiceArea, results;
+    var choiceArea, results1;
     choiceArea = document.getElementById("novel-choice-list");
-    results = [];
+    results1 = [];
     while (choiceArea.firstChild) {
-      results.push(choiceArea.removeChild(choiceArea.firstChild));
+      results1.push(choiceArea.removeChild(choiceArea.firstChild));
     }
-    return results;
+    return results1;
   };
 
   UI.resetInventories = function() {
-    var inventoryArea, results;
+    var inventoryArea, results1;
     inventoryArea = document.getElementById("novel-inventory");
     while (inventoryArea.firstChild) {
       inventoryArea.removeChild(inventoryArea.firstChild);
     }
     inventoryArea = document.getElementById("novel-hidden-inventory");
-    results = [];
+    results1 = [];
     while (inventoryArea.firstChild) {
-      results.push(inventoryArea.removeChild(inventoryArea.firstChild));
+      results1.push(inventoryArea.removeChild(inventoryArea.firstChild));
     }
-    return results;
+    return results1;
   };
 
   UI.updateChoices = function() {
-    var choice, choiceArea, i, k, li, ref, results;
+    var choice, choiceArea, i, k, li, ref, results1;
     this.resetChoices();
     choiceArea = document.getElementById("novel-choice-list");
     i = 0;
-    results = [];
+    results1 = [];
     for (i = k = 0, ref = novelData.novel.currentScene.choices.length; 0 <= ref ? k < ref : k > ref; i = 0 <= ref ? ++k : --k) {
       choice = novelData.novel.currentScene.choices[i];
       if (choice.text) {
@@ -2072,28 +2128,28 @@ UI = (function() {
         if (SceneManager.requirementsFilled(choice)) {
           li = document.createElement("li");
           li.innerHTML = '<a href="#"; onclick="SceneManager.selectChoiceById(' + i + ')">' + choice.parsedText + '</a>';
-          results.push(choiceArea.appendChild(li));
+          results1.push(choiceArea.appendChild(li));
         } else if (choice.alwaysShow || novelData.novel.settings.alwaysShowDisabledChoices) {
           li = document.createElement("li");
           li.innerHTML = choice.parsedText;
-          results.push(choiceArea.appendChild(li));
+          results1.push(choiceArea.appendChild(li));
         } else {
-          results.push(void 0);
+          results1.push(void 0);
         }
       } else {
-        results.push(void 0);
+        results1.push(void 0);
       }
     }
-    return results;
+    return results1;
   };
 
   UI.updateInventories = function() {
-    var hiddenInventoryArea, innerHTML, inventoryArea, item, k, len, li, ref, results, targetInventory;
+    var hiddenInventoryArea, innerHTML, inventoryArea, item, k, len, li, ref, results1, targetInventory;
     this.resetInventories();
     inventoryArea = document.getElementById("novel-inventory");
     hiddenInventoryArea = document.getElementById("novel-hidden-inventory");
     ref = novelData.novel.inventories[novelData.novel.currentInventory];
-    results = [];
+    results1 = [];
     for (k = 0, len = ref.length; k < len; k++) {
       item = ref[k];
       targetInventory = hiddenInventoryArea;
@@ -2110,12 +2166,12 @@ UI = (function() {
         }
         innerHTML = innerHTML + '</ul>';
         li.innerHTML = innerHTML;
-        results.push(targetInventory.appendChild(li));
+        results1.push(targetInventory.appendChild(li));
       } else {
-        results.push(void 0);
+        results1.push(void 0);
       }
     }
-    return results;
+    return results1;
   };
 
   return UI;
@@ -2255,6 +2311,27 @@ Util = (function() {
     } else {
       return false;
     }
+  };
+
+  Util.mergeObjArrays = function(list1, list2) {
+    var finalResult, result;
+    result = {};
+    list1.concat(list2).forEach(function(item) {
+      var column, name, row;
+      name = item.name;
+      row = result[name];
+      if (!row) {
+        result[name] = item;
+        return;
+      }
+      for (column in item) {
+        row[column] = item[column];
+      }
+    });
+    finalResult = Object.keys(result).map(function(name) {
+      return result[name];
+    });
+    return finalResult;
   };
 
   return Util;

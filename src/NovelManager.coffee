@@ -162,7 +162,6 @@ class NovelManager
             if ready is json.externalJson.length
               NovelManager.includeJsons(json,json)
               NovelManager.loadExternalText(json)
-            return
         request.onerror = ->
           return
         request.send()
@@ -193,12 +192,32 @@ class NovelManager
             s.content = request.responseText
             ready++
             if ready is json.externalText.length
-              NovelManager.prepareLoadedJson(json)
-            return
+              NovelManager.loadExternalCsv(json)
         request.onerror = ->
           return
         request.send()
       ) s
+
+  # Load external CSV files
+  @loadExternalCsv = (json) ->
+    if novelData.csvEnabled
+      console.log "Loading external CSV files..."
+      ready = 0
+      for s in json.externalCsv
+        Papa.parse novelPath + '/csv/' + s.file,
+          download: true
+          header: true
+          comments: '#'
+          complete: (results) ->
+            if novelData.csvData is undefined
+              novelData.csvData = results.data
+            else
+              novelData.csvData = Util.mergeObjArrays(novelData.csvData,results.data)
+            ready++
+            if ready is json.externalCsv.length
+              NovelManager.prepareLoadedJson json
+    else
+      NovelManager.prepareLoadedJson(json)
 
   # Prepare loaded json data
   @prepareLoadedJson = (json) ->

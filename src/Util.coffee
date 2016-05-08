@@ -87,3 +87,20 @@ class Util
       return true
     else
       return false
+
+  # Merge two object arrays into one
+  @mergeObjArrays = (list1, list2) ->
+    result = {}
+    list1.concat(list2).forEach (item) ->
+      name = item.name
+      row = result[name]
+      if !row
+        result[name] = item
+        return
+      for column of item
+        row[column] = item[column]
+      return
+    finalResult = Object.keys(result).map((name) ->
+      result[name]
+    )
+    return finalResult

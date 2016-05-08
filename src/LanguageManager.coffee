@@ -17,11 +17,27 @@ class LanguageManager
 
   # Get a string shown in UI in the current language
   @getUIString = (name) ->
+    Util.checkFormat(name,'string')
     for i in novelData.novel.uiText
       if i.name is name and i.language is novelData.novel.settings.language
         return Parser.parseText(i.content)
     console.error 'Error! UI string ' + name + ' not found!'
     return '[NOT FOUND]'
+
+  # Get the correct version of csv string
+  @getCorrectLanguageCsvString = (name) ->
+    Util.checkFormat(name,'string')
+    if novelData.csvData is undefined or novelData.csvEnabled is false
+      console.error "Error! CSV data cannot be parsed, because Papa Parse can't be detected."
+      return '[NOT FOUND]'
+    for i in novelData.csvData
+      if i.name is name
+        if i[novelData.novel.settings.language] is undefined
+          if i['english'] is undefined
+            console.error 'Error! No CSV value by name ' + name + ' could be found.'
+            return '[NOT FOUND]'
+          return Parser.parseText(i['english'])
+        return Parser.parseText(i[novelData.novel.settings.language])
 
   # Get the string in the correct language
   @getCorrectLanguageString = (obj) ->

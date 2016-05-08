@@ -85,6 +85,9 @@ class Parser
             if i.name is name
               newText = i.content
               break
+          # If not found from files, get from CSV data
+          if newText is null
+            newText = LanguageManager.getCorrectLanguageCsvString(name)
           # Replace the text
           if newText isnt null
             text = text.split("[file "+name+"]").join(newText)
@@ -201,8 +204,8 @@ class Parser
         index++
       # Join all back into a string
       text = splitText.join("")
-      if novelData.markdownEnabled
-        text = marked(text)
+      #if novelData.markdownEnabled
+      #  text = marked(text)
       return text
 
   # Parse a statement that returns true or false or calculate a value

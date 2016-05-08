@@ -23,7 +23,7 @@
   "scenes": [
     {
       "name": "start",
-      "text": "SUPER AMAZING __MEDIEVAL__ ADVENTURE!",
+      "text": "SUPER AMAZING __MEDIEVAL__ ADVENTURE!<br>[file scene2]",
       "style": "main-menu",
       "changeInventory": 1,
       "choicesHidden": true,
@@ -98,7 +98,7 @@
           "addItem": "smallstone,1,Small Stone"
         },
         {
-          "text": "Save a [s1]village[/s] [if inv.villagesSaved<1]!!! (You haven't saved any!!!)[/if]",
+          "text": "Save a [s1]village[/s] [if inv.villagesSaved<1](You haven't saved any!!!)[/if]",
           "addItem": "!villagesSaved,1"
         },
         {
@@ -259,7 +259,8 @@
     {"name": "someChoice", "file": "someChoice.json"}
   ],
   "externalCsv": [
-    {"name": "test", "file": "test.csv"}
+    {"name": "test", "file": "test.csv"},
+    {"name": "test2", "file": "test2.csv"}
   ],
   "uiText": [
     {"name": "saveText", "language": "english", "content": "Copy and save your save data:" },

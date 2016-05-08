@@ -10,6 +10,7 @@
 	- [Settings](#settings)
 	- [Sounds](#sounds)
 	- [External text files](#external-text-files)
+	- [External CSV files](#external-csv-files)
 	- [External json files](#external-json-files)
 - [Tags](#tags)
 	- [`if` - Conditional statements](#conditional-statements)
@@ -18,7 +19,8 @@
 	- [`inv` - Item counts & values](#item-counts--values)
 	- [`print` - Displaying values](#displaying-values)
 	- [`exec` - Executing JavaScript while text scrolls](#executing-javascript-while-text-scrolls)
-	- [`file` - Printing text from external files](#printing-text-from-external-files)
+	- [`file` - Printing text from external text files](#printing-text-from-external-text-files)
+	- [`file` - Printing text from external CSV files](#printing-text-from-external-csv-files)
 	- [`speed` - Setting text scrolling speed](#setting-text-scrolling-speed)
 	- [`pause` - Pausing text scrolling](#pausing-text-scrolling)
 	- [`scrollSound` - Setting text scrolling sound](#setting-text-scrolling-sound)
@@ -264,6 +266,23 @@ A single text file has the following attributes:
 - `name` - The name used when using the text with `[file]`.
 - `file` - The file name.
 
+### External CSV files
+
+You have to include [Papa Parse](http://papaparse.com/) in your HTML to use CSV files.
+
+The `externalCsv` object contains all external CSV files that can be used by the `[file]` tag. The default path is the `csv` folder inside the `novel` folder. An example external CSV array:
+```json
+"externalCsv": [
+	{"name": "english", "file": "english.csv"},
+	{"name": "finnish", "file": "finnish.csv"}
+]
+```
+A single CSV file has the following attributes:
+- `name` - An unique name for the csv file.
+- `file` - The file name.
+
+See [Printing text from external CSV files](#printing-text-from-external-csv-files) for more information about using CSV files.
+
 ### External json files
 
 If you find your `novel.json` convoluted, you can separate it into multiple `json` files. The `externalJson` array has to be in the root `game.json`, but all other objects can be in separate files. It lists all other `json` files your game uses. The default path for the files is the `json` folder inside the `novel` folder. An example:
@@ -372,11 +391,11 @@ See [Formats for statements and commands](#formats-for-statements-and-commands) 
 
 ### Executing JavaScript while text scrolls
 
-You can run JavaScript while the text scrolls by using the `[exec x]` tag, where x is JavaScript code, such as a function call. For example, `[exec console.log(\"Hello world! The novel's name is \" + data.novel.name)]`. The code is executed with JavaScript's `eval()` function. You can access the application's data through the `data.novel` object. If the tag is inside an if-statement that returns false, so that it is not shown, the tag is ignored. If the text scrolling is skipped, these are buffered and will be executed at the end.
+You can run JavaScript while the text scrolls by using the `[exec x]` tag, where x is JavaScript code, such as a function call. For example, `[exec console.log(\"Hello world! The novel's name is \" + novelData.novel.name)]`. The code is executed with JavaScript's `eval()` function. You can access the application's data through the `novelData.novel` object. If the tag is inside an if-statement that returns false, so that it is not shown, the tag is ignored. If the text scrolling is skipped, these are buffered and will be executed at the end.
 
-### Printing text from external files
+### Printing text from external text files
 
-The `[file]` tag can be used to print text from an external file. This tag is parsed before all other tags, so the text file can contain other Novel.js tags. The files are referred to by the name defined in `externalText` in `game.json`. For example, `[file content]` prints the contents of a file named `content` in `externalText`:
+The `[file]` tag can be used to print text from an external text file. This tag is parsed before all other tags, so the text file can contain other Novel.js tags. The files are referred to by the name defined in `externalText` in `game.json`. For example, `[file content]` prints the contents of a file named `content` in `externalText`:
 ```
 Hello, [file content]!
 ```
@@ -386,6 +405,25 @@ Hello, my name is Bob, and I have 5 swords!
 ```
 
 See [External text files](#external-text-files) for the definition of `externalText`.
+
+### Printing text from external CSV files
+
+You have to include [Papa Parse](http://papaparse.com/) in your HTML to use CSV files.
+
+You can also use the `[file]` tag to print values from a CSV table, defined in `novel.json`'s `externalCsv`. The CSV can also be used to easily define [translations](#translations), so it has to be in a specific format (Finnish is used as an example, and you can define any number of languages):
+| name                | english                               | finnish                             |
+|---------------------|---------------------------------------|-------------------------------------|
+| scene1              | Something something sword and sorcery | Jotain jotain miekkoja ja taikuutta |
+| scene2              | And another scene                     | Ja toinen scene                     |
+| # This is a comment |                                       |                                     |
+
+The first row is the header row, the first cell being `name` and the rest being different languages (`english` is treated as the default). Rows beginning with `#` are treated as comments.
+
+`[file scene1]` prints the text with the `name` `scene1` in the current language. If you are not using translations, you should use only the English column.
+
+Note that the text files and csv files share the same namespace: you should have only a single string with the same name in both the text files and CSV files.
+
+See [External csv files](#external-csv-files) for the definition of `externalCsv`.
 
 ### Setting text scrolling speed
 
@@ -438,7 +476,7 @@ This means the value of `start` can be embedded into a scene or a choice with th
 
 The parameters that remove, add or set items or check for requirements take the following format. You can list any amount of items or with one command by separating them with `|`.
 
-You can optionally define a `displayName` that may contain spaces, though this is not required (and not supported outside adding or setting items).
+You can optionally define a `displayName` that may contain spaces, though this is not required (and not supported outside adding or setting items). If your novel has translations, you should pre-define your items in `novel.json` to set a language-specific `displayName`. Just keep the value as `0` and they will not be shown in the inventory.
 
 You can also define an optional `probability`, a float between 0 and 1 that defines the operation's success chance. Probability must always be defined before `displayName`.
 
@@ -539,7 +577,7 @@ The `css` folder contains a file named `skin.css`. Styles in `skin.css` override
 
 ## Checkpoints
 
-By using the `saveCheckpoint` and `loadCheckpoint` commands in scenes or choices it is possible to "tag" scenes so that they can easily be returned to later. This is useful when, for example, creating a menu with a "continue reading" button. Both commands take a name for the checkpoint as a parameter. The checkpoint objects are saved to `data.novel.checkpoints`, so they are saved when the application state is saved. The objects have two values: `name`, which is the checkpoint's name used in the commands, and `scene`, the name of the scene it refers to.
+By using the `saveCheckpoint` and `loadCheckpoint` commands in scenes or choices it is possible to "tag" scenes so that they can easily be returned to later. This is useful when, for example, creating a menu with a "continue reading" button. Both commands take a name for the checkpoint as a parameter. The checkpoint objects are saved to `novelData.novel.checkpoints`, so they are saved when the application state is saved. The objects have two values: `name`, which is the checkpoint's name used in the commands, and `scene`, the name of the scene it refers to.
 
 Checkpoints do not affect the player's items or other values. Use saving and loading to return those to a previous state.
 
@@ -560,7 +598,7 @@ The second way is to save the `novel.json` file as a Base64 encoded string, that
 ## Translations
 **(COMING IN 0.8.0)**
 
-Novel.js supports multilingualism! The language used is defined in `novel.json`'s `settings.language`, and can be changed by using the `setLanguage` command in a choice or a scene.
+Novel.js supports multilingualism! The language used is defined in `novel.json`'s `settings.language`, and can be changed by using the `setLanguage` command in a choice or a scene. Translations can be done either directly in `novel.json` or by using separate CSV files.
 
 ### Translating text and choices
 
@@ -585,6 +623,12 @@ An example:
 ]
 ```
 These object arrays work even if a scene's `text` itself is defined as an array. In this case, the scene's text would be defined as an array of arrays.
+
+### Translating using CSV files
+
+If you think the translation arrays clutter your `novel.json` too much, you can use the `[file]` tag (see [Printing text from external CSV files](#printing-text-from-external-csv-files)) to print strings from CSV files in scene and choice texts. You can have a separate column in the CSV file for each of your languages, and Novel.js will automatically choose the correct column based on the currently selected language.
+
+You can also split your translation into multiple files, such as `english.csv` and `finnish.csv`. In this case the first file could contain the columns `name` and `english`, and the second one only columns `name` and `finnish`. If two CSV files contain matching values in the `name` column, Novel.js will automatically make a connection between them.
 
 ### UI texts
 
