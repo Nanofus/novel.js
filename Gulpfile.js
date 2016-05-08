@@ -63,10 +63,11 @@ gulp.task('compress', ['coffee'], function() {
 gulp.task('test', ['coffee','test-coffee'], shell.task([
   'jscover ./ cov',
   'mocha-phantomjs cov/test/index.html -R json-cov > report.json',
-]))
+]));
 
 gulp.task('coverage', ['test'], function() {
   var json = JSON.parse(fs.readFileSync('report.json','utf8'));
+  delete json.files[1];
   fs.writeFileSync('coverage.lcov',jsoncovToLcov(json))
 });
 
