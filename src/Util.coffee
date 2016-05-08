@@ -23,24 +23,29 @@ class Util
     text.replace regex, ''
 
   # Check if a variable is the chosen format
-  @checkFormat: (s, format) ->
+  @checkFormat: (s, format, suppressErrors) ->
+    if suppressErrors is undefined
+      suppressErrors = false
     if format is 'array'
       if Object::toString.call(s) is '[object Array]'
         return true
       else
-        console.error "ERROR: Invalid input format (should be " + format + ")"
+        if not suppressErrors
+          console.error "ERROR: Invalid input format (should be " + format + ")"
         return false
     else if format is 'arrayOrString'
       if Object::toString.call(s) is '[object Array]' || typeof s is 'string'
         return true
       else
-        console.error "ERROR: Invalid input format (should be " + format + ")"
+        if not suppressErrors
+          console.error "ERROR: Invalid input format (should be " + format + ")"
         return false
     else
       if typeof s is format
         return true
       else
-        console.error "ERROR: Invalid input format (should be " + format + ")"
+        if not suppressErrors
+          console.error "ERROR: Invalid input format (should be " + format + ")"
         return false
 
   # Check if the string has valid parentheses

@@ -231,77 +231,85 @@ class TextPrinter
             break
         i++
       # Buffering of hidden commands
+      @bufferHidden(str)
+      # Executing of non-hidden commands
+      @bufferNonHidden(str)
+      @currentOffset = i
+      @offsetChanged = true
+
+  # Parse hidden tags
+  @bufferHidden = (str) ->
+    # Sound playing
+    if str.indexOf("play-sound") > -1 and str.indexOf("display:none;") > -1
+      s = str.split("play-sound ")
+      s = s[1].split(/\s|\"/)[0]
+      @soundBuffer.push(Parser.parseStatement(s))
+    # Music playing
+    if str.indexOf("play-music") > -1 and str.indexOf("display:none;") > -1
+      s = str.split("play-music ")
+      s = s[1].split(/\s|\"/)[0]
+      @musicBuffer.push(Parser.parseStatement(s))
+    # Music stopping
+    if str.indexOf("stop-music") > -1 and str.indexOf("display:none;") > -1
+      s = str.split("stop-music ")
+      s = s[1].split(/\s|\"/)[0]
+      @stopMusicBuffer.push(Parser.parseStatement(s))
+    # Command executing
+    if str.indexOf("execute-command") > -1 and str.indexOf("display:none;") > -1
+      s = str.split("execute-command ")
+      s = s[1].split(/\s|\"/)[0]
+      @executeBuffer.push(Parser.parseStatement(s))
+
+  # Parse visible tags
+  @bufferNonHidden = (str) ->
+    if str.indexOf("display:none;") is -1
       # Sound playing
-      if str.indexOf("play-sound") > -1 and str.indexOf("display:none;") > -1
+      if str.indexOf("play-sound") > -1
         s = str.split("play-sound ")
         s = s[1].split(/\s|\"/)[0]
         @soundBuffer.push(Parser.parseStatement(s))
+        SoundManager.playSound(Parser.parseStatement(s))
       # Music playing
-      if str.indexOf("play-music") > -1 and str.indexOf("display:none;") > -1
+      if str.indexOf("play-music") > -1
         s = str.split("play-music ")
         s = s[1].split(/\s|\"/)[0]
         @musicBuffer.push(Parser.parseStatement(s))
+        SoundManager.startMusic(Parser.parseStatement(s))
       # Music stopping
-      if str.indexOf("stop-music") > -1 and str.indexOf("display:none;") > -1
+      if str.indexOf("stop-music") > -1
         s = str.split("stop-music ")
         s = s[1].split(/\s|\"/)[0]
         @stopMusicBuffer.push(Parser.parseStatement(s))
+        SoundManager.stopMusic(Parser.parseStatement(s))
+      # Pausing
+      if str.indexOf("pause") > -1
+        s = str.split("pause ")
+        s = s[1].split(/\s|\"/)[0]
+        @pause = s
+        if @pause is "input"
+          UI.showContinueButton(true)
       # Command executing
-      if str.indexOf("execute-command") > -1 and str.indexOf("display:none;") > -1
+      if str.indexOf("execute-command") > -1
         s = str.split("execute-command ")
         s = s[1].split(/\s|\"/)[0]
-        @executeBuffer.push(Parser.parseStatement(s))
-      # Executing of non-hidden commands
-      if str.indexOf("display:none;") is -1
-        # Sound playing
-        if str.indexOf("play-sound") > -1
-          s = str.split("play-sound ")
-          s = s[1].split(/\s|\"/)[0]
-          @soundBuffer.push(Parser.parseStatement(s))
-          SoundManager.playSound(Parser.parseStatement(s))
-        # Music playing
-        if str.indexOf("play-music") > -1
-          s = str.split("play-music ")
-          s = s[1].split(/\s|\"/)[0]
-          @musicBuffer.push(Parser.parseStatement(s))
-          SoundManager.startMusic(Parser.parseStatement(s))
-        # Music stopping
-        if str.indexOf("stop-music") > -1
-          s = str.split("stop-music ")
-          s = s[1].split(/\s|\"/)[0]
-          @stopMusicBuffer.push(Parser.parseStatement(s))
-          SoundManager.stopMusic(Parser.parseStatement(s))
-        # Pausing
-        if str.indexOf("pause") > -1
-          s = str.split("pause ")
-          s = s[1].split(/\s|\"/)[0]
-          @pause = s
-          if @pause is "input"
-            UI.showContinueButton(true)
-        # Command executing
-        if str.indexOf("execute-command") > -1
-          s = str.split("execute-command ")
-          s = s[1].split(/\s|\"/)[0]
-          @executeBuffer.push(s)
-          if s isnt undefined
-            eval(novelData.parsedJavascriptCommands[parseInt(s.substring(4,s.length))])
-        # Speed setting
-        if str.indexOf("set-speed") > -1
-          s = str.split("set-speed ")
-          s = s[1].split(/\s|\"/)[0]
-          @interval = Parser.parseStatement(s)
-          @speedMod = true
-        # Speed resetting
-        if str.indexOf("default-speed") > -1
-          @interval = @defaultInterval
-          @speedMod = false
-        # Scroll sound setting
-        if str.indexOf("set-scroll-sound") > -1
-          s = str.split("set-scroll-sound ")
-          s = s[1].split(/\s|\"/)[0]
-          @scrollSound = Parser.parseStatement(s)
-        # Scroll sound resetting
-        if str.indexOf("default-scroll-sound") > -1
-          @scrollSound = undefined
-      @currentOffset = i
-      @offsetChanged = true
+        @executeBuffer.push(s)
+        if s isnt undefined
+          eval(novelData.parsedJavascriptCommands[parseInt(s.substring(4,s.length))])
+      # Speed setting
+      if str.indexOf("set-speed") > -1
+        s = str.split("set-speed ")
+        s = s[1].split(/\s|\"/)[0]
+        @interval = Parser.parseStatement(s)
+        @speedMod = true
+      # Speed resetting
+      if str.indexOf("default-speed") > -1
+        @interval = @defaultInterval
+        @speedMod = false
+      # Scroll sound setting
+      if str.indexOf("set-scroll-sound") > -1
+        s = str.split("set-scroll-sound ")
+        s = s[1].split(/\s|\"/)[0]
+        @scrollSound = Parser.parseStatement(s)
+      # Scroll sound resetting
+      if str.indexOf("default-scroll-sound") > -1
+        @scrollSound = undefined

@@ -89,7 +89,6 @@ class NovelManager
       json.currentInventory = 0
     if json.inventories is undefined
       json.inventories = [[]]
-    console.log json.inventories[0]
     if json.inventories.length is 0
       json.inventories[0] = []
     if json.scenes is undefined

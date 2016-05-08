@@ -38,18 +38,20 @@
   ],
   "devDependencies": {
     "chai": "^3.5.0",
+    "del": "^2.2.0",
     "gulp": "^3.9.0",
     "gulp-coffee": "^2.3.1",
     "gulp-concat": "^2.6.0",
-    "gulp-mocha-phantomjs": "^0.11.0",
     "gulp-rename": "^1.2.2",
     "gulp-sass": "^2.1.1",
+    "gulp-shell": "^0.5.2",
     "gulp-sourcemaps": "^1.6.0",
     "gulp-uglify": "^1.5.2",
     "gulp-util": "^3.0.7",
     "http-server": "^0.9.0",
-    "mocha": "^2.4.5"
+    "json2lcov": "^1.0.0",
+    "mocha": "^2.4.5",
+    "mocha-phantomjs": "^4.0.2"
   },
-  "dependencies": {
-  }
+  "dependencies": {}
 }

@@ -6,8 +6,11 @@ var coffee = require('gulp-coffee');
 var gutil = require('gulp-util');
 var concat = require('gulp-concat');
 var uglify = require('gulp-uglify');
-var mochaPhantomJS = require('gulp-mocha-phantomjs');
+var shell = require('gulp-shell');
 var rename = require("gulp-rename");
+var jsoncovToLcov = require('json2lcov');
+var fs = require('fs');
+var del = require('del');
 
 gulp.task('watch', function() {
   gulp.start('sass')
@@ -17,7 +20,7 @@ gulp.task('watch', function() {
 });
 
 gulp.task('default', function() {
-  gulp.start('sass', 'coffee', 'test-coffee', 'compress', 'test');
+  gulp.start('sass', 'coffee', 'test-coffee', 'compress', 'test', 'coverage', 'clean');
 });
 
 gulp.task('sass', function () {
@@ -27,7 +30,7 @@ gulp.task('sass', function () {
 });
 
 gulp.task('concat', function() {
-  return gulp.src(['./src/NovelManager.coffee','./src/InputManager.coffee','./src/Parser.coffee','./src/InventoryManager.coffee','./src/LanguageManager.coffee','./src/SceneManager.coffee','./src/SoundManager.coffee','./src/TextPrinter.coffee','./src/UI.coffee','./src/Util.coffee','./src/Init.coffee','./src/Start.coffee'])
+  return gulp.src(['./src/NovelManager.coffee','./src/InputManager.coffee','./src/Parser.coffee','./src/InventoryManager.coffee','./src/LanguageManager.coffee','./src/SceneManager.coffee','./src/SoundManager.coffee','./src/TextPrinter.coffee','./src/UI.coffee','./src/Util.coffee','./src/Init.coffee'])
     .pipe(concat('novel.coffee'))
     .pipe(gulp.dest('./'));
 });
@@ -57,7 +60,18 @@ gulp.task('compress', ['coffee'], function() {
     .pipe(gulp.dest('./'));
 });
 
-gulp.task('test', ['coffee','test-coffee'], function () {
-  return gulp.src('test/index.html')
-    .pipe(mochaPhantomJS());
+gulp.task('test', ['coffee','test-coffee'], shell.task([
+  'jscover ./ cov',
+  'mocha-phantomjs cov/test/index.html -R json-cov > report.json',
+]))
+
+gulp.task('coverage', ['test'], function() {
+  var json = JSON.parse(fs.readFileSync('report.json','utf8'));
+  fs.writeFileSync('coverage.lcov',jsoncovToLcov(json))
+});
+
+gulp.task('clean', function() {
+  return del([
+    'report.json'
+  ]);
 });

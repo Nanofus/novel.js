@@ -4,3 +4,5 @@
 /test/
 .travis.yml
 Gulpfile.js
+/cov/
+coverage.lcov

@@ -109,7 +109,6 @@ NovelManager = (function() {
     if (json.inventories === void 0) {
       json.inventories = [[]];
     }
-    console.log(json.inventories[0]);
     if (json.inventories.length === 0) {
       json.inventories[0] = [];
     }
@@ -1921,7 +1920,7 @@ TextPrinter = (function() {
   };
 
   TextPrinter.readTags = function() {
-    var disp, i, s, spans, str;
+    var disp, i, spans, str;
     if (this.fullText[this.currentOffset] === ' ') {
       this.currentOffset++;
     }
@@ -1956,82 +1955,92 @@ TextPrinter = (function() {
         }
         i++;
       }
-      if (str.indexOf("play-sound") > -1 && str.indexOf("display:none;") > -1) {
+      this.bufferHidden(str);
+      this.bufferNonHidden(str);
+      this.currentOffset = i;
+      return this.offsetChanged = true;
+    }
+  };
+
+  TextPrinter.bufferHidden = function(str) {
+    var s;
+    if (str.indexOf("play-sound") > -1 && str.indexOf("display:none;") > -1) {
+      s = str.split("play-sound ");
+      s = s[1].split(/\s|\"/)[0];
+      this.soundBuffer.push(Parser.parseStatement(s));
+    }
+    if (str.indexOf("play-music") > -1 && str.indexOf("display:none;") > -1) {
+      s = str.split("play-music ");
+      s = s[1].split(/\s|\"/)[0];
+      this.musicBuffer.push(Parser.parseStatement(s));
+    }
+    if (str.indexOf("stop-music") > -1 && str.indexOf("display:none;") > -1) {
+      s = str.split("stop-music ");
+      s = s[1].split(/\s|\"/)[0];
+      this.stopMusicBuffer.push(Parser.parseStatement(s));
+    }
+    if (str.indexOf("execute-command") > -1 && str.indexOf("display:none;") > -1) {
+      s = str.split("execute-command ");
+      s = s[1].split(/\s|\"/)[0];
+      return this.executeBuffer.push(Parser.parseStatement(s));
+    }
+  };
+
+  TextPrinter.bufferNonHidden = function(str) {
+    var s;
+    if (str.indexOf("display:none;") === -1) {
+      if (str.indexOf("play-sound") > -1) {
         s = str.split("play-sound ");
         s = s[1].split(/\s|\"/)[0];
         this.soundBuffer.push(Parser.parseStatement(s));
+        SoundManager.playSound(Parser.parseStatement(s));
       }
-      if (str.indexOf("play-music") > -1 && str.indexOf("display:none;") > -1) {
+      if (str.indexOf("play-music") > -1) {
         s = str.split("play-music ");
         s = s[1].split(/\s|\"/)[0];
         this.musicBuffer.push(Parser.parseStatement(s));
+        SoundManager.startMusic(Parser.parseStatement(s));
       }
-      if (str.indexOf("stop-music") > -1 && str.indexOf("display:none;") > -1) {
+      if (str.indexOf("stop-music") > -1) {
         s = str.split("stop-music ");
         s = s[1].split(/\s|\"/)[0];
         this.stopMusicBuffer.push(Parser.parseStatement(s));
+        SoundManager.stopMusic(Parser.parseStatement(s));
       }
-      if (str.indexOf("execute-command") > -1 && str.indexOf("display:none;") > -1) {
+      if (str.indexOf("pause") > -1) {
+        s = str.split("pause ");
+        s = s[1].split(/\s|\"/)[0];
+        this.pause = s;
+        if (this.pause === "input") {
+          UI.showContinueButton(true);
+        }
+      }
+      if (str.indexOf("execute-command") > -1) {
         s = str.split("execute-command ");
         s = s[1].split(/\s|\"/)[0];
-        this.executeBuffer.push(Parser.parseStatement(s));
-      }
-      if (str.indexOf("display:none;") === -1) {
-        if (str.indexOf("play-sound") > -1) {
-          s = str.split("play-sound ");
-          s = s[1].split(/\s|\"/)[0];
-          this.soundBuffer.push(Parser.parseStatement(s));
-          SoundManager.playSound(Parser.parseStatement(s));
-        }
-        if (str.indexOf("play-music") > -1) {
-          s = str.split("play-music ");
-          s = s[1].split(/\s|\"/)[0];
-          this.musicBuffer.push(Parser.parseStatement(s));
-          SoundManager.startMusic(Parser.parseStatement(s));
-        }
-        if (str.indexOf("stop-music") > -1) {
-          s = str.split("stop-music ");
-          s = s[1].split(/\s|\"/)[0];
-          this.stopMusicBuffer.push(Parser.parseStatement(s));
-          SoundManager.stopMusic(Parser.parseStatement(s));
-        }
-        if (str.indexOf("pause") > -1) {
-          s = str.split("pause ");
-          s = s[1].split(/\s|\"/)[0];
-          this.pause = s;
-          if (this.pause === "input") {
-            UI.showContinueButton(true);
-          }
-        }
-        if (str.indexOf("execute-command") > -1) {
-          s = str.split("execute-command ");
-          s = s[1].split(/\s|\"/)[0];
-          this.executeBuffer.push(s);
-          if (s !== void 0) {
-            eval(novelData.parsedJavascriptCommands[parseInt(s.substring(4, s.length))]);
-          }
-        }
-        if (str.indexOf("set-speed") > -1) {
-          s = str.split("set-speed ");
-          s = s[1].split(/\s|\"/)[0];
-          this.interval = Parser.parseStatement(s);
-          this.speedMod = true;
-        }
-        if (str.indexOf("default-speed") > -1) {
-          this.interval = this.defaultInterval;
-          this.speedMod = false;
-        }
-        if (str.indexOf("set-scroll-sound") > -1) {
-          s = str.split("set-scroll-sound ");
-          s = s[1].split(/\s|\"/)[0];
-          this.scrollSound = Parser.parseStatement(s);
-        }
-        if (str.indexOf("default-scroll-sound") > -1) {
-          this.scrollSound = void 0;
+        this.executeBuffer.push(s);
+        if (s !== void 0) {
+          eval(novelData.parsedJavascriptCommands[parseInt(s.substring(4, s.length))]);
         }
       }
-      this.currentOffset = i;
-      return this.offsetChanged = true;
+      if (str.indexOf("set-speed") > -1) {
+        s = str.split("set-speed ");
+        s = s[1].split(/\s|\"/)[0];
+        this.interval = Parser.parseStatement(s);
+        this.speedMod = true;
+      }
+      if (str.indexOf("default-speed") > -1) {
+        this.interval = this.defaultInterval;
+        this.speedMod = false;
+      }
+      if (str.indexOf("set-scroll-sound") > -1) {
+        s = str.split("set-scroll-sound ");
+        s = s[1].split(/\s|\"/)[0];
+        this.scrollSound = Parser.parseStatement(s);
+      }
+      if (str.indexOf("default-scroll-sound") > -1) {
+        return this.scrollSound = void 0;
+      }
     }
   };
 
@@ -2375,26 +2384,35 @@ Util = (function() {
     return text.replace(regex, '');
   };
 
-  Util.checkFormat = function(s, format) {
+  Util.checkFormat = function(s, format, suppressErrors) {
+    if (suppressErrors === void 0) {
+      suppressErrors = false;
+    }
     if (format === 'array') {
       if (Object.prototype.toString.call(s) === '[object Array]') {
         return true;
       } else {
-        console.error("ERROR: Invalid input format (should be " + format + ")");
+        if (!suppressErrors) {
+          console.error("ERROR: Invalid input format (should be " + format + ")");
+        }
         return false;
       }
     } else if (format === 'arrayOrString') {
       if (Object.prototype.toString.call(s) === '[object Array]' || typeof s === 'string') {
         return true;
       } else {
-        console.error("ERROR: Invalid input format (should be " + format + ")");
+        if (!suppressErrors) {
+          console.error("ERROR: Invalid input format (should be " + format + ")");
+        }
         return false;
       }
     } else {
       if (typeof s === format) {
         return true;
       } else {
-        console.error("ERROR: Invalid input format (should be " + format + ")");
+        if (!suppressErrors) {
+          console.error("ERROR: Invalid input format (should be " + format + ")");
+        }
         return false;
       }
     }
@@ -2515,8 +2533,3 @@ if (typeof Papa !== "undefined") {
 if (typeof marked !== "undefined") {
   novelData.markdownEnabled = true;
 }
-
-
-/* And finally, start the game... */
-
-NovelManager.start();
