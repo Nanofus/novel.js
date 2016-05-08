@@ -598,7 +598,6 @@ The first way to save a application is to use the browser's cookies. If you use 
 The second way is to save the `novel.json` file as a Base64 encoded string, that is then shown to the player and prompted to be copied. The "Load" button then shows a text field that allows the player to paste in their saved application data.
 
 ## Translations
-**(COMING IN 0.8.0)**
 
 Novel.js supports multilingualism! The language used is defined in `novel.json`'s `settings.language`, and can be changed by using the `setLanguage` command in a choice or a scene. Translations can be done either directly in `novel.json` or by using separate CSV files.
 
