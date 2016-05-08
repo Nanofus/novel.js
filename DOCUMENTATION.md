@@ -117,10 +117,10 @@ A single example inventory:
 ```json
 "inventories": [
 	[
-  {"name": "sword", "value": 1},
-  {"name": "sandwich", "value": 5, "description": "It must be really tasty!"},
-	{"name": "playerName", "value": "Bob", "hidden": true},
-	{"name": "dragonsSlain", "value": 5, "hidden": true}
+	  {"name": "sword", "value": 1},
+	  {"name": "sandwich", "value": 5, "description": "It must be really tasty!"},
+		{"name": "playerName", "value": "Bob", "hidden": true},
+		{"name": "dragonsSlain", "value": 5, "hidden": true}
 	]
 ]
 ```
