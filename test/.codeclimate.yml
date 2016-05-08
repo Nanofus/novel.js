@@ -1,0 +1,22 @@
+engines:
+  csslint:
+    enabled: true
+  coffeelint:
+    enabled: true
+  eslint:
+    enabled: true
+  fixme:
+    enabled: true
+  duplication:
+    enabled: true
+    config:
+      languages:
+      - javascript
+ratings:
+  paths:
+  - app/**
+  - lib/**
+  - "**.rb"
+  - "**.go"
+exclude_paths:
+  - test
