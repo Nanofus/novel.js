@@ -88,9 +88,15 @@ class NovelManager
     if json.currentInventory is undefined
       json.currentInventory = 0
     if json.inventories is undefined
-      json.inventories = []
+      json.inventories = [{}]
+    if json.inventories.length is 0
+      json.inventories[0] = {}
     if json.scenes is undefined
-      json.scenes = []
+      json.scenes = [{}]
+    if json.tagPresets is undefined
+      json.tagPresets = []
+    if json.sounds is undefined
+      json.sounds = []
     for i in json.inventories
       for j in i
         if j.displayName is undefined
@@ -110,9 +116,51 @@ class NovelManager
         c.parsedText = ""
         if c.alwaysShow is undefined
           c.alwaysShow = false
-    # Set default language
+    # Set default settings
+    if json.settings is undefined
+      json.settings = {}
+    if json.settings.debugMode is undefined
+      json.settings.debugMode = false
+    if json.settings.saveMode is undefined
+      json.settings.saveMode = "text"
     if json.settings.language is undefined
       json.settings.language = "english"
+    if json.settings.showSaveButtons is undefined
+      json.settings.showSaveButtons = true
+    if json.settings.showSkipButton is undefined
+      json.settings.showSkipButton = false
+    if json.settings.inventoryHidden is undefined
+      json.settings.inventoryHidden = false
+    if json.settings.choicesHidden is undefined
+      json.settings.choicesHidden = false
+    if json.settings.alwaysShowDisabledChoices is undefined
+      json.settings.alwaysShowDisabledChoices = false
+    if json.settings.floatPrecision is undefined
+      json.settings.floatPrecision = 5
+    if json.settings.scrollSettings is undefined
+      json.settings.scrollSettings = {}
+    if json.settings.scrollSettings.defaultScrollSpeed is undefined
+      json.settings.scrollSettings.defaultScrollSpeed = 60
+    if json.settings.scrollSettings.revisitSkipEnabled is undefined
+      json.settings.scrollSettings.revisitSkipEnabled = true
+    if json.settings.scrollSettings.textSkipEnabled is undefined
+      json.settings.scrollSettings.textSkipEnabled = true
+    if json.settings.scrollSettings.skipWithKeyboard is undefined
+      json.settings.scrollSettings.skipWithKeyboard = false
+    if json.settings.scrollSettings.continueWithKeyboard is undefined
+      json.settings.scrollSettings.continueWithKeyboard = true
+    if json.settings.scrollSettings.fastScrollWithKeyboard is undefined
+      json.settings.scrollSettings.fastScrollWithKeyboard = true
+    if json.settings.scrollSettings.fastScrollSpeedMultiplier is undefined
+      json.settings.scrollSettings.fastScrollSpeedMultiplier = 20
+    if json.settings.scrollSettings.tickFreqThreshold is undefined
+      json.settings.scrollSettings.tickFreqThreshold = 100
+    if json.settings.soundSettings is undefined
+      json.settings.soundSettings = {}
+    if json.settings.soundSettings.soundVolume is undefined
+      json.settings.soundSettings.soundVolume = 0.5
+    if json.settings.soundSettings.musicVolume is undefined
+      json.settings.soundSettings.musicVolume = 0.4
     # Set default UI language values
     if json.uiText is undefined
       json.uiText = JSON.parse('[
@@ -150,6 +198,14 @@ class NovelManager
   # Load external json
   @loadExternalJson = (json) ->
     console.log "Loading external json files..."
+    if json.externalJson is undefined
+      NovelManager.includeJsons(json,json)
+      NovelManager.loadExternalText(json)
+      return
+    if json.externalJson.length is 0
+      NovelManager.includeJsons(json,json)
+      NovelManager.loadExternalText(json)
+      return
     ready = 0
     for s in json.externalJson
       ((s) ->
@@ -169,6 +225,8 @@ class NovelManager
 
   # Combine other json objects with the main json
   @includeJsons = (root,object) ->
+    if root.externalJson is undefined
+      return
     for x of object
       if typeof object[x] is 'object'
         @includeJsons root,object[x]
@@ -182,6 +240,12 @@ class NovelManager
   # Load external text files
   @loadExternalText = (json) ->
     console.log "Loading external text files..."
+    if json.externalText is undefined
+      NovelManager.loadExternalCsv(json)
+      return
+    if json.externalText.length is 0
+      NovelManager.loadExternalCsv(json)
+      return
     ready = 0
     for s in json.externalText
       ((s) ->
@@ -202,6 +266,12 @@ class NovelManager
   @loadExternalCsv = (json) ->
     if novelData.csvEnabled
       console.log "Loading external CSV files..."
+      if json.externalText is undefined
+        NovelManager.prepareLoadedJson json
+        return
+      if json.externalText.length is 0
+        NovelManager.prepareLoadedJson json
+        return
       ready = 0
       for s in json.externalCsv
         Papa.parse novelPath + '/csv/' + s.file,

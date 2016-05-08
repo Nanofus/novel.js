@@ -107,10 +107,19 @@ NovelManager = (function() {
       json.currentInventory = 0;
     }
     if (json.inventories === void 0) {
-      json.inventories = [];
+      json.inventories = [{}];
+    }
+    if (json.inventories.length === 0) {
+      json.inventories[0] = {};
     }
     if (json.scenes === void 0) {
-      json.scenes = [];
+      json.scenes = [{}];
+    }
+    if (json.tagPresets === void 0) {
+      json.tagPresets = [];
+    }
+    if (json.sounds === void 0) {
+      json.sounds = [];
     }
     ref = json.inventories;
     for (k = 0, len = ref.length; k < len; k++) {
@@ -145,8 +154,71 @@ NovelManager = (function() {
         }
       }
     }
+    if (json.settings === void 0) {
+      json.settings = {};
+    }
+    if (json.settings.debugMode === void 0) {
+      json.settings.debugMode = false;
+    }
+    if (json.settings.saveMode === void 0) {
+      json.settings.saveMode = "text";
+    }
     if (json.settings.language === void 0) {
       json.settings.language = "english";
+    }
+    if (json.settings.showSaveButtons === void 0) {
+      json.settings.showSaveButtons = true;
+    }
+    if (json.settings.showSkipButton === void 0) {
+      json.settings.showSkipButton = false;
+    }
+    if (json.settings.inventoryHidden === void 0) {
+      json.settings.inventoryHidden = false;
+    }
+    if (json.settings.choicesHidden === void 0) {
+      json.settings.choicesHidden = false;
+    }
+    if (json.settings.alwaysShowDisabledChoices === void 0) {
+      json.settings.alwaysShowDisabledChoices = false;
+    }
+    if (json.settings.floatPrecision === void 0) {
+      json.settings.floatPrecision = 5;
+    }
+    if (json.settings.scrollSettings === void 0) {
+      json.settings.scrollSettings = {};
+    }
+    if (json.settings.scrollSettings.defaultScrollSpeed === void 0) {
+      json.settings.scrollSettings.defaultScrollSpeed = 60;
+    }
+    if (json.settings.scrollSettings.revisitSkipEnabled === void 0) {
+      json.settings.scrollSettings.revisitSkipEnabled = true;
+    }
+    if (json.settings.scrollSettings.textSkipEnabled === void 0) {
+      json.settings.scrollSettings.textSkipEnabled = true;
+    }
+    if (json.settings.scrollSettings.skipWithKeyboard === void 0) {
+      json.settings.scrollSettings.skipWithKeyboard = false;
+    }
+    if (json.settings.scrollSettings.continueWithKeyboard === void 0) {
+      json.settings.scrollSettings.continueWithKeyboard = true;
+    }
+    if (json.settings.scrollSettings.fastScrollWithKeyboard === void 0) {
+      json.settings.scrollSettings.fastScrollWithKeyboard = true;
+    }
+    if (json.settings.scrollSettings.fastScrollSpeedMultiplier === void 0) {
+      json.settings.scrollSettings.fastScrollSpeedMultiplier = 20;
+    }
+    if (json.settings.scrollSettings.tickFreqThreshold === void 0) {
+      json.settings.scrollSettings.tickFreqThreshold = 100;
+    }
+    if (json.settings.soundSettings === void 0) {
+      json.settings.soundSettings = {};
+    }
+    if (json.settings.soundSettings.soundVolume === void 0) {
+      json.settings.soundSettings.soundVolume = 0.5;
+    }
+    if (json.settings.soundSettings.musicVolume === void 0) {
+      json.settings.soundSettings.musicVolume = 0.4;
     }
     if (json.uiText === void 0) {
       return json.uiText = JSON.parse('[ {"name": "saveText", "language": "english", "content": "Copy and save your save data:" }, {"name": "loadText", "language": "english", "content": "Paste your save data here:" }, {"name": "closeButton", "language": "english", "content": "Close" }, {"name": "copyButton", "language": "english", "content": "Copy" }, {"name": "saveButton", "language": "english", "content": "Save" }, {"name": "loadButton", "language": "english", "content": "Load" }, {"name": "skipButton", "language": "english", "content": "Skip" }, {"name": "continueButton", "language": "english", "content": "Continue" }, {"name": "inventoryTitle", "language": "english", "content": "Inventory:" }, {"name": "hiddenInventoryTitle", "language": "english", "content": "Stats:" } ]');
@@ -178,6 +250,16 @@ NovelManager = (function() {
   NovelManager.loadExternalJson = function(json) {
     var k, len, ready, ref, results1, s;
     console.log("Loading external json files...");
+    if (json.externalJson === void 0) {
+      NovelManager.includeJsons(json, json);
+      NovelManager.loadExternalText(json);
+      return;
+    }
+    if (json.externalJson.length === 0) {
+      NovelManager.includeJsons(json, json);
+      NovelManager.loadExternalText(json);
+      return;
+    }
     ready = 0;
     ref = json.externalJson;
     results1 = [];
@@ -206,6 +288,9 @@ NovelManager = (function() {
 
   NovelManager.includeJsons = function(root, object) {
     var i, results1, x;
+    if (root.externalJson === void 0) {
+      return;
+    }
     results1 = [];
     for (x in object) {
       if (typeof object[x] === 'object') {
@@ -238,6 +323,14 @@ NovelManager = (function() {
   NovelManager.loadExternalText = function(json) {
     var k, len, ready, ref, results1, s;
     console.log("Loading external text files...");
+    if (json.externalText === void 0) {
+      NovelManager.loadExternalCsv(json);
+      return;
+    }
+    if (json.externalText.length === 0) {
+      NovelManager.loadExternalCsv(json);
+      return;
+    }
     ready = 0;
     ref = json.externalText;
     results1 = [];
@@ -267,6 +360,14 @@ NovelManager = (function() {
     var k, len, ready, ref, results1, s;
     if (novelData.csvEnabled) {
       console.log("Loading external CSV files...");
+      if (json.externalText === void 0) {
+        NovelManager.prepareLoadedJson(json);
+        return;
+      }
+      if (json.externalText.length === 0) {
+        NovelManager.prepareLoadedJson(json);
+        return;
+      }
       ready = 0;
       ref = json.externalCsv;
       results1 = [];
@@ -1340,7 +1441,6 @@ SceneManager = (function() {
 
   SceneManager.readLanguage = function(source) {
     if (source.setLanguage !== void 0) {
-      console.log(source.setLanguage);
       return LanguageManager.setLanguage(source.setLanguage);
     }
   };
