@@ -6,3 +6,4 @@
 Gulpfile.js
 /cov/
 coverage.lcov
+report.json
