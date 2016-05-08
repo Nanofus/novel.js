@@ -631,6 +631,8 @@ If you think the translation arrays clutter your `novel.json` too much, you can 
 
 You can also split your translation into multiple files, such as `english.csv` and `finnish.csv`. In this case the first file could contain the columns `name` and `english`, and the second one only columns `name` and `finnish`. If two CSV files contain matching values in the `name` column, Novel.js will automatically make a connection between them.
 
+You can also translate item `displayName` and `description` values from CSV files. In this case, set the `displayName` and/or `description` values as `[csv]`. When Novel.js finds a `[csv]`, it fetches the correct strings from the CSV files with names `name|displayName` and `name|description`. For example, if you have an item named `sword`, you can translate its display name and description by setting their values as `[csv]` and defining `sword|displayName` and `sword|description` in your CSV files.
+
 ### UI texts
 
 The `uiText` object in `novel.json` contains translations for the user interface. If using only English, does not have to be defined and the following values are used:

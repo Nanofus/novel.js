@@ -4,7 +4,7 @@
   "inventories": [
     [
       {"name": "sword", "value": 1, "hidden": false},
-      {"name": "sandwich", "value": 5, "hidden": false},
+      {"name": "sandwich", "displayName": "[csv]", "description": "[csv]", "value": 5, "hidden": false},
       {"name": "magicalshield", "displayName": [{"language":"english","content":"Magical Shield"},{"language":"finnish","content":"Taikakilpi"}], "description": [{"language":"english","content":"A very magical shield. Does not do anything."},{"language":"finnish","content":"Todella maaginen kilpi. Ei tee mitään."}], "value": 1, "hidden": false},
       {"name": "villagesSaved", "value": 0, "hidden": true},
       {"name": "dragonsKilled", "value": 1, "hidden": true},
@@ -260,7 +260,8 @@
   ],
   "externalCsv": [
     {"name": "test", "file": "test.csv"},
-    {"name": "test2", "file": "test2.csv"}
+    {"name": "test2", "file": "test2.csv"},
+    {"name": "items", "file": "items.csv"}
   ],
   "uiText": [
     {"name": "saveText", "language": "english", "content": "Copy and save your save data:" },

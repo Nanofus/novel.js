@@ -1076,7 +1076,30 @@ LanguageManager = (function() {
     }
   };
 
-  LanguageManager.getCorrectLanguageString = function(obj) {
+  LanguageManager.getItemAttribute = function(item, type) {
+    switch (type) {
+      case 'displayName':
+        if (item.displayName === '[csv]') {
+          return this.getCorrectLanguageCsvString(item.name + '|displayName');
+        } else {
+          return this.getCorrectLanguageString(item.displayName);
+        }
+        break;
+      case 'description':
+        if (item.description === '[csv]') {
+          return this.getCorrectLanguageCsvString(item.name + '|description');
+        } else {
+          return this.getCorrectLanguageString(item.description);
+        }
+        break;
+      default:
+        console.error('Error! Trying to get an invalid item attribute in LanguageManager.');
+        return '[NOT FOUND]';
+        break;
+    }
+  };
+
+  LanguageManager.getCorrectLanguageString = function(obj, type) {
     var i, k, len;
     Util.checkFormat(obj, 'arrayOrString');
     if (typeof obj === "string") {
@@ -2159,10 +2182,10 @@ UI = (function() {
       if (item.value > 0 || isNaN(item.value)) {
         li = document.createElement("li");
         li["class"] = "novel-inventory-item";
-        innerHTML = LanguageManager.getCorrectLanguageString(item.displayName) + ' - ' + item.value;
+        innerHTML = LanguageManager.getItemAttribute(item, 'displayName') + ' - ' + item.value;
         innerHTML = innerHTML + '<ul class="novel-inventory-item-info">';
         if (item.description) {
-          innerHTML = innerHTML + '<li class="novel-inventory-item-description">' + LanguageManager.getCorrectLanguageString(item.description) + '</li>';
+          innerHTML = innerHTML + '<li class="novel-inventory-item-description">' + LanguageManager.getItemAttribute(item, 'description') + '</li>';
         }
         innerHTML = innerHTML + '</ul>';
         li.innerHTML = innerHTML;

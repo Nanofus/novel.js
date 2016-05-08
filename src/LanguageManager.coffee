@@ -39,8 +39,28 @@ class LanguageManager
           return Parser.parseText(i['english'])
         return Parser.parseText(i[novelData.novel.settings.language])
 
+  # Get an item's attribute in the correct language
+  @getItemAttribute = (item, type) ->
+    switch type
+      when 'displayName'
+        if item.displayName is '[csv]'
+          return @getCorrectLanguageCsvString(item.name + '|displayName')
+        else
+          return @getCorrectLanguageString(item.displayName)
+        break
+      when 'description'
+        if item.description is '[csv]'
+          return @getCorrectLanguageCsvString(item.name + '|description')
+        else
+          return @getCorrectLanguageString(item.description)
+        break
+      else
+        console.error 'Error! Trying to get an invalid item attribute in LanguageManager.'
+        return '[NOT FOUND]'
+        break
+
   # Get the string in the correct language
-  @getCorrectLanguageString = (obj) ->
+  @getCorrectLanguageString = (obj, type) ->
     Util.checkFormat(obj,'arrayOrString')
     if typeof obj is "string"
       return obj
