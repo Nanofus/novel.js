@@ -38,6 +38,7 @@ You can use [electron-noveljs-boilerplate](https://github.com/Nanofus/electron-n
 - Checkpoints to easily jump back and forth between scenes.
 - Saving the application state as a cookie or an encoded string that is given to the player.
 - Load text from text and CSV files and split `novel.json` into multiple files for easier management.
+- Translation support, both directly in `novel.json` and by using external CSV files.
 - Support for CSS styling, custom JavaScript and HTML tags in text.
 - ... And much more ~!
 
