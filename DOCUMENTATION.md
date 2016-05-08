@@ -278,7 +278,7 @@ The `externalCsv` object contains all external CSV files that can be used by the
 ]
 ```
 A single CSV file has the following attributes:
-- `name` - An unique name for the csv file.
+- `name` - An unique name for the CSV file.
 - `file` - The file name.
 
 See [Printing text from external CSV files](#printing-text-from-external-csv-files) for more information about using CSV files.
@@ -422,9 +422,9 @@ The first row is the header row, the first cell being `name` and the rest being 
 
 `[file scene1]` prints the text with the `name` `scene1` in the current language. If you are not using translations, you should use only the English column.
 
-Note that the text files and csv files share the same namespace: you should have only a single string with the same name in both the text files and CSV files.
+Note that the text files and CSV files share the same namespace: you should have only a single string with the same name in both the text files and CSV files.
 
-See [External csv files](#external-csv-files) for the definition of `externalCsv`.
+See [External CSV files](#external-csv-files) for the definition of `externalCsv`.
 
 ### Setting text scrolling speed
 
