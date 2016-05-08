@@ -7,3 +7,7 @@ Gulpfile.js
 /cov/
 coverage.lcov
 report.json
+.csslintrc
+.eslintignore
+.eslintrc
+coffeelint.json
