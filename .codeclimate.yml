@@ -28,3 +28,4 @@ ratings:
   - "**.rb"
 exclude_paths:
 - test/
+- "novel.min.js"
