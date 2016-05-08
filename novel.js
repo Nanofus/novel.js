@@ -107,10 +107,11 @@ NovelManager = (function() {
       json.currentInventory = 0;
     }
     if (json.inventories === void 0) {
-      json.inventories = [{}];
+      json.inventories = [[]];
     }
+    console.log(json.inventories[0]);
     if (json.inventories.length === 0) {
-      json.inventories[0] = {};
+      json.inventories[0] = [];
     }
     if (json.scenes === void 0) {
       json.scenes = [{}];
