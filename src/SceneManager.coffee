@@ -24,6 +24,7 @@ class SceneManager
     @readSaving(choice)
     @readExecutes(choice)
     @readCheckpoints(choice)
+    @readLanguage(choice)
     # Move to the next scene or choice
     if choice.nextScene isnt undefined
       @changeScene(choice.nextScene)
@@ -75,6 +76,7 @@ class SceneManager
     @readSaving(novelData.novel.currentScene)
     @readExecutes(novelData.novel.currentScene)
     @readCheckpoints(novelData.novel.currentScene)
+    @readLanguage(novelData.novel.currentScene)
     @readMisc(novelData.novel.currentScene)
     # Show the hidden inventory items based on debug mode
     UI.showHiddenInventoryArea()
@@ -178,11 +180,14 @@ class SceneManager
     if source.executeJs isnt undefined
       eval(source.executeJs)
 
-  # Read miscellaneous scene values
-  @readMisc = (source) ->
+  # Language changing
+  @readLanguage = (source) ->
     # Check if changing language
     if source.setLanguage isnt undefined
-      LanguageManager.setLanguage(setLanguage)
+      LanguageManager.setLanguage(source.setLanguage)
+
+  # Read miscellaneous scene values
+  @readMisc = (source) ->
     # Check if skipping is enabled in this scene
     if source.skipEnabled isnt undefined
       val = Parser.parseStatement(source.skipEnabled)

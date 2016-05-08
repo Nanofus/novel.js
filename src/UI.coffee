@@ -21,39 +21,55 @@ class UI
       d.innerHTML = '<div id="novel-style-area">
         <div id="novel-notification-wrapper">
           <div id="novel-save-notification" class="novel-notification">
-            <p>' + LanguageManager.getUIString('saveText') + '</p>
+            <p class="novel-save-text"></p>
             <p><textarea name="save-text" readonly></textarea></p>
-            <p><button type="button" onclick="UI.closeSaveNotification()">' + LanguageManager.getUIString('closeButton') + '</button><button type="button" id="novel-copy-button">' + LanguageManager.getUIString('copyButton') + '</button></p>
+            <p><button type="button" class="novel-close-button" onclick="UI.closeSaveNotification()"></button><button type="button" class="novel-copy-button" onclick="UI.copyText()"></button></p>
           </div>
           <div id="novel-load-notification" class="novel-notification">
-            <p>' + LanguageManager.getUIString('loadText') + '</p>
+            <p class="novel-load-text"></p>
             <p><textarea name="load-text"></textarea></p>
-            <p><button type="button" onclick="UI.closeLoadNotification(false)">' + LanguageManager.getUIString('closeButton') + '</button><button type="button" onclick="UI.closeLoadNotification(true)">' + LanguageManager.getUIString('loadButton') + '</button></p>
+            <p><button type="button" class="novel-close-button" onclick="UI.closeLoadNotification(false)"></button><button type="button" class="novel-load-button" onclick="UI.closeLoadNotification(true)"></button></p>
           </div>
         </div>
         <div id="novel-text-area">
           <div id="novel-text"></div>
-          <button type="button" id="novel-skip-button" onclick="TextPrinter.complete()">' + LanguageManager.getUIString('skipButton') + '</button>
-          <button type="button" id="novel-continue-button" onclick="TextPrinter.unpause()">' + LanguageManager.getUIString('continueButton') + '</button>
+          <button type="button" class="novel-skip-button" onclick="TextPrinter.complete()"></button>
+          <button type="button" class="novel-continue-button" onclick="TextPrinter.unpause()"></button>
         </div>
         <div id="novel-choices-area">
           <ul id="novel-choice-list"></ul>
         </div>
         <div id="novel-inventory-area">
-          <h5>' + LanguageManager.getUIString('inventoryTitle') + '</h5>
+          <h5 class="novel-inventory-title"></h5>
           <ul id="novel-inventory"></ul>
         </div>
         <div id="novel-hidden-inventory-area">
-          <h5>' + LanguageManager.getUIString('hiddenInventoryTitle') + '</h5>
+          <h5 class="novel-hidden-inventory-title"></h5>
           <ul id="novel-hidden-inventory"></ul>
         </div>
         <div id="novel-save-area">
-          <button type="button" id="novel-save-button" onclick="NovelManager.saveData()">' + LanguageManager.getUIString('saveButton') + '</button>
-          <button type="button" id="novel-load-button" onclick="UI.showLoadNotification()">' + LanguageManager.getUIString('loadButton') + '</button>
+          <button type="button" class="novel-save-button" onclick="NovelManager.saveData()"></button>
+          <button type="button" class="novel-load-button" onclick="UI.showLoadNotification()"></button>
         </div>
       </div>';
       n.parentNode.insertBefore(d, n);
       n.parentNode.removeChild(n);
+      @updateUILanguage()
+      return
+
+  @updateUILanguage: () ->
+    document.getElementsByClassName("novel-save-text")[0].innerHTML = LanguageManager.getUIString('saveText')
+    document.getElementsByClassName("novel-load-text")[0].innerHTML = LanguageManager.getUIString('loadText')
+    for i in document.getElementsByClassName("novel-close-button")
+      i.innerHTML = LanguageManager.getUIString('closeButton')
+    document.getElementsByClassName("novel-copy-button")[0].innerHTML = LanguageManager.getUIString('copyButton')
+    document.getElementsByClassName("novel-skip-button")[0].innerHTML = LanguageManager.getUIString('skipButton')
+    document.getElementsByClassName("novel-continue-button")[0].innerHTML = LanguageManager.getUIString('continueButton')
+    document.getElementsByClassName("novel-inventory-title")[0].innerHTML = LanguageManager.getUIString('inventoryTitle')
+    document.getElementsByClassName("novel-hidden-inventory-title")[0].innerHTML = LanguageManager.getUIString('hiddenInventoryTitle')
+    document.getElementsByClassName("novel-save-button")[0].innerHTML = LanguageManager.getUIString('saveButton')
+    for i in document.getElementsByClassName("novel-load-button")
+      i.innerHTML = LanguageManager.getUIString('loadButton')
 
   @updateStyle: (style) ->
     e = document.getElementById("novel-style-area")
@@ -62,15 +78,15 @@ class UI
     e.setAttribute( 'class', style );
 
   @disableSkipButton: ->
-    if document.querySelector("#novel-skip-button") isnt null
-      document.querySelector("#novel-skip-button").disabled = true;
+    if document.querySelector(".novel-skip-button") isnt null
+      document.querySelector(".novel-skip-button").disabled = true;
 
   @enableSkipButton: ->
-    if document.querySelector("#novel-skip-button") isnt null
-      document.querySelector("#novel-skip-button").disabled = true;
+    if document.querySelector(".novel-skip-button") isnt null
+      document.querySelector(".novel-skip-button").disabled = true;
 
   @showSkipButton: (show) ->
-    e = document.getElementById("novel-skip-button")
+    e = document.getElementsByClassName("novel-skip-button")[0]
     if show && novelData.novel.settings.showSkipButton
       e.style.display = "inline"
     else
@@ -105,11 +121,11 @@ class UI
       e.style.display = "none"
 
   @showContinueButton: (show) ->
-    if document.querySelector("#novel-continue-button") isnt null
+    if document.querySelector(".novel-continue-button") isnt null
       if not show
-        document.querySelector("#novel-continue-button").style.display = 'none'
+        document.querySelector(".novel-continue-button").style.display = 'none'
       else
-        document.querySelector("#novel-continue-button").style.display = 'inline'
+        document.querySelector(".novel-continue-button").style.display = 'inline'
 
   @updateText: (text) ->
     e = document.getElementById("novel-text")
@@ -143,6 +159,15 @@ class UI
       NovelManager.loadData(textArea[0].value,changeScene)
       textArea[0].value = ""
     e.style.display = 'none'
+
+  # Copy text from the save notification
+  @copyText: ->
+    copyTextarea = document.getElementById("novel-save-notification").querySelector("textarea")
+    copyTextarea.select()
+    try
+      successful = document.execCommand('copy')
+    catch err
+      console.error "Error! Copying to clipboard failed: "+err
 
   # Update the values of the input fields
   @updateInputs: (needForUpdate) ->
@@ -206,15 +231,3 @@ class UI
         innerHTML = innerHTML + '</ul>'
         li.innerHTML = innerHTML
         targetInventory.appendChild(li)
-
-
-# The button that can be used to copy the text from the save window.
-copyButton = document.querySelector('#novel-copy-button')
-if copyButton isnt null
-  copyButton.addEventListener 'click', (event) ->
-    copyTextarea = document.getElementById("novel-save-notification").querySelector("textarea")
-    copyTextarea.select()
-    try
-      successful = document.execCommand('copy')
-    catch err
-      console.error "Copying to clipboard failed: "+err

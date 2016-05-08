@@ -280,9 +280,8 @@ class Parser
     # Replace all variables with their correct values
     for i in [0 .. parsedString.length-1]
       if parsedString[i] isnt "" and parsedValues[i] isnt ""
-        parsedString[i] = parsedString[i].replace("{","\{")
-        parsedString[i] = parsedString[i].replace("}","\}")
         s = s.replace(new RegExp(parsedString[i],'g'),parsedValues[i])
+        s = s.replace(new RegExp("''",'g'),"'") # Remove double-':s caused by string parsing
     # Solve or calculate the statement
     returnVal = eval(s)
     # Fix booleans

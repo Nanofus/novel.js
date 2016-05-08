@@ -53,35 +53,35 @@ Novel.js needs some HTML on the webpage to run properly. You can use the simple 
 	<div id="novel-style-area">
 		<div id="novel-notification-wrapper">
 			<div id="novel-save-notification" class="novel-notification">
-				<p>Copy and save this text:</p>
+				<p class="novel-save-text"></p>
 				<p><textarea name="save-text" readonly></textarea></p>
-				<p><button type="button" onclick="UI.closeSaveNotification()">Close</button><button type="button" id="novel-copy-button">Copy</button></p>
+				<p><button type="button" class="novel-close-button" onclick="UI.closeSaveNotification()"></button><button type="button" class="novel-copy-button" onclick="UI.copyText()"></button></p>
 			</div>
 			<div id="novel-load-notification" class="novel-notification">
-				<p>Paste your save data here:</p>
+				<p class="novel-load-text"></p>
 				<p><textarea name="load-text"></textarea></p>
-				<p><button type="button" onclick="UI.closeLoadNotification(false)">Close</button><button type="button" onclick="UI.closeLoadNotification(true)">Load</button></p>
+				<p><button type="button" class="novel-close-button" onclick="UI.closeLoadNotification(false)"></button><button type="button" class="novel-load-button" onclick="UI.closeLoadNotification(true)"></button></p>
 			</div>
 		</div>
 		<div id="novel-text-area">
 			<div id="novel-text"></div>
-			<button type="button" id="novel-skip-button" onclick="TextPrinter.complete()">Skip</button>
-			<button type="button" id="novel-continue-button" onclick="TextPrinter.unpause()">Continue</button>
+			<button type="button" class="novel-skip-button" onclick="TextPrinter.complete()"></button>
+			<button type="button" class="novel-continue-button" onclick="TextPrinter.unpause()"></button>
 		</div>
 		<div id="novel-choices-area">
 			<ul id="novel-choice-list"></ul>
 		</div>
 		<div id="novel-inventory-area">
-			<h5>Inventory:</h5>
+			<h5 class="novel-inventory-title"></h5>
 			<ul id="novel-inventory"></ul>
 		</div>
 		<div id="novel-hidden-inventory-area">
-			<h5>Stats:</h5>
+			<h5 class="novel-hidden-inventory-title"></h5>
 			<ul id="novel-hidden-inventory"></ul>
 		</div>
 		<div id="novel-save-area">
-			<button type="button" id="novel-save-button" onclick="NovelManager.saveData()">Save</button>
-			<button type="button" id="novel-load-button" onclick="UI.showLoadNotification()">Load</button>
+			<button type="button" class="novel-save-button" onclick="NovelManager.saveData()"></button>
+			<button type="button" class="novel-load-button" onclick="UI.showLoadNotification()"></button>
 		</div>
 	</div>
 </div>
@@ -631,7 +631,7 @@ If you think the translation arrays clutter your `novel.json` too much, you can 
 
 You can also split your translation into multiple files, such as `english.csv` and `finnish.csv`. In this case the first file could contain the columns `name` and `english`, and the second one only columns `name` and `finnish`. If two CSV files contain matching values in the `name` column, Novel.js will automatically make a connection between them.
 
-You can also translate item `displayName` and `description` values from CSV files. In this case, set the `displayName` and/or `description` values as `[csv]`. When Novel.js finds a `[csv]`, it fetches the correct strings from the CSV files with names `name|displayName` and `name|description`. For example, if you have an item named `sword`, you can translate its display name and description by setting their values as `[csv]` and defining `sword|displayName` and `sword|description` in your CSV files.
+You can also translate item `displayName` and `description` values with CSV files. In this case, set the `displayName` and/or `description` values as `[csv]`. When Novel.js finds a `[csv]`, it fetches the correct strings from the CSV files with names `name|displayName` and `name|description`. For example, if you have an item named `sword`, you can translate its display name and description by setting their values as `[csv]` and defining `sword|displayName` and `sword|description` in your CSV files.
 
 ### UI texts
 

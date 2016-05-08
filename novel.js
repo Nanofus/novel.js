@@ -1,6 +1,6 @@
 
 /* SAVING AND LOADING */
-var InputManager, InventoryManager, LanguageManager, NovelManager, Parser, SceneManager, SoundManager, TextPrinter, UI, Util, copyButton, novelData, novelPath,
+var InputManager, InventoryManager, LanguageManager, NovelManager, Parser, SceneManager, SoundManager, TextPrinter, UI, Util, novelData, novelPath,
   indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
 NovelManager = (function() {
@@ -729,9 +729,8 @@ Parser = (function() {
     }
     for (i = o = 0, ref1 = parsedString.length - 1; 0 <= ref1 ? o <= ref1 : o >= ref1; i = 0 <= ref1 ? ++o : --o) {
       if (parsedString[i] !== "" && parsedValues[i] !== "") {
-        parsedString[i] = parsedString[i].replace("{", "\{");
-        parsedString[i] = parsedString[i].replace("}", "\}");
         s = s.replace(new RegExp(parsedString[i], 'g'), parsedValues[i]);
+        s = s.replace(new RegExp("''", 'g'), "'");
       }
     }
     returnVal = eval(s);
@@ -1036,7 +1035,8 @@ LanguageManager = (function() {
   }
 
   LanguageManager.setLanguage = function(name) {
-    return novelData.novel.settings.language = i;
+    novelData.novel.settings.language = name;
+    return UI.updateUILanguage();
   };
 
   LanguageManager.getUIString = function(name) {
@@ -1148,6 +1148,7 @@ SceneManager = (function() {
     this.readSaving(choice);
     this.readExecutes(choice);
     this.readCheckpoints(choice);
+    this.readLanguage(choice);
     if (choice.nextScene !== void 0) {
       this.changeScene(choice.nextScene);
     } else {
@@ -1209,6 +1210,7 @@ SceneManager = (function() {
     this.readSaving(novelData.novel.currentScene);
     this.readExecutes(novelData.novel.currentScene);
     this.readCheckpoints(novelData.novel.currentScene);
+    this.readLanguage(novelData.novel.currentScene);
     this.readMisc(novelData.novel.currentScene);
     UI.showHiddenInventoryArea();
     return TextPrinter.printText(scene.parsedText, false);
@@ -1336,11 +1338,15 @@ SceneManager = (function() {
     }
   };
 
+  SceneManager.readLanguage = function(source) {
+    if (source.setLanguage !== void 0) {
+      console.log(source.setLanguage);
+      return LanguageManager.setLanguage(source.setLanguage);
+    }
+  };
+
   SceneManager.readMisc = function(source) {
     var val;
-    if (source.setLanguage !== void 0) {
-      LanguageManager.setLanguage(setLanguage);
-    }
     if (source.skipEnabled !== void 0) {
       val = Parser.parseStatement(source.skipEnabled);
     } else {
@@ -1957,10 +1963,35 @@ UI = (function() {
     if (n) {
       d = document.createElement('div');
       d.id = "novel-area";
-      d.innerHTML = '<div id="novel-style-area"> <div id="novel-notification-wrapper"> <div id="novel-save-notification" class="novel-notification"> <p>' + LanguageManager.getUIString('saveText') + '</p> <p><textarea name="save-text" readonly></textarea></p> <p><button type="button" onclick="UI.closeSaveNotification()">' + LanguageManager.getUIString('closeButton') + '</button><button type="button" id="novel-copy-button">' + LanguageManager.getUIString('copyButton') + '</button></p> </div> <div id="novel-load-notification" class="novel-notification"> <p>' + LanguageManager.getUIString('loadText') + '</p> <p><textarea name="load-text"></textarea></p> <p><button type="button" onclick="UI.closeLoadNotification(false)">' + LanguageManager.getUIString('closeButton') + '</button><button type="button" onclick="UI.closeLoadNotification(true)">' + LanguageManager.getUIString('loadButton') + '</button></p> </div> </div> <div id="novel-text-area"> <div id="novel-text"></div> <button type="button" id="novel-skip-button" onclick="TextPrinter.complete()">' + LanguageManager.getUIString('skipButton') + '</button> <button type="button" id="novel-continue-button" onclick="TextPrinter.unpause()">' + LanguageManager.getUIString('continueButton') + '</button> </div> <div id="novel-choices-area"> <ul id="novel-choice-list"></ul> </div> <div id="novel-inventory-area"> <h5>' + LanguageManager.getUIString('inventoryTitle') + '</h5> <ul id="novel-inventory"></ul> </div> <div id="novel-hidden-inventory-area"> <h5>' + LanguageManager.getUIString('hiddenInventoryTitle') + '</h5> <ul id="novel-hidden-inventory"></ul> </div> <div id="novel-save-area"> <button type="button" id="novel-save-button" onclick="NovelManager.saveData()">' + LanguageManager.getUIString('saveButton') + '</button> <button type="button" id="novel-load-button" onclick="UI.showLoadNotification()">' + LanguageManager.getUIString('loadButton') + '</button> </div> </div>';
+      d.innerHTML = '<div id="novel-style-area"> <div id="novel-notification-wrapper"> <div id="novel-save-notification" class="novel-notification"> <p class="novel-save-text"></p> <p><textarea name="save-text" readonly></textarea></p> <p><button type="button" class="novel-close-button" onclick="UI.closeSaveNotification()"></button><button type="button" class="novel-copy-button" onclick="UI.copyText()"></button></p> </div> <div id="novel-load-notification" class="novel-notification"> <p class="novel-load-text"></p> <p><textarea name="load-text"></textarea></p> <p><button type="button" class="novel-close-button" onclick="UI.closeLoadNotification(false)"></button><button type="button" class="novel-load-button" onclick="UI.closeLoadNotification(true)"></button></p> </div> </div> <div id="novel-text-area"> <div id="novel-text"></div> <button type="button" class="novel-skip-button" onclick="TextPrinter.complete()"></button> <button type="button" class="novel-continue-button" onclick="TextPrinter.unpause()"></button> </div> <div id="novel-choices-area"> <ul id="novel-choice-list"></ul> </div> <div id="novel-inventory-area"> <h5 class="novel-inventory-title"></h5> <ul id="novel-inventory"></ul> </div> <div id="novel-hidden-inventory-area"> <h5 class="novel-hidden-inventory-title"></h5> <ul id="novel-hidden-inventory"></ul> </div> <div id="novel-save-area"> <button type="button" class="novel-save-button" onclick="NovelManager.saveData()"></button> <button type="button" class="novel-load-button" onclick="UI.showLoadNotification()"></button> </div> </div>';
       n.parentNode.insertBefore(d, n);
-      return n.parentNode.removeChild(n);
+      n.parentNode.removeChild(n);
+      this.updateUILanguage();
     }
+  };
+
+  UI.updateUILanguage = function() {
+    var i, k, l, len, len1, ref, ref1, results1;
+    document.getElementsByClassName("novel-save-text")[0].innerHTML = LanguageManager.getUIString('saveText');
+    document.getElementsByClassName("novel-load-text")[0].innerHTML = LanguageManager.getUIString('loadText');
+    ref = document.getElementsByClassName("novel-close-button");
+    for (k = 0, len = ref.length; k < len; k++) {
+      i = ref[k];
+      i.innerHTML = LanguageManager.getUIString('closeButton');
+    }
+    document.getElementsByClassName("novel-copy-button")[0].innerHTML = LanguageManager.getUIString('copyButton');
+    document.getElementsByClassName("novel-skip-button")[0].innerHTML = LanguageManager.getUIString('skipButton');
+    document.getElementsByClassName("novel-continue-button")[0].innerHTML = LanguageManager.getUIString('continueButton');
+    document.getElementsByClassName("novel-inventory-title")[0].innerHTML = LanguageManager.getUIString('inventoryTitle');
+    document.getElementsByClassName("novel-hidden-inventory-title")[0].innerHTML = LanguageManager.getUIString('hiddenInventoryTitle');
+    document.getElementsByClassName("novel-save-button")[0].innerHTML = LanguageManager.getUIString('saveButton');
+    ref1 = document.getElementsByClassName("novel-load-button");
+    results1 = [];
+    for (l = 0, len1 = ref1.length; l < len1; l++) {
+      i = ref1[l];
+      results1.push(i.innerHTML = LanguageManager.getUIString('loadButton'));
+    }
+    return results1;
   };
 
   UI.updateStyle = function(style) {
@@ -1973,20 +2004,20 @@ UI = (function() {
   };
 
   UI.disableSkipButton = function() {
-    if (document.querySelector("#novel-skip-button") !== null) {
-      return document.querySelector("#novel-skip-button").disabled = true;
+    if (document.querySelector(".novel-skip-button") !== null) {
+      return document.querySelector(".novel-skip-button").disabled = true;
     }
   };
 
   UI.enableSkipButton = function() {
-    if (document.querySelector("#novel-skip-button") !== null) {
-      return document.querySelector("#novel-skip-button").disabled = true;
+    if (document.querySelector(".novel-skip-button") !== null) {
+      return document.querySelector(".novel-skip-button").disabled = true;
     }
   };
 
   UI.showSkipButton = function(show) {
     var e;
-    e = document.getElementById("novel-skip-button");
+    e = document.getElementsByClassName("novel-skip-button")[0];
     if (show && novelData.novel.settings.showSkipButton) {
       return e.style.display = "inline";
     } else {
@@ -2035,11 +2066,11 @@ UI = (function() {
   };
 
   UI.showContinueButton = function(show) {
-    if (document.querySelector("#novel-continue-button") !== null) {
+    if (document.querySelector(".novel-continue-button") !== null) {
       if (!show) {
-        return document.querySelector("#novel-continue-button").style.display = 'none';
+        return document.querySelector(".novel-continue-button").style.display = 'none';
       } else {
-        return document.querySelector("#novel-continue-button").style.display = 'inline';
+        return document.querySelector(".novel-continue-button").style.display = 'inline';
       }
     }
   };
@@ -2083,6 +2114,18 @@ UI = (function() {
       textArea[0].value = "";
     }
     return e.style.display = 'none';
+  };
+
+  UI.copyText = function() {
+    var copyTextarea, err, error, successful;
+    copyTextarea = document.getElementById("novel-save-notification").querySelector("textarea");
+    copyTextarea.select();
+    try {
+      return successful = document.execCommand('copy');
+    } catch (error) {
+      err = error;
+      return console.error("Error! Copying to clipboard failed: " + err);
+    }
   };
 
   UI.updateInputs = function(needForUpdate) {
@@ -2200,22 +2243,6 @@ UI = (function() {
   return UI;
 
 })();
-
-copyButton = document.querySelector('#novel-copy-button');
-
-if (copyButton !== null) {
-  copyButton.addEventListener('click', function(event) {
-    var copyTextarea, err, error, successful;
-    copyTextarea = document.getElementById("novel-save-notification").querySelector("textarea");
-    copyTextarea.select();
-    try {
-      return successful = document.execCommand('copy');
-    } catch (error) {
-      err = error;
-      return console.error("Copying to clipboard failed: " + err);
-    }
-  });
-}
 
 
 /* UTILITY SCRIPTS */

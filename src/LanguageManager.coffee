@@ -13,7 +13,8 @@ class LanguageManager
 
   # Change the novel's language
   @setLanguage = (name) ->
-    novelData.novel.settings.language = i
+    novelData.novel.settings.language = name
+    UI.updateUILanguage()
 
   # Get a string shown in UI in the current language
   @getUIString = (name) ->

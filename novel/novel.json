@@ -54,6 +54,16 @@
       "revisitSkipEnabled": false,
       "choices": [
         {
+          "text": "Change language to Finnish (currently [print var.settings.language])",
+          "requirement": "var.settings.language==english",
+          "setLanguage": "finnish"
+        },
+        {
+          "text": "Vaihda kieleksi englanti",
+          "requirement": "var.settings.language==finnish",
+          "setLanguage": "english"
+        },
+        {
           "text": "Keep walking [file content] [if var.settings.soundSettings.soundVolume>0.7]jajaja[/if][if var.name==kakkonen] this game has a weird [if inv.sword<3]and boearkoraeroak[/if] name[/if]",
           "name": "Continue",
           "changeInventory": 0,
