@@ -10,7 +10,6 @@ var shell = require('gulp-shell');
 var rename = require("gulp-rename");
 var jsoncovToLcov = require('json2lcov');
 var fs = require('fs');
-var del = require('del');
 
 gulp.task('watch', function() {
   gulp.start('sass')
@@ -20,7 +19,7 @@ gulp.task('watch', function() {
 });
 
 gulp.task('default', function() {
-  gulp.start('sass', 'coffee', 'test-coffee', 'compress', 'test', 'coverage', 'clean');
+  gulp.start('sass', 'coffee', 'test-coffee', 'compress', 'test', 'coverage');
 });
 
 gulp.task('sass', function () {
@@ -69,10 +68,4 @@ gulp.task('coverage', ['test'], function() {
   var json = JSON.parse(fs.readFileSync('report.json','utf8'));
   delete json.files[1];
   fs.writeFileSync('coverage.lcov',jsoncovToLcov(json))
-});
-
-gulp.task('clean', function() {
-  return del([
-    'report.json'
-  ]);
 });
