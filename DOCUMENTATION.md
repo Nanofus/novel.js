@@ -43,6 +43,7 @@
 	- [Text](#text)
 - [Translations](#translations)
 	- [Translating text and choices](#translating-text-and-choices)
+	- [Translating using CSV files](#translating-using-csv-files)
 	- [UI texts](#ui-texts)
 
 ## HTML structure
