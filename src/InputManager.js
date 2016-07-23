@@ -3,10 +3,6 @@
 
 class InputManager {
 
-  constructor() {
-    this.presses = 0;
-  }
-
   // Gets key down and handles their functions
   static keyDown(charCode) {
     if (this.formsSelected()) {
@@ -29,10 +25,10 @@ class InputManager {
     if (this.formsSelected()) {
       return;
     }
-    this.presses++;
+    novelData.input.presses++;
     // Use SPACE to fast scroll
     if (charCode === 13 || charCode === 32) {
-      if (this.presses > 2) {
+      if (novelData.input.presses > 2) {
         if (novelData.novel.settings.scrollSettings.fastScrollWithKeyboard) {
           return TextPrinter.fastScroll();
         }

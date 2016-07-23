@@ -11,7 +11,29 @@ let novelData = {
   printedText: "",
   parsedJavascriptCommands: [],
   music: [],
-  csvEnabled: false
+  csvEnabled: false,
+  input: {
+    presses: 0
+  },
+  printer: {
+    fullText: "",
+    currentText: "",
+    currentOffset: 0,
+    defaultInterval: 0,
+    soundBuffer: [],
+    musicBuffer: [],
+    stopMusicBuffer: [],
+    executeBuffer: [],
+    buffersExecuted: false,
+    scrollSound: null,
+    tickSoundFrequency: 1,
+    tickCounter: 0,
+    speedMod: false,
+    tickSpeedMultiplier: 1,
+    pause: 0,
+    interval: 0,
+    printCompleted: false
+  }
 };
 
 let novelPath = './novel';

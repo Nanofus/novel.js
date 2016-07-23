@@ -395,10 +395,6 @@ class NovelManager {
 
 class InputManager {
 
-  constructor() {
-    this.presses = 0;
-  }
-
   // Gets key down and handles their functions
   static keyDown(charCode) {
     if (this.formsSelected()) {
@@ -421,10 +417,10 @@ class InputManager {
     if (this.formsSelected()) {
       return;
     }
-    this.presses++;
+    novelData.input.presses++;
     // Use SPACE to fast scroll
     if (charCode === 13 || charCode === 32) {
-      if (this.presses > 2) {
+      if (novelData.input.presses > 2) {
         if (novelData.novel.settings.scrollSettings.fastScrollWithKeyboard) {
           return TextPrinter.fastScroll();
         }
@@ -1671,53 +1667,33 @@ class SoundManager {
 
 class TextPrinter {
 
-  constructor() {
-    this.fullText = "";
-    this.currentText = "";
-    this.currentOffset = 0;
-    this.defaultInterval = 0;
-    this.soundBuffer = [];
-    this.musicBuffer = [];
-    this.stopMusicBuffer = [];
-    this.executeBuffer = [];
-    this.buffersExecuted = false;
-    this.scrollSound = null;
-    this.tickSoundFrequency = 1;
-    this.tickCounter = 0;
-    this.speedMod = false;
-    this.tickSpeedMultiplier = 1;
-    this.pause = 0;
-    this.interval = 0;
-    this.printCompleted = false;
-  }
-
   // Print a scene's text - noBuffers prevents buffers from replaying when scene is not changed
   static printText(text, noBuffers) {
-    this.printCompleted = false;
-    this.currentText = "";
-    UI.updateText(this.currentText);
+    novelData.printer.printCompleted = false;
+    novelData.printer.currentText = "";
+    UI.updateText(novelData.printer.currentText);
     // Disable the skip button
     UI.disableSkipButton();
     // Hide the continue button
     UI.showContinueButton(false);
-    this.fullText = text;
+    novelData.printer.fullText = text;
     //console.log fullText
-    this.currentOffset = -1;
-    this.soundBuffer = [];
-    this.musicBuffer = [];
-    this.stopMusicBuffer = [];
-    this.executeBuffer = [];
-    this.buffersExecuted = false;
+    novelData.printer.currentOffset = -1;
+    novelData.printer.soundBuffer = [];
+    novelData.printer.musicBuffer = [];
+    novelData.printer.stopMusicBuffer = [];
+    novelData.printer.executeBuffer = [];
+    novelData.printer.buffersExecuted = false;
     if (noBuffers) {
-      this.buffersExecuted = true;
+      novelData.printer.buffersExecuted = true;
     }
-    this.defaultInterval = novelData.novel.currentScene.scrollSpeed;
-    this.setTickSoundFrequency(this.defaultInterval);
+    novelData.printer.defaultInterval = novelData.novel.currentScene.scrollSpeed;
+    this.setTickSoundFrequency(novelData.printer.defaultInterval);
     if (novelData.novel.currentScene.visited && novelData.novel.currentScene.revisitSkipEnabled) {
       this.complete();
       return;
     }
-    return setTimeout(this.onTick(),this.defaultInterval);
+    return setTimeout(this.onTick(),novelData.printer.defaultInterval);
   }
 
   // Try to skip text, if allowed
@@ -1729,17 +1705,17 @@ class TextPrinter {
 
   // Instantly show all text
   static complete() {
-    this.printCompleted = true;
-    this.currentOffset = 0;
+    novelData.printer.printCompleted = true;
+    novelData.printer.currentOffset = 0;
     // Re-enable skip button
     UI.enableSkipButton();
     // Play missed sounds and start missed music
-    if (!this.buffersExecuted) {
+    if (!novelData.printer.buffersExecuted) {
       let ss = [];
       let first = true;
       // Play missed sounds
-      if (this.fullText.indexOf("play-sound") > -1) {
-        var s = this.fullText.split("play-sound ");
+      if (novelData.printer.fullText.indexOf("play-sound") > -1) {
+        var s = novelData.printer.fullText.split("play-sound ");
         for (let j = 0; j < s.length; j++) {
           var i = s[j];
           if (!first) {
@@ -1752,7 +1728,7 @@ class TextPrinter {
         let iterable = __range__(0, ss.length, true);
         for (let k = 0; k < iterable.length; k++) {
           var i = iterable[k];
-          if (!(__in__(ss[i], this.soundBuffer))) {
+          if (!(__in__(ss[i], novelData.printer.soundBuffer))) {
             SoundManager.playSound(Parser.parseStatement(ss[i]));
           }
         }
@@ -1760,8 +1736,8 @@ class TextPrinter {
       ss = [];
       first = true;
       // Play missed music
-      if (this.fullText.indexOf("play-music") > -1) {
-        var s = this.fullText.split("play-music ");
+      if (novelData.printer.fullText.indexOf("play-music") > -1) {
+        var s = novelData.printer.fullText.split("play-music ");
         for (let i1 = 0; i1 < s.length; i1++) {
           var i = s[i1];
           if (!first) {
@@ -1774,7 +1750,7 @@ class TextPrinter {
         let iterable1 = __range__(0, ss.length, true);
         for (let j1 = 0; j1 < iterable1.length; j1++) {
           var i = iterable1[j1];
-          if (!(__in__(ss[i], this.musicBuffer))) {
+          if (!(__in__(ss[i], novelData.printer.musicBuffer))) {
             SoundManager.startMusic(Parser.parseStatement(ss[i]));
           }
         }
@@ -1782,8 +1758,8 @@ class TextPrinter {
       ss = [];
       first = true;
       // Stop missed music
-      if (this.fullText.indexOf("stop-music") > -1) {
-        var s = this.fullText.split("stop-music ");
+      if (novelData.printer.fullText.indexOf("stop-music") > -1) {
+        var s = novelData.printer.fullText.split("stop-music ");
         for (let k1 = 0; k1 < s.length; k1++) {
           var i = s[k1];
           if (!first) {
@@ -1796,7 +1772,7 @@ class TextPrinter {
         let iterable2 = __range__(0, ss.length, true);
         for (let i2 = 0; i2 < iterable2.length; i2++) {
           var i = iterable2[i2];
-          if (!(__in__(ss[i], this.stopMusicBuffer))) {
+          if (!(__in__(ss[i], novelData.printer.stopMusicBuffer))) {
             SoundManager.stopMusic(Parser.parseStatement(ss[i]));
           }
         }
@@ -1804,8 +1780,8 @@ class TextPrinter {
       ss = [];
       first = true;
       // Execute missed commands
-      if (this.fullText.indexOf("execute-command") > -1) {
-        var s = this.fullText.split("execute-command ");
+      if (novelData.printer.fullText.indexOf("execute-command") > -1) {
+        var s = novelData.printer.fullText.split("execute-command ");
         for (let j2 = 0; j2 < s.length; j2++) {
           var i = s[j2];
           if (!first) {
@@ -1818,125 +1794,125 @@ class TextPrinter {
         let iterable3 = __range__(0, ss.length, true);
         for (let k2 = 0; k2 < iterable3.length; k2++) {
           var i = iterable3[k2];
-          if (!(__in__(ss[i], this.executeBuffer)) && ss[i] !== undefined) {
+          if (!(__in__(ss[i], novelData.printer.executeBuffer)) && ss[i] !== undefined) {
             eval(novelData.parsedJavascriptCommands[parseInt(ss[i].substring(4,ss[i].length))]);
           }
         }
       }
-      this.buffersExecuted = true;
+      novelData.printer.buffersExecuted = true;
     }
     // Set printed text and update choices
-    this.currentText = this.fullText;
-    UI.updateText(this.currentText);
+    novelData.printer.currentText = novelData.printer.fullText;
+    UI.updateText(novelData.printer.currentText);
     return UI.updateChoices();
   }
 
   // Stop pause
   static unpause() {
     UI.showContinueButton(false);
-    if (this.pause === "input") {
-      return this.pause = 0;
+    if (novelData.printer.pause === "input") {
+      novelData.printer.pause = 0;
     }
   }
 
   // Fast text scrolling
   static fastScroll() {
     if (novelData.novel.currentScene.skipEnabled) {
-      return this.tickSpeedMultiplier = novelData.novel.settings.scrollSettings.fastScrollSpeedMultiplier;
+      novelData.printer.tickSpeedMultiplier = novelData.novel.settings.scrollSettings.fastScrollSpeedMultiplier;
     }
   }
 
   // Stop fast text scrolling
   static stopFastScroll() {
-    return this.tickSpeedMultiplier = 1;
+    novelData.printer.tickSpeedMultiplier = 1;
   }
 
   // Set how frequently the scrolling sound is played
   static setTickSoundFrequency(freq) {
     let threshold = novelData.novel.settings.scrollSettings.tickFreqThreshold;
-    this.tickSoundFrequency = 1;
+    novelData.printer.tickSoundFrequency = 1;
     if (freq <= (threshold * 2)) {
-      this.tickSoundFrequency = 2;
+      novelData.printer.tickSoundFrequency = 2;
     }
     if (freq <= (threshold)) {
-      return this.tickSoundFrequency = 3;
+      novelData.printer.tickSoundFrequency = 3;
     }
   }
 
   // Show a new letter
   static onTick() {
     // Do not continue if paused
-    if (this.pause !== "input" && this.pause > 0) {
-      this.pause--;
+    if (novelData.printer.pause !== "input" && novelData.printer.pause > 0) {
+      novelData.printer.pause--;
     }
     // Continue if not paused
-    if (this.pause === 0) {
-      if (!this.speedMod) {
-        this.interval = this.defaultInterval;
+    if (novelData.printer.pause === 0) {
+      if (!novelData.printer.speedMod) {
+        novelData.printer.interval = novelData.printer.defaultInterval;
       }
       // Instantly finish if interval is 0
-      if (this.defaultInterval === 0) {
+      if (novelData.printer.defaultInterval === 0) {
         this.complete();
         return;
       }
       // Return if all text is printed
-      if (this.currentText === this.fullText) {
+      if (novelData.printer.currentText === novelData.printer.fullText) {
         return;
       }
       // Parse tags
       let offsetChanged = false;
-      while (this.fullText[this.currentOffset] === ' ' || this.fullText[this.currentOffset] === '<' || this.fullText[this.currentOffset] === '>') {
+      while (novelData.printer.fullText[novelData.printer.currentOffset] === ' ' || novelData.printer.fullText[novelData.printer.currentOffset] === '<' || novelData.printer.fullText[novelData.printer.currentOffset] === '>') {
         this.readTags();
       }
       // Move forward
-      this.currentText = this.fullText.substring(0, this.currentOffset);
-      UI.updateText(this.currentText);
+      novelData.printer.currentText = novelData.printer.fullText.substring(0, novelData.printer.currentOffset);
+      UI.updateText(novelData.printer.currentText);
       if (!offsetChanged) {
-        this.currentOffset++;
+        novelData.printer.currentOffset++;
       }
       // Complete if printing finished
-      if (this.currentOffset >= this.fullText.length) {
+      if (novelData.printer.currentOffset >= novelData.printer.fullText.length) {
         this.complete();
         return;
       }
       // Play tick sounds
-      this.tickCounter++;
-      if (this.tickCounter >= this.tickSoundFrequency) {
-        if (this.scrollSound !== "none" && this.interval !== 0) {
-          if (this.scrollSound !== null) {
-            SoundManager.playSound(this.scrollSound);
+      novelData.printer.tickCounter++;
+      if (novelData.printer.tickCounter >= novelData.printer.tickSoundFrequency) {
+        if (novelData.printer.scrollSound !== "none" && novelData.printer.interval !== 0) {
+          if (novelData.printer.scrollSound !== null) {
+            SoundManager.playSound(novelData.printer.scrollSound);
           } else if (novelData.novel.currentScene.scrollSound !== undefined) {
             SoundManager.playSound(novelData.novel.currentScene.scrollSound);
           }
-          this.tickCounter = 0;
+          novelData.printer.tickCounter = 0;
         }
       }
     }
     // Set the tick sound frequency
-    this.setTickSoundFrequency(this.interval / this.tickSpeedMultiplier);
+    this.setTickSoundFrequency(novelData.printer.interval / novelData.printer.tickSpeedMultiplier);
     // Set the timeout until the next tick
     return setTimeout((function() {
       TextPrinter.onTick();
-    }), this.interval / this.tickSpeedMultiplier);
+    }), novelData.printer.interval / novelData.printer.tickSpeedMultiplier);
   }
 
   // Skip chars that are not printed, and parse tags
   static readTags() {
     // Skip spaces and tag enders
-    if (this.fullText[this.currentOffset] === ' ') {
-      this.currentOffset++;
+    if (novelData.printer.fullText[novelData.printer.currentOffset] === ' ') {
+      novelData.printer.currentOffset++;
     }
-    if (this.fullText[this.currentOffset] === '>') {
-      this.currentOffset++;
+    if (novelData.printer.fullText[novelData.printer.currentOffset] === '>') {
+      novelData.printer.currentOffset++;
     }
     // Tag starter found, start reading
-    if (this.fullText[this.currentOffset] === '<') {
-      let i = this.currentOffset;
+    if (novelData.printer.fullText[novelData.printer.currentOffset] === '<') {
+      let i = novelData.printer.currentOffset;
       let str = "";
       i++;
       // Read the tag
-      while (this.fullText[i-1] !== '>' && this.fullText[i] !== '<') {
-        str = str + this.fullText[i];
+      while (novelData.printer.fullText[i-1] !== '>' && novelData.printer.fullText[i] !== '<') {
+        str = str + novelData.printer.fullText[i];
         i++;
       }
       str = str.substring(1,str.length);
@@ -1946,7 +1922,7 @@ class TextPrinter {
         let spans = 1;
         while (true) {
           i++;
-          disp = disp + this.fullText[i];
+          disp = disp + novelData.printer.fullText[i];
           if (disp.indexOf("/span") !== -1) {
             spans--;
             disp = "";
@@ -1964,8 +1940,8 @@ class TextPrinter {
       this.bufferHidden(str);
       // Executing of non-hidden commands
       this.bufferNonHidden(str);
-      this.currentOffset = i;
-      return this.offsetChanged = true;
+      novelData.printer.currentOffset = i;
+      novelData.printer.offsetChanged = true;
     }
   }
 
@@ -1975,25 +1951,25 @@ class TextPrinter {
     if (str.indexOf("play-sound") > -1 && str.indexOf("display:none;") > -1) {
       var s = str.split("play-sound ");
       s = s[1].split(/\s|\"/)[0];
-      this.soundBuffer.push(Parser.parseStatement(s));
+      novelData.printer.soundBuffer.push(Parser.parseStatement(s));
     }
     // Music playing
     if (str.indexOf("play-music") > -1 && str.indexOf("display:none;") > -1) {
       var s = str.split("play-music ");
       s = s[1].split(/\s|\"/)[0];
-      this.musicBuffer.push(Parser.parseStatement(s));
+      novelData.printer.musicBuffer.push(Parser.parseStatement(s));
     }
     // Music stopping
     if (str.indexOf("stop-music") > -1 && str.indexOf("display:none;") > -1) {
       var s = str.split("stop-music ");
       s = s[1].split(/\s|\"/)[0];
-      this.stopMusicBuffer.push(Parser.parseStatement(s));
+      novelData.printer.stopMusicBuffer.push(Parser.parseStatement(s));
     }
     // Command executing
     if (str.indexOf("execute-command") > -1 && str.indexOf("display:none;") > -1) {
       var s = str.split("execute-command ");
       s = s[1].split(/\s|\"/)[0];
-      return this.executeBuffer.push(Parser.parseStatement(s));
+      return novelData.printer.executeBuffer.push(Parser.parseStatement(s));
     }
   }
 
@@ -2004,29 +1980,29 @@ class TextPrinter {
       if (str.indexOf("play-sound") > -1) {
         var s = str.split("play-sound ");
         s = s[1].split(/\s|\"/)[0];
-        this.soundBuffer.push(Parser.parseStatement(s));
+        novelData.printer.soundBuffer.push(Parser.parseStatement(s));
         SoundManager.playSound(Parser.parseStatement(s));
       }
       // Music playing
       if (str.indexOf("play-music") > -1) {
         var s = str.split("play-music ");
         s = s[1].split(/\s|\"/)[0];
-        this.musicBuffer.push(Parser.parseStatement(s));
+        novelData.printer.musicBuffer.push(Parser.parseStatement(s));
         SoundManager.startMusic(Parser.parseStatement(s));
       }
       // Music stopping
       if (str.indexOf("stop-music") > -1) {
         var s = str.split("stop-music ");
         s = s[1].split(/\s|\"/)[0];
-        this.stopMusicBuffer.push(Parser.parseStatement(s));
+        novelData.printer.stopMusicBuffer.push(Parser.parseStatement(s));
         SoundManager.stopMusic(Parser.parseStatement(s));
       }
       // Pausing
       if (str.indexOf("pause") > -1) {
         var s = str.split("pause ");
         s = s[1].split(/\s|\"/)[0];
-        this.pause = s;
-        if (this.pause === "input") {
+        novelData.printer.pause = s;
+        if (novelData.printer.pause === "input") {
           UI.showContinueButton(true);
         }
       }
@@ -2034,7 +2010,7 @@ class TextPrinter {
       if (str.indexOf("execute-command") > -1) {
         var s = str.split("execute-command ");
         s = s[1].split(/\s|\"/)[0];
-        this.executeBuffer.push(s);
+        novelData.printer.executeBuffer.push(s);
         if (s !== undefined) {
           eval(novelData.parsedJavascriptCommands[parseInt(s.substring(4,s.length))]);
         }
@@ -2043,23 +2019,23 @@ class TextPrinter {
       if (str.indexOf("set-speed") > -1) {
         var s = str.split("set-speed ");
         s = s[1].split(/\s|\"/)[0];
-        this.interval = Parser.parseStatement(s);
-        this.speedMod = true;
+        novelData.printer.interval = Parser.parseStatement(s);
+        novelData.printer.speedMod = true;
       }
       // Speed resetting
       if (str.indexOf("default-speed") > -1) {
-        this.interval = this.defaultInterval;
-        this.speedMod = false;
+        novelData.printer.interval = novelData.printer.defaultInterval;
+        novelData.printer.speedMod = false;
       }
       // Scroll sound setting
       if (str.indexOf("set-scroll-sound") > -1) {
         var s = str.split("set-scroll-sound ");
         s = s[1].split(/\s|\"/)[0];
-        this.scrollSound = Parser.parseStatement(s);
+        novelData.printer.scrollSound = Parser.parseStatement(s);
       }
       // Scroll sound resetting
       if (str.indexOf("default-scroll-sound") > -1) {
-        return this.scrollSound = undefined;
+        return novelData.printer.scrollSound = undefined;
       }
     }
   }
@@ -2526,7 +2502,29 @@ let novelData = {
   printedText: "",
   parsedJavascriptCommands: [],
   music: [],
-  csvEnabled: false
+  csvEnabled: false,
+  input: {
+    presses: 0
+  },
+  printer: {
+    fullText: "",
+    currentText: "",
+    currentOffset: 0,
+    defaultInterval: 0,
+    soundBuffer: [],
+    musicBuffer: [],
+    stopMusicBuffer: [],
+    executeBuffer: [],
+    buffersExecuted: false,
+    scrollSound: null,
+    tickSoundFrequency: 1,
+    tickCounter: 0,
+    speedMod: false,
+    tickSpeedMultiplier: 1,
+    pause: 0,
+    interval: 0,
+    printCompleted: false
+  }
 };
 
 let novelPath = './novel';
