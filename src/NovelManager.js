@@ -385,6 +385,7 @@ class NovelManager {
     UI.init();
     novelData.novel.currentScene = SceneManager.changeScene(novelData.novel.scenes[0].name);
     novelData.status = "Ready";
+    console.log(novelData);
     return console.log("-- Loading Novel.js complete! --");
   }
 }

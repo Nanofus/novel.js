@@ -13,6 +13,7 @@ var fs = require('fs');
 gulp.task('watch', function() {
   gulp.start('sass')
   gulp.watch('./scss/**/*.scss', ['sass']);
+  gulp.watch('./src/**/*.js', ['concat']);
 });
 
 gulp.task('default', function() {
