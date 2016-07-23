@@ -1,6 +1,4 @@
 /node_modules/
-/novel.coffee
-/test/test.coffee
 /test/test.js
 npm-debug.log
 /cov/

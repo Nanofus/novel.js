@@ -17,7 +17,7 @@ gulp.task('watch', function() {
 });
 
 gulp.task('default', function() {
-  gulp.start('sass', 'compress', 'test', 'coverage');
+  gulp.start('sass', 'concat');//, 'compress', 'test', 'coverage');
 });
 
 gulp.task('sass', function () {
