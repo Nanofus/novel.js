@@ -2,7 +2,6 @@
 
 var gulp = require('gulp');
 var sass = require('gulp-sass');
-var coffee = require('gulp-coffee');
 var gutil = require('gulp-util');
 var concat = require('gulp-concat');
 var uglify = require('gulp-uglify');
@@ -14,12 +13,10 @@ var fs = require('fs');
 gulp.task('watch', function() {
   gulp.start('sass')
   gulp.watch('./scss/**/*.scss', ['sass']);
-  gulp.watch('./src/*.coffee', ['coffee']);
-  gulp.watch('./test/src/*.coffee', ['test-coffee']);
 });
 
 gulp.task('default', function() {
-  gulp.start('sass', 'coffee', 'test-coffee', 'compress', 'test', 'coverage');
+  gulp.start('sass', 'compress', 'test', 'coverage');
 });
 
 gulp.task('sass', function () {
@@ -29,37 +26,25 @@ gulp.task('sass', function () {
 });
 
 gulp.task('concat', function() {
-  return gulp.src(['./src/NovelManager.coffee','./src/InputManager.coffee','./src/Parser.coffee','./src/InventoryManager.coffee','./src/LanguageManager.coffee','./src/SceneManager.coffee','./src/SoundManager.coffee','./src/TextPrinter.coffee','./src/UI.coffee','./src/Util.coffee','./src/Init.coffee'])
-    .pipe(concat('novel.coffee'))
+  return gulp.src(['./src/NovelManager.js','./src/InputManager.js','./src/Parser.js','./src/InventoryManager.js','./src/LanguageManager.js','./src/SceneManager.js','./src/SoundManager.js','./src/TextPrinter.js','./src/UI.js','./src/Util.js','./src/Init.js'])
+    .pipe(concat('novel.js'))
     .pipe(gulp.dest('./'));
 });
 
 gulp.task('test-concat', function() {
-  return gulp.src(['./test/src/Init.coffee','./test/src/Parser-test.coffee','./test/src/InventoryManager-test.coffee','./test/src/Util-test.coffee'])
-    .pipe(concat('test.coffee'))
+  return gulp.src(['./test/src/Init.js','./test/src/Parser-test.js','./test/src/InventoryManager-test.js','./test/src/Util-test.js'])
+    .pipe(concat('test.js'))
     .pipe(gulp.dest('./test'));
 });
 
-gulp.task('coffee', ['concat'], function() {
-  return gulp.src('./novel.coffee')
-    .pipe(coffee({bare: true}).on('error', gutil.log))
-    .pipe(gulp.dest('./'));
-});
-
-gulp.task('test-coffee', ['test-concat'], function() {
-  return gulp.src('./test/test.coffee')
-    .pipe(coffee({bare: true}).on('error', gutil.log))
-    .pipe(gulp.dest('./test'));
-});
-
-gulp.task('compress', ['coffee'], function() {
+gulp.task('compress', ['concat'], function() {
   return gulp.src('./novel.js')
     .pipe(uglify())
     .pipe(rename('novel.min.js'))
     .pipe(gulp.dest('./'));
 });
 
-gulp.task('test', ['coffee','test-coffee'], shell.task([
+gulp.task('test', ['concat','test-concat'], shell.task([
   'jscover ./ cov',
   'mocha-phantomjs cov/test/index.html -R json-cov > report.json',
 ]));
