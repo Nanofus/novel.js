@@ -128,9 +128,7 @@ class Parser {
         }
       }
       // [s] tags
-      let iterable2 = __range__(0, 99, true);
-      for (let k1 = 0; k1 < iterable2.length; k1++) {
-        var i = iterable2[k1];
+      for (let i = 0; i < 100; i++) {
         text = text.split(`[s${i}]`).join(`<span class="highlight-${i}">`);
       }
       text = text.split("[/s]").join("</span>");
@@ -221,7 +219,9 @@ class Parser {
         // Scroll sound
         } else if (s.substring(0,11) === "scrollSound") {
           var parsed = s.split("scrollSound ");
-          splitText[index] = `<span class="set-scroll-sound ${parsed[1]}"></span>`;
+          let p = novelData.parsedScrollsounds.push(parsed);
+          p--;
+          splitText[index] = `<span class="set-scroll-sound s-${p}"></span>`;
         // Input field
         } else if (s.substring(0,5) === "input") {
           var parsed = s.split("input ");

@@ -239,7 +239,7 @@ class UI {
     let choiceArea = document.getElementById("novel-choice-list");
     let i = 0;
     let iterable = __range__(0, novelData.novel.currentScene.choices.length, false);
-    for (let j = 0; j < iterable.length; j++) {
+    for (let j = 0; j < novelData.novel.currentScene.choices.length; j++) {
       i = iterable[j];
       let choice = novelData.novel.currentScene.choices[i];
       if (choice.text) {

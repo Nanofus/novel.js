@@ -35,7 +35,7 @@ class TextPrinter {
   // Try to skip text, if allowed
   static trySkip() {
     if (novelData.novel.currentScene.skipEnabled) {
-      return this.complete();
+      this.complete();
     }
   }
 
@@ -46,6 +46,14 @@ class TextPrinter {
     // Re-enable skip button
     UI.enableSkipButton();
     // Play missed sounds and start missed music
+    this.executeBuffers();
+    // Set printed text and update choices
+    novelData.printer.currentText = novelData.printer.fullText;
+    UI.updateText(novelData.printer.currentText);
+    UI.updateChoices();
+  }
+
+  static executeBuffers() {
     if (!novelData.printer.buffersExecuted) {
       let ss = [];
       let first = true;
@@ -137,10 +145,6 @@ class TextPrinter {
       }
       novelData.printer.buffersExecuted = true;
     }
-    // Set printed text and update choices
-    novelData.printer.currentText = novelData.printer.fullText;
-    UI.updateText(novelData.printer.currentText);
-    return UI.updateChoices();
   }
 
   // Stop pause
@@ -367,7 +371,8 @@ class TextPrinter {
       if (str.indexOf("set-scroll-sound") > -1) {
         var s = str.split("set-scroll-sound ");
         s = s[1].split(/\s|\"/)[0];
-        novelData.printer.scrollSound = Parser.parseStatement(s);
+        novelData.printer.scrollSound = Parser.selectRandomOption(novelData.parsedScrollsounds[parseInt(s.substring(2,s.length))][1]);
+        console.log(novelData.printer.scrollSound + " ---")
       }
       // Scroll sound resetting
       if (str.indexOf("default-scroll-sound") > -1) {

@@ -10,6 +10,7 @@ let novelData = {
   choicesHidden: false,
   printedText: "",
   parsedJavascriptCommands: [],
+  parsedScrollsounds: [],
   music: [],
   csvEnabled: false,
   input: {

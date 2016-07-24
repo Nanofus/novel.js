@@ -224,6 +224,7 @@ class NovelManager {
         {"name": "hiddenInventoryTitle", "language": "english", "content": "Stats:" }
       ]);
     }
+    return json;
   }
 
   // Start the novel by loading the default novel.json
@@ -378,14 +379,16 @@ class NovelManager {
 
   // Prepare loaded json data
   static prepareLoadedJson(json) {
-    this.prepareData(json);
+    json = this.prepareData(json);
     novelData.novel = json;
-    novelData.debugMode = novelData.novel.debugMode;
+    novelData.debugMode = novelData.novel.settings.debugMode;
     SoundManager.init();
     UI.init();
     novelData.novel.currentScene = SceneManager.changeScene(novelData.novel.scenes[0].name);
     novelData.status = "Ready";
-    console.log(novelData);
+    if (novelData.debugMode) {
+      console.log(novelData);
+    }
     return console.log("-- Loading Novel.js complete! --");
   }
 }

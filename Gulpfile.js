@@ -27,7 +27,7 @@ gulp.task('sass', function () {
 });
 
 gulp.task('concat', function() {
-  return gulp.src(['./src/NovelManager.js','./src/InputManager.js','./src/Parser.js','./src/InventoryManager.js','./src/LanguageManager.js','./src/SceneManager.js','./src/SoundManager.js','./src/TextPrinter.js','./src/UI.js','./src/Util.js','./src/Init.js'])
+  return gulp.src(['./src/NovelManager.js','./src/InputManager.js','./src/Parser.js','./src/InventoryManager.js','./src/LanguageManager.js','./src/SceneManager.js','./src/SoundManager.js','./src/TextPrinter.js','./src/UI.js','./src/Util.js','./src/Init.js','./src/Start.js'])
     .pipe(concat('novel.js'))
     .pipe(gulp.dest('./'));
 });

@@ -224,6 +224,7 @@ class NovelManager {
         {"name": "hiddenInventoryTitle", "language": "english", "content": "Stats:" }
       ]);
     }
+    return json;
   }
 
   // Start the novel by loading the default novel.json
@@ -378,14 +379,16 @@ class NovelManager {
 
   // Prepare loaded json data
   static prepareLoadedJson(json) {
-    this.prepareData(json);
+    json = this.prepareData(json);
     novelData.novel = json;
-    novelData.debugMode = novelData.novel.debugMode;
+    novelData.debugMode = novelData.novel.settings.debugMode;
     SoundManager.init();
     UI.init();
     novelData.novel.currentScene = SceneManager.changeScene(novelData.novel.scenes[0].name);
     novelData.status = "Ready";
-    console.log(novelData);
+    if (novelData.debugMode) {
+      console.log(novelData);
+    }
     return console.log("-- Loading Novel.js complete! --");
   }
 }
@@ -604,9 +607,7 @@ class Parser {
         }
       }
       // [s] tags
-      let iterable2 = __range__(0, 99, true);
-      for (let k1 = 0; k1 < iterable2.length; k1++) {
-        var i = iterable2[k1];
+      for (let i = 0; i < 100; i++) {
         text = text.split(`[s${i}]`).join(`<span class="highlight-${i}">`);
       }
       text = text.split("[/s]").join("</span>");
@@ -697,7 +698,9 @@ class Parser {
         // Scroll sound
         } else if (s.substring(0,11) === "scrollSound") {
           var parsed = s.split("scrollSound ");
-          splitText[index] = `<span class="set-scroll-sound ${parsed[1]}"></span>`;
+          let p = novelData.parsedScrollsounds.push(parsed);
+          p--;
+          splitText[index] = `<span class="set-scroll-sound s-${p}"></span>`;
         // Input field
         } else if (s.substring(0,5) === "input") {
           var parsed = s.split("input ");
@@ -929,6 +932,7 @@ function __range__(left, right, inclusive) {
   }
   return range;
 }
+
 
 /* INVENTORY, STAT & VALUE OPERATIONS */
 
@@ -1699,7 +1703,7 @@ class TextPrinter {
   // Try to skip text, if allowed
   static trySkip() {
     if (novelData.novel.currentScene.skipEnabled) {
-      return this.complete();
+      this.complete();
     }
   }
 
@@ -1710,6 +1714,14 @@ class TextPrinter {
     // Re-enable skip button
     UI.enableSkipButton();
     // Play missed sounds and start missed music
+    this.executeBuffers();
+    // Set printed text and update choices
+    novelData.printer.currentText = novelData.printer.fullText;
+    UI.updateText(novelData.printer.currentText);
+    UI.updateChoices();
+  }
+
+  static executeBuffers() {
     if (!novelData.printer.buffersExecuted) {
       let ss = [];
       let first = true;
@@ -1801,10 +1813,6 @@ class TextPrinter {
       }
       novelData.printer.buffersExecuted = true;
     }
-    // Set printed text and update choices
-    novelData.printer.currentText = novelData.printer.fullText;
-    UI.updateText(novelData.printer.currentText);
-    return UI.updateChoices();
   }
 
   // Stop pause
@@ -2031,7 +2039,8 @@ class TextPrinter {
       if (str.indexOf("set-scroll-sound") > -1) {
         var s = str.split("set-scroll-sound ");
         s = s[1].split(/\s|\"/)[0];
-        novelData.printer.scrollSound = Parser.parseStatement(s);
+        novelData.printer.scrollSound = Parser.selectRandomOption(novelData.parsedScrollsounds[parseInt(s.substring(2,s.length))][1]);
+        console.log(novelData.printer.scrollSound + " ---")
       }
       // Scroll sound resetting
       if (str.indexOf("default-scroll-sound") > -1) {
@@ -2295,7 +2304,7 @@ class UI {
     let choiceArea = document.getElementById("novel-choice-list");
     let i = 0;
     let iterable = __range__(0, novelData.novel.currentScene.choices.length, false);
-    for (let j = 0; j < iterable.length; j++) {
+    for (let j = 0; j < novelData.novel.currentScene.choices.length; j++) {
       i = iterable[j];
       let choice = novelData.novel.currentScene.choices[i];
       if (choice.text) {
@@ -2501,6 +2510,7 @@ let novelData = {
   choicesHidden: false,
   printedText: "",
   parsedJavascriptCommands: [],
+  parsedScrollsounds: [],
   music: [],
   csvEnabled: false,
   input: {
@@ -2532,3 +2542,8 @@ let novelPath = './novel';
 if (typeof Papa !== "undefined") {
    novelData.csvEnabled = true;
 }
+
+
+/* And finally, start the game... */
+
+NovelManager.start();
