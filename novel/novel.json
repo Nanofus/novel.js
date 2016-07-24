@@ -23,10 +23,9 @@
   "scenes": [
     {
       "name": "start",
-      "text": "SUPER AMAZING __MEDIEVAL__ ADVENTURE!<br>[file scene2]",
+      "text": "SUPER AMAZING MEDIEVAL ADVENTURE!<br>[file scene2]",
       "style": "main-menu",
       "changeInventory": 1,
-      "choicesHidden": true,
       "choices": [
         {
           "text": "Start",
@@ -43,6 +42,7 @@
     {
       "name": "road",
       "text": [[{"language":"english","content":"[file content] <- That was loaded from a text file!"},{"language":"finnish","content":"[file content] <- Tuo tuli tiedostosta!"}],
+      "ASD ASD ASD ASD ASD ASD [scrollSound scream,0.5|click,0.5]ASD ASD ASD ASD ASD ASD ASD ASD ASD ASD ASD ASD [scrollSound click] ASD ASD ASD",
       "[if (inv.villagesSaved==10||(inv.dragonsKilled>0&&(inv.sword<=5||inv.magicalshield>=5)&&(inv.smallstone>5&&inv.smallstone<10)))][sound click]You are a [s1]knight[/s].[/if]",
       "You (random number [print rand.minus20,20,5]) have[pause 30] /[hahahaha/] saved [inv.villagesSaved] village[if (inv.villagesSaved!=1)]s[/if]. You have [inv.sword] [scrollSound none]sword[if (inv.sword!=1)]s[/if]. [if inv.sword>0]You have a [s2]sword[/s]. [/if][if inv.sword<1]You don't have a [s2]sword[/s]. [/if][/scrollSound]You walk on a road towards a [s1]town[/s].",
       "[print var.scenes,1,choices,1,text] [speed 100][exec console.log(\"Hello world! The game's name is \" + novelData.novel.name)]What do you do? There is also a [choice pickastick]stick[/choice] on the ground. You faintly hear a [choice dragon]dragon[/choice].",
@@ -231,7 +231,7 @@
     "debugMode": true,
     "soundSettings": {
       "defaultClickSound": "click",
-      "defaultScrollSound": "click,0.5|scream,0.5"
+      "defaultScrollSound": "click"
     }
   },
   "sounds": [
