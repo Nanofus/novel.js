@@ -218,6 +218,7 @@ class NovelManager {
         {"name": "copyButton", "language": "english", "content": "Copy" },
         {"name": "saveButton", "language": "english", "content": "Save" },
         {"name": "loadButton", "language": "english", "content": "Load" },
+        {"name": "loadDataButton", "language": "english", "content": "Load" },
         {"name": "skipButton", "language": "english", "content": "Skip" },
         {"name": "continueButton", "language": "english", "content": "Continue" },
         {"name": "inventoryTitle", "language": "english", "content": "Inventory:" },

@@ -21,7 +21,7 @@ class UI {
           <div id="novel-load-notification" class="novel-notification">
             <p class="novel-load-text"></p>
             <p><textarea name="load-text"></textarea></p>
-            <p><button type="button" class="novel-close-button" onclick="UI.closeLoadNotification(false)"></button><button type="button" class="novel-load-button" onclick="UI.closeLoadNotification(true)"></button></p>
+            <p><button type="button" class="novel-close-button" onclick="UI.closeLoadNotification(false)"></button><button type="button" class="novel-load-data-button" onclick="UI.closeLoadNotification(true)"></button></p>
           </div>
         </div>
         <div id="novel-text-area">
@@ -65,8 +65,9 @@ class UI {
     document.getElementsByClassName("novel-continue-button")[0].innerHTML = LanguageManager.getUIString('continueButton');
     document.getElementsByClassName("novel-inventory-title")[0].innerHTML = LanguageManager.getUIString('inventoryTitle');
     document.getElementsByClassName("novel-hidden-inventory-title")[0].innerHTML = LanguageManager.getUIString('hiddenInventoryTitle');
-    document.getElementsByClassName("novel-save-button")[0].innerHTML = LanguageManager.getUIString('saveButton');
     document.getElementsByClassName("novel-load-button")[0].innerHTML = LanguageManager.getUIString('loadButton');
+    document.getElementsByClassName("novel-load-data-button")[0].innerHTML = LanguageManager.getUIString('loadDataButton');
+    document.getElementsByClassName("novel-save-button")[0].innerHTML = LanguageManager.getUIString('saveButton');
   }
 
   static updateStyle(style) {
