@@ -37,7 +37,7 @@ let novelData = {
   }
 };
 
-let novelPath = './novel';
+let novelPath;
 
 if (typeof Papa !== "undefined") {
    novelData.csvEnabled = true;

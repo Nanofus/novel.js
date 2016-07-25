@@ -231,7 +231,20 @@ class NovelManager {
   // Start the novel by loading the default novel.json
   static start() {
     console.log("-- Starting Novel.js... --");
-    return this.loadMainJson();
+    this.getNovelName();
+    this.loadMainJson();
+  }
+
+  // Figure out the novel folder name
+  static getNovelName() {
+    let n = document.getElementsByTagName('novel')[0];
+    if (!n) {
+      n = document.getElementById('novel-area');
+    }
+    novelPath = n.getAttribute('src');
+    if (!novelPath) {
+      novelPath = './novel';
+    }
   }
 
   // Load the main json
@@ -2539,7 +2552,7 @@ let novelData = {
   }
 };
 
-let novelPath = './novel';
+let novelPath;
 
 if (typeof Papa !== "undefined") {
    novelData.csvEnabled = true;

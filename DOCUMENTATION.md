@@ -88,7 +88,7 @@ Novel.js needs some HTML on the webpage to run properly. You can use the simple 
 </div>
 ```
 
-Only one Novel.js instance per webpage is supported.
+Only one Novel.js instance per webpage is supported. By default the novel is loaded from the `novel` folder in the root, however you can customize this path by using the `src` attribute of the `<novel>` or `<div id="novel-area">` tag. For example, `<novel src="./alternate">`.
 
 ## `novel.json` structure
 

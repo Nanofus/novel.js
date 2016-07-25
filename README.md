@@ -65,7 +65,7 @@ These features are planned or currently in development.
 
 1. `npm install novel-js`.
 2. Create an `index.html` file and add ```<novel></novel>``` inside the body, or include the [customizable HTML](https://github.com/Nanofus/novel.js/blob/master/DOCUMENTATION.md#html-structure) in it. Include the Novel.js (`node_modules/novel-js/novel.min.js`) script.
-3. Create the folder `novel` and a `novel.json` inside it.
+3. Create a folder for your novel (`novel` is loaded by default, you may customize this with the `src` attribute of `<novel>`) and a `novel.json` inside it.
 4. `http-server` and open `http://localhost:8080/` or use a web server of your choice.
 5. Start working on `novel.json`!
 
