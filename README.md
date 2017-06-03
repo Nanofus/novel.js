@@ -16,7 +16,7 @@ You can use [electron-noveljs-boilerplate](https://github.com/Nanofus/electron-n
 **Table of Contents**
 
 - [Features](#features)
-- [Upcoming features](#upcoming-features)
+- [Planned features](#planned-features)
 - [Installation](#installation)
 	- [Non-techy installation](#non-techy-installation)
 	- [Techy installation](#techy-installation)
@@ -41,7 +41,7 @@ You can use [electron-noveljs-boilerplate](https://github.com/Nanofus/electron-n
 - Support for CSS styling, custom JavaScript and HTML tags in text.
 - ... And much more ~!
 
-## Upcoming features
+## Planned features
 
 These features are planned or currently in development.
 - Alternative visual novel system with animations
