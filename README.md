@@ -57,7 +57,7 @@ These features are planned or currently in development.
 ### Non-techy installation
 
 1. Download the [latest release .zip](https://github.com/Nanofus/novel.js/releases/latest) and extract it.
-2. Upload the folder to a web server, such as Dropbox. (Opening `index.html` locally does not work, as the browser cannot load `json` files locally!)
+2. Upload the folder to a web server. (Opening `index.html` locally does not work, as the browser cannot load `json` files locally!)
 3. Open the location in web browser. Check dev tools (usually F12) for logs.
 4. Start working on `novel/novel.json`!
 
