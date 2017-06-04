@@ -45,7 +45,6 @@
 
 #novel-inventory li .novel-inventory-item-info {
   display: none; }
-
 #novel-inventory li:hover .novel-inventory-item-info {
   display: inline; }
   #novel-inventory li:hover .novel-inventory-item-info li {
@@ -64,3 +63,5 @@
 .highlight-2 {
   font-weight: bold;
   color: red; }
+
+/*# sourceMappingURL=style.css.map */

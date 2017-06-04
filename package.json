@@ -6,8 +6,9 @@
   "license": "MIT",
   "main": "novel.js",
   "scripts": {
-    "test": "gulp test",
-    "server": "http-server"
+    "start": "http-server",
+    "sass": "sass scss/style.scss css/style.css",
+    "build": "node build.js & uglifyjs novel.js --compress --mangle --output novel.min.js"
   },
   "repository": {
     "type": "git",
@@ -37,18 +38,13 @@
     "javascript"
   ],
   "devDependencies": {
-    "chai": "^3.5.0",
-    "gulp": "^3.9.0",
-    "gulp-concat": "^2.6.0",
-    "gulp-rename": "^1.2.2",
-    "gulp-sass": "^2.1.1",
-    "gulp-shell": "^0.5.2",
-    "gulp-uglify": "^1.5.4",
-    "gulp-util": "^3.0.7",
-    "http-server": "^0.9.0",
-    "json2lcov": "^1.0.0",
-    "mocha": "^2.4.5",
-    "mocha-phantomjs": "^4.0.2"
+    "concat-files": "^0.1.1",
+    "http-server": "*",
+    "node-sass": "^4.5.3",
+    "uglify-es": "^3.0.15"
   },
-  "dependencies": {}
+  "optionalDependencies": {
+    "papaparse": "^4.3.2"
+  },
+  "false": {}
 }

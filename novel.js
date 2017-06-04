@@ -1,4 +1,413 @@
 
+/* GLOBAL GAME DATA */
+
+let novelData = {
+  novel: null,
+  choices: null,
+  debugMode: false,
+  status: "Loading",
+  inventoryHidden: false,
+  choicesHidden: false,
+  printedText: "",
+  parsedJavascriptCommands: [],
+  parsedScrollsounds: [],
+  music: [],
+  csvEnabled: false,
+  input: {
+    presses: 0
+  },
+  printer: {
+    fullText: "",
+    currentText: "",
+    currentOffset: 0,
+    defaultInterval: 0,
+    soundBuffer: [],
+    musicBuffer: [],
+    stopMusicBuffer: [],
+    executeBuffer: [],
+    buffersExecuted: false,
+    scrollSound: null,
+    tickSoundFrequency: 1,
+    tickCounter: 0,
+    speedMod: false,
+    tickSpeedMultiplier: 1,
+    pause: 0,
+    interval: 0,
+    printCompleted: false
+  }
+};
+
+let novelPath;
+
+if (typeof Papa !== "undefined") {
+   novelData.csvEnabled = true;
+}
+
+/* HANDLES KEYBOARD INPUT */
+
+class InputManager {
+
+  // Gets key down and handles their functions
+  static keyDown(charCode) {
+    if (this.formsSelected()) {
+      return;
+    }
+    // Use SPACE to skip or continue
+    if (charCode === 13 || charCode === 32) {
+      if (novelData.novel.settings.scrollSettings.continueWithKeyboard) {
+        SceneManager.tryContinue();
+      }
+      if (novelData.novel.settings.scrollSettings.skipWithKeyboard) {
+        TextPrinter.trySkip();
+      }
+      return TextPrinter.unpause();
+    }
+  }
+
+  // Gets key being pressed
+  static keyPressed(charCode) {
+    if (this.formsSelected()) {
+      return;
+    }
+    novelData.input.presses++;
+    // Use SPACE to fast scroll
+    if (charCode === 13 || charCode === 32) {
+      if (novelData.input.presses > 2) {
+        if (novelData.novel.settings.scrollSettings.fastScrollWithKeyboard) {
+          return TextPrinter.fastScroll();
+        }
+      }
+    }
+  }
+
+  // Gets key release
+  static keyUp(charCode) {
+    if (this.formsSelected()) {
+      return;
+    }
+    this.presses = 0;
+    // Release SPACE to stop fast scroll
+    if (charCode === 13 || charCode === 32) {
+      return TextPrinter.stopFastScroll();
+    }
+  }
+
+  // Checks if any forms on the page are active
+  static formsSelected() {
+    let novelArea = document.getElementById("novel-area");
+    if (novelArea) {
+      let inputs = novelArea.querySelectorAll("input");
+      for (let j = 0; j < inputs.length; j++) {
+        let i = inputs[j];
+        if (i === document.activeElement) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+}
+
+document.onkeydown = function(evt) {
+  evt = evt || window.event;
+  let charCode = evt.keyCode || evt.which;
+  return InputManager.keyDown(charCode);
+};
+
+document.onkeypress = function(evt) {
+  evt = evt || window.event;
+  let charCode = evt.keyCode || evt.which;
+  return InputManager.keyPressed(charCode);
+};
+
+document.onkeyup = function(evt) {
+  evt = evt || window.event;
+  let charCode = evt.keyCode || evt.which;
+  return InputManager.keyUp(charCode);
+};
+
+/* INVENTORY, STAT & VALUE OPERATIONS */
+
+class InventoryManager {
+
+  // Check if item or stat requirements have been filled
+  static checkRequirements(requirements) {
+    Util.checkFormat(requirements,'array');
+    let reqsFilled = 0;
+    // Go through all requirements
+    for (let k = 0; k < novelData.novel.inventories[novelData.novel.currentInventory].length; k++) {
+      let i = novelData.novel.inventories[novelData.novel.currentInventory][k];
+      for (let i1 = 0; i1 < requirements.length; i1++) {
+        let j = requirements[i1];
+        if (j[0] === i.name) {
+          if (j[1] <= i.value) {
+            reqsFilled = reqsFilled + 1;
+          }
+        }
+      }
+    }
+    // Check whether all requirements have been filled
+    if (reqsFilled === requirements.length) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  // Set a value in JSON
+  static setValue(parsed, newValue) {
+    Util.checkFormat(parsed,'string');
+    let getValueArrayLast = this.getValueArrayLast(parsed);
+    let value = Parser.findValue(parsed,false);
+    return value[getValueArrayLast] = newValue;
+  }
+
+  // Increase a value in JSON
+  static increaseValue(parsed, change) {
+    Util.checkFormat(parsed,'string');
+    let getValueArrayLast = this.getValueArrayLast(parsed);
+    let value = Parser.findValue(parsed,false);
+    value[getValueArrayLast] = value[getValueArrayLast] + change;
+    if (!isNaN(parseFloat(value[getValueArrayLast]))) {
+      return value[getValueArrayLast] = parseFloat(value[getValueArrayLast].toFixed(novelData.novel.settings.floatPrecision));
+    }
+  }
+
+  // Decrease a value in JSON
+  static decreaseValue(parsed, change) {
+    Util.checkFormat(parsed,'string');
+    let getValueArrayLast = this.getValueArrayLast(parsed);
+    let value = Parser.findValue(parsed,false);
+    value[getValueArrayLast] = value[getValueArrayLast] - change;
+    if (!isNaN(parseFloat(value[getValueArrayLast]))) {
+      return value[getValueArrayLast] = parseFloat(value[getValueArrayLast].toFixed(novelData.novel.settings.floatPrecision));
+    }
+  }
+
+  // Get the last item in a value array
+  static getValueArrayLast(parsed) {
+    let getValueArrayLast = parsed.split(",");
+    getValueArrayLast = getValueArrayLast[getValueArrayLast.length-1].split(".");
+    getValueArrayLast = getValueArrayLast[getValueArrayLast.length-1];
+    return getValueArrayLast;
+  }
+
+  // Add items
+  static addItems(items) {
+    return this.editItems(items, "add");
+  }
+
+  // Set items
+  static setItems(items) {
+    return this.editItems(items, "set");
+  }
+
+  // Remove items
+  static removeItems(items) {
+    return this.editItems(items, "remove");
+  }
+
+  // Edit the player's items or stats
+  static editItems(items, mode) {
+    Util.checkFormat(items,'array');
+    for (let i = 0; i < items.length; i++) {
+      let j = items[i];
+      let hidden = false;
+      // If the item name begins with a "!", it is hidden
+      if (j[0].substring(0,1) === "!") {
+        hidden = true;
+        j[0] = j[0].substring(1,j[0].length);
+      }
+      // Try to edit the item in the current inventory
+      let itemAdded = this.tryEditInInventory(mode, j, hidden);
+      // If it failed, add a new item
+      if (!itemAdded) {
+        this.tryEditNotInInventory(mode, j, hidden);
+      }
+    }
+  }
+
+  // Try to edit an existing item
+  static tryEditInInventory(mode, j, hidden) {
+    for (let k = 0; k < novelData.novel.inventories[novelData.novel.currentInventory].length; k++) {
+      // If the item exists in the current inventory
+      let i = novelData.novel.inventories[novelData.novel.currentInventory][k];
+      if (i.name === j[0]) {
+        let probability = 1;
+        // Check the string for display names and probabilities
+        if (j.length > 2) {
+          var displayName = j[2];
+          var value = parseInt(Parser.parseStatement(j[1]));
+          if (!isNaN(displayName)) {
+            probability = j[2];
+            displayName = j.name;
+          }
+          if (j.length > 3) {
+            probability = parseFloat(j[2]);
+            displayName = j[3];
+          }
+        } else {
+          var displayName = j[0];
+          var value = parseInt(Parser.parseStatement(j[1]));
+        }
+        // Generate a random value to determine whether to continue
+        let random = Math.random();
+        if (random < probability) {
+          // Set the item's value
+          if (mode === "set") {
+            if (isNaN(parseInt(j[1]))) {
+              i.value = j[1];
+            } else {
+              i.value = parseInt(j[1]);
+            }
+          // Add to the item's value - if it was a string, change it into a number
+          } else if (mode === "add") {
+            if (isNaN(parseInt(i.value))) {
+              i.value = 0;
+            }
+            i.value = parseInt(i.value) + value;
+          // Deduct from the item's value - if it's a string, change it into 0
+          } else if (mode === "remove") {
+            if (!isNaN(parseInt(i.value))) {
+              i.value = parseInt(i.value) - value;
+              if (i.value < 0) {
+                i.value = 0;
+              }
+            } else {
+              i.value = 0;
+            }
+          }
+          // Set whether to hide the item or not
+          i.hidden = hidden;
+        }
+        return true;
+      }
+    }
+    return false;
+  }
+
+  // Edit an item that does not exist in inventory yet
+  static tryEditNotInInventory(mode, j, hidden) {
+    // Only do this if we don't want to remove anything
+    if (mode !== "remove") {
+      let probability = 1;
+      // Check the string for display names and probablities
+      let value = parseInt(Parser.parseStatement(j[1]));
+      if (isNaN(value)) {
+        value = Parser.parseStatement(j[1]);
+      }
+      if (j.length > 2) {
+        var displayName = j[2];
+        if (!isNaN(displayName)) {
+          probability = j[2];
+          displayName = j.name;
+        }
+        if (j.length > 3) {
+          probability = parseFloat(j[2]);
+          displayName = j[3];
+        }
+      } else {
+        var displayName = j[0];
+      }
+      let random = Math.random();
+      // Set the display name
+      if (displayName === undefined) {
+        var displayName = j[0];
+      }
+      // If we're lucky enough, add the new item
+      if (random < probability) {
+        return novelData.novel.inventories[novelData.novel.currentInventory].push({"name": j[0], "value": value, "displayName": displayName, "hidden": hidden});
+      }
+    }
+  }
+}
+
+/* HANDLES LANGUAGE SETTINGS */
+
+class LanguageManager {
+
+  // Change the novel's language
+  static setLanguage(name) {
+    novelData.novel.settings.language = name;
+    return UI.updateUILanguage();
+  }
+
+  // Get a string shown in UI in the current language
+  static getUIString(name) {
+    Util.checkFormat(name,'string');
+    for (let j = 0; j < novelData.novel.uiText.length; j++) {
+      let i = novelData.novel.uiText[j];
+      if (i.name === name && i.language === novelData.novel.settings.language) {
+        return Parser.parseText(i.content);
+      }
+    }
+    console.error(`Error! UI string ${name} not found!`);
+    return '[NOT FOUND]';
+  }
+
+  // Get the correct version of csv string
+  static getCorrectLanguageCsvString(name) {
+    Util.checkFormat(name,'string');
+    if (novelData.csvData === undefined || novelData.csvEnabled === false) {
+      console.error("Error! CSV data cannot be parsed, because Papa Parse can't be detected.");
+      return '[NOT FOUND]';
+    }
+    for (let j = 0; j < novelData.csvData.length; j++) {
+      let i = novelData.csvData[j];
+      if (i.name === name) {
+        if (i[novelData.novel.settings.language] === undefined) {
+          if (i['english'] === undefined) {
+            console.error(`Error! No CSV value by name ${name} could be found.`);
+            return '[NOT FOUND]';
+          }
+          return Parser.parseText(i['english']);
+        }
+        return Parser.parseText(i[novelData.novel.settings.language]);
+      }
+    }
+  }
+
+  // Get an item's attribute in the correct language
+  static getItemAttribute(item, type) {
+    switch (type) {
+      case 'displayName':
+        if (item.displayName === '[csv]') {
+          return this.getCorrectLanguageCsvString(item.name + '|displayName');
+        } else {
+          return this.getCorrectLanguageString(item.displayName);
+        }
+        break;
+      case 'description':
+        if (item.description === '[csv]') {
+          return this.getCorrectLanguageCsvString(item.name + '|description');
+        } else {
+          return this.getCorrectLanguageString(item.description);
+        }
+        break;
+      default:
+        console.error('Error! Trying to get an invalid item attribute in LanguageManager.');
+        return '[NOT FOUND]';
+        break;
+    }
+  }
+
+  // Get the string in the correct language
+  static getCorrectLanguageString(obj, type) {
+    Util.checkFormat(obj,'arrayOrString');
+    if (typeof obj === "string") {
+      return obj;
+    }
+    if (Object.prototype.toString.call(obj) === '[object Array]') {
+      for (let j = 0; j < obj.length; j++) {
+        let i = obj[j];
+        if (i.language === novelData.novel.settings.language) {
+          return i.content;
+        }
+      }
+    }
+  }
+}
+
 /* SAVING AND LOADING */
 
 class NovelManager {
@@ -406,91 +815,6 @@ class NovelManager {
     return console.log("-- Loading Novel.js complete! --");
   }
 }
-
-
-/* HANDLES KEYBOARD INPUT */
-
-class InputManager {
-
-  // Gets key down and handles their functions
-  static keyDown(charCode) {
-    if (this.formsSelected()) {
-      return;
-    }
-    // Use SPACE to skip or continue
-    if (charCode === 13 || charCode === 32) {
-      if (novelData.novel.settings.scrollSettings.continueWithKeyboard) {
-        SceneManager.tryContinue();
-      }
-      if (novelData.novel.settings.scrollSettings.skipWithKeyboard) {
-        TextPrinter.trySkip();
-      }
-      return TextPrinter.unpause();
-    }
-  }
-
-  // Gets key being pressed
-  static keyPressed(charCode) {
-    if (this.formsSelected()) {
-      return;
-    }
-    novelData.input.presses++;
-    // Use SPACE to fast scroll
-    if (charCode === 13 || charCode === 32) {
-      if (novelData.input.presses > 2) {
-        if (novelData.novel.settings.scrollSettings.fastScrollWithKeyboard) {
-          return TextPrinter.fastScroll();
-        }
-      }
-    }
-  }
-
-  // Gets key release
-  static keyUp(charCode) {
-    if (this.formsSelected()) {
-      return;
-    }
-    this.presses = 0;
-    // Release SPACE to stop fast scroll
-    if (charCode === 13 || charCode === 32) {
-      return TextPrinter.stopFastScroll();
-    }
-  }
-
-  // Checks if any forms on the page are active
-  static formsSelected() {
-    let novelArea = document.getElementById("novel-area");
-    if (novelArea) {
-      let inputs = novelArea.querySelectorAll("input");
-      for (let j = 0; j < inputs.length; j++) {
-        let i = inputs[j];
-        if (i === document.activeElement) {
-          return true;
-        }
-      }
-    }
-    return false;
-  }
-}
-
-document.onkeydown = function(evt) {
-  evt = evt || window.event;
-  let charCode = evt.keyCode || evt.which;
-  return InputManager.keyDown(charCode);
-};
-
-document.onkeypress = function(evt) {
-  evt = evt || window.event;
-  let charCode = evt.keyCode || evt.which;
-  return InputManager.keyPressed(charCode);
-};
-
-document.onkeyup = function(evt) {
-  evt = evt || window.event;
-  let charCode = evt.keyCode || evt.which;
-  return InputManager.keyUp(charCode);
-};
-
 
 /* PARSERS */
 
@@ -947,291 +1271,6 @@ function __range__(left, right, inclusive) {
   return range;
 }
 
-
-/* INVENTORY, STAT & VALUE OPERATIONS */
-
-class InventoryManager {
-
-  // Check if item or stat requirements have been filled
-  static checkRequirements(requirements) {
-    Util.checkFormat(requirements,'array');
-    let reqsFilled = 0;
-    // Go through all requirements
-    for (let k = 0; k < novelData.novel.inventories[novelData.novel.currentInventory].length; k++) {
-      let i = novelData.novel.inventories[novelData.novel.currentInventory][k];
-      for (let i1 = 0; i1 < requirements.length; i1++) {
-        let j = requirements[i1];
-        if (j[0] === i.name) {
-          if (j[1] <= i.value) {
-            reqsFilled = reqsFilled + 1;
-          }
-        }
-      }
-    }
-    // Check whether all requirements have been filled
-    if (reqsFilled === requirements.length) {
-      return true;
-    } else {
-      return false;
-    }
-  }
-
-  // Set a value in JSON
-  static setValue(parsed, newValue) {
-    Util.checkFormat(parsed,'string');
-    let getValueArrayLast = this.getValueArrayLast(parsed);
-    let value = Parser.findValue(parsed,false);
-    return value[getValueArrayLast] = newValue;
-  }
-
-  // Increase a value in JSON
-  static increaseValue(parsed, change) {
-    Util.checkFormat(parsed,'string');
-    let getValueArrayLast = this.getValueArrayLast(parsed);
-    let value = Parser.findValue(parsed,false);
-    value[getValueArrayLast] = value[getValueArrayLast] + change;
-    if (!isNaN(parseFloat(value[getValueArrayLast]))) {
-      return value[getValueArrayLast] = parseFloat(value[getValueArrayLast].toFixed(novelData.novel.settings.floatPrecision));
-    }
-  }
-
-  // Decrease a value in JSON
-  static decreaseValue(parsed, change) {
-    Util.checkFormat(parsed,'string');
-    let getValueArrayLast = this.getValueArrayLast(parsed);
-    let value = Parser.findValue(parsed,false);
-    value[getValueArrayLast] = value[getValueArrayLast] - change;
-    if (!isNaN(parseFloat(value[getValueArrayLast]))) {
-      return value[getValueArrayLast] = parseFloat(value[getValueArrayLast].toFixed(novelData.novel.settings.floatPrecision));
-    }
-  }
-
-  // Get the last item in a value array
-  static getValueArrayLast(parsed) {
-    let getValueArrayLast = parsed.split(",");
-    getValueArrayLast = getValueArrayLast[getValueArrayLast.length-1].split(".");
-    getValueArrayLast = getValueArrayLast[getValueArrayLast.length-1];
-    return getValueArrayLast;
-  }
-
-  // Add items
-  static addItems(items) {
-    return this.editItems(items, "add");
-  }
-
-  // Set items
-  static setItems(items) {
-    return this.editItems(items, "set");
-  }
-
-  // Remove items
-  static removeItems(items) {
-    return this.editItems(items, "remove");
-  }
-
-  // Edit the player's items or stats
-  static editItems(items, mode) {
-    Util.checkFormat(items,'array');
-    for (let i = 0; i < items.length; i++) {
-      let j = items[i];
-      let hidden = false;
-      // If the item name begins with a "!", it is hidden
-      if (j[0].substring(0,1) === "!") {
-        hidden = true;
-        j[0] = j[0].substring(1,j[0].length);
-      }
-      // Try to edit the item in the current inventory
-      let itemAdded = this.tryEditInInventory(mode, j, hidden);
-      // If it failed, add a new item
-      if (!itemAdded) {
-        this.tryEditNotInInventory(mode, j, hidden);
-      }
-    }
-  }
-
-  // Try to edit an existing item
-  static tryEditInInventory(mode, j, hidden) {
-    for (let k = 0; k < novelData.novel.inventories[novelData.novel.currentInventory].length; k++) {
-      // If the item exists in the current inventory
-      let i = novelData.novel.inventories[novelData.novel.currentInventory][k];
-      if (i.name === j[0]) {
-        let probability = 1;
-        // Check the string for display names and probabilities
-        if (j.length > 2) {
-          var displayName = j[2];
-          var value = parseInt(Parser.parseStatement(j[1]));
-          if (!isNaN(displayName)) {
-            probability = j[2];
-            displayName = j.name;
-          }
-          if (j.length > 3) {
-            probability = parseFloat(j[2]);
-            displayName = j[3];
-          }
-        } else {
-          var displayName = j[0];
-          var value = parseInt(Parser.parseStatement(j[1]));
-        }
-        // Generate a random value to determine whether to continue
-        let random = Math.random();
-        if (random < probability) {
-          // Set the item's value
-          if (mode === "set") {
-            if (isNaN(parseInt(j[1]))) {
-              i.value = j[1];
-            } else {
-              i.value = parseInt(j[1]);
-            }
-          // Add to the item's value - if it was a string, change it into a number
-          } else if (mode === "add") {
-            if (isNaN(parseInt(i.value))) {
-              i.value = 0;
-            }
-            i.value = parseInt(i.value) + value;
-          // Deduct from the item's value - if it's a string, change it into 0
-          } else if (mode === "remove") {
-            if (!isNaN(parseInt(i.value))) {
-              i.value = parseInt(i.value) - value;
-              if (i.value < 0) {
-                i.value = 0;
-              }
-            } else {
-              i.value = 0;
-            }
-          }
-          // Set whether to hide the item or not
-          i.hidden = hidden;
-        }
-        return true;
-      }
-    }
-    return false;
-  }
-
-  // Edit an item that does not exist in inventory yet
-  static tryEditNotInInventory(mode, j, hidden) {
-    // Only do this if we don't want to remove anything
-    if (mode !== "remove") {
-      let probability = 1;
-      // Check the string for display names and probablities
-      let value = parseInt(Parser.parseStatement(j[1]));
-      if (isNaN(value)) {
-        value = Parser.parseStatement(j[1]);
-      }
-      if (j.length > 2) {
-        var displayName = j[2];
-        if (!isNaN(displayName)) {
-          probability = j[2];
-          displayName = j.name;
-        }
-        if (j.length > 3) {
-          probability = parseFloat(j[2]);
-          displayName = j[3];
-        }
-      } else {
-        var displayName = j[0];
-      }
-      let random = Math.random();
-      // Set the display name
-      if (displayName === undefined) {
-        var displayName = j[0];
-      }
-      // If we're lucky enough, add the new item
-      if (random < probability) {
-        return novelData.novel.inventories[novelData.novel.currentInventory].push({"name": j[0], "value": value, "displayName": displayName, "hidden": hidden});
-      }
-    }
-  }
-}
-
-
-/* HANDLES LANGUAGE SETTINGS */
-
-class LanguageManager {
-
-  // Change the novel's language
-  static setLanguage(name) {
-    novelData.novel.settings.language = name;
-    return UI.updateUILanguage();
-  }
-
-  // Get a string shown in UI in the current language
-  static getUIString(name) {
-    Util.checkFormat(name,'string');
-    for (let j = 0; j < novelData.novel.uiText.length; j++) {
-      let i = novelData.novel.uiText[j];
-      if (i.name === name && i.language === novelData.novel.settings.language) {
-        return Parser.parseText(i.content);
-      }
-    }
-    console.error(`Error! UI string ${name} not found!`);
-    return '[NOT FOUND]';
-  }
-
-  // Get the correct version of csv string
-  static getCorrectLanguageCsvString(name) {
-    Util.checkFormat(name,'string');
-    if (novelData.csvData === undefined || novelData.csvEnabled === false) {
-      console.error("Error! CSV data cannot be parsed, because Papa Parse can't be detected.");
-      return '[NOT FOUND]';
-    }
-    for (let j = 0; j < novelData.csvData.length; j++) {
-      let i = novelData.csvData[j];
-      if (i.name === name) {
-        if (i[novelData.novel.settings.language] === undefined) {
-          if (i['english'] === undefined) {
-            console.error(`Error! No CSV value by name ${name} could be found.`);
-            return '[NOT FOUND]';
-          }
-          return Parser.parseText(i['english']);
-        }
-        return Parser.parseText(i[novelData.novel.settings.language]);
-      }
-    }
-  }
-
-  // Get an item's attribute in the correct language
-  static getItemAttribute(item, type) {
-    switch (type) {
-      case 'displayName':
-        if (item.displayName === '[csv]') {
-          return this.getCorrectLanguageCsvString(item.name + '|displayName');
-        } else {
-          return this.getCorrectLanguageString(item.displayName);
-        }
-        break;
-      case 'description':
-        if (item.description === '[csv]') {
-          return this.getCorrectLanguageCsvString(item.name + '|description');
-        } else {
-          return this.getCorrectLanguageString(item.description);
-        }
-        break;
-      default:
-        console.error('Error! Trying to get an invalid item attribute in LanguageManager.');
-        return '[NOT FOUND]';
-        break;
-    }
-  }
-
-  // Get the string in the correct language
-  static getCorrectLanguageString(obj, type) {
-    Util.checkFormat(obj,'arrayOrString');
-    if (typeof obj === "string") {
-      return obj;
-    }
-    if (Object.prototype.toString.call(obj) === '[object Array]') {
-      for (let j = 0; j < obj.length; j++) {
-        let i = obj[j];
-        if (i.language === novelData.novel.settings.language) {
-          return i.content;
-        }
-      }
-    }
-  }
-}
-
-
 /* SCENE MANIPULATION */
 
 class SceneManager {
@@ -1594,7 +1633,6 @@ function __range__(left, right, inclusive) {
   return range;
 }
 
-
 /* SOUNDS */
 
 // A class for sound functions
@@ -1679,7 +1717,6 @@ class SoundManager {
     }
   }
 }
-
 
 /* TEXT PRINTING (letter by letter etc.) */
 
@@ -2077,7 +2114,6 @@ function __in__(needle, haystack) {
   return haystack.indexOf(needle) >= 0;
 }
 
-
 /* UI SCRIPTS */
 
 class UI {
@@ -2374,7 +2410,6 @@ function __range__(left, right, inclusive) {
   return range;
 }
 
-
 /* UTILITY SCRIPTS */
 
 class Util {
@@ -2512,52 +2547,6 @@ class Util {
     return finalResult;
   }
 }
-
-
-/* GLOBAL GAME DATA */
-
-let novelData = {
-  novel: null,
-  choices: null,
-  debugMode: false,
-  status: "Loading",
-  inventoryHidden: false,
-  choicesHidden: false,
-  printedText: "",
-  parsedJavascriptCommands: [],
-  parsedScrollsounds: [],
-  music: [],
-  csvEnabled: false,
-  input: {
-    presses: 0
-  },
-  printer: {
-    fullText: "",
-    currentText: "",
-    currentOffset: 0,
-    defaultInterval: 0,
-    soundBuffer: [],
-    musicBuffer: [],
-    stopMusicBuffer: [],
-    executeBuffer: [],
-    buffersExecuted: false,
-    scrollSound: null,
-    tickSoundFrequency: 1,
-    tickCounter: 0,
-    speedMod: false,
-    tickSpeedMultiplier: 1,
-    pause: 0,
-    interval: 0,
-    printCompleted: false
-  }
-};
-
-let novelPath;
-
-if (typeof Papa !== "undefined") {
-   novelData.csvEnabled = true;
-}
-
 
 /* And finally, start the game... */
 

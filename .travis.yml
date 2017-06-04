@@ -3,7 +3,6 @@ node_js:
   - "4.1"
 before_script:
   - npm install
-  - npm install -g codeclimate-test-reporter
-  - npm install -g jscover
-script: gulp
-after_script: codeclimate-test-reporter < coverage.lcov
+script:
+  - npm run build
+  - npm run sass

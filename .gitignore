@@ -5,3 +5,4 @@ npm-debug.log
 coverage.lcov
 report.json
 /utopia/
+/.sass-cache/
