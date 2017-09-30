@@ -1,3 +1,5 @@
+** Important note! ** Development has been a bit slow lately as I am a student with limited time, but if you find any bugs please write an issue and I will sort it out! I want to keep Novel.js well-maintained.
+
 # Novel.js
 
 [![Build Status](https://travis-ci.org/Nanofus/novel.js.svg?branch=master)](https://travis-ci.org/Nanofus/novel.js) [![Dependency Status](https://david-dm.org/Nanofus/novel.js.svg)](https://david-dm.org/Nanofus/novel.js) [![devDependency Status](https://david-dm.org/Nanofus/novel.js/dev-status.svg)](https://david-dm.org/Nanofus/novel.js#info=devDependencies)
