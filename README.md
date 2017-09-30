@@ -1,4 +1,4 @@
-**Important note!** Development has been a bit slow lately as I am a student with limited time, but if you find any bugs please write an issue and I will sort it out! I want to keep Novel.js well-maintained.
+**Important note!** Development has been a bit slow lately as I am a student with limited time, but if you find any bugs please write an issue and I will sort it out! Pull requests are also welcome. I want to keep Novel.js well-maintained.
 
 # Novel.js
 
