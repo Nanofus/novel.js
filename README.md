@@ -43,17 +43,6 @@ You can use [electron-noveljs-boilerplate](https://github.com/Nanofus/electron-n
 - Support for CSS styling, custom JavaScript and HTML tags in text.
 - ... And much more ~!
 
-## Planned features
-
-These features are planned or currently in development.
-- Alternative visual novel system with animations
-- Markdown support
-- More advanced keyboard input
-- A standard settings menu
-- [else] tag
-- HTML5 Local Storage saving
-- API
-
 ## Installation
 
 ### Non-techy installation
