@@ -1,4 +1,4 @@
-**Important note!** Development has been a bit slow lately as I am a student with limited time, but if you find any bugs please write an issue and I will sort it out! Pull requests are also welcome. I want to keep Novel.js well-maintained.
+**Important note** Development of Novel.js has pretty much been halted. However, it's perfectly functional and has a lot of features. Feel free to use it for your projects! Pull requests are welcome.
 
 # Novel.js
 
@@ -18,7 +18,6 @@ You can use [electron-noveljs-boilerplate](https://github.com/Nanofus/electron-n
 **Table of Contents**
 
 - [Features](#features)
-- [Planned features](#planned-features)
 - [Installation](#installation)
 	- [Non-techy installation](#non-techy-installation)
 	- [Techy installation](#techy-installation)
