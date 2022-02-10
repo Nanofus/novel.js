@@ -40,7 +40,7 @@
   "devDependencies": {
     "concat-files": "^0.1.1",
     "http-server": "*",
-    "node-sass": "^4.5.3",
+    "node-sass": "^7.0.0",
     "uglify-es": "^3.0.15",
     "clean-css-cli": "^4.1.3"
   },
